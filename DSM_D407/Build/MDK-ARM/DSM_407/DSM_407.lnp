@@ -44,6 +44,7 @@
 "dsm_407\datatasks.o"
 "dsm_407\processtask.o"
 "dsm_407\dataqueues.o"
+"dsm_407\dsmprocess.o"
 "..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_Keil.lib"
 "dsm_407\usbd_conf.o"
 "dsm_407\i2c.o"

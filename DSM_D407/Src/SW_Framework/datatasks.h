@@ -84,5 +84,7 @@ typedef struct
 
 extern osObjects_t osParams;
 
+extern void FF_Process(void *dsmHandle, float *pIn[], float *pOut[], uint32_t nSamples);
+extern void FB_Process(void *dsmHandle, float *pIn[], uint32_t nSamples);
 
 #endif // __TASKS_H__

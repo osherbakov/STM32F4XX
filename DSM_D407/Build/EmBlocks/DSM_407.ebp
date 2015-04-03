@@ -322,6 +322,9 @@
 		<Unit filename="..\..\Middlewares\Third_Party\FreeRTOS\Source\timers.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\Src\DSM_Process\dsmprocess.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\Src\DSM_Process\processtask.c">
 			<Option compilerVar="CC" />
 		</Unit>
