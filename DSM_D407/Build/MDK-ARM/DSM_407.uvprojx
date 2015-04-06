@@ -347,7 +347,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -747,6 +747,86 @@
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\HW_Config\gpio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Application/MELP</GroupName>
+          <Files>
+            <File>
+              <FileName>coeff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\coeff.c</FilePath>
+            </File>
+            <File>
+              <FileName>dsp_sub.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\dsp_sub.c</FilePath>
+            </File>
+            <File>
+              <FileName>fec_code.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\fec_code.c</FilePath>
+            </File>
+            <File>
+              <FileName>fs_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\fs_lib.c</FilePath>
+            </File>
+            <File>
+              <FileName>fsvq_cb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\fsvq_cb.c</FilePath>
+            </File>
+            <File>
+              <FileName>lpc_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\lpc_lib.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>mat_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\mat_lib.c</FilePath>
+            </File>
+            <File>
+              <FileName>melp_ana.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\melp_ana.c</FilePath>
+            </File>
+            <File>
+              <FileName>melp_chn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\melp_chn.c</FilePath>
+            </File>
+            <File>
+              <FileName>melp_sub.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\melp_sub.c</FilePath>
+            </File>
+            <File>
+              <FileName>melp_syn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\melp_syn.c</FilePath>
+            </File>
+            <File>
+              <FileName>msvq_cb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\msvq_cb.c</FilePath>
+            </File>
+            <File>
+              <FileName>pit_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\pit_lib.c</FilePath>
+            </File>
+            <File>
+              <FileName>vq_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\MELP\vq_lib.c</FilePath>
             </File>
           </Files>
         </Group>
