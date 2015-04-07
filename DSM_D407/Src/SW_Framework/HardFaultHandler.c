@@ -8,17 +8,28 @@ void printMemoryManagementErrorMsg(uint32_t CFSRValue);
 void stackDump(uint32_t stack[]);
 
 
+void printHex(uint32_t number)
+{
+	int i;
+	uint8_t  nibble;
+	printErrorMsg(" 0x");
+	for(i = 0; i < 8; i++)
+	{
+		nibble = (number >> (28 - i*4)) & 0x0F;
+		if(nibble <= 9) nibble += '0'; else nibble += ('A' - 10);
+    fputc(nibble, stderr);
+	}
+	printErrorMsg(" \n");
+}
+
 void Hard_Fault_Handler(uint32_t stack[])
 {
-   static char msg[80];
    //if((CoreDebug->DHCSR & 0x01) != 0) {
       printErrorMsg("In Hard Fault Handler\n");
-      sprintf(msg, "SCB->HFSR = 0x%08x\n", SCB->HFSR);
-      printErrorMsg(msg);
+      printErrorMsg("SCB->HFSR =");printHex(SCB->HFSR);
       if ((SCB->HFSR & (1 << 30)) != 0) {
          printErrorMsg("Forced Hard Fault\n");
-         sprintf(msg, "SCB->CFSR = 0x%08x\n", SCB->CFSR );
-         printErrorMsg(msg);
+         printErrorMsg("SCB->CFSR ="); printHex(SCB->CFSR );
          if((SCB->CFSR & 0xFFFF0000) != 0) {
             printUsageErrorMsg(SCB->CFSR);
          }
@@ -37,14 +48,12 @@ void Hard_Fault_Handler(uint32_t stack[])
 
 int fputc(int c, FILE *f) {
   return ITM_SendChar(c);
-//  return (sendchar(c));
 }
 
 void printErrorMsg(const char * errMsg)
 {
    while(*errMsg != '\0'){
-      ITM_SendChar(*errMsg);
-      ++errMsg;
+      fputc(*errMsg++, stderr);
    }
 }
 
@@ -116,22 +125,13 @@ void stackDump(uint32_t stack[])
 	 pc = stack[6];
 	 psr = stack[7];
 
-   static char msg[80];
-   sprintf(msg, "r0  = 0x%08x\n", r0);
-   printErrorMsg(msg);
-   sprintf(msg, "r1  = 0x%08x\n", r1);
-   printErrorMsg(msg);
-   sprintf(msg, "r2  = 0x%08x\n", r2);
-   printErrorMsg(msg);
-   sprintf(msg, "r3  = 0x%08x\n", r3);
-   printErrorMsg(msg);
-   sprintf(msg, "r12 = 0x%08x\n", r12);
-   printErrorMsg(msg);
-   sprintf(msg, "lr  = 0x%08x\n", lr);
-   printErrorMsg(msg);
-   sprintf(msg, "pc  = 0x%08x\n", pc);
-   printErrorMsg(msg);
-   sprintf(msg, "psr = 0x%08x\n", psr);
-   printErrorMsg(msg);
+   printErrorMsg("r0  ="); printHex(r0);
+   printErrorMsg("r1  ="); printHex(r1);
+   printErrorMsg("r2  ="); printHex(r2);
+   printErrorMsg("r3  ="); printHex(r3);
+   printErrorMsg("r12 ="); printHex(r12);
+   printErrorMsg("lr  ="); printHex(lr);
+   printErrorMsg("pc  ="); printHex(pc);
+   printErrorMsg("psr ="); printHex(psr);
 }
 
