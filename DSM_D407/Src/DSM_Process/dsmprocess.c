@@ -28,14 +28,14 @@ typedef enum {
 //
 void FF_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_MAX], uint32_t nSamples)
 {
-//    static int idx = 0;
 	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
 	memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float));
 
-	for(int i = 0; i < nSamples; i++)
-	    for(int j = 0; j < CH_MAX; j++)
-            pAudioOut[j][i] = sinf((2.0f * M_PI * 1000.0f * i)/48000.0f);
-    melp_main();
+//	((void (*)(void))0)();
+//	for(int i = 0; i < nSamples; i++)
+//	    for(int j = 0; j < CH_MAX; j++)
+//            pAudioOut[j][i] = sinf((2.0f * M_PI * 1000.0f * i)/48000.0f);
+//     melp_main();
 }
 
 void FB_Process(void *dsmHandle, float *pIVIn[IV_MAX], uint32_t nSamples)
