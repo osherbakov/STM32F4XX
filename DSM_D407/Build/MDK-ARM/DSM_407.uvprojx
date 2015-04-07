@@ -160,7 +160,7 @@
             <CpuDllArguments></CpuDllArguments>
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
+            <InitializationFile>..\..\..\..\..\TEMP\DSP5\STM32_SWO.ini</InitializationFile>
             <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
           </TargetDlls>
         </DebugOption>
@@ -347,7 +347,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -667,6 +667,11 @@
               <FileName>dsmprocess.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\DSM_Process\dsmprocess.c</FilePath>
+            </File>
+            <File>
+              <FileName>HardFaultHandler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\SW_Framework\HardFaultHandler.c</FilePath>
             </File>
           </Files>
         </Group>
