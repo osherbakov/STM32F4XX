@@ -35,7 +35,7 @@ void FF_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_MA
 //	for(int i = 0; i < nSamples; i++)
 //	    for(int j = 0; j < CH_MAX; j++)
 //            pAudioOut[j][i] = sinf((2.0f * M_PI * 1000.0f * i)/48000.0f);
-//     melp_main();
+     melp_main();
 }
 
 void FB_Process(void *dsmHandle, float *pIVIn[IV_MAX], uint32_t nSamples)

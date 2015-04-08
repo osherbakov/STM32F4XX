@@ -76,12 +76,13 @@
 					<Add option="$device=cortex-m4" />
 					<Add option="$fpu=fpv4-sp-d16" />
 					<Add option="$lscript=STM32F407VG_FLASH.ld" />
+					<Add option="$stack=256" />
+					<Add option="$heap=512" />
 				</Device>
 				<Compiler>
 					<Add option="-mfloat-abi=hard" />
 					<Add option="-mthumb-interwork" />
 					<Add option="-std=c99" />
-					<Add option="-fsingle-precision-constant" />
 					<Add option="-fdata-sections" />
 					<Add option="-O0" />
 					<Add option="-g3" />
@@ -115,9 +116,9 @@
 					<Add option="-mfloat-abi=hard" />
 				</Assembler>
 				<Linker>
-					<Add option="-eb_start_files" />
-					<Add option="-eb_lib=s" />
+					<Add option="-eb_lib=n" />
 					<Add option="-eb_use_semi" />
+					<Add option="-eb_start_files" />
 					<Add option="-Wl,--cref" />
 					<Add option="-Wl,--no-check-sections" />
 					<Add option="-Wl,--gc-sections" />
@@ -125,7 +126,8 @@
 					<Add option="-mfpu=fpv4-sp-d16" />
 					<Add option="-lm" />
 					<Add library="..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
-					<Add directory="..\..\..\..\..\Program Files\EmBlocks\2.30\share\em_armgcc\lib\gcc\arm-none-eabi\4.7.3\fpu" />
+					<Add directory="..\..\..\..\..\Program Files\EmBlocks\2.30\share\em_armgcc\arm-none-eabi\lib\armv7e-m\fpu" />
+					<Add directory="..\..\..\..\..\Program Files\EmBlocks\2.30\share\em_armgcc\lib\gcc\arm-none-eabi\4.7.3\armv7e-m\fpu" />
 				</Linker>
 			</Target>
 			<Target title="DSM_407_GNU_Release">
@@ -186,9 +188,9 @@
 					<Add option="-mfloat-abi=hard" />
 				</Assembler>
 				<Linker>
-					<Add option="-eb_start_files" />
 					<Add option="-eb_lib=s" />
 					<Add option="-eb_use_semi" />
+					<Add option="-eb_start_files" />
 					<Add option="-Wl,--cref" />
 					<Add option="-Wl,--no-check-sections" />
 					<Add option="-Wl,--gc-sections" />
@@ -196,7 +198,8 @@
 					<Add option="-mfpu=fpv4-sp-d16" />
 					<Add option="-lm" />
 					<Add library="..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
-					<Add directory="..\..\..\..\..\Program Files\EmBlocks\2.30\share\em_armgcc\lib\gcc\arm-none-eabi\4.7.3\fpu" />
+					<Add directory="..\..\..\..\..\Program Files\EmBlocks\2.30\share\em_armgcc\arm-none-eabi\lib\armv7e-m\fpu" />
+					<Add directory="..\..\..\..\..\Program Files\EmBlocks\2.30\share\em_armgcc\lib\gcc\arm-none-eabi\4.7.3\armv7e-m\fpu" />
 				</Linker>
 			</Target>
 			<Target title="DSM_407_GNU2015_Debug">
@@ -255,6 +258,7 @@
 					<Add option="-mfloat-abi=hard" />
 				</Assembler>
 				<Linker>
+					<Add option="-nostartfiles" />
 					<Add option="-nostdlib" />
 					<Add option="-Wl,--cref" />
 					<Add option="-Wl,--gc-sections" />
@@ -262,11 +266,12 @@
 					<Add option="-mfloat-abi=hard" />
 					<Add option="-mfpu=fpv4-sp-d16" />
 					<Add option="-mhard-float" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libm.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libc.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libg.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libnosys.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\lib\gcc\arm-none-eabi\4.9.3\fpu\libgcc.a" />
+					<Add library="..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libm.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libc_nano.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libg_nano.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libnosys.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\lib\gcc\arm-none-eabi\4.9.3\armv7e-m\fpu\libgcc.a" />
 					<Add directory="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\" />
 				</Linker>
 			</Target>
@@ -334,11 +339,11 @@
 					<Add option="-mfpu=fpv4-sp-d16" />
 					<Add option="-mhard-float" />
 					<Add library="..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libm.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libc_nano.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libg_nano.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\lib\gcc\arm-none-eabi\4.9.3\fpu\libgcc.a" />
-					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\libnosys.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libm.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libc_nano.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libg_nano.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\armv7e-m\fpu\libnosys.a" />
+					<Add library="..\..\..\..\..\SysGCC\4.9_2015q1\lib\gcc\arm-none-eabi\4.9.3\armv7e-m\fpu\libgcc.a" />
 					<Add directory="..\..\..\..\..\SysGCC\4.9_2015q1\arm-none-eabi\lib\fpu\" />
 				</Linker>
 			</Target>
@@ -602,25 +607,8 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="DSM_407_GNU_Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
-						<family_options family_id="STMicroelectronics">
-							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
-							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
-							<option opt_id="ID_RESET_TYPE" opt_value="System" />
-							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
-							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
-							<option opt_id="ID_RAM_EXEC" opt_value="0" />
-							<option opt_id="ID_VEC_TABLE" opt_value="1" />
-							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
-							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
-							<option opt_id="ID_DEV_ADDR" opt_value="" />
-							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
-						</family_options>
-					</debug_interface>
-				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_GNU2015_Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+				<target_debugging_settings target="DSM_407_GNU_Release" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
@@ -637,7 +625,7 @@
 					</debug_interface>
 				</target_debugging_settings>
 				<target_debugging_settings target="DSM_407_2015Q1_Release" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
@@ -653,8 +641,8 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_GNU_Release" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+				<target_debugging_settings target="DSM_407_GNU2015_Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
@@ -682,6 +670,23 @@
 							<option opt_id="ID_VEC_TABLE" opt_value="1" />
 							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
 							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="1" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+				<target_debugging_settings target="DSM_407_GNU_Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
 							<option opt_id="ID_DEV_ADDR" opt_value="" />
 							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
 						</family_options>
