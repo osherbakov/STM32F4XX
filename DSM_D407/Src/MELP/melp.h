@@ -56,8 +56,6 @@ Group (phone 972 480 7442).
 #define GAINFR (FRAME/NUM_GAINFR)  /* size of gain frame */
 #define MIN_GAINFR 120      /* minimum gain analysis window */
 #define MINLENGTH 160       /* minimum correlation length */
-#define	PI		3.141592654F
-#define	TWOPI		6.283185308F
 #define FSAMP 8000.0F        /* sampling frequency */
 #define MSVQ_M 8            /* M-best for MSVQ search */
 #define MSVQ_MAXCNT 256     /* maximum inner loop counter for MSVQ search */

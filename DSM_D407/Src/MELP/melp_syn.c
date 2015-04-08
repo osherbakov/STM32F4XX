@@ -72,7 +72,6 @@ static float fs_real[PITCHMAX];
 /* permanent memory */
  
 static int firstcall = 1; /* Just used for noise gain init */
-static int prev_gain_err;
 static float sigsave[PITCHMAX];
 static struct melp_param prev_par;
 static int syn_begin;
@@ -90,7 +89,6 @@ static float w_fs_inv[NUM_HARM];
 /* these can be saved or recomputed */
 static float prev_pcof[MIX_ORD+1],prev_ncof[MIX_ORD+1];
 static float prev_tilt;
-static float prev_gain;
 
 void melp_syn(struct melp_param *par, float sp_out[])
 {
@@ -366,12 +364,10 @@ void melp_syn_init()
     prev_par.jitter = 0.0f;
     v_zap(&prev_par.bpvc[0],NUM_BANDS);
     prev_tilt=0.0f;
-    prev_gain = 0.0f;
     prev_scale = 0.0f;
     syn_begin = 0;
     noise_gain = MIN_NOISE;
     firstcall = 1;
-    prev_gain_err = 0;
     v_zap(pulse_del,MIX_ORD);
     v_zap(noise_del,MIX_ORD);
     v_zap(lpc_del,LPC_ORD);
