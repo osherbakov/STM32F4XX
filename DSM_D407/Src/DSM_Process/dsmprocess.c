@@ -23,6 +23,45 @@ typedef enum {
 	IV_MAX = 4
 } Channels_t;
 
+
+//
+//  Sin quadrature generator structure
+//
+typedef struct SinGen
+{
+	float Amplitude;
+	float TwoCosDelta;
+	float S1;
+	float S2;
+} SinGen_t;
+
+//
+// Initialize the Quadrature SIN generator 
+//
+void Gen_Init(SinGen_t* pState, float SamplingFreq, float GenerateFreq, float Amplitude)
+{
+		float PhaseStep = 2 * M_PI * GenerateFreq / SamplingFreq;
+		pState->Amplitude = Amplitude;
+		pState->S1 = 0;
+		pState->S2 = sinf(PhaseStep);
+		pState->TwoCosDelta = 2 * cosf(PhaseStep);
+}
+
+//
+// generate the next sample of the SIN Quadrature generator
+//
+float Gen_Sin(SinGen_t* pState)
+{
+	float S1 = pState->S1;
+	float S2 = pState->S2;
+	pState->S1 = S2;
+	pState->S2 = pState->TwoCosDelta * S2 - S1;
+	return pState->Amplitude * S1;
+}
+
+
+static int FirstCall = 1;
+static SinGen_t SinBlk;
 //
 //  For test purposes the Fake FF Function just copies input data buffer to output buffer
 //
@@ -31,11 +70,20 @@ void FF_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_MA
 	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
 	memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float));
 
-//	((void (*)(void))0)();
-//	for(int i = 0; i < nSamples; i++)
-//	    for(int j = 0; j < CH_MAX; j++)
-//            pAudioOut[j][i] = sinf((2.0f * M_PI * 1000.0f * i)/48000.0f);
-     melp_main();
+	if(FirstCall)
+	{
+		Gen_Init(&SinBlk, 48000.0f, 1333.0f, 0.99f);
+		FirstCall = 0;
+	}	
+	for(int i = 0; i < nSamples; i++)
+	{
+		float val = Gen_Sin(&SinBlk);
+		for(int j = 0; j < CH_MAX; j++)
+		{
+				pAudioOut[j][i] = val;
+		}
+	}
+//     melp_main();
 }
 
 void FB_Process(void *dsmHandle, float *pIVIn[IV_MAX], uint32_t nSamples)
