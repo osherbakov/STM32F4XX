@@ -23,6 +23,7 @@ Group (phone 972 480 7442).
 
 #include <stdio.h>
 #include <math.h>
+#include "melp.h"
 #include "spbstd.h"
 #include "mat.h"
 #include "melp_sub.h"
@@ -33,7 +34,11 @@ Group (phone 972 480 7442).
 /*  double_chk.c: check for pitch doubling                          */
 /*  and also verify pitch multiple for short pitches.               */
 /*                                                                  */
-#define NUM_MULT 8
+
+/* Static data */
+static float lpres_del[LPF_ORD];
+static float sigbuf[LPF_ORD+PITCH_FR];
+
 
 float double_chk(float sig_in[], float *pcorr, float pitch, float pdouble, int pmin, int pmax, int lmin)
 
@@ -69,15 +74,13 @@ float double_chk(float sig_in[], float *pcorr, float pitch, float pdouble, int p
 
     /* Return full floating point pitch value and correlation*/
     return(pitch);
-
 }
-#undef NUM_MULT
 
 
 /*                                                                  */
 /*  double_ver.c: verify pitch multiple for short pitches.          */
 /*                                                                  */
-#define SHORT_PITCH 30
+
 
 void double_ver(float sig_in[], float *pcorr, float pitch, int pmin, int pmax, int lmin)
 
@@ -101,7 +104,6 @@ void double_ver(float sig_in[], float *pcorr, float pitch, int pmin, int pmax, i
     }
 
 }
-#undef SHORT_PITCH
 
 /*                                                                  */
 /*  find_pitch.c: Determine pitch value.                            */
@@ -174,8 +176,6 @@ float find_pitch(float sig_in[], float *pcorr, int lower, int upper,
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
 
-#define MAXFRAC 2.0f
-#define MINFRAC -1.0f
 
 float frac_pch(float sig_in[], float *pcorr, float fpitch, int range, int pmin, int pmax, int lmin)
 
@@ -257,8 +257,6 @@ float frac_pch(float sig_in[], float *pcorr, float fpitch, int range, int pmin, 
     return(fpitch);
 
 }
-#undef MAXFRAC
-#undef MINFRAC
 
 /*
     Name: p_avg_update.c
@@ -272,13 +270,8 @@ float frac_pch(float sig_in[], float *pcorr, float fpitch, int range, int pmin, 
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
 
-/* Static constants */
-static float PDECAY;
-static float DEFAULT_PITCH_;
-static int NUM_GOOD;
-
 /* Static data */
-static float *good_pitch;
+static float good_pitch[NUM_GOOD];
 
 float p_avg_update(float pitch, float pcorr, float pthresh)
 
@@ -296,7 +289,7 @@ float p_avg_update(float pitch, float pcorr, float pthresh)
     /* Otherwise decay good pitch array to default value */
     else {
 	for (i = 0; i < NUM_GOOD; i++)
-	  good_pitch[i] = (PDECAY*good_pitch[i]) +((1.0f-PDECAY)*DEFAULT_PITCH_);
+	  good_pitch[i] = (PDECAY * good_pitch[i]) +((1.0f - PDECAY)*DEFAULT_PITCH_);
     }
     
     /* Pitch_avg = median of pitch values */
@@ -305,19 +298,11 @@ float p_avg_update(float pitch, float pcorr, float pthresh)
     return(pitch_avg);
 }
 
-void p_avg_init(float pdecay, float default_pitch_, int num_good)
+void p_avg_init()
 
 {
-
-    /* Initialize constants */
-    PDECAY = pdecay;
-    DEFAULT_PITCH_ = default_pitch_;
-    NUM_GOOD = num_good;
-
     /* Allocate and initialize good pitch array */
-    MEM_ALLOC(MALLOC,good_pitch,NUM_GOOD,float);
     fill(good_pitch,DEFAULT_PITCH_,NUM_GOOD);
-
 }
 
 /*
@@ -335,31 +320,7 @@ void p_avg_init(float pdecay, float default_pitch_, int num_good)
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
 
-/* Compiler constants */
-#define UVMAX 0.55f
-#define PDOUBLE1 0.75f
-#define PDOUBLE2 0.5f
-#define PDOUBLE3 0.9f
-#define PDOUBLE4 0.7f
-#define LONG_PITCH 100.0f
-
-/* Static constants */
-static int PITCHMAX;
-static int PITCHMIN;
-static int FRAME;
-static int LPF_ORD;
-static int PITCH_FR;
-static int LMIN;
-
-/* External variables */
-extern float lpf_num[], lpf_den[];
-
-/* Static data */
-static float *lpres_del;
-static float *sigbuf;
-
 float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg, float *pcorr2)
-
 {
 
     float temp, temp2, pcorr, pitch;
@@ -373,14 +334,14 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 
     /* Perform local search around pitch estimate */
     temp = frac_pch(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-		    pitch_est,5,PITCHMIN,PITCHMAX,LMIN);
+		    pitch_est,5,PITCHMIN,PITCHMAX,MINLENGTH);
     
     if (pcorr < 0.6f) {
 
 	/* If correlation is too low, try speech signal instead */
 	v_equ(&sigbuf[LPF_ORD],&speech[-PITCHMAX],PITCH_FR);
 	temp = frac_pch(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-			pitch_est,0,PITCHMIN,PITCHMAX,LMIN);
+			pitch_est,0,PITCHMIN,PITCHMAX,MINLENGTH);
 
 	if (pcorr < UVMAX)
 		
@@ -395,7 +356,7 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 	      /* longer pitches are more likely to be doubles */
 	      temp2 = PDOUBLE4;
 	    pitch = double_chk(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-				    temp,temp2,PITCHMIN,PITCHMAX,LMIN);
+				    temp,temp2,PITCHMIN,PITCHMAX,MINLENGTH);
 	}
     }
     
@@ -409,7 +370,7 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 	  temp2 = PDOUBLE2;
 
 	pitch = double_chk(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-				temp,temp2,PITCHMIN,PITCHMAX,LMIN);
+				temp,temp2,PITCHMIN,PITCHMAX,MINLENGTH);
     }
     
     if (pcorr < UVMAX) {
@@ -424,22 +385,9 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 
 }
 
-void pitch_ana_init(int pmin, int pmax, int fr, int lpf_ord, int lmin)
+void pitch_ana_init()
 
 {
-
-    /* Initialize constants */
-    FRAME = fr;
-    PITCHMIN = pmin;
-    PITCHMAX = pmax;
-    LPF_ORD = lpf_ord;
-    LMIN = lmin;
-    PITCH_FR = ((2*PITCHMAX)+1);
-
     /* Allocate and initialize delay memory */
-    MEM_ALLOC(MALLOC,lpres_del,LPF_ORD,float);
     v_zap(lpres_del,LPF_ORD);
-
-    /* Allocate scratch buffer */
-    MEM_ALLOC(MALLOC,sigbuf,LPF_ORD+PITCH_FR,float);
 }

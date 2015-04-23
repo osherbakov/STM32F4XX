@@ -42,37 +42,15 @@ Group (phone 972 480 7442).
 #include "dsp_sub.h"
 #include "melp_sub.h"
 
-/* compiler constants */
- 
-#if (MIX_ORD > DISP_ORD)
-#define BEGIN MIX_ORD
-#else
-#define BEGIN DISP_ORD
-#endif
-
-#define TILT_ORD 1
-#define SYN_GAIN 1000.0f
-#define	SCALEOVER	10
-#define PDEL SCALEOVER
-
-/* external memory references */
- 
-extern float bp_cof[NUM_BANDS][MIX_ORD+1];
-extern float disp_cof[DISP_ORD+1];
-extern float msvq_cb[];
-extern float fsvq_cb[];
-extern int fsvq_weighted;
 
 /* temporary memory */
-
 static float sigbuf[BEGIN+PITCHMAX];
 static float sig2[BEGIN+PITCHMAX];
 static float fs_real[PITCHMAX];
 
-/* permanent memory */
- 
+/* permanent memory */ 
 static int firstcall = 1; /* Just used for noise gain init */
-static float sigsave[PITCHMAX];
+static float sigsave[2*PITCHMAX];
 static struct melp_param prev_par;
 static int syn_begin;
 static float prev_scale;
@@ -81,14 +59,30 @@ static float pulse_del[MIX_ORD],noise_del[MIX_ORD];
 static float lpc_del[LPC_ORD],ase_del[LPC_ORD],tilt_del[TILT_ORD];
 static float disp_del[DISP_ORD];
 
-static struct msvq_param vq_par;  /* MSVQ parameters */
+static msvq_param_t vq_par;  /* MSVQ parameters */
+static int vq_par_num_levels[4];
+static int vq_par_indices[4];
+static int vq_par_num_bits[4];
 
-static struct msvq_param fs_vq_par;  /* Fourier series VQ parameters */
+static msvq_param_t fs_vq_par;  /* Fourier series VQ parameters */
+static int fs_vq_par_num_levels[1];
+static int fs_vq_par_indices[1];
+static int fs_vq_par_num_bits[1];
+
 static float w_fs_inv[NUM_HARM];
 
 /* these can be saved or recomputed */
 static float prev_pcof[MIX_ORD+1],prev_ncof[MIX_ORD+1];
 static float prev_tilt;
+
+// Temporary static vars
+static float tilt_cof[TILT_ORD+1];
+static float lsf[LPC_ORD+1];
+static float lpc[LPC_ORD+1];
+static float ase_num[LPC_ORD+1],ase_den[LPC_ORD+1];
+static float curr_pcof[MIX_ORD+1],curr_ncof[MIX_ORD+1];
+static float pulse_cof[MIX_ORD+1],noise_cof[MIX_ORD+1];
+static float w_fs[NUM_HARM];
 
 void melp_syn(struct melp_param *par, float sp_out[])
 {
@@ -98,23 +92,18 @@ void melp_syn(struct melp_param *par, float sp_out[])
     int length;
     float intfact, ifact, ifact_gain;
     float gain,pulse_gain,pitch,jitter;
-    float curr_tilt,tilt_cof[TILT_ORD+1];
+    float curr_tilt;
     float temp,sig_prob;
-    float lsf[LPC_ORD+1];
-    float lpc[LPC_ORD+1];
-    float ase_num[LPC_ORD+1],ase_den[LPC_ORD+1];
-    float curr_pcof[MIX_ORD+1],curr_ncof[MIX_ORD+1];
-    float pulse_cof[MIX_ORD+1],noise_cof[MIX_ORD+1];
     
     /* Copy previous period of processed speech to output array */
     if (syn_begin > 0) {
-	if (syn_begin > FRAME) {
-	    v_equ(&sp_out[0],&sigsave[0],FRAME);
-	    /* past end: save remainder in sigsave[0] */
-	    v_equ(&sigsave[0],&sigsave[FRAME],syn_begin-FRAME);
-	}
-	else 
-	  v_equ(&sp_out[0],&sigsave[0],syn_begin);
+		if (syn_begin > FRAME) {
+			v_equ(&sp_out[0],&sigsave[0],FRAME);
+			/* past end: save remainder in sigsave[0] */
+			v_equ(&sigsave[0],&sigsave[FRAME],syn_begin-FRAME);
+		}
+		else 
+		  v_equ(&sp_out[0],&sigsave[0],syn_begin);
     }
     
     erase = 0; /* no erasures yet */
@@ -354,7 +343,6 @@ void melp_syn(struct melp_param *par, float sp_out[])
 void melp_syn_init()
 {
     int i;
-    float w_fs[NUM_HARM];
 	
     v_zap(prev_par.gain,NUM_GAINFR);
     prev_par.pitch = UV_PITCH;
@@ -396,9 +384,9 @@ void melp_syn_init()
      * and for number of bits per stage 
      */
  
-    MEM_ALLOC(MALLOC,vq_par.num_levels,vq_par.num_stages,int);
-    MEM_ALLOC(MALLOC,vq_par.indices,vq_par.num_stages,int);
-    MEM_ALLOC(MALLOC,vq_par.num_bits,vq_par.num_stages,int);
+    vq_par.num_levels = vq_par_num_levels;	// MEM_ALLOC(MALLOC,vq_par.num_levels,vq_par.num_stages,int);
+    vq_par.indices = vq_par_indices;		// MEM_ALLOC(MALLOC,vq_par.indices,vq_par.num_stages,int);
+    vq_par.num_bits = vq_par_num_bits;		// MEM_ALLOC(MALLOC,vq_par.num_bits,vq_par.num_stages,int);
 
 	
     vq_par.num_levels[0] = 128;
@@ -430,9 +418,9 @@ void melp_syn_init()
      * and for number of bits per stage 
      */
  
-    MEM_ALLOC(MALLOC,fs_vq_par.num_levels,fs_vq_par.num_stages,int);
-    MEM_ALLOC(MALLOC,fs_vq_par.indices,fs_vq_par.num_stages,int);
-    MEM_ALLOC(MALLOC,fs_vq_par.num_bits,fs_vq_par.num_stages,int);
+    fs_vq_par.num_levels = fs_vq_par_num_levels;		// MEM_ALLOC(MALLOC,fs_vq_par.num_levels,fs_vq_par.num_stages,int);
+    fs_vq_par.indices = fs_vq_par_indices;				// MEM_ALLOC(MALLOC,fs_vq_par.indices,fs_vq_par.num_stages,int);
+    fs_vq_par.num_bits = fs_vq_par_num_bits;			// MEM_ALLOC(MALLOC,fs_vq_par.num_bits,fs_vq_par.num_stages,int);
 
 	
     fs_vq_par.num_levels[0] = FS_LEVELS;

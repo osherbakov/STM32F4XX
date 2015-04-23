@@ -38,15 +38,6 @@ void sbc_enc(int x[], int n, int k, int *pmat);
 int sbc_dec(int x[], int n, int k, int *pmat, int syntab[]);
 int sbc_syn(int x[], int n, int k, int *pmat);
 
-/* Macros */
-#define null_function() exit(1)
-/* Set vector to scalar value. */
-
-#define V_SET(x,sc,n) if (1)\
-{int u__i;\
-     for(u__i=0; u__i < (n); u__i++)\
-     *((x)+u__i) = (sc);\
-} else null_function()
 
 /* Compiler constants */
 #define UV_PIND 0    /* Unvoiced pitch index */
@@ -115,10 +106,11 @@ void fec_code(struct melp_param *par)
 
 }
 
+
+extern int pitch_dec[1<<PIT_BITS]; /* Pitch index decoding table */
+
 int fec_decode(struct melp_param *par, int erase)
 {
-
-    extern int pitch_dec[1<<PIT_BITS]; /* Pitch index decoding table */
     int berr_pos;
 
     /* Decode pitch index */

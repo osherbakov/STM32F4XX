@@ -91,35 +91,27 @@ void interp_array(float prev[],float curr[],float out[],float ifact,int size)
 
     ifact2 = 1.0F - ifact;
     for (i = 0; i < size; i++)
-      out[i] = ifact*curr[i] + ifact2*prev[i];
-      
+      out[i] = ifact*curr[i] + ifact2*prev[i];      
 }
 
 /*								*/
 /*	Subroutine median: calculate median value               */
 /*								*/
 #define MAXSORT 5
+static float sorted[MAXSORT];
+
 float median(float input[], int npts)
 {
     int i,j,loc;
     float insert_val;
-    float sorted[MAXSORT];
+
 
     /* sort data in temporary array */
-
-#ifdef PRINT
-    if (npts > MAXSORT) {
-	printf("ERROR: median size too large.\n");
-	exit(1);
-    }
-#endif
-
     v_equ(sorted,input,npts);
     for (i = 1; i < npts; i++) {
 
 	/* for each data point */
 	for (j = 0; j < i; j++) {
-
 	    /* find location in current sorted list */
 	    if (sorted[i] < sorted[j])
 	      break;
@@ -136,7 +128,6 @@ float median(float input[], int npts)
     return(sorted[npts/2]);
 
 }
-#undef MAXSORT
 
 /*								*/
 /*	Subroutine PACK_CODE: Pack bit code into channel.	*/
@@ -249,7 +240,6 @@ register float	step, qbnd, *p_in;
 /*	value.							*/
 /*								*/
 void quant_u_dec(int index, float *p_data,float qmin, float qmax, int nlev)
-
 {
 register float	step;
 
@@ -258,7 +248,6 @@ register float	step;
 
 	/*  Decode quantized level			*/
 	*p_data = qmin + (index * step);
-
 }
 
 /*								*/
@@ -266,7 +255,6 @@ register float	step;
 /*      array using system random number generator.             */
 /*                                                              */
 void	rand_num(float output[], float amplitude, int npts)
-
 {
     int i;
 
