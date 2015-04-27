@@ -139,7 +139,6 @@ extern int fsvq_weighted;
 #define PITCH_FR  ((2*PITCHMAX)+1)
 
 
-/* Structure definitions */
 /* Structure definition */
 typedef struct msvq_param {         /* Multistage VQ parameters */
 	int num_stages;

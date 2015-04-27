@@ -86,7 +86,6 @@ void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
     for (j = 1; j < NUM_PITCHES; j++) {
 		temp = frac_pch(&sigbuf[FIRST_CNTR],
 				&pcorr,fpitch[j],5,PITCHMIN,PITCHMAX,MINLENGTH);
-		
 		/* choose largest correlation value */
 		if (pcorr > bpvc[0]) {
 			*pitch = temp;
@@ -130,22 +129,15 @@ void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
 void bpvc_ana_init()
 {
 	int i;
-    /* Allocate memory */
-    //  MEM_2ALLOC(malloc,bpfdel,NUM_BANDS,BPF_ORD,float);
+
 	for(i = 0; i < NUM_BANDS; i++)
 	{
 		bpfdel[i] = &bpfdel_data[BPF_ORD * i];
 		envdel[i] = &envdel_data[ENV_ORD * i];
 	}
     v_zap(&(bpfdel[0][0]),NUM_BANDS*BPF_ORD);
-
-    //  MEM_2ALLOC(malloc,envdel,NUM_BANDS,ENV_ORD,float);
     v_zap(&(envdel[0][0]),NUM_BANDS*ENV_ORD);
-    //  MEM_ALLOC(malloc,envdel2,NUM_BANDS,float);
     v_zap(envdel2,NUM_BANDS);
-
-    /* Allocate scratch buffer */
-    //  MEM_ALLOC(malloc,sigbuf,PIT_BEG+PIT_P_FR,float);
 }
 
 /*
@@ -185,18 +177,11 @@ static float dc_den[DC_ORD+1] = {
 
 void dc_rmv(float sigin[], float sigout[], float dcdel[], int frame)
 {
-
-    /* Allocate scratch buffer */
-    // MEM_ALLOC(malloc,sigbuf,frame+DC_ORD,float);
-
     /* Remove DC from input speech */
     v_equ(sigbuf1,dcdel,DC_ORD);
     polflt(sigin,dc_den,&sigbuf1[DC_ORD],DC_ORD,frame);
     v_equ(dcdel,&sigbuf1[frame],DC_ORD);
     zerflt(&sigbuf1[DC_ORD],dc_num,sigout,DC_ORD,frame);
-
-    /* Free scratch buffer */
-    // MEM_FREE(free,sigbuf);
 }
 
 /*
@@ -474,8 +459,7 @@ void q_gain(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qlev)
     }
 
     /* Update previous gain for next time */
-    prev_gain = gain[1];
-    
+    prev_gain = gain[1];  
 }
 
 void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qlev)
@@ -529,8 +513,7 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
     }
 
     /* Update previous gain for next time */
-    prev_gain = gain[1];
-    
+    prev_gain = gain[1];    
 }
 
 /*
@@ -552,7 +535,6 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
 */
 
 void scale_adj(float *speech, float gain, float *prev_scale, int length, int scale_over)
-
 {
     int i;
     float scale;
