@@ -27,34 +27,20 @@ Group (phone 972 480 7442).
 #include "dsp_sub.h"
 #include "melp_sub.h"
 
-/* note: CHSIZE is shortest integer number of words in channel packet */
-#define CHSIZE 9
-#define NUM_CH_BITS 54
+#include "cmsis_os.h"
 
-
+#define ARM_MATH_CM4
+#define __FPU_PRESENT 1
+#include <math.h>
+#include "arm_math.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-
-//#include "sc1200.h"
-//#include "mat_lib.h"
-//#include "global.h"
-//#include "macro.h"
-//#include "mathhalf.h"
-//#include "dsp_sub.h"
-//#include "melp_sub.h"
-//#include "constant.h"
-//#include "math_lib.h"
-//#include "math.h"
-//#include "transcode.h"
-
 /* ====== External memory ====== */
 
 #define FRAME				180              /* speech frame size */
-#define NF					3                /* number of frames in one block */
-#define BLOCK				(NF*FRAME)
 
 typedef unsigned short uint16_t;
 typedef signed short int16_t;
@@ -68,6 +54,8 @@ char in_name[256], out_name[256];
 struct melp_param	melp_ana_par;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par;                 /* melp synthesis parameters */
 
+float	speech_in[FRAME], speech_out[FRAME];
+
 /* ========== Local Private Prototypes ========== */
 
 static void		parseCommandLine(int argc, char *argv[]);
@@ -79,15 +67,14 @@ extern int main_cmd(int argc, char *argv[]);
 
 #define exit(a) do{}while(a)
 
-#define MAXSIZE 1024
 #define SIGMAX 32767
 typedef short SPEECH;
-SPEECH	int_sp[MAXSIZE]; /*  integer input array	*/
+SPEECH	int_sp[FRAME]; /*  integer input array	*/
+	
 /*								*/
 /*	Subroutine READBL: read block of input data		*/
 /*								*/
 int readbl(float input[], FILE *fp_in, int size)
-
 {
 	int i, length;
 
@@ -99,13 +86,12 @@ int readbl(float input[], FILE *fp_in, int size)
 
 	return length;
 }
+
+
 /*								*/
 /*	Subroutine WRITEBL: write block of output data		*/
 /*								*/
-
-
 void writebl(float output[], FILE *fp_out, int size)
-
 {
 	int i;
 	float temp;
@@ -146,7 +132,6 @@ int main_cmd(int argc, char *argv[])
 	int	length;
 	int frame_count;
 
-	float	speech_in[BLOCK], speech_out[BLOCK];
 	int		eof_reached = FALSE;
 	FILE	*fp_in, *fp_out;
 
@@ -178,7 +163,6 @@ int main_cmd(int argc, char *argv[])
 		/* Perform MELP analysis */
 		length = readbl(speech_in, fp_in, FRAME);
 		if (length < FRAME){
-			v_zap(&speech_in[length], FRAME - length);
 			eof_reached = TRUE;
 		}
 		melp_ana(speech_in, &melp_ana_par);
@@ -194,6 +178,69 @@ int main_cmd(int argc, char *argv[])
 	fprintf(stderr, "\n\n");
 
 	return(0);
+}
+
+static int bInitialized = 0;
+static int FrameIdx = 0;
+
+#define DOWNSAMPLE_TAPS  (12)
+#define UPSAMPLE_TAPS		 (24)
+#define UPDOWNSAMPLE_RATIO (48000/8000)
+
+float DownSampleBuff[FRAME + DOWNSAMPLE_TAPS - 1];
+float DownSampleCoeff[DOWNSAMPLE_TAPS] = {
+   -0.05217897519f,  -0.0113634998f,  0.03741466254f,   0.1159368753f,   0.1981081218f,
+     0.2506353855f,   0.2506353855f,   0.1981081218f,   0.1159368753f,  0.03741466254f,
+    -0.0113634998f, -0.05217897519f
+};
+
+
+float UpSampleBuff[(FRAME + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1];
+float UpSampleCoeff[UPSAMPLE_TAPS] = {
+    0.00258618989f,  0.01110466011f, 0.009563598782f, 0.002841173206f,  -0.0138431713f,
+   -0.03166284412f, -0.03691352904f,  -0.0153341908f,  0.03820863366f,   0.1138970926f,
+     0.1884739548f,   0.2348130196f,   0.2348130196f,   0.1884739548f,   0.1138970926f,
+    0.03820863366f,  -0.0153341908f, -0.03691352904f, -0.03166284412f,  -0.0138431713f,
+   0.002841173206f, 0.009563598782f,  0.01110466011f,  0.00258618989f
+};
+
+arm_fir_decimate_instance_f32 Dec;
+arm_fir_interpolate_instance_f32 Int;
+
+
+void melp_init()
+{
+	// Initialize Decimator and interpolator
+	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
+			DownSampleCoeff, DownSampleBuff, FRAME);
+	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
+			UpSampleCoeff, UpSampleBuff, FRAME/UPDOWNSAMPLE_RATIO);
+	FrameIdx = 0;
+	/* ====== Initialize MELP analysis and synthesis ====== */
+	melp_ana_init(&melp_ana_par);
+	melp_syn_init(&melp_syn_par);
+	
+	bInitialized = 1;
+}
+
+
+void melp_process(float *pDataIn, float *pDataOut)
+{
+	
+	if(0 == bInitialized)
+	{
+		melp_init();
+	}
+	
+	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], FRAME);
+	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, FRAME/UPDOWNSAMPLE_RATIO);
+	FrameIdx += FRAME/UPDOWNSAMPLE_RATIO;
+	if(FrameIdx >= FRAME)
+	{
+		melp_ana(speech_in , &melp_ana_par);
+		melp_syn(&melp_syn_par, speech_out);
+		FrameIdx = 0;
+	}
 }
 
 

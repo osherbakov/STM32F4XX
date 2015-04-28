@@ -238,7 +238,6 @@ float gain_ana(float sigin[], float pitch, int minlength, int maxlength)
 */
 
 float lin_int_bnd(float x,float xmin,float xmax,float ymin,float ymax)
-
 {
     float y;
 			
@@ -267,7 +266,6 @@ float lin_int_bnd(float x,float xmin,float xmax,float ymin,float ymax)
 */
 
 void noise_est(float gain,float *noise_gain,float up,float down,float min,float max)
-
 {
     /* Update noise_gain */
     if (gain > *noise_gain+up) *noise_gain = *noise_gain+up;
@@ -295,8 +293,7 @@ void noise_est(float gain,float *noise_gain,float up,float down,float min,float 
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
 
-void noise_sup(float *gain,float noise_gain,float max_noise,float max_atten,float nfact)
-
+void noise_sup(float *gain,float noise_gain,float max_noise,float max_atten, float nfact)
 {
     float gain_lev,suppress;
 			
@@ -371,7 +368,6 @@ int q_bpvc(float *bpvc,int *bpvc_index,float bpthresh,int num_bands)
 }
 
 void q_bpvc_dec(float *bpvc,int *bpvc_index,int uv_flag,int num_bands)
-
 {
     int j;
 
@@ -473,43 +469,36 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
     quant_u_dec(gain_index[1],&gain[1],gn_qlo,gn_qup,gn_qlev);
     
     if (gain_index[0] == 0) {
+		/* interpolation bit code for intermediate gain */
+		if (fabs(gain[1] - prev_gain) > GAIN_INT_DB) {
+			/* Invalid received data (bit error) */
+			if (prev_gain_err == 0) {
+				/* First time: don't allow gain excursion */
+				gain[1] = prev_gain;
+			}
+			prev_gain_err = 1;
+		}
+		else 
+			prev_gain_err = 0;
 
-	/* interpolation bit code for intermediate gain */
-	if (fabs(gain[1] - prev_gain) > GAIN_INT_DB) {
-	    /* Invalid received data (bit error) */
-	    if (prev_gain_err == 0) {
-		/* First time: don't allow gain excursion */
-		gain[1] = prev_gain;
-	    }
-	    prev_gain_err = 1;
-	}
-	else 
-	  prev_gain_err = 0;
-
-	/* Use interpolated gain value */
-	gain[0] = 0.5f*(gain[1]+prev_gain);
-    }
-
-    else {
-
-	/* Decode 7-bit quantizer for first gain term */
-	prev_gain_err = 0;
-	gain_index[0]--;
-	if (prev_gain < gain[1]) {
-	    temp = prev_gain;
-	    temp2 = gain[1];
-	}
-	else {
-	    temp = gain[1];
-	    temp2 = prev_gain;
-	}
-	temp -= 6.0f;
-	temp2 += 6.0f;
-	if (temp < gn_qlo)
-	  temp = gn_qlo;
-	if (temp2 > gn_qup)
-	  temp2 = gn_qup;
-	quant_u_dec(gain_index[0],&gain[0],temp,temp2,7);
+		/* Use interpolated gain value */
+		gain[0] = 0.5f*(gain[1]+prev_gain);
+    } else {
+		/* Decode 7-bit quantizer for first gain term */
+		prev_gain_err = 0;
+		gain_index[0]--;
+		if (prev_gain < gain[1]) {
+			temp = prev_gain;
+			temp2 = gain[1];
+		}else {
+			temp = gain[1];
+			temp2 = prev_gain;
+		}
+		temp -= 6.0f;
+		temp2 += 6.0f;
+		if (temp < gn_qlo)	temp = gn_qlo;
+		if (temp2 > gn_qup)	temp2 = gn_qup;
+		quant_u_dec(gain_index[0],&gain[0],temp,temp2,7);
     }
 
     /* Update previous gain for next time */

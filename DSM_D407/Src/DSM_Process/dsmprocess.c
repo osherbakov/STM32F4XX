@@ -10,7 +10,6 @@
 #define M_PI           3.14159265358979323846f
 #endif
 
-extern void melp_main(void);
 typedef enum {
 	CH_LEFT = 0,
 	CH_RIGHT = 1,
@@ -59,6 +58,7 @@ float Gen_Sin(SinGen_t* pState)
 	return pState->Amplitude * S1;
 }
 
+extern void melp_process(float *pDataIn, float *pDataOut);
 
 static int FirstCall = 1;
 static SinGen_t SinBlk;
@@ -68,22 +68,23 @@ static SinGen_t SinBlk;
 void FF_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_MAX], uint32_t nSamples)
 {
 	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
-	memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float));
+ 	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT]);
+	// memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float));
 
-	if(FirstCall)
-	{
-		Gen_Init(&SinBlk, 48000.0f, 1333.0f, 0.99f);
-		FirstCall = 0;
-	}	
-	for(int i = 0; i < nSamples; i++)
-	{
-		float val = Gen_Sin(&SinBlk);
-		for(int j = 0; j < CH_MAX; j++)
-		{
-				pAudioOut[j][i] = val;
-		}
-	}
-//     melp_main();
+//	if(FirstCall)
+//	{
+//		Gen_Init(&SinBlk, 48000.0f, 1333.0f, 0.99f);
+//		FirstCall = 0;
+//	}	
+//	for(int i = 0; i < nSamples; i++)
+//	{
+//		float val = Gen_Sin(&SinBlk);
+//		for(int j = 0; j < CH_MAX; j++)
+//		{
+//				pAudioOut[j][i] = val;
+//		}
+//	}
+
 }
 
 void FB_Process(void *dsmHandle, float *pIVIn[IV_MAX], uint32_t nSamples)

@@ -62,8 +62,8 @@ float lpc_aejw(float *a,float w,int p)
             ...[a(p-1)+e(-jw)a(p)]]]]
     */
 
-    cs = (float)cosf(w);
-    sn = -(float)sinf(w);
+    cs = cosf(w);
+    sn = -sinf(w);
 
     c_re = cs*a[p];
     c_im = sn*a[p];
@@ -376,6 +376,7 @@ int lpc_lsp2pred(float *w,float *a,int p)
 {
     int i,j,k,p2;
     float c[2];
+
 
     /* ensure minimum separation and sort */
     (void)lpc_clamp(w,lsp_delta,p);

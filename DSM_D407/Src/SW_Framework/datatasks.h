@@ -13,8 +13,8 @@
 #define	 NUM_PCM_BYTES  	(NUM_PCM_SAMPLES * NUM_CHANNELS * AUDIODATA_SIZE)
 
 
-#define DSM_AUDIO_BLOCK_SAMPLES		(240)		// Size in Samples
-#define DSM_IV_BLOCK_SAMPLES			(240)		// Size in Samples
+#define DSM_AUDIO_BLOCK_SAMPLES		(180)		// Size in Samples
+#define DSM_IV_BLOCK_SAMPLES			(180)		// Size in Samples
 
 typedef enum
 {
