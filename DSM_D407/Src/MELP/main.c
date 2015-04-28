@@ -207,10 +207,9 @@ float UpSampleCoeff[UPSAMPLE_TAPS] = {
 arm_fir_decimate_instance_f32 Dec;
 arm_fir_interpolate_instance_f32 Int;
 
-
 void melp_init()
 {
-	// Initialize Decimator and interpolator
+	/* ====== Initialize Decimator and interpolator ====== */
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
 			DownSampleCoeff, DownSampleBuff, FRAME);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
@@ -219,17 +218,15 @@ void melp_init()
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_ana_init(&melp_ana_par);
 	melp_syn_init(&melp_syn_par);
-	
-	bInitialized = 1;
 }
 
 
 void melp_process(float *pDataIn, float *pDataOut)
-{
-	
+{	
 	if(0 == bInitialized)
 	{
 		melp_init();
+		bInitialized = 1;	
 	}
 	
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], FRAME);
@@ -237,6 +234,7 @@ void melp_process(float *pDataIn, float *pDataOut)
 	FrameIdx += FRAME/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= FRAME)
 	{
+//		v_equ(speech_out, speech_in, FRAME);
 		melp_ana(speech_in , &melp_ana_par);
 		melp_syn(&melp_syn_par, speech_out);
 		FrameIdx = 0;

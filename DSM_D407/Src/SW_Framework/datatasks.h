@@ -41,9 +41,9 @@ typedef enum
 
 
 #define AUDIO_MONO_Q15_SIZE	sizeof(int16_t)
-#define AUDIO_STEREO_Q15_SIZE	sizeof(int32_t)
-#define IV_MONO_Q15_SIZE	sizeof(int32_t)
-#define IV_STEREO_Q15_SIZE	(2 * sizeof(int32_t))
+#define AUDIO_STEREO_Q15_SIZE	(2 * sizeof(int16_t))
+#define IV_MONO_Q15_SIZE	(2 * sizeof(int16_t))
+#define IV_STEREO_Q15_SIZE	(4 * sizeof(int16_t))
 
 typedef  enum uint16_t
 {

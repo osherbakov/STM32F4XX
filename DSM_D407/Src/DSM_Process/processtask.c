@@ -40,7 +40,7 @@ void Convert_S16_to_F32(int16_t *pS16Data, float *pF32Data, uint32_t S16Offset, 
 		pS16Data = (int16_t *) (((uint32_t)pS16Data)  + S16Offset);
 		while(nElems--)
 		{
-			 *pF32Data++ = ((float)*pS16Data)/32768.0f;
+			 *pF32Data++ = ((float)*pS16Data);
 			 pS16Data = (int16_t *) (((uint32_t)pS16Data)  + S16Stride);
 		}
 }
@@ -50,7 +50,7 @@ void Convert_F32_to_S16(float *pF32Data, int16_t *pS16Data, uint32_t S16Offset, 
 		pS16Data = (int16_t *) (((uint32_t)pS16Data)  + S16Offset);
 		while(nElems--)
 		{
-			 *pS16Data = (int16_t) (*pF32Data++ * 32768.0f);
+			 *pS16Data = (int16_t) (*pF32Data++);
 			 pS16Data = (int16_t *) (((uint32_t)pS16Data)  + S16Stride);
 		}
 }
