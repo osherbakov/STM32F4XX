@@ -234,9 +234,9 @@ void melp_process(float *pDataIn, float *pDataOut)
 	FrameIdx += FRAME/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= FRAME)
 	{
-//		v_equ(speech_out, speech_in, FRAME);
-		melp_ana(speech_in , &melp_ana_par);
-		melp_syn(&melp_syn_par, speech_out);
+		v_equ(speech_out, speech_in, FRAME);
+//		melp_ana(speech_in , &melp_ana_par);
+//		melp_syn(&melp_syn_par, speech_out);
 		FrameIdx = 0;
 	}
 }
