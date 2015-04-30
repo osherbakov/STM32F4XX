@@ -26,13 +26,9 @@ Group (phone 972 480 7442).
 #include "mat.h"
 #include "dsp_sub.h"
 #include "melp_sub.h"
+#include "stm32f4_discovery.h"
 
 #include "cmsis_os.h"
-
-#define ARM_MATH_CM4
-#define __FPU_PRESENT 1
-#include <math.h>
-#include "arm_math.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -50,11 +46,12 @@ int		rate;
 
 /* ========== Static Variables ========== */
 
-char in_name[256], out_name[256];
+float	speech_in[FRAME], speech_out[FRAME];
+float	speech[FRAME]; 
+char in_name[100], out_name[100];
 struct melp_param	melp_ana_par;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par;                 /* melp synthesis parameters */
 
-float	speech_in[FRAME], speech_out[FRAME];
 
 /* ========== Local Private Prototypes ========== */
 
@@ -228,15 +225,24 @@ void melp_process(float *pDataIn, float *pDataOut)
 		melp_init();
 		bInitialized = 1;	
 	}
-	
+
+BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], FRAME);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, FRAME/UPDOWNSAMPLE_RATIO);
+BSP_LED_Off(LED3);
+	
 	FrameIdx += FRAME/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= FRAME)
 	{
 		v_equ(speech_out, speech_in, FRAME);
-//		melp_ana(speech_in , &melp_ana_par);
-//		melp_syn(&melp_syn_par, speech_out);
+		v_equ(speech, speech_in, FRAME);
+BSP_LED_On(LED4);
+		melp_ana(speech, &melp_ana_par);
+BSP_LED_Off(LED4);
+BSP_LED_On(LED5);
+		melp_syn(&melp_syn_par, speech);
+		v_equ(speech_out, speech, FRAME);
+BSP_LED_Off(LED5);
 		FrameIdx = 0;
 	}
 }

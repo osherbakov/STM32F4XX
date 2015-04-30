@@ -32,3 +32,9 @@ float *v_scale(float *v,float scale,int n);
 int *v_zap_int(int *v,int n);
 int *v_equ_int(int *v1,int *v2,int n);
 
+
+#define ARM_MATH_CM4
+#define __TARGET_FPU_VFP 1
+#define __FPU_PRESENT 1
+#include "arm_math.h"
+

@@ -132,28 +132,6 @@ void StartDefaultTask(void const * argument)
   {
     osDelay(200);
 
-		// Blink proper LEDs
-		if(osParams.audioinMode == AUDIO_MODE_IN_MIC)
-		{
-			BSP_LED_Toggle(LED3);
-		}else if(osParams.audioinMode == AUDIO_MODE_IN_USB)
-		{
-			BSP_LED_Toggle(LED6);
-		}else if(osParams.audioinMode == AUDIO_MODE_IN_I2S)
-		{
-			BSP_LED_Toggle(LED3);
-			BSP_LED_Toggle(LED6);
-		}
-		
-		if(osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
-		{
-			BSP_LED_Toggle(LED4);
-		}
-		if(osParams.audiooutMode & AUDIO_MODE_OUT_USB)
-		{
-			BSP_LED_Toggle(LED5);
-		}
-
 		// Check the USER button and switch to the next mode if pressed
 		if( BSP_PB_GetState(BUTTON_KEY) != buttonState )
 		{
