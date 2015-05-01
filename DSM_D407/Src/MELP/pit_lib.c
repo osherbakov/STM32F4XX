@@ -36,8 +36,8 @@ Group (phone 972 480 7442).
 /*                                                                  */
 
 /* Static data */
-static float lpres_del[LPF_ORD];
-static float sigbuf[LPF_ORD+PITCH_FR];
+static float lpres_del[LPF_ORD]  __attribute__((section ("CCRAM")));
+static float sigbuf[LPF_ORD+PITCH_FR]  __attribute__((section ("CCRAM")));
 
 
 float double_chk(float sig_in[], float *pcorr, float pitch, float pdouble, int pmin, int pmax, int lmin)

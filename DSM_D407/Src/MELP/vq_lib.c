@@ -32,6 +32,15 @@ Group (phone 972 480 7442).
 
 #define BIGVAL 1E20f
 
+
+static int indices[2 * MSVQ_M * 4]  __attribute__((section ("CCRAM")));
+static int parents[2 * MSVQ_M]  __attribute__((section ("CCRAM")));
+static float errors[2 * MSVQ_M * 10]  __attribute__((section ("CCRAM")));
+static float uhatw[10]  __attribute__((section ("CCRAM")));
+static float d[2 * MSVQ_M]  __attribute__((section ("CCRAM")));
+static float u_tmp[10+1]  __attribute__((section ("CCRAM")));
+static float uhat[LPC_ORD]  __attribute__((section ("CCRAM")));
+
 /* VQ_LSPW- compute LSP weighting vector-
 
     Atal's method:
@@ -86,13 +95,6 @@ float *vq_lspw(float *w,float *lsp,float *a,int p)
 
 #define P_SWAP(x,y,type) do{type u__p;u__p = x;x = y;y = u__p;}while(0)
 
-static int indices[2 * MSVQ_M * 4];
-static int parents[2 * MSVQ_M];
-static float errors[2 * MSVQ_M * 10];
-static float uhatw[10];
-static float d[2 * MSVQ_M];
-static float u_tmp[10+1];
-static float uhat[LPC_ORD];
 
 float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages, int p, float *w, float *u_hat, int *a_indices,int max_inner)
 {

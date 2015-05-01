@@ -25,6 +25,8 @@ Group (phone 972 480 7442).
 #include "spbstd.h"
 #include "lpc.h"
 #include "melp.h"
+#include "mat.h"
+
 /* 
     Name: lpc_aejw- Compute square of A(z) evaluated at exp(jw)
     Description:
@@ -62,8 +64,8 @@ float lpc_aejw(float *a,float w,int p)
             ...[a(p-1)+e(-jw)a(p)]]]]
     */
 
-    cs = cosf(w);
-    sn = -sinf(w);
+    cs = arm_cos_f32(w);
+    sn = -arm_sin_f32(w);
 
     c_re = cs*a[p];
     c_im = sn*a[p];
@@ -385,15 +387,15 @@ int lpc_lsp2pred(float *w,float *a,int p)
 	f[0] = f0;
 	f[1] = f1;
     f[0][0] = f[1][0] = 1.0;
-    f[0][1] = (float)-2.0f*cosf(w[1]*M_PI);
-    f[1][1] = (float)-2.0f*cosf(w[2]*M_PI);
+    f[0][1] = (float)-2.0f * arm_cos_f32(w[1]*M_PI);
+    f[1][1] = (float)-2.0f * arm_cos_f32(w[2]*M_PI);
 
     k = 3;
 
     for(i=2; i <= p2; i++)
     {
-        c[0] = (float)-2.0f*cosf(w[k++]*M_PI);
-        c[1] = (float)-2.0f*cosf(w[k++]*M_PI);
+        c[0] = (float)-2.0f * arm_cos_f32(w[k++]*M_PI);
+        c[1] = (float)-2.0f * arm_cos_f32(w[k++]*M_PI);
         f[0][i] = f[0][i-2];
         f[1][i] = f[1][i-2];
 

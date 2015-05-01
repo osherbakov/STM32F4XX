@@ -66,7 +66,7 @@ extern int main_cmd(int argc, char *argv[]);
 
 #define SIGMAX 32767
 typedef short SPEECH;
-SPEECH	int_sp[FRAME]; /*  integer input array	*/
+SPEECH	int_sp[FRAME] ; /*  integer input array	*/
 	
 /*								*/
 /*	Subroutine READBL: read block of input data		*/

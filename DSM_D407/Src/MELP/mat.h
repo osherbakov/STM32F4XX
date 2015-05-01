@@ -22,19 +22,21 @@ Group (phone 972 480 7442).
    Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
 
-float v_inner(float *v1,float *v2,int n);
-float v_magsq(float *v,int n);
-float *v_zap(float *v,int n);
-float *v_equ(float *v1,float *v2,int n);
-float *v_sub(float *v1,float *v2,int n);
-float *v_add(float *v1,float *v2,int n);
-float *v_scale(float *v,float scale,int n);
-int *v_zap_int(int *v,int n);
-int *v_equ_int(int *v1,int *v2,int n);
-
-
 #define ARM_MATH_CM4
 #define __TARGET_FPU_VFP 1
 #define __FPU_PRESENT 1
 #include "arm_math.h"
+
+float v_inner(float *v1,float *v2,int n);
+float v_magsq(float *v,int n);
+
+#define v_zap(v,n)						arm_fill_f32(0.0f, v, n)
+#define v_equ(v1,v2,n) 				arm_copy_f32(v2, v1, n)
+#define v_sub(v1,v2, n) 			arm_sub_f32(v1, v2, v1, n)
+#define v_add(v1,v2, n) 			arm_add_f32(v1, v2, v1, n)
+#define v_scale(v,scale, n)		arm_scale_f32(v, scale, v, n)
+
+#define v_zap_int(v,n)				arm_fill_q31(0, v, n)
+#define v_equ_int(v1,v2,n) 		arm_copy_q31(v2, v1, n)
+
 

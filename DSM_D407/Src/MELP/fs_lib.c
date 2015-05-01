@@ -39,9 +39,9 @@ Group (phone 972 480 7442).
 #define DFTMAX		160
 
 /* Memory definition		*/
-static float	find_hbuf[2*FFTLENGTH];
-static float	mag[FFTLENGTH];
-static float	idftc[DFTMAX];
+static float	find_hbuf[2*FFTLENGTH] 	__attribute__((section ("CCRAM")));
+static float	mag[FFTLENGTH] 					__attribute__((section ("CCRAM")));
+static float	idftc[DFTMAX] 					__attribute__((section ("CCRAM")));
 
 void find_harm(float input[], float fsmag[], float pitch, int num_harm, 
 	       int length)
@@ -140,7 +140,7 @@ void	idft_real(float real[], float signal[], int length)
     length2 = (length/2)+1;
     w = 2 * M_PI / length;
     for (i = 0; i < length; i++ ) {
-		idftc[i] = cosf(w*i);
+		idftc[i] = arm_cos_f32(w*i);
     }
     real[0] *= (1.0f/length);
     for (i = 1; i < length2-1; i++ ) {

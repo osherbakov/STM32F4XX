@@ -40,14 +40,14 @@ Group (phone 972 480 7442).
 #include "dsp_sub.h"
 
 /* memory definitions */
-static float sigbuf[SIG_LENGTH];
-static float speech[IN_BEG+FRAME];
-static float dcdel[DC_ORD];
-static float lpfsp_del[LPF_ORD];
+static float sigbuf[SIG_LENGTH]  		__attribute__((section ("CCRAM")));
+static float speech[IN_BEG+FRAME]  	__attribute__((section ("CCRAM")));
+static float dcdel[DC_ORD]					__attribute__((section ("CCRAM")));
+static float lpfsp_del[LPF_ORD]			__attribute__((section ("CCRAM")));
 static float pitch_avg;
 static float fpitch[2];
 
-static float w_fs[NUM_HARM];
+static float w_fs[NUM_HARM]					__attribute__((section ("CCRAM")));
 static float r[LPC_ORD+1], lpc[LPC_ORD+1];
 static float weights[LPC_ORD];
 	

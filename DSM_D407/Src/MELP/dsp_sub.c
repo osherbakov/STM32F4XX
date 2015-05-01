@@ -73,13 +73,13 @@ void envelope(float input[], float prev_in, float output[], int npts)
 /*								*/
 /*  Subroutine fill: fill an input array with a value.		*/
 /*								*/
-void fill(float output[], float fillval, int npts)
-{
-  int i;
-
-  for (i = 0; i < npts; i++ )
-    output[i] = fillval;
-}
+// void fill(float output[], float fillval, int npts)
+//{
+//  int i;
+//
+//  for (i = 0; i < npts; i++ )
+//    output[i] = fillval;
+//}
 
 /*								*/
 /*	Subroutine interp_array: interpolate array              */
@@ -177,25 +177,6 @@ float peakiness(float input[], int npts)
     return(peak_fact);
 }
 
-/*								*/
-/*	Subroutine polflt: all pole (IIR) filter.		*/
-/*	Note: The filter coefficients represent the		*/
-/*	denominator only, and the leading coefficient		*/
-/*	is assumed to be 1.					*/
-/*      The output array can overlay the input.                 */
-/*								*/
-void polflt(float input[], float coeff[], float output[], int order,int npts)
-{
-    int i,j;
-    float accum;
-    
-    for (i = 0; i < npts; i++ ) {
-	accum = input[i];
-	for (j = 1; j <= order; j++ )
-	    accum -= output[i-j] * coeff[j];
-	output[i] = accum;
-    }
-}
 
 /*								*/
 /*	Subroutine QUANT_U: quantize positive input value with 	*/
@@ -297,9 +278,29 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 /*								*/
 /*	Subroutine window: multiply signal by window            */
 /*								*/
-void window(float input[], float win_cof[], float output[], int npts)
+//__inline void window(float input[], float win_cof[], float output[], int npts)
+//{
+//	arm_mult_f32(input, win_cof, output, npts);
+//}
+
+/*								*/
+/*	Subroutine polflt: all pole (IIR) filter.		*/
+/*	Note: The filter coefficients represent the		*/
+/*	denominator only, and the leading coefficient		*/
+/*	is assumed to be 1.					*/
+/*      The output array can overlay the input.                 */
+/*								*/
+void polflt(float input[], float coeff[], float output[], int order,int npts)
 {
-	arm_mult_f32(input, win_cof, output, npts);
+    int i,j;
+    float accum;
+    
+    for (i = 0; i < npts; i++ ) {
+	accum = input[i];
+	for (j = 1; j <= order; j++ )
+	    accum -= output[i-j] * coeff[j];
+	output[i] = accum;
+    }
 }
 
 /*								*/
@@ -310,7 +311,7 @@ void zerflt(float input[], float coeff[], float output[], int order, int npts)
 {
     int i,j;
     float accum;
-
+	
     for (i = npts-1; i >= 0; i-- ) {
 		accum = 0.0;
 		for (j = 0; j <= order; j++ )

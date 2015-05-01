@@ -58,14 +58,14 @@ Group (phone 972 480 7442).
 
 /* Static memory */
 static float envdel2[NUM_BANDS];
-static float sigbuf[PIT_BEG+PIT_P_FR];
-static float sigbuf1[FRAME+DC_ORD];
+static float sigbuf[PIT_BEG+PIT_P_FR]  			__attribute__((section ("CCRAM")));
+static float sigbuf1[FRAME+DC_ORD]  				__attribute__((section ("CCRAM")));
 
-static float *bpfdel[NUM_BANDS];
-static float bpfdel_data[NUM_BANDS*BPF_ORD];
+static float *bpfdel[NUM_BANDS]  						__attribute__((section ("CCRAM")));
+static float bpfdel_data[NUM_BANDS*BPF_ORD] __attribute__((section ("CCRAM")));
 
-static float *envdel[NUM_BANDS];
-static float envdel_data[NUM_BANDS*ENV_ORD];
+static float *envdel[NUM_BANDS]  						__attribute__((section ("CCRAM")));
+static float envdel_data[NUM_BANDS*ENV_ORD] __attribute__((section ("CCRAM")));
 
 void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
 {
