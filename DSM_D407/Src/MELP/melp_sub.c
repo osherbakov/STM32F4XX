@@ -58,14 +58,14 @@ Group (phone 972 480 7442).
 
 /* Static memory */
 static float envdel2[NUM_BANDS];
-static float sigbuf[PIT_BEG+PIT_P_FR]  			__attribute__((section ("CCRAM")));
-static float sigbuf1[FRAME+DC_ORD]  				__attribute__((section ("CCRAM")));
+static float sigbuf[PIT_BEG+PIT_P_FR]  			CCMRAM;
+static float sigbuf1[FRAME+DC_ORD]  				CCMRAM;
 
-static float *bpfdel[NUM_BANDS]  						__attribute__((section ("CCRAM")));
-static float bpfdel_data[NUM_BANDS*BPF_ORD] __attribute__((section ("CCRAM")));
+static float *bpfdel[NUM_BANDS]  						CCMRAM;
+static float bpfdel_data[NUM_BANDS*BPF_ORD] CCMRAM;
 
-static float *envdel[NUM_BANDS]  						__attribute__((section ("CCRAM")));
-static float envdel_data[NUM_BANDS*ENV_ORD] __attribute__((section ("CCRAM")));
+static float *envdel[NUM_BANDS]  						CCMRAM;
+static float envdel_data[NUM_BANDS*ENV_ORD] CCMRAM;
 
 void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
 {
@@ -74,11 +74,9 @@ void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
 	
     /* Filter lowest band and estimate pitch */
     v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[0][0],BPF_ORD);
-    polflt(&speech[PIT_FR_BEG],&bpf_den[0],&sigbuf[PIT_BEG],
-	   BPF_ORD,PIT_P_FR);
+    polflt(&speech[PIT_FR_BEG],&bpf_den[0],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
     v_equ(&bpfdel[0][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
-    zerflt(&sigbuf[PIT_BEG],&bpf_num[0],&sigbuf[PIT_BEG],
-	   BPF_ORD,PIT_P_FR);
+    zerflt(&sigbuf[PIT_BEG],&bpf_num[0],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
     
     *pitch = frac_pch(&sigbuf[FIRST_CNTR],
 				&bpvc[0],fpitch[0],5,PITCHMIN,PITCHMAX,MINLENGTH);
@@ -97,11 +95,9 @@ void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
     for (j = 1; j < NUM_BANDS; j++) {
 		/* Bandpass filter input speech */
 		v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[j][0],BPF_ORD);
-		polflt(&speech[PIT_FR_BEG],&bpf_den[j*(BPF_ORD+1)],&sigbuf[PIT_BEG],
-			   BPF_ORD,PIT_P_FR);
+		polflt(&speech[PIT_FR_BEG],&bpf_den[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
 		v_equ(&bpfdel[j][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
-		zerflt(&sigbuf[PIT_BEG],&bpf_num[j*(BPF_ORD+1)],&sigbuf[PIT_BEG],
-			   BPF_ORD,PIT_P_FR);
+		zerflt(&sigbuf[PIT_BEG],&bpf_num[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
 		
 		/* Check correlations for each frame */
 		temp = frac_pch(&sigbuf[FIRST_CNTR],

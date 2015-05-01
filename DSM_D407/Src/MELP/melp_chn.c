@@ -38,8 +38,8 @@ Returns: void
 #define ORIGINAL_BIT_ORDER 0  /* flag to use bit order of original version */
 
 /* Define bit buffer */
-static unsigned int bit_buffer[NUM_CH_BITS]	__attribute__((section ("CCRAM")));
-static struct melp_param param_buffer				__attribute__((section ("CCRAM")));
+static unsigned int bit_buffer[NUM_CH_BITS]	CCMRAM;
+static struct melp_param param_buffer				CCMRAM;
 
 #if (ORIGINAL_BIT_ORDER)
 /* Original linear order */

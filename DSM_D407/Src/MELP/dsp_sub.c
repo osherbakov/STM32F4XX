@@ -290,11 +290,11 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 /*	is assumed to be 1.					*/
 /*      The output array can overlay the input.                 */
 /*								*/
-void polflt(float input[], float coeff[], float output[], int order,int npts)
+void polflt(float input[], const float coeff[], float output[], int order,int npts)
 {
     int i,j;
     float accum;
-    
+	
     for (i = 0; i < npts; i++ ) {
 	accum = input[i];
 	for (j = 1; j <= order; j++ )
@@ -307,12 +307,12 @@ void polflt(float input[], float coeff[], float output[], int order,int npts)
 /*	Subroutine zerflt: all zero (FIR) filter.		*/
 /*      Note: the output array can overlay the input.           */
 /*								*/
-void zerflt(float input[], float coeff[], float output[], int order, int npts)
+void zerflt(float input[], const float coeff[], float output[], int order, int npts)
 {
     int i,j;
     float accum;
-	
-    for (i = npts-1; i >= 0; i-- ) {
+
+		for (i = npts-1; i >= 0; i-- ) {
 		accum = 0.0;
 		for (j = 0; j <= order; j++ )
 			accum += input[i-j] * coeff[j];

@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.  
+Copyright (c) 1996, Texas Instruments, Inc.
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -17,7 +17,7 @@ Group (phone 972 480 7442).
 
 /*
 
-  fs_lib.c: Fourier series subroutines 
+  fs_lib.c: Fourier series subroutines
 
 */
 
@@ -25,6 +25,7 @@ Group (phone 972 480 7442).
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "melp.h"
 #include "spbstd.h"
 #include "mat.h"
 #include "fs.h"
@@ -39,11 +40,11 @@ Group (phone 972 480 7442).
 #define DFTMAX		160
 
 /* Memory definition		*/
-static float	find_hbuf[2*FFTLENGTH] 	__attribute__((section ("CCRAM")));
-static float	mag[FFTLENGTH] 					__attribute__((section ("CCRAM")));
-static float	idftc[DFTMAX] 					__attribute__((section ("CCRAM")));
+static float	find_hbuf[2*FFTLENGTH] 	CCMRAM;
+static float	mag[FFTLENGTH] 					CCMRAM;
+static float	idftc[DFTMAX] 					CCMRAM;
 
-void find_harm(float input[], float fsmag[], float pitch, int num_harm, 
+void find_harm(float input[], float fsmag[], float pitch, int num_harm,
 	       int length)
 {
     int	i, j, k, iwidth, i2;
@@ -60,12 +61,12 @@ void find_harm(float input[], float fsmag[], float pitch, int num_harm,
     for (i = 0; i < 2*length; i+=2)
 		find_hbuf[i] = input[i/2];
     fft(find_hbuf,FFTLENGTH,-1);
-	
+
     /* Calculate magnitude squared of coefficients		*/
     for (i = 0; i < FFTLENGTH; i++ )
 	mag[i] = find_hbuf[2*i]*find_hbuf[2*i] +
 	    find_hbuf[(2*i)+1]*find_hbuf[(2*i)+1];
-	
+
     /* Implement pitch dependent staircase function		*/
     fwidth = FFTLENGTH / pitch;	/* Harmonic bin width	*/
     iwidth = (int) fwidth;
@@ -120,7 +121,7 @@ int 	findmax(float input[], int npts)
 	unsigned int 	maxloc;
 	float   maxval;
 
-	arm_max_f32(input, npts, &maxval, &maxloc);
+	arm_max_f32(input, npts, &maxval, (uint32_t *)&maxloc);
 	return (maxloc);
 }
 

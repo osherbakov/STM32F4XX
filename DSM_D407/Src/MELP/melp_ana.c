@@ -40,16 +40,17 @@ Group (phone 972 480 7442).
 #include "dsp_sub.h"
 
 /* memory definitions */
-static float sigbuf[SIG_LENGTH]  		__attribute__((section ("CCRAM")));
-static float speech[IN_BEG+FRAME]  	__attribute__((section ("CCRAM")));
-static float dcdel[DC_ORD]					__attribute__((section ("CCRAM")));
-static float lpfsp_del[LPF_ORD]			__attribute__((section ("CCRAM")));
+static float sigbuf[SIG_LENGTH]  		CCMRAM;
+static float speech[IN_BEG+FRAME]  	CCMRAM;
+static float dcdel[DC_ORD]					CCMRAM;
+static float lpfsp_del[LPF_ORD]			CCMRAM;
 static float pitch_avg;
 static float fpitch[2];
 
-static float w_fs[NUM_HARM]					__attribute__((section ("CCRAM")));
-static float r[LPC_ORD+1], lpc[LPC_ORD+1];
-static float weights[LPC_ORD];
+static float w_fs[NUM_HARM]					CCMRAM;
+static float r[LPC_ORD+1] 					CCMRAM; 
+static float lpc[LPC_ORD+1] 				CCMRAM;
+static float weights[LPC_ORD]				CCMRAM;
 	
 void melp_ana(float sp_in[],struct melp_param *par)
 {
@@ -167,8 +168,7 @@ void melp_ana(float sp_in[],struct melp_param *par)
     fill(par->fs_mag,1.0,NUM_HARM);
     if (par->bpvc[0] > bpthresh) {
 		lpc_lsp2pred(par->lsf,lpc,LPC_ORD);
-		zerflt(&speech[(FRAME_END-(LPC_FRAME/2))],lpc,sigbuf,
-			   LPC_ORD,LPC_FRAME);
+		zerflt(&speech[(FRAME_END-(LPC_FRAME/2))], lpc,sigbuf, LPC_ORD, LPC_FRAME);
 		window(sigbuf,win_cof,sigbuf,LPC_FRAME);
 		find_harm(sigbuf, par->fs_mag, par->pitch, NUM_HARM, LPC_FRAME);
     }
@@ -196,7 +196,7 @@ void melp_ana(float sp_in[],struct melp_param *par)
 
 void melp_ana_init(melp_param_t *par)
 {
-    int j;
+    int i;
 
     bpvc_ana_init();
     pitch_ana_init();
@@ -244,7 +244,7 @@ void melp_ana_init(melp_param_t *par)
 		fsvq_weighted = 1;
 	    /* Scale codebook to 0 to 1 */
 		v_scale(msvq_cb,(2.0f/FSAMP),3200);
-		for (j = 0; j < FS_LEVELS; j++)
-			window(&fsvq_cb[j*NUM_HARM],w_fs,&fsvq_cb[j*NUM_HARM], NUM_HARM);
+		for (i = 0; i < FS_LEVELS; i++)
+			window(&fsvq_cb[i*NUM_HARM],w_fs,&fsvq_cb[i*NUM_HARM], NUM_HARM);
 	}
 }

@@ -107,13 +107,13 @@ Group (phone 972 480 7442).
 #define MINFRAC -1.0f
 
 /* External variables */
-extern float lpf_num[], lpf_den[];
-extern float bpf_num[], bpf_den[];
-extern float win_cof[];
+extern const float lpf_num[], lpf_den[];
+extern const float bpf_num[], bpf_den[];
+extern const float win_cof[];
 extern float msvq_cb[];
 extern float fsvq_cb[];
-extern float bp_cof[NUM_BANDS][MIX_ORD+1];
-extern float disp_cof[DISP_ORD+1];
+extern const float bp_cof[NUM_BANDS][MIX_ORD+1];
+extern const float disp_cof[DISP_ORD+1];
 extern int fsvq_weighted;
 
 /* compiler constants */
@@ -167,6 +167,15 @@ typedef struct melp_param {         /* MELP parameters */
 	msvq_param_t fsvq_par;		/* Fourier series VQ parameters */
 }melp_param_t;
 
+
+#ifdef _WIN32
+#define CCMRAM 
+#define RODATA 
+#else
+#define CCMRAM __attribute__((section (".ccmram")))
+#define RODATA __attribute__((section (".rodata")))
+#endif
+
 /* External function definitions */
 #ifdef _WIN32
 __declspec(dllexport) void __cdecl melp_ana(float sp_in[],struct melp_param *par);
@@ -189,3 +198,4 @@ void  melp_chn_write(struct melp_param *par);
 void  fec_code(struct melp_param *par);
 int   fec_decode(struct melp_param *par, int erase);
 #endif
+

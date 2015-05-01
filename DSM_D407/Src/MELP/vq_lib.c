@@ -33,13 +33,13 @@ Group (phone 972 480 7442).
 #define BIGVAL 1E20f
 
 
-static int indices[2 * MSVQ_M * 4]  __attribute__((section ("CCRAM")));
-static int parents[2 * MSVQ_M]  __attribute__((section ("CCRAM")));
-static float errors[2 * MSVQ_M * 10]  __attribute__((section ("CCRAM")));
-static float uhatw[10]  __attribute__((section ("CCRAM")));
-static float d[2 * MSVQ_M]  __attribute__((section ("CCRAM")));
-static float u_tmp[10+1]  __attribute__((section ("CCRAM")));
-static float uhat[LPC_ORD]  __attribute__((section ("CCRAM")));
+static int indices[2 * MSVQ_M * 4]  CCMRAM;
+static int parents[2 * MSVQ_M]  CCMRAM;
+static float errors[2 * MSVQ_M * 10]  CCMRAM;
+static float uhatw[10]  CCMRAM;
+static float d[2 * MSVQ_M]  CCMRAM;
+static float u_tmp[10+1]  CCMRAM;
+static float uhat[LPC_ORD]  CCMRAM;
 
 /* VQ_LSPW- compute LSP weighting vector-
 
@@ -128,10 +128,10 @@ float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages,
     n_parents = &parents[ma];
 
     /* u_tmp is the input vector (i.e. if u_est is non-null, it is subtracted off) */
-    (void)v_equ(u_tmp,u,p);
+    v_equ(u_tmp,u,p);
     if (u_est)
     {
-        (void)v_sub(u_tmp,u_est,p);
+        v_sub(u_tmp,u_est,p);
     }
 
     for(j=0,tmp=0.0; j < p; j++)
@@ -142,7 +142,7 @@ float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages,
     /* set up inital error vectors (i.e. error vectors = u_tmp) */
     for(c=0; c < ma; c++)
     {
-        (void)v_equ(&n_errors[c*p],u_tmp,p);
+        v_equ(&n_errors[c*p],u_tmp,p);
         n_d[c] = tmp;
     }
 
@@ -254,11 +254,11 @@ float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages,
         {
             /* get the error from the parent node and subtract off
                the codebook value */
-            (void)v_equ(&n_errors[c*p],&p_errors[n_parents[c]*p],p);
-            (void)v_sub(&n_errors[c*p],&cb_currentstage[n_indices[c*stages+s]*p],p);
+            v_equ(&n_errors[c*p],&p_errors[n_parents[c]*p],p);
+            v_sub(&n_errors[c*p],&cb_currentstage[n_indices[c*stages+s]*p],p);
 
             /* get the indices that were used for the parent node */
-            (void)v_equ_int(&n_indices[c*stages],&p_indices[n_parents[c]*stages],s);
+            v_equ_int(&n_indices[c*stages],&p_indices[n_parents[c]*stages],s);
         }
 
         m = (m*levels[s] > ma) ? ma : m*levels[s];
@@ -275,19 +275,19 @@ float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages,
     
     if (a_indices)
     {
-        (void)v_equ_int(a_indices,&n_indices[c*stages],stages);
+        v_equ_int(a_indices,&n_indices[c*stages],stages);
     }
     if (u_hat)
     {
         if (u_est)
-            (void)v_equ(u_hat,u_est,p);
+            v_equ(u_hat,u_est,p);
         else
-            (void)v_zap(u_hat,p);
+            v_zap(u_hat,p);
 
         cb_currentstage = cb;
         for(s=0; s < stages; s++)
         {
-            (void)v_add(u_hat,&cb_currentstage[n_indices[c*stages+s]*p],p);
+            v_add(u_hat,&cb_currentstage[n_indices[c*stages+s]*p],p);
             cb_currentstage += levels[s]*p;
         }
     }
@@ -335,17 +335,17 @@ float *vq_msd2(float *cb, float *u, float *u_est, float *a, int *indices, int *l
     /* add estimate on (if non-null), or clear vector */
     if (u_est)
     {
-        (void)v_equ(u_hat,u_est,p);
+        v_equ(u_hat,u_est,p);
     } else
     {
-        (void)v_zap(u_hat,p);
+        v_zap(u_hat,p);
     }
 
     /* add the contribution of each stage */
     cb_currentstage = cb;
     for(i=0; i < stages; i++)
     {
-        (void)v_add(u_hat,&cb_currentstage[indices[i]*p],p);
+        v_add(u_hat,&cb_currentstage[indices[i]*p],p);
         cb_currentstage += levels[i]*p;
     }
 

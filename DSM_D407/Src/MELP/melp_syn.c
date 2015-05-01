@@ -44,37 +44,41 @@ Group (phone 972 480 7442).
 
 
 /* temporary memory */
-static float sigbuf[BEGIN+PITCHMAX]  	__attribute__((section ("CCRAM")));
-static float sig2[BEGIN+PITCHMAX]  		__attribute__((section ("CCRAM")));
-static float fs_real[PITCHMAX]  			__attribute__((section ("CCRAM")));
+static float sigbuf[BEGIN+PITCHMAX]  	CCMRAM;
+static float sig2[BEGIN+PITCHMAX]  		CCMRAM;
+static float fs_real[PITCHMAX]  			CCMRAM;
 
 /* permanent memory */ 
 static int firstcall = 1; /* Just used for noise gain init */
-static float sigsave[2*PITCHMAX]  		__attribute__((section ("CCRAM")));
-static struct melp_param prev_par			__attribute__((section ("CCRAM")));	
+static float sigsave[2*PITCHMAX]  		CCMRAM;
+static struct melp_param prev_par			CCMRAM;	
 static int syn_begin;
 static float prev_scale;
 static float noise_gain = MIN_NOISE;
-static float pulse_del[MIX_ORD],noise_del[MIX_ORD];
-static float lpc_del[LPC_ORD],ase_del[LPC_ORD],tilt_del[TILT_ORD];
-static float disp_del[DISP_ORD]			__attribute__((section ("CCRAM")));
+static float pulse_del[MIX_ORD]				CCMRAM;
+static float noise_del[MIX_ORD]				CCMRAM;
+static float lpc_del[LPC_ORD]					CCMRAM;
+static float ase_del[LPC_ORD]					CCMRAM;
+static float tilt_del[TILT_ORD]				CCMRAM;
+static float disp_del[DISP_ORD]				CCMRAM;
 
 /* these can be saved or recomputed */
-static float prev_pcof[MIX_ORD+1], prev_ncof[MIX_ORD+1];
+static float prev_pcof[MIX_ORD+1]			CCMRAM; 
+static float 	prev_ncof[MIX_ORD+1]		CCMRAM;
 static float prev_tilt;
 
 // Temporary static vars
-static float tilt_cof[TILT_ORD+1]			__attribute__((section ("CCRAM")));
-static float lsf[LPC_ORD+1]						__attribute__((section ("CCRAM")));
-static float lpc[LPC_ORD+1]						__attribute__((section ("CCRAM")));
-static float ase_num[LPC_ORD+1]				__attribute__((section ("CCRAM"))),
-						 ase_den[LPC_ORD+1]				__attribute__((section ("CCRAM")));
-static float curr_pcof[MIX_ORD+1]			__attribute__((section ("CCRAM"))),
-							curr_ncof[MIX_ORD+1]		__attribute__((section ("CCRAM")));
-static float pulse_cof[MIX_ORD+1]			__attribute__((section ("CCRAM"))),
-							noise_cof[MIX_ORD+1]		__attribute__((section ("CCRAM")));
-static float w_fs[NUM_HARM]						__attribute__((section ("CCRAM")));
-static float w_fs_inv[NUM_HARM]				__attribute__((section ("CCRAM")));
+static float tilt_cof[TILT_ORD+1]			CCMRAM;
+static float lsf[LPC_ORD+1]						CCMRAM;
+static float lpc[LPC_ORD+1]						CCMRAM;
+static float ase_num[LPC_ORD+1]				CCMRAM,
+						 ase_den[LPC_ORD+1]				CCMRAM;
+static float curr_pcof[MIX_ORD+1]			CCMRAM,
+							curr_ncof[MIX_ORD+1]		CCMRAM;
+static float pulse_cof[MIX_ORD+1]			CCMRAM,
+							noise_cof[MIX_ORD+1]		CCMRAM;
+static float w_fs[NUM_HARM]						CCMRAM;
+static float w_fs_inv[NUM_HARM]				CCMRAM;
 
 void melp_syn(struct melp_param *par, float sp_out[])
 {
@@ -408,6 +412,7 @@ void melp_syn_init(melp_param_t *par)
 
     par->fsvq_par.levels[0] = FS_LEVELS;
     par->fsvq_par.bits[0] = FS_BITS;
+		
     par->fsvq_par.cb = fsvq_cb;
 	
     /* Initialize fixed MSE weighting and inverse of weighting  */
