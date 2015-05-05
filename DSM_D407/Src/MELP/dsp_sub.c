@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.  
+Copyright (c) 1996, Texas Instruments, Inc.
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -15,7 +15,7 @@ Group (phone 972 480 7442).
 
 */
 
-/*  
+/*
 
   dsp_sub.c: general subroutines.
 
@@ -29,11 +29,6 @@ Group (phone 972 480 7442).
 #include	"spbstd.h"
 #include	"mat.h"
 
-
-#define ARM_MATH_CM4
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-#include "arm_math.h"
 
 /*								*/
 /*	Subroutine autocorr: calculate autocorrelations         */
@@ -91,7 +86,7 @@ void interp_array(float prev[],float curr[],float out[],float ifact,int size)
 
     ifact2 = 1.0F - ifact;
     for (i = 0; i < size; i++)
-      out[i] = ifact*curr[i] + ifact2*prev[i];      
+      out[i] = ifact*curr[i] + ifact2*prev[i];
 }
 
 /*								*/
@@ -251,7 +246,7 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 	ch_bit = *p_ch_bit;
 	ch_word = *p_ch_beg;
 	*p_code = 0;
-        ret_code = *ch_word & ERASE_MASK;    
+        ret_code = *ch_word & ERASE_MASK;
 
 	for (i = 0; i < numbits; i++) {
 		/* Mask in bit from channel word to code	*/
@@ -270,7 +265,7 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 
     /* Catch erasure in new word if read */
     if (ch_bit != 0)
-      ret_code |= *ch_word & ERASE_MASK;    
+      ret_code |= *ch_word & ERASE_MASK;
 
     return(ret_code);
 }
@@ -294,12 +289,12 @@ void polflt(float input[], const float coeff[], float output[], int order,int np
 {
     int i,j;
     float accum;
-	
+
     for (i = 0; i < npts; i++ ) {
-	accum = input[i];
-	for (j = 1; j <= order; j++ )
-	    accum -= output[i-j] * coeff[j];
-	output[i] = accum;
+        accum = input[i];
+        for (j = 1; j <= order; j++ )
+            accum -= output[i-j] * coeff[j];
+        output[i] = accum;
     }
 }
 
@@ -312,7 +307,7 @@ void zerflt(float input[], const float coeff[], float output[], int order, int n
     int i,j;
     float accum;
 
-		for (i = npts-1; i >= 0; i-- ) {
+    for (i = npts-1; i >= 0; i-- ) {
 		accum = 0.0;
 		for (j = 0; j <= order; j++ )
 			accum += input[i-j] * coeff[j];

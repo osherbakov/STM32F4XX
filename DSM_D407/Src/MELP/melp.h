@@ -117,7 +117,7 @@ extern const float disp_cof[DISP_ORD+1];
 extern int fsvq_weighted;
 
 /* compiler constants */
- 
+
 #if (MIX_ORD > DISP_ORD)
 #define BEGIN MIX_ORD
 #else
@@ -169,8 +169,8 @@ typedef struct melp_param {         /* MELP parameters */
 
 
 #ifdef _WIN32
-#define CCMRAM 
-#define RODATA 
+#define CCMRAM
+#define RODATA
 #else
 #define CCMRAM __attribute__((section (".ccmram")))
 #define RODATA __attribute__((section (".rodata")))

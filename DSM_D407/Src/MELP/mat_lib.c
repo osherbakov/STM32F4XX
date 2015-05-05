@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.  
+Copyright (c) 1996, Texas Instruments, Inc.
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -23,11 +23,6 @@ Group (phone 972 480 7442).
 
 #include "spbstd.h"
 #include "mat.h"
-
-#define ARM_MATH_CM4
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-#include "arm_math.h"
 
 /* V_ADD- vector addition */
 //__inline float *v_add(float *v1,float *v2,int n)
