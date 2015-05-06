@@ -61,9 +61,11 @@ static float envdel2[NUM_BANDS];
 static float sigbuf[PIT_BEG+PIT_P_FR]  			CCMRAM;
 static float sigbuf1[FRAME+DC_ORD]  				CCMRAM;
 
+// Array of pointers to the delay buffer for each band
 static float *bpfdel[NUM_BANDS]  						CCMRAM;
 static float bpfdel_data[NUM_BANDS*BPF_ORD] CCMRAM;
 
+// Array of pointers to the delay buffer for each band
 static float *envdel[NUM_BANDS]  						CCMRAM;
 static float envdel_data[NUM_BANDS*ENV_ORD] CCMRAM;
 
@@ -81,38 +83,38 @@ void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
     *pitch = frac_pch(&sigbuf[FIRST_CNTR],&bpvc[0],fpitch[0],5,PITCHMIN,PITCHMAX,MINLENGTH);
 
     for (j = 1; j < NUM_PITCHES; j++) {
-		temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr,fpitch[j],5,PITCHMIN,PITCHMAX,MINLENGTH);
-		/* choose largest correlation value */
-		if (pcorr > bpvc[0]) {
-			*pitch = temp;
-			bpvc[0] = pcorr;
-		}
+			temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr,fpitch[j],5,PITCHMIN,PITCHMAX,MINLENGTH);
+			/* choose largest correlation value */
+			if (pcorr > bpvc[0]) {
+				*pitch = temp;
+				bpvc[0] = pcorr;
+			}
     }
 
     /* Calculate bandpass voicing for frames */
     for (j = 1; j < NUM_BANDS; j++) {
-		/* Bandpass filter input speech */
-		v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[j][0],BPF_ORD);
-		polflt(&speech[PIT_FR_BEG],&bpf_den[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
-		v_equ(&bpfdel[j][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
-		zerflt(&sigbuf[PIT_BEG],&bpf_num[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
+			/* Bandpass filter input speech */
+			v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[j][0],BPF_ORD);
+			polflt(&speech[PIT_FR_BEG],&bpf_den[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
+			v_equ(&bpfdel[j][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
+			zerflt(&sigbuf[PIT_BEG],&bpf_num[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
 
-		/* Check correlations for each frame */
-		temp = frac_pch(&sigbuf[FIRST_CNTR], &bpvc[j],*pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
+			/* Check correlations for each frame */
+			temp = frac_pch(&sigbuf[FIRST_CNTR], &bpvc[j],*pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
 
-		/* Calculate envelope of bandpass filtered input speech */
-		temp = envdel2[j];
-		envdel2[j] = sigbuf[PIT_BEG+FRAME-1];
-		v_equ(&sigbuf[PIT_BEG-ENV_ORD],&envdel[j][0],ENV_ORD);
-		envelope(&sigbuf[PIT_BEG],temp,&sigbuf[PIT_BEG],PIT_P_FR);
-		v_equ(&envdel[j][0],&sigbuf[PIT_BEG+FRAME-ENV_ORD],ENV_ORD);
+			/* Calculate envelope of bandpass filtered input speech */
+			temp = envdel2[j];
+			envdel2[j] = sigbuf[PIT_BEG+FRAME-1];
+			v_equ(&sigbuf[PIT_BEG-ENV_ORD],&envdel[j][0],ENV_ORD);
+			envelope(&sigbuf[PIT_BEG],temp,&sigbuf[PIT_BEG],PIT_P_FR);
+			v_equ(&envdel[j][0],&sigbuf[PIT_BEG+FRAME-ENV_ORD],ENV_ORD);
 
-		/* Check correlations for each frame */
-		temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr, *pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
+			/* Check correlations for each frame */
+			temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr, *pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
 
-		/* reduce envelope correlation */
-		pcorr -= 0.1f;
-		if (pcorr > bpvc[j]) bpvc[j] = pcorr;
+			/* reduce envelope correlation */
+			pcorr -= 0.1f;
+			if (pcorr > bpvc[j]) bpvc[j] = pcorr;
     }
 }
 
@@ -168,13 +170,28 @@ static float dc_den[DC_ORD+1] RODATA = {
       0.85918839f
 };
 
+//-------------------------------------------------------------------
+//  DC Filter made as 2 Biquad stages
+//
+#define DC_NUM_STAGES	(2)
+static float dc_iir[DC_NUM_STAGES * 5] RODATA = {
+	0.92692416f, -1.8535477f, 0.92692416f,  1.8947f, -0.898212f,
+  1.0f, -1.9981f, 1.0f,   1.9514f,  -0.9565539f 
+};
+static float dc_state[DC_NUM_STAGES * 4 ];
+static arm_biquad_casd_df1_inst_f32 S_dc RODATA= {DC_NUM_STAGES, dc_state, dc_iir};
+//
+//-------------------------------------------------------------------
+
 void dc_rmv(float sigin[], float sigout[], float dcdel[], int frame)
 {
     /* Remove DC from input speech */
-    v_equ(sigbuf1,dcdel,DC_ORD);
-    polflt(sigin,dc_den,&sigbuf1[DC_ORD],DC_ORD,frame);
-    v_equ(dcdel,&sigbuf1[frame],DC_ORD);
-    zerflt(&sigbuf1[DC_ORD],dc_num,sigout,DC_ORD,frame);
+		arm_biquad_cascade_df1_f32(&S_dc, sigin, sigout, frame);
+//		v_equ(sigout, sigin, frame);
+//    v_equ(sigbuf1,dcdel,DC_ORD);
+//    polflt(sigin,dc_den,&sigbuf1[DC_ORD],DC_ORD,frame);
+//    v_equ(dcdel,&sigbuf1[frame],DC_ORD);
+//    zerflt(&sigbuf1[DC_ORD],dc_num,sigout,DC_ORD,frame);
 }
 
 /*

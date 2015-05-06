@@ -74,17 +74,16 @@ void melp_ana(float sp_in[],struct melp_param *par)
 
     /* Perform global pitch search at frame end on lowpass speech signal */
     /* Note: avoid short pitches due to formant tracking */
-    fpitch[1] = find_pitch(&sigbuf[LPF_ORD+(PITCH_FR/2)],&temp,
-			     (2*PITCHMIN),PITCHMAX,PITCHMAX);
+    fpitch[1] = find_pitch(&sigbuf[LPF_ORD+(PITCH_FR/2)],&temp,(2*PITCHMIN),PITCHMAX,PITCHMAX);
 
     /* Perform bandpass voicing analysis for end of frame */
     bpvc_ana(&speech[FRAME_END], fpitch, &par->bpvc[0], &sub_pitch);
 
     /* Force jitter if lowest band voicing strength is weak */
     if (par->bpvc[0] < VJIT)
-		par->jitter = MAX_JITTER;
+			par->jitter = MAX_JITTER;
     else
-		par->jitter = 0.0;
+			par->jitter = 0.0;
 
     /* Calculate LPC for end of frame */
     window(&speech[(FRAME_END-(LPC_FRAME/2))],win_cof,sigbuf,LPC_FRAME);
@@ -102,13 +101,13 @@ void melp_ana(float sp_in[],struct melp_param *par)
 
     /* Peakiness: force lowest band to be voiced  */
     if (temp > PEAK_THRESH) {
-		par->bpvc[0] = 1.0;
+			par->bpvc[0] = 1.0;
     }
 
     /* Extreme peakiness: force second and third bands to be voiced */
     if (temp > PEAK_THR2) {
-		par->bpvc[1] = 1.0;
-		par->bpvc[2] = 1.0;
+			par->bpvc[1] = 1.0;
+			par->bpvc[2] = 1.0;
     }
 
     /* Calculate overall frame pitch using lowpass filtered residual */
@@ -121,12 +120,10 @@ void melp_ana(float sp_in[],struct melp_param *par)
 		if (par->bpvc[0] > bpthresh) {
 			/* voiced mode: pitch synchronous window length */
 			temp = sub_pitch;
-			par->gain[i] = gain_ana(&speech[FRAME_BEG+(i+1)*GAINFR],
-						temp,MIN_GAINFR,2*PITCHMAX);
+			par->gain[i] = gain_ana(&speech[FRAME_BEG+(i+1)*GAINFR],temp,MIN_GAINFR,2*PITCHMAX);
 		}else {
 			temp = 1.33f*GAINFR - 0.5f;
-			par->gain[i] = gain_ana(&speech[FRAME_BEG+(i+1)*GAINFR],
-						temp,0,2*PITCHMAX);
+			par->gain[i] = gain_ana(&speech[FRAME_BEG+(i+1)*GAINFR],temp,0,2*PITCHMAX);
 		}
     }
 
