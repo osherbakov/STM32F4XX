@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.
+Copyright (c) 1996, Texas Instruments, Inc.  
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -17,7 +17,7 @@ Group (phone 972 480 7442).
 
 /*
 
-  fs_lib.c: Fourier series subroutines
+  fs_lib.c: Fourier series subroutines 
 
 */
 
@@ -25,12 +25,11 @@ Group (phone 972 480 7442).
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "melp.h"
 #include "spbstd.h"
+#include "melp.h"
 #include "mat.h"
 #include "fs.h"
 
-#include "arm_const_structs.h"
 
 /*								*/
 /*	Subroutine FIND_HARM: find Fourier coefficients using	*/
@@ -40,18 +39,18 @@ Group (phone 972 480 7442).
 #define DFTMAX		160
 
 /* Memory definition		*/
-static float	find_hbuf[2*FFTLENGTH] 	CCMRAM;
-static float	mag[FFTLENGTH] 					CCMRAM;
-static float	idftc[DFTMAX] 					CCMRAM;
+static float	find_hbuf[2*FFTLENGTH]	CCMRAM;
+static float	mag[FFTLENGTH]			CCMRAM;
+static float	idftc[DFTMAX]			CCMRAM;
 
-void find_harm(float input[], float fsmag[], float pitch, int num_harm,
+
+void find_harm(float input[], float fsmag[], float pitch, int num_harm, 
 	       int length)
 {
     int	i, j, k, iwidth, i2;
     float temp, avg, fwidth;
 
-    for (i = 0; i < num_harm; i++)
-      fsmag[i] = 1.0;
+	v_fill(fsmag, 1.0f, num_harm);
     avg = 0.0;
 
     /* Perform peak-picking on FFT of input signal */
@@ -61,20 +60,17 @@ void find_harm(float input[], float fsmag[], float pitch, int num_harm,
     for (i = 0; i < 2*length; i+=2)
 		find_hbuf[i] = input[i/2];
     fft(find_hbuf,FFTLENGTH,-1);
-
+	
     /* Calculate magnitude squared of coefficients		*/
-    for (i = 0; i < FFTLENGTH; i++ )
-	mag[i] = find_hbuf[2*i]*find_hbuf[2*i] +
-	    find_hbuf[(2*i)+1]*find_hbuf[(2*i)+1];
-
+	arm_cmplx_mag_squared_f32(find_hbuf, mag, FFTLENGTH);
+	
     /* Implement pitch dependent staircase function		*/
     fwidth = FFTLENGTH / pitch;	/* Harmonic bin width	*/
     iwidth = (int) fwidth;
     if (iwidth < 2) iwidth = 2;
     i2 = iwidth/2;
     avg = 0.0;
-    if (num_harm > 0.25f*pitch)
-		num_harm = (int)(0.25f*pitch);
+    if (num_harm > 0.25f*pitch)	num_harm = (int)(0.25f*pitch);
     for (k = 0; k < num_harm; k++) {
 		i = (int)(((k+1)*fwidth) - i2 + 0.5f); /* Start at peak-i2 */
 		j = i + findmax(&mag[i],iwidth);
@@ -85,7 +81,7 @@ void find_harm(float input[], float fsmag[], float pitch, int num_harm,
     /* Normalize Fourier series values to average magnitude */
     temp = num_harm/(avg + .0001f);
     for (i = 0; i < num_harm; i++) {
-		fsmag[i] = sqrtf(temp*fsmag[i]);
+		fsmag[i] = arm_sqrt(temp*fsmag[i]);
     }
 }
 
@@ -113,19 +109,6 @@ void fft(float *datam1,int nn,int isign)
 }
 
 /*								*/
-/*	Subroutine FINDMAX: find maximum value in an 		*/
-/*	input array.						*/
-/*								*/
-int 	findmax(float input[], int npts)
-{
-	unsigned int 	maxloc;
-	float   maxval;
-
-	arm_max_f32(input, npts, &maxval, (uint32_t *)&maxloc);
-	return (maxloc);
-}
-
-/*								*/
 /*	Subroutine IDFT_REAL: take inverse discrete Fourier 	*/
 /*	transform of real input coefficients.			*/
 /*	Assume real time signal, so reduce computation		*/
@@ -136,12 +119,12 @@ void	idft_real(float real[], float signal[], int length)
 
 {
     int	i, j, k, k_inc, length2;
-    float	w;
+    float	w, accum;
 
     length2 = (length/2)+1;
     w = 2 * M_PI / length;
     for (i = 0; i < length; i++ ) {
-		idftc[i] = arm_cos_f32(w*i);
+		idftc[i] = arm_cos(w*i);
     }
     real[0] *= (1.0f/length);
     for (i = 1; i < length2-1; i++ ) {
@@ -153,14 +136,15 @@ void	idft_real(float real[], float signal[], int length)
 		real[i] *= (2.0f/length);
 
     for (i = 0; i < length; i++ ) {
-		signal[i] = real[0];
+		accum = real[0];
 		k_inc = i;
 		k = k_inc;
 		for (j = 1; j < length2; j++ ) {
-			signal[i] += real[j] * idftc[k];
+			accum += real[j] * idftc[k];
 			k += k_inc;
 			if (k >= length)
 			k -= length;
 		}
+		signal[i] = accum; 
     }
 }

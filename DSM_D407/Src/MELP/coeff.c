@@ -25,34 +25,26 @@ Group (phone 972 480 7442).
 
 /* Butterworth lowpass filter	*/
 /* numerator */
-const float lpf_num[LPF_ORD+1] RODATA = {
+float lpf_num[LPF_ORD+1] RODATA = {
       0.00105165f,
       0.00630988f,
       0.01577470f,
       0.02103294f,
       0.01577470f,
       0.00630988f,
-      0.00105165f
-};
+      0.00105165f};
 /* denominator */
-const float lpf_den[LPF_ORD+1] RODATA = { 
+float lpf_den[LPF_ORD+1] RODATA = { 
       1.00000000f,
      -2.97852993f,
       4.13608100f,
      -3.25976428f,
       1.51727884f,
      -0.39111723f,
-      0.04335699f
-};
-
-const float lpf_iir[] RODATA = {
-	 0.00105165f,   0.0021033f,   0.00105165f, 0.84028696f,  -0.1883452f,
-   1.0f, 2.103183f,  1.1088f,  0.942809f,   -0.333333f,
-   1.0f, 1.89679765f,  0.9018698f,  1.1954339f,  -0.6905989f	
-};
+      0.04335699f};
 
 /* Butterworth bandpass filters */
-const float bpf_num[NUM_BANDS*(BPF_ORD+1)] RODATA = {
+float bpf_num[NUM_BANDS*(BPF_ORD+1)] RODATA = {
       0.00002883f,
       0.00017296f,
       0.00043239f,
@@ -60,41 +52,36 @@ const float bpf_num[NUM_BANDS*(BPF_ORD+1)] RODATA = {
       0.00043239f,
       0.00017296f,
       0.00002883f,
-      
-			0.00530041f,
+      0.00530041f,
       0.00000000f,
      -0.01590123f,
       0.00000000f,
       0.01590123f,
       0.00000000f,
      -0.00530041f,
-      
-	    0.03168934f,
+      0.03168934f,
       0.00000000f,
      -0.09506803f,
      -0.00000000f,
       0.09506803f,
      -0.00000000f,
      -0.03168934f,
-      
-			0.03168934f,
+      0.03168934f,
       0.00000000f,
      -0.09506803f,
       0.00000000f,
       0.09506803f,
       0.00000000f,
      -0.03168934f,
-      
-			0.00105165f,
+      0.00105165f,
      -0.00630988f,
       0.01577470f,
      -0.02103294f,
       0.01577470f,
      -0.00630988f,
-      0.00105165f
-};
+      0.00105165f};
 
-const float bpf_den[NUM_BANDS*(BPF_ORD+1)] RODATA = {
+float bpf_den[NUM_BANDS*(BPF_ORD+1)] RODATA = {
       1.00000000,
      -4.48456301f, 
       8.52900508f, 
@@ -102,32 +89,28 @@ const float bpf_den[NUM_BANDS*(BPF_ORD+1)] RODATA = {
       5.14764268f, 
      -1.62771478f, 
       0.21658286f, 
-
-		  1.00000000f, 
+      1.00000000f, 
      -4.42459751f, 
       8.79771496f, 
      -9.95335557f, 
       6.75320305f, 
      -2.60749972f, 
       0.45354593f, 
-      
-			1.00000000f, 
+      1.00000000f, 
      -1.84699031f, 
       2.63060194f, 
      -2.21638838f, 
       1.57491237f, 
      -0.62291281f, 
       0.19782519f, 
-      
-			1.00000000f, 
+      1.00000000f, 
       1.84699031f, 
       2.63060194f, 
       2.21638838f, 
       1.57491237f, 
       0.62291281f, 
       0.19782519f, 
-      
-			1.00000000f, 
+      1.00000000f, 
       2.97852993f, 
       4.13608100f, 
       3.25976428f, 
@@ -135,8 +118,8 @@ const float bpf_den[NUM_BANDS*(BPF_ORD+1)] RODATA = {
       0.39111723f, 
       0.04335699f};
 
-/* Hamming window coefficents */
-const float win_cof[LPC_FRAME] RODATA = {
+/* Hamming window coefficients */
+float win_cof[LPC_FRAME] RODATA = {
       0.08000000f, 
       0.08022927f, 
       0.08091685f, 
@@ -338,8 +321,8 @@ const float win_cof[LPC_FRAME] RODATA = {
       0.08022927f, 
       0.08000000f};
 
-/* Bandpass filter coeffients */
-const float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
+/* Bandpass filter coefficients */
+float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
 {
      -0.00000000f, 
      -0.00302890f, 
@@ -373,7 +356,7 @@ const float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
      -0.01130619f, 
      -0.00701117f, 
      -0.00302890f, 
-     -0.00000000f
+     -0.00000000
 }, 
 {
      -0.00000000f, 
@@ -408,7 +391,7 @@ const float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
       0.00257679f, 
      -0.00282091f, 
      -0.00249420f, 
-     -0.00000000f
+     -0.00000000
 }, 
 {
      -0.00000000f, 
@@ -443,7 +426,7 @@ const float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
       0.02086129f, 
       0.00990113f, 
      -0.00231491f, 
-     -0.00000000f
+     -0.00000000
 }, 
 {
      -0.00000000f, 
@@ -478,7 +461,7 @@ const float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
      -0.02086129f, 
       0.00990113f, 
       0.00231491f, 
-     -0.00000000f
+     -0.00000000
 }, 
 {
       0.00000000f, 
@@ -513,11 +496,9 @@ const float bp_cof[NUM_BANDS][MIX_ORD+1] RODATA = {
       0.00856805f, 
      -0.00981750f, 
       0.00554149f, 
-      0.00000000f}
-};
-
+      0.00000000}};
 /* Triangle pulse dispersion filter */
-const float disp_cof[DISP_ORD+1] RODATA = {
+float disp_cof[DISP_ORD+1] RODATA = {
      -0.17304259f, 
      -0.01405709f, 
       0.01224406f, 
@@ -582,5 +563,4 @@ const float disp_cof[DISP_ORD+1] RODATA = {
       0.03444110f, 
       0.00026302f, 
      -0.01053809f, 
-      0.02165922f
-};
+      0.02165922f};

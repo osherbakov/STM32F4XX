@@ -32,15 +32,6 @@ Group (phone 972 480 7442).
 
 #define BIGVAL 1E20f
 
-
-static int indices[2 * MSVQ_M * 4]  CCMRAM;
-static int parents[2 * MSVQ_M]  CCMRAM;
-static float errors[2 * MSVQ_M * 10]  CCMRAM;
-static float uhatw[10]  CCMRAM;
-static float d[2 * MSVQ_M]  CCMRAM;
-static float u_tmp[10+1]  CCMRAM;
-static float uhat[LPC_ORD]  CCMRAM;
-
 /* VQ_LSPW- compute LSP weighting vector-
 
     Atal's method:
@@ -95,6 +86,13 @@ float *vq_lspw(float *w,float *lsp,float *a,int p)
 
 #define P_SWAP(x,y,type) do{type u__p;u__p = x;x = y;y = u__p;}while(0)
 
+static int indices[2 * MSVQ_M * 4]	CCMRAM;
+static int parents[2 * MSVQ_M]		CCMRAM;
+static float errors[2 * MSVQ_M * 10] CCMRAM;
+static float uhatw[10]				CCMRAM;
+static float d[2 * MSVQ_M]			CCMRAM;
+static float u_tmp[10+1]			CCMRAM;
+static float uhat[LPC_ORD]			CCMRAM;
 
 float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages, int p, float *w, float *u_hat, int *a_indices,int max_inner)
 {
@@ -139,7 +137,7 @@ float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages,
         tmp += u_tmp[j]*u_tmp[j]*w[j];
     }
 
-    /* set up inital error vectors (i.e. error vectors = u_tmp) */
+    /* set up initial error vectors (i.e. error vectors = u_tmp) */
     for(c=0; c < ma; c++)
     {
         v_equ(&n_errors[c*p],u_tmp,p);
@@ -203,7 +201,8 @@ float vq_ms4(float *cb, float *u, float *u_est, int *levels, int ma, int stages,
                 for(i=0; i < p; i++)
                     d_cj += *p_e++ * uhatw[i];
 
-                /* determine if d is less than the maximum candidate distortion                   i.e., is the distortion found better than the so-called
+                /* determine if d is less than the maximum candidate distortion                   
+				i.e., is the distortion found better than the so-called
                    worst of the best */
                 if (d_cj <= n_d[p_max])
                 {

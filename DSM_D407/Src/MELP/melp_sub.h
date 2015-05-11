@@ -21,7 +21,7 @@ Group (phone 972 480 7442).
 
 */
 
-void dc_rmv(float sigin[], float sigout[], int frame);
+void dc_rmv(float sigin[], float sigout[], float dcdel[], int frame);
 void bpvc_ana(float speech[], float fpitch[], float bpvc[], float sub_pitch[]);
 void bpvc_ana_init(void);
 float gain_ana(float sigin[], float pitch, int minlength, int maxlength);

@@ -19,7 +19,8 @@ Group (phone 972 480 7442).
   dsp_sub.h: include file 
   
 */
-#include "mat.h"
+
+
 
 /* External function definitions */
 void autocorr(float input[], float r[], int order, int npts);
@@ -27,17 +28,12 @@ void envelope(float input[], float prev_in, float output[], int npts);
 void interp_array(float prev[],float curr[],float out[],float ifact,int size);
 float median(float input[], int npts);
 float peakiness(float input[], int npts);
-
 void quant_u(float *p_data, int *p_index, float qmin, float qmax, int nlev);
 void quant_u_dec(int index, float *p_data,float qmin, float qmax, int nlev);
-
 void rand_num(float output[],float amplitude, int npts);
 
-#define window(input,win_cof,output,npts) arm_mult_f32(input, (float32_t *)win_cof, output, npts)
-#define fill(output,fillval,npts) 				arm_fill_f32(fillval, output, npts)
-
-void polflt(float input[], const float coeff[], float output[], int order,int npts);
-void zerflt(float input[], const float coeff[], float output[], int order,int npts);
+void polflt(float input[], float coeff[], float output[], int order,int npts);
+void zerflt(float input[], float coeff[], float output[], int order,int npts);
 
 void  pack_code(int code,unsigned int **p_ch_beg,int *p_ch_bit,int numbits,int size);
 int unpack_code(unsigned int **p_ch_beg,int *p_ch_bit,int *p_code,int numbits,int wsize,unsigned int erase_mask);

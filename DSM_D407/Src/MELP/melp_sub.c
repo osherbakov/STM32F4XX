@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.
+Copyright (c) 1996, Texas Instruments, Inc.  
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -36,10 +36,10 @@ Group (phone 972 480 7442).
     Inputs:
       speech[] - input speech signal
       fpitch[] - initial (floating point) pitch estimates
-    Outputs:
+    Outputs: 
       bpvc[] - bandpass voicing decisions
       pitch[] - frame pitch estimates
-    Returns: void
+    Returns: void 
 
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
@@ -57,64 +57,71 @@ Group (phone 972 480 7442).
 
 
 /* Static memory */
-static float envdel2[NUM_BANDS];
-static float sigbuf[PIT_BEG+PIT_P_FR]  			CCMRAM;
-static float sigbuf1[FRAME+DC_ORD]  				CCMRAM;
+static float envdel2[NUM_BANDS]			CCMRAM;
+static float sigbuf[PIT_BEG+PIT_P_FR]	CCMRAM;
+static float sigbuf1[FRAME+DC_ORD]		CCMRAM;
 
-// Array of pointers to the delay buffer for each band
-static float *bpfdel[NUM_BANDS]  						CCMRAM;
+static float *bpfdel[NUM_BANDS]			CCMRAM;
 static float bpfdel_data[NUM_BANDS*BPF_ORD] CCMRAM;
 
-// Array of pointers to the delay buffer for each band
-static float *envdel[NUM_BANDS]  						CCMRAM;
+static float *envdel[NUM_BANDS]			CCMRAM;
 static float envdel_data[NUM_BANDS*ENV_ORD] CCMRAM;
 
 void bpvc_ana(float speech[], float fpitch[], float bpvc[], float pitch[])
 {
     float pcorr, temp;
     int j;
-
+	
     /* Filter lowest band and estimate pitch */
     v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[0][0],BPF_ORD);
-    polflt(&speech[PIT_FR_BEG],&bpf_den[0],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
+    polflt(&speech[PIT_FR_BEG],&bpf_den[0],&sigbuf[PIT_BEG],
+	   BPF_ORD,PIT_P_FR);
     v_equ(&bpfdel[0][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
-    zerflt(&sigbuf[PIT_BEG],&bpf_num[0],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
-
-    *pitch = frac_pch(&sigbuf[FIRST_CNTR],&bpvc[0],fpitch[0],5,PITCHMIN,PITCHMAX,MINLENGTH);
-
+    zerflt(&sigbuf[PIT_BEG],&bpf_num[0],&sigbuf[PIT_BEG],
+	   BPF_ORD,PIT_P_FR);
+    
+    *pitch = frac_pch(&sigbuf[FIRST_CNTR],
+				&bpvc[0],fpitch[0],5,PITCHMIN,PITCHMAX,MINLENGTH);
+    
     for (j = 1; j < NUM_PITCHES; j++) {
-			temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr,fpitch[j],5,PITCHMIN,PITCHMAX,MINLENGTH);
-			/* choose largest correlation value */
-			if (pcorr > bpvc[0]) {
-				*pitch = temp;
-				bpvc[0] = pcorr;
-			}
+		temp = frac_pch(&sigbuf[FIRST_CNTR],
+				&pcorr,fpitch[j],5,PITCHMIN,PITCHMAX,MINLENGTH);
+		/* choose largest correlation value */
+		if (pcorr > bpvc[0]) {
+			*pitch = temp;
+			bpvc[0] = pcorr; 
+		}	
     }
-
+    
     /* Calculate bandpass voicing for frames */
     for (j = 1; j < NUM_BANDS; j++) {
-			/* Bandpass filter input speech */
-			v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[j][0],BPF_ORD);
-			polflt(&speech[PIT_FR_BEG],&bpf_den[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
-			v_equ(&bpfdel[j][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
-			zerflt(&sigbuf[PIT_BEG],&bpf_num[j*(BPF_ORD+1)],&sigbuf[PIT_BEG], BPF_ORD,PIT_P_FR);
+		/* Bandpass filter input speech */
+		v_equ(&sigbuf[PIT_BEG-BPF_ORD],&bpfdel[j][0],BPF_ORD);
+		polflt(&speech[PIT_FR_BEG],&bpf_den[j*(BPF_ORD+1)],&sigbuf[PIT_BEG],
+			   BPF_ORD,PIT_P_FR);
+		v_equ(&bpfdel[j][0],&sigbuf[PIT_BEG+FRAME-BPF_ORD],BPF_ORD);
+		zerflt(&sigbuf[PIT_BEG],&bpf_num[j*(BPF_ORD+1)],&sigbuf[PIT_BEG],
+			   BPF_ORD,PIT_P_FR);
+		
+		/* Check correlations for each frame */
+		temp = frac_pch(&sigbuf[FIRST_CNTR],
+				&bpvc[j],*pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
 
-			/* Check correlations for each frame */
-			temp = frac_pch(&sigbuf[FIRST_CNTR], &bpvc[j],*pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
-
-			/* Calculate envelope of bandpass filtered input speech */
-			temp = envdel2[j];
-			envdel2[j] = sigbuf[PIT_BEG+FRAME-1];
-			v_equ(&sigbuf[PIT_BEG-ENV_ORD],&envdel[j][0],ENV_ORD);
-			envelope(&sigbuf[PIT_BEG],temp,&sigbuf[PIT_BEG],PIT_P_FR);
-			v_equ(&envdel[j][0],&sigbuf[PIT_BEG+FRAME-ENV_ORD],ENV_ORD);
-
-			/* Check correlations for each frame */
-			temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr, *pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
-
-			/* reduce envelope correlation */
-			pcorr -= 0.1f;
-			if (pcorr > bpvc[j]) bpvc[j] = pcorr;
+		/* Calculate envelope of bandpass filtered input speech */
+		temp = envdel2[j];
+		envdel2[j] = sigbuf[PIT_BEG+FRAME-1];
+		v_equ(&sigbuf[PIT_BEG-ENV_ORD],&envdel[j][0],ENV_ORD);
+		envelope(&sigbuf[PIT_BEG],temp,&sigbuf[PIT_BEG],PIT_P_FR);
+		v_equ(&envdel[j][0],&sigbuf[PIT_BEG+FRAME-ENV_ORD],ENV_ORD);
+		
+		/* Check correlations for each frame */
+		temp = frac_pch(&sigbuf[FIRST_CNTR],&pcorr,
+				*pitch,0,PITCHMIN,PITCHMAX,MINLENGTH);
+						
+		/* reduce envelope correlation */
+		pcorr -= 0.1f;		
+		if (pcorr > bpvc[j])
+			bpvc[j] = pcorr;
     }
 }
 
@@ -136,14 +143,14 @@ void bpvc_ana_init()
 /*
     Name: dc_rmv.c
     Description: remove DC from input signal
-    Inputs:
+    Inputs: 
       sigin[] - input signal
       dcdel[] - filter delay history (size DC_ORD)
       frame - number of samples to filter
-    Outputs:
+    Outputs: 
       sigout[] - output signal
       dcdel[] - updated filter delay history
-    Returns: void
+    Returns: void 
     See_Also:
 
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
@@ -153,56 +160,39 @@ void bpvc_ana_init()
 #define DC_ORD 4
 
 /* DC removal filter */
-/* 4th order Chebychev Type II 60 Hz removal filter */
+/* 4th order Chebyshev Type II 60 Hz removal filter */
 /* cutoff=60 Hz, stop=-30 dB */
-static float dc_num[DC_ORD+1] RODATA = {
+static float dc_num[DC_ORD+1] RODATA = {    
       0.92692416f,
      -3.70563834f,
       5.55742893f,
      -3.70563834f,
-      0.92692416f
-};
+      0.92692416f};
 static float dc_den[DC_ORD+1] RODATA = {
        1.00000000f,
      -3.84610723f,
       5.55209760f,
      -3.56516069f,
-      0.85918839f
-};
-
-//-------------------------------------------------------------------
-//  DC Filter made as 2 Biquad stages
-//
-#define DC_NUM_STAGES	(2)
-static float dc_iir[DC_NUM_STAGES * 5] RODATA = {
-	0.92692416f, -1.8535477f, 0.92692416f,  1.8947f, -0.898212f,
-  1.0f, -1.9981f, 1.0f,   1.9514f,  -0.9565539f 
-};
-static float dc_state[DC_NUM_STAGES * 4 ];
-static arm_biquad_casd_df1_inst_f32 S_dc RODATA= {DC_NUM_STAGES, dc_state, dc_iir};
-//
-//-------------------------------------------------------------------
+      0.85918839f};
 
 void dc_rmv(float sigin[], float sigout[], float dcdel[], int frame)
 {
     /* Remove DC from input speech */
-		arm_biquad_cascade_df1_f32(&S_dc, sigin, sigout, frame);
-//		v_equ(sigout, sigin, frame);
-//    v_equ(sigbuf1,dcdel,DC_ORD);
-//    polflt(sigin,dc_den,&sigbuf1[DC_ORD],DC_ORD,frame);
-//    v_equ(dcdel,&sigbuf1[frame],DC_ORD);
-//    zerflt(&sigbuf1[DC_ORD],dc_num,sigout,DC_ORD,frame);
+    v_equ(sigbuf1,dcdel,DC_ORD);
+    polflt(sigin,dc_den,&sigbuf1[DC_ORD],DC_ORD,frame);
+    v_equ(dcdel,&sigbuf1[frame],DC_ORD);
+    zerflt(&sigbuf1[DC_ORD],dc_num,sigout,DC_ORD,frame);
 }
 
 /*
     Name: gain_ana.c
     Description: analyze gain level for input signal
-    Inputs:
+    Inputs: 
       sigin[] - input signal
       pitch - pitch value (for pitch synchronous window)
       minlength - minimum window length
       maxlength - maximum window length
-    Outputs:
+    Outputs: 
     Returns: log gain in dB
     See_Also:
 
@@ -225,7 +215,7 @@ float gain_ana(float sigin[], float pitch, int minlength, int maxlength)
     length = (int)(flength + 0.5f);
     if (length > maxlength)
       length = (length/2);
-
+    
     /* Calculate RMS gain in dB */
     gain = 10.0f*log10f(0.01f + (v_magsq(&sigin[-(length/2)],length) / length));
     if (gain < MINGAIN) gain = MINGAIN;
@@ -250,7 +240,7 @@ float gain_ana(float sigin[], float pitch, int minlength, int maxlength)
 float lin_int_bnd(float x,float xmin,float xmax,float ymin,float ymax)
 {
     float y;
-
+			
     if (x <= xmin) y = ymin;
     else if (x >= xmax) y = ymax;
     else y = ymin + (x-xmin)*(ymax-ymin)/(xmax-xmin);
@@ -293,11 +283,11 @@ void noise_est(float gain,float *noise_gain,float up,float down,float min,float 
     Inputs: (all in dB)
       gain - input gain (in dB)
       noise_gain - current noise gain estimate (in dB)
-      max_noise - maximum allowed noise gain
+      max_noise - maximum allowed noise gain 
       max_atten - maximum allowed attenuation
       nfact - noise floor boost
     Outputs:
-      gain - updated gain
+      gain - updated gain 
     Returns: void
 
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
@@ -306,7 +296,7 @@ void noise_est(float gain,float *noise_gain,float up,float down,float min,float 
 void noise_sup(float *gain,float noise_gain,float max_noise,float max_atten, float nfact)
 {
     float gain_lev,suppress;
-
+			
     /* Reduce effect for louder background noise */
     if (noise_gain > max_noise) noise_gain = max_noise;
 
@@ -329,7 +319,7 @@ void noise_sup(float *gain,float noise_gain,float max_noise,float max_atten, flo
       bpvc, bpvc_index
       bpthresh - threshold
       NUM_BANDS - number of bands
-    Outputs:
+    Outputs: 
       bpvc, bpvc_index
     Returns: uv_flag - flag if unvoiced
 
@@ -342,7 +332,7 @@ void noise_sup(float *gain,float noise_gain,float max_noise,float max_atten, flo
 int q_bpvc(float *bpvc,int *bpvc_index,float bpthresh,int num_bands)
 {
     int j, uv_flag;
-
+	
     uv_flag = 1;
 
     if (bpvc[0] > bpthresh) {
@@ -350,7 +340,7 @@ int q_bpvc(float *bpvc,int *bpvc_index,float bpthresh,int num_bands)
 		uv_flag = 0;
 		*bpvc_index = 0;
 		bpvc[0] = 1.0;
-
+		
 		for (j = 1; j < num_bands; j++) {
 			*bpvc_index <<= 1; /* left shift */
 			if (bpvc[j] > bpthresh) {
@@ -361,7 +351,7 @@ int q_bpvc(float *bpvc,int *bpvc_index,float bpthresh,int num_bands)
 				*bpvc_index |= 0;
 			}
 		}
-
+		
 		/* Don't use invalid code (only top band voiced) */
 		if (*bpvc_index == INVALID_BPVC) {
 			bpvc[(num_bands-1)] = 0.0;
@@ -389,7 +379,7 @@ void q_bpvc_dec(float *bpvc,int *bpvc_index,int uv_flag,int num_bands)
 		/* Voiced: set bpvc[0] to 1.0 */
 		bpvc[0] = 1.0;
     }
-
+    
     if (*bpvc_index == INVALID_BPVC) {
 		/* Invalid code received: set higher band voicing to zero */
 		*bpvc_index = 0;
@@ -411,7 +401,7 @@ void q_bpvc_dec(float *bpvc,int *bpvc_index,int uv_flag,int num_bands)
     Inputs:
       gain[2],gain_index[2]
       GN_QLO,GN_QUP,GN_QLEV for second gain term
-    Outputs:
+    Outputs: 
       gain[2],gain_index[2]
     Returns: void
 
@@ -428,13 +418,13 @@ void q_gain(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qlev)
 
     /* Quantize second gain term with uniform quantizer */
     quant_u(&gain[1],&gain_index[1],gn_qlo,gn_qup,gn_qlev);
-
+    
     /* Check for intermediate gain interpolation */
     if (gain[0] < gn_qlo)
       gain[0] = gn_qlo;
     if (gain[0] > gn_qup)
       gain[0] = gn_qup;
-    if (fabs(gain[1] - prev_gain) < GAIN_INT_DB &&
+    if (fabs(gain[1] - prev_gain) < GAIN_INT_DB && 
 	fabs(gain[0] - 0.5f*(gain[1]+prev_gain)) < 3.0f) {
 
 	/* interpolate and set special code */
@@ -465,7 +455,7 @@ void q_gain(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qlev)
     }
 
     /* Update previous gain for next time */
-    prev_gain = gain[1];
+    prev_gain = gain[1];  
 }
 
 void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qlev)
@@ -477,7 +467,7 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
 
     /* Decode second gain term */
     quant_u_dec(gain_index[1],&gain[1],gn_qlo,gn_qup,gn_qlev);
-
+    
     if (gain_index[0] == 0) {
 		/* interpolation bit code for intermediate gain */
 		if (fabs(gain[1] - prev_gain) > GAIN_INT_DB) {
@@ -488,7 +478,7 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
 			}
 			prev_gain_err = 1;
 		}
-		else
+		else 
 			prev_gain_err = 0;
 
 		/* Use interpolated gain value */
@@ -512,7 +502,7 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
     }
 
     /* Update previous gain for next time */
-    prev_gain = gain[1];
+    prev_gain = gain[1];    
 }
 
 /*
@@ -525,7 +515,7 @@ void q_gain_dec(float *gain,int *gain_index,float gn_qlo,float gn_qup,int gn_qle
       length - number of samples in signal
       SCALEOVER - number of points to interpolate scale factor
     Warning: SCALEOVER is assumed to be less than length.
-    Outputs:
+    Outputs: 
       speech - scaled speech signal
       prev_scale - updated previous scale factor
     Returns: void
@@ -539,17 +529,17 @@ void scale_adj(float *speech, float gain, float *prev_scale, int length, int sca
     float scale;
 
     /* Calculate desired scaling factor to match gain level */
-    scale = gain / (sqrtf(v_magsq(&speech[0],length) / length) + .01f);
+    scale = gain / (arm_sqrt(v_magsq(&speech[0],length) / length) + .01f);
 
     /* interpolate scale factors for first SCALEOVER points */
     for (i = 1; i < scale_over; i++) {
 		speech[i-1] *= ((scale*i + *prev_scale*(scale_over-i))
 			      * (1.0f/scale_over) );
     }
-
+    
     /* Scale rest of signal */
     v_scale(&speech[scale_over-1],scale,length-scale_over+1);
 
     /* Update previous scale factor for next call */
-    *prev_scale = scale;
+    *prev_scale = scale;			
 }

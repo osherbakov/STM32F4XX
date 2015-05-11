@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.
+Copyright (c) 1996, Texas Instruments, Inc.  
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -15,7 +15,7 @@ Group (phone 972 480 7442).
 
 */
 
-/*
+/*  
 
   dsp_sub.c: general subroutines.
 
@@ -29,6 +29,8 @@ Group (phone 972 480 7442).
 #include	"spbstd.h"
 #include	"mat.h"
 
+#define MAXSORT 5
+static float sorted[MAXSORT];
 
 /*								*/
 /*	Subroutine autocorr: calculate autocorrelations         */
@@ -65,16 +67,6 @@ void envelope(float input[], float prev_in, float output[], int npts)
     }
 }
 
-/*								*/
-/*  Subroutine fill: fill an input array with a value.		*/
-/*								*/
-// void fill(float output[], float fillval, int npts)
-//{
-//  int i;
-//
-//  for (i = 0; i < npts; i++ )
-//    output[i] = fillval;
-//}
 
 /*								*/
 /*	Subroutine interp_array: interpolate array              */
@@ -86,14 +78,12 @@ void interp_array(float prev[],float curr[],float out[],float ifact,int size)
 
     ifact2 = 1.0F - ifact;
     for (i = 0; i < size; i++)
-      out[i] = ifact*curr[i] + ifact2*prev[i];
+      out[i] = ifact*curr[i] + ifact2*prev[i];      
 }
 
 /*								*/
 /*	Subroutine median: calculate median value               */
 /*								*/
-#define MAXSORT 5
-static float sorted[MAXSORT];
 
 float median(float input[], int npts)
 {
@@ -165,13 +155,12 @@ float peakiness(float input[], int npts)
       sum_abs += fabsf(input[i]);
 
     if (sum_abs > 0.01F)
-      peak_fact = sqrtf(npts*v_magsq(input,npts)) / sum_abs;
+      peak_fact = arm_sqrt(npts*v_magsq(input,npts)) / sum_abs;
     else
       peak_fact = 0.0;
 
     return(peak_fact);
 }
-
 
 /*								*/
 /*	Subroutine QUANT_U: quantize positive input value with 	*/
@@ -246,7 +235,7 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 	ch_bit = *p_ch_bit;
 	ch_word = *p_ch_beg;
 	*p_code = 0;
-        ret_code = *ch_word & ERASE_MASK;
+        ret_code = *ch_word & ERASE_MASK;    
 
 	for (i = 0; i < numbits; i++) {
 		/* Mask in bit from channel word to code	*/
@@ -265,18 +254,11 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 
     /* Catch erasure in new word if read */
     if (ch_bit != 0)
-      ret_code |= *ch_word & ERASE_MASK;
+      ret_code |= *ch_word & ERASE_MASK;    
 
     return(ret_code);
 }
 
-/*								*/
-/*	Subroutine window: multiply signal by window            */
-/*								*/
-//__inline void window(float input[], float win_cof[], float output[], int npts)
-//{
-//	arm_mult_f32(input, win_cof, output, npts);
-//}
 
 /*								*/
 /*	Subroutine polflt: all pole (IIR) filter.		*/
@@ -285,24 +267,24 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 /*	is assumed to be 1.					*/
 /*      The output array can overlay the input.                 */
 /*								*/
-void polflt(float input[], const float coeff[], float output[], int order,int npts)
+void polflt(float input[], float coeff[], float output[], int order,int npts)
 {
-    int i,j;
-    float accum;
+	int i,j;
+	float accum;
 
-    for (i = 0; i < npts; i++ ) {
-        accum = input[i];
-        for (j = 1; j <= order; j++ )
-            accum -= output[i-j] * coeff[j];
-        output[i] = accum;
-    }
+	for (i = 0; i < npts; i++ ) {
+		accum = input[i];
+		for (j = 1; j <= order; j++ )
+			accum -= output[i-j] * coeff[j];
+		output[i] = accum;
+	}
 }
 
 /*								*/
 /*	Subroutine zerflt: all zero (FIR) filter.		*/
 /*      Note: the output array can overlay the input.           */
 /*								*/
-void zerflt(float input[], const float coeff[], float output[], int order, int npts)
+void zerflt(float input[], float coeff[], float output[], int order, int npts)
 {
     int i,j;
     float accum;
