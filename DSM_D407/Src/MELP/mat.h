@@ -56,29 +56,30 @@ static __INLINE int findmax(float input[], int npts)
 	return (maxloc);
 }
 
-//__INLINE float arm_sqrt(float x)
-//{
-//	float32_t  res;
-//	arm_sqrt_f32(x, &res);
-//	return res;
-//}
-//
-//__INLINE float arm_sin(float x)
-//{
-//	float32_t  res;
-//	res = arm_sin_f32(x);
-//	return res;
-//}
-//
-//__INLINE float arm_cos(float x)
-//{
-//	float32_t  res;
-//	res = arm_cos_f32(x);
-//	return res;
-//}
-#define arm_sqrt	sqrtf
-#define arm_sin		sinf
-#define arm_cos		cosf
+static __INLINE float arm_sqrt(float x)
+{
+	float32_t  res;
+	arm_sqrt_f32(x, &res);
+	return res;
+}
+
+static __INLINE float arm_sin(float x)
+{
+	float32_t  res;
+	res = arm_sin_f32(x);
+	return res;
+}
+
+static __INLINE float arm_cos(float x)
+{
+	float32_t  res;
+	res = arm_cos_f32(x);
+	return res;
+}
+
+//#define arm_sqrt		sqrtf
+//#define arm_sin		sinf
+//#define arm_cos		cosf
 
 #define window(inp,cof,outp,n)		arm_mult_f32(inp, cof, outp, n)
 #define v_zap(v,n)					arm_fill_f32(0.0f, (float32_t *)v, n)
