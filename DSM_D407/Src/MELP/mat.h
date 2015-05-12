@@ -28,9 +28,9 @@ Group (phone 972 480 7442).
 #define ARM_MATH_CM4
 #define __TARGET_FPU_VFP 1
 #define __FPU_PRESENT 1
+#include <stdint.h>
 #endif
 
-#include <stdint.h>
 #include "arm_math.h"
 #include "arm_const_structs.h"
 
