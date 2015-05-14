@@ -67,12 +67,12 @@ int main(void)
   MX_FREERTOS_Init();
 
 	/* Allocate and initialize data queues that will be used to pass data between tasks */
-	
+
 	Queue_Init(&osParams.USB_Out_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
 	Queue_Init(&osParams.USB_In_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
 	Queue_Init(&osParams.PCM_Out_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
 	Queue_Init(&osParams.PCM_In_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
-	
+
   /* Start scheduler */
   osKernelStart();
 
@@ -138,16 +138,16 @@ void StartDefaultTask(void const * argument)
 			buttonState = BSP_PB_GetState(BUTTON_KEY);
 			if(buttonState == 0)
 			{
-				if(++osParams.audioinMode > AUDIO_MODE_IN_I2S) 
+				if(++osParams.audioinMode > AUDIO_MODE_IN_I2S)
 				{
 					osParams.audioinMode = AUDIO_MODE_IN_MIC;
-					
+
 					// Add next mode for output
-					if((osParams.audiooutMode & AUDIO_MODE_OUT_I2S) == 0)	
+					if((osParams.audiooutMode & AUDIO_MODE_OUT_I2S) == 0)
 						osParams.audiooutMode |= AUDIO_MODE_OUT_I2S;
-					else if((osParams.audiooutMode & AUDIO_MODE_OUT_USB) == 0)	
+					else if((osParams.audiooutMode & AUDIO_MODE_OUT_USB) == 0)
 						osParams.audiooutMode |= AUDIO_MODE_OUT_USB;
-					else if((osParams.audiooutMode & AUDIO_MODE_OUT_I2SX) == 0)	
+					else if((osParams.audiooutMode & AUDIO_MODE_OUT_I2SX) == 0)
 						osParams.audiooutMode |= AUDIO_MODE_OUT_I2SX;
 					else
 						osParams.audiooutMode  = AUDIO_MODE_OUT_NONE;

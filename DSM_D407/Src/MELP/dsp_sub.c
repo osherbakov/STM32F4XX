@@ -58,7 +58,6 @@ void envelope(float input[], float prev_in, float output[], int npts)
 {
     int i;
     float curr_abs, prev_abs;
-
     prev_abs = fabsf(prev_in);
     for (i = 0; i < npts; i++) {
 		curr_abs = fabsf(input[i]);
@@ -71,13 +70,13 @@ void envelope(float input[], float prev_in, float output[], int npts)
 /*								*/
 /*	Subroutine interp_array: interpolate array              */
 /*                                                              */
-void interp_array(float prev[],float curr[],float out[],float ifact,int size)
+void interp_array(float prev[],float curr[],float out[],float ifact,int npts)
 {
     int i;
     float ifact2;
 
     ifact2 = 1.0F - ifact;
-    for (i = 0; i < size; i++)
+    for (i = 0; i < npts; i++)
       out[i] = ifact*curr[i] + ifact2*prev[i];
 }
 
@@ -271,7 +270,6 @@ void polflt(float input[], const float coeff[], float output[], int order,int np
 {
 	int i,j;
 	float accum;
-
 	for (i = 0; i < npts; i++ ) {
 		accum = input[i];
 		for (j = 1; j <= order; j++ )
@@ -291,6 +289,7 @@ void iirflt(float input[], const float coeff[], float output[], float delay[], i
 {
 	int i,j;
 	float accum;
+
 	v_equ(&output[-order], delay, order);
 	for (i = 0; i < npts; i++ ) {
 		accum = input[i];
