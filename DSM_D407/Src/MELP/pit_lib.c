@@ -298,9 +298,9 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 
     /* Lowpass filter residual signal */
     v_equ(&sigbuf[LPF_ORD],&resid[-PITCHMAX],PITCH_FR);
-//    v_equ(sigbuf,lpres_del,LPF_ORD);
-    iirflt(&sigbuf[LPF_ORD],lpf_den,&sigbuf[LPF_ORD], lpres_del, LPF_ORD, PITCH_FR);
-//    v_equ(lpres_del,&sigbuf[FRAME],LPF_ORD);
+    v_equ(sigbuf,lpres_del,LPF_ORD);
+    polflt(&sigbuf[LPF_ORD],lpf_den,&sigbuf[LPF_ORD],LPF_ORD,PITCH_FR);
+    v_equ(lpres_del,&sigbuf[FRAME],LPF_ORD);
     zerflt(&sigbuf[LPF_ORD],lpf_num,&sigbuf[LPF_ORD],LPF_ORD,PITCH_FR);
 
     /* Perform local search around pitch estimate */
@@ -310,8 +310,7 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
     if (pcorr < 0.6f) {
 		/* If correlation is too low, try speech signal instead */
 		v_equ(&sigbuf[LPF_ORD],&speech[-PITCHMAX],PITCH_FR);
-		temp = frac_pch(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-				pitch_est,0,PITCHMIN,PITCHMAX,MINLENGTH);
+		temp = frac_pch(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr, pitch_est, 0, PITCHMIN, PITCHMAX, MINLENGTH);
 
 		if (pcorr < UVMAX)	
 		  /* If correlation still too low, use average pitch */
@@ -322,8 +321,7 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 			if (temp > LONG_PITCH)
 			  /* longer pitches are more likely to be doubles */
 			  temp2 = PDOUBLE4;
-			pitch = double_chk(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-						temp,temp2,PITCHMIN,PITCHMAX,MINLENGTH);
+			pitch = double_chk(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr, temp, temp2, PITCHMIN, PITCHMAX, MINLENGTH);
 		}
     }else {
 		/* Else check for pitch doubling (residual thresholds) */
@@ -331,8 +329,7 @@ float pitch_ana(float speech[], float resid[], float pitch_est, float pitch_avg,
 		/* longer pitches are more likely to be doubles */
 		if (temp > LONG_PITCH)		
 		  temp2 = PDOUBLE2;
-		pitch = double_chk(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr,
-					temp,temp2,PITCHMIN,PITCHMAX,MINLENGTH);
+		pitch = double_chk(&sigbuf[LPF_ORD+(PITCH_FR/2)],&pcorr, temp, temp2, PITCHMIN, PITCHMAX, MINLENGTH);
     }
     
     if (pcorr < UVMAX) {
