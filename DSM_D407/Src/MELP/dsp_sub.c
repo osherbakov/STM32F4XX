@@ -268,13 +268,24 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 /*								*/
 void polflt(float input[], const float coeff[], float output[], int order,int npts)
 {
-	int i,j;
-	float accum;
-	for (i = 0; i < npts; i++ ) {
-		accum = input[i];
-		for (j = 1; j <= order; j++ )
-			accum -= output[i-j] * coeff[j];
-		output[i] = accum;
+	int numTaps;
+	float accum, a1;
+	float *pc; 
+	float *py;
+	coeff++;
+	a1 = *coeff++;
+	accum = output[-1];
+	order--;
+	while (npts-- > 0) {
+		accum = *input++ - (accum * a1); 
+		pc = coeff;
+		py = &output[-2];
+		numTaps = order;
+		while(numTaps-- > 0)
+		{
+			accum -= ((*py--) * (*pc++));
+		}
+		*output++ = accum;
 	}
 }
 
@@ -320,11 +331,11 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
    /* Apply loop unrolling and compute 4 output values simultaneously.  
     * The variables acc0 ... acc3 hold output values that are being computed:  
    */
-   blkCnt = npts >> 2;
+   blkCnt = npts ;
 
    /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.  
    ** a second loop below computes the remaining 1 to 3 samples. */
-   while(blkCnt > 0)
+   while(blkCnt >= 4)
    {
       /* Set all accumulators to zero */
       acc0 = 0.0f;
@@ -344,11 +355,11 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
       x2 = *px--;
 
       /* Loop unrolling.  Process 4 taps at a time. */
-      tapCnt = numTaps >> 2;
+      tapCnt = numTaps;
       
       /* Loop over the number of taps.  Unroll by a factor of 4.  
        ** Repeat until we've computed numTaps-4 coefficients. */
-      while(tapCnt > 0)
+      while(tapCnt >= 4)
       {
          /* Read the b[0] coefficient */
          c0 = *(pb++);
@@ -410,11 +421,10 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
          acc2 += p2;
          acc3 += p3;
 
-		 tapCnt--;
+		 tapCnt -= 4;
      }
 
       /* If the filter length is not a multiple of 4, compute the remaining filter taps */
-      tapCnt = numTaps & 0x0003;
 
       while(tapCnt > 0)
       {
@@ -443,8 +453,6 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
          tapCnt--;
       }
 
-      /* Advance the state pointer by 4 to process the next group of 4 samples */
-      pSrc = pSrc - 4;
 
       /* The results in the 4 accumulators, store in the destination buffer. */
       *pDst-- = acc0;
@@ -452,13 +460,13 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
       *pDst-- = acc2;
       *pDst-- = acc3;
 
-      blkCnt--;
+      /* Advance the state pointer by 4 to process the next group of 4 samples */
+      pSrc -= 4;
+      blkCnt -= 4;
    }
 
    /* If the blockSize is not a multiple of 4, compute any remaining output samples here.  
    ** No loop unrolling is used. */
-   blkCnt = npts & 0x0003;
-
    while(blkCnt > 0)
    {
       /* Set the accumulator to zero */
