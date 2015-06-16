@@ -83,7 +83,6 @@ void interp_array(float prev[],float curr[],float out[],float ifact,int npts)
 /*								*/
 /*	Subroutine median: calculate median value               */
 /*								*/
-
 float median(float input[], int npts)
 {
     int i,j,loc;
@@ -108,36 +107,6 @@ float median(float input[], int npts)
 		sorted[loc] = insert_val;
     }
     return(sorted[npts/2]);
-}
-
-/*								*/
-/*	Subroutine PACK_CODE: Pack bit code into channel.	*/
-/*								*/
-void pack_code(int code,unsigned int **p_ch_beg,int *p_ch_bit, int numbits, int wsize)
-{
-    int	i,ch_bit;
-    unsigned int *ch_word;
-
-	ch_bit = *p_ch_bit;
-	ch_word = *p_ch_beg;
-
-	for (i = 0; i < numbits; i++) {
-		/* Mask in bit from code to channel word	*/
-		if (ch_bit == 0)
-		  *ch_word = ((code & (1<<i)) >> i);
-		else
-		  *ch_word |= (((code & (1<<i)) >> i) << ch_bit);
-
-		/* Check for full channel word			*/
-		if (++ch_bit >= wsize) {
-			ch_bit = 0;
-			(*p_ch_beg)++ ;
-			ch_word++ ;
-		}
-	}
-
-	/* Save updated bit counter	*/
-	*p_ch_bit = ch_bit;
 }
 
 /*								*/
@@ -222,6 +191,37 @@ void	rand_num(float output[], float amplitude, int npts)
 
 
 /*								*/
+/*	Subroutine PACK_CODE: Pack bit code into channel.	*/
+/*								*/
+void pack_code(int code,unsigned int **p_ch_beg,int *p_ch_bit, int numbits, int wsize)
+{
+    int	i,ch_bit;
+    unsigned int *ch_word;
+
+	ch_bit = *p_ch_bit;
+	ch_word = *p_ch_beg;
+
+	for (i = 0; i < numbits; i++) {
+		/* Mask in bit from code to channel word	*/
+		if (ch_bit == 0)
+		  *ch_word = ((code & (1<<i)) >> i);
+		else
+		  *ch_word |= (((code & (1<<i)) >> i) << ch_bit);
+
+		/* Check for full channel word			*/
+		if (++ch_bit >= wsize) {
+			ch_bit = 0;
+			(*p_ch_beg)++ ;
+			ch_word++ ;
+		}
+	}
+
+	/* Save updated bit counter	*/
+	*p_ch_bit = ch_bit;
+}
+
+
+/*								*/
 /*	Subroutine UNPACK_CODE: Unpack bit code from channel.	*/
 /*      Return 1 if erasure, otherwise 0.                       */
 /*								*/
@@ -268,26 +268,64 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 /*								*/
 void polflt(float input[], const float coeff[], float output[], int order,int npts)
 {
-	int numTaps;
-	float accum, a1;
-	float *pc; 
+	int numTaps, numBlk;
+	float accum0, accum1, accum2, accum3;
+	float a1, a2, a3, a4, c0;
+	float y1, y2, y3, y4;
+	const float *pc; 
 	float *py;
-	coeff++;
-	a1 = *coeff++;
-	accum = output[-1];
-	order--;
-	while (npts-- > 0) {
-		accum = *input++ - (accum * a1); 
-		pc = coeff;
-		py = &output[-2];
-		numTaps = order;
-		while(numTaps-- > 0)
+	a1 = coeff[1]; a2 = coeff[2]; a3 = coeff[3]; a4 = coeff[4]; 
+	y1 = output[-1]; y2 = output[-2]; y3 = output[-3]; y4 = output[-4];
+	numBlk = npts;
+	while (numBlk >= 4) {
+		accum0 = *input++ - (y1 * a1) - (y2 * a2) - (y3 * a3) - (y4 * a4);
+		accum1 = *input++ - (y1 * a2) - (y2 * a3) - (y3 * a4);
+		accum2 = *input++ - (y1 * a3) - (y2 * a4);
+		accum3 = *input++ - (y1 * a4);
+
+		pc = &coeff[5];
+		py = &output[-5];
+		numTaps = order - 4;
+		while(numTaps > 0)
 		{
-			accum -= ((*py--) * (*pc++));
+			c0 = *pc++;
+			y1 = y2;
+			y2 = y3;
+			y3 = y4;
+			y4 = *py--;
+			accum0 -= ( y4 * c0);
+			accum1 -= ( y3 * c0);
+			accum2 -= ( y2 * c0);
+			accum3 -= ( y1 * c0);
+			numTaps--;
 		}
-		*output++ = accum;
+		accum1 -= (accum0 * a1);
+		accum2 -= (accum1 * a1) + (accum0 * a2);
+		accum3 -= (accum2 * a1) + (accum1 * a2) + (accum0 * a3);
+
+		y4 = *output++ = accum0;
+		y3 = *output++ = accum1;
+		y2 = *output++ = accum2;
+		y1 = *output++ = accum3;
+		numBlk -= 4;
+	}
+	// For the rest (non-multiples of 4) of samples do it normally
+	while(numBlk > 0)
+	{
+		accum0 = *input++;
+		pc = &coeff[1];
+		py = &output[-1];
+		numTaps = order;
+		while(numTaps > 0)
+		{
+			accum0 -= ( (*py--) * (*pc++) );
+			numTaps--;
+		}
+		*output++ = accum0;
+		numBlk--;
 	}
 }
+
 
 /*								*/
 /*	Subroutine iirflt: all pole (IIR) filter.		*/
@@ -315,7 +353,7 @@ void firflt(float input[], const float coeff[], float output[], float delay[], i
 	zerflt(input, coeff, output, order, npts);
 }
 
-void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int npts)
+void zerflt(float *pSrc, const float *pCoeffs, float *pDst, int order, int npts)
 {
    const float *px, *pb;                      /* Temporary pointers for state and coefficient buffers */
    float acc0, acc1, acc2, acc3;			  /* Accumulators */
@@ -329,9 +367,9 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
 
 
    /* Apply loop unrolling and compute 4 output values simultaneously.  
-    * The variables acc0 ... acc3 hold output values that are being computed:  
+    * The variables acc0 ... acc3 hold output values that are being computed  
    */
-   blkCnt = npts ;
+   blkCnt = npts;
 
    /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.  
    ** a second loop below computes the remaining 1 to 3 samples. */
@@ -425,7 +463,6 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
      }
 
       /* If the filter length is not a multiple of 4, compute the remaining filter taps */
-
       while(tapCnt > 0)
       {
          /* Read coefficients */
@@ -467,6 +504,7 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
 
    /* If the blockSize is not a multiple of 4, compute any remaining output samples here.  
    ** No loop unrolling is used. */
+
    while(blkCnt > 0)
    {
       /* Set the accumulator to zero */
@@ -493,17 +531,17 @@ void firflt_f32(float *pSrc, const float *pCoeffs, float *pDst, int order, int n
    }
 }
 
-void zerflt(float input[], const float coeff[], float output[], int order, int npts)
-{
+//void zerflt(float input[], const float coeff[], float output[], int order, int npts)
+//{
 //    int i,j;
 //    float accum;
 
 
-	firflt_f32(input, coeff, output, order, npts);
+//	firflt_f32(input, coeff, output, order, npts);
 //    for (i = npts-1; i >= 0; i-- ) {
 //		accum = 0.0;
 //		for (j = 0; j <= order; j++ )
 //			accum += input[i-j] * coeff[j];
 //		output[i] = accum;
 //    }
-}
+//}
