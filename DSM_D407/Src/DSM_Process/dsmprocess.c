@@ -6,6 +6,17 @@
 #define __FAST_MATH__
 #include <math.h>
 
+#ifndef _MSC_VER
+#ifndef ARM_MATH_CM4
+#define ARM_MATH_CM4
+#endif
+#define __TARGET_FPU_VFP 1
+#define __FPU_PRESENT 1
+#include <stdint.h>
+#endif
+#include "arm_math.h"
+#include "arm_const_structs.h"
+
 #ifndef M_PI
 #define M_PI           3.14159265358979323846f
 #endif
@@ -42,8 +53,8 @@ void Gen_Init(SinGen_t* pState, float SamplingFreq, float GenerateFreq, float Am
 		float PhaseStep = 2 * M_PI * GenerateFreq / SamplingFreq;
 		pState->Amplitude = Amplitude;
 		pState->S1 = 0;
-		pState->S2 = sinf(PhaseStep);
-		pState->TwoCosDelta = 2 * cosf(PhaseStep);
+		pState->S2 = arm_sin_f32(PhaseStep);
+		pState->TwoCosDelta = 2 * arm_cos_f32(PhaseStep);
 }
 
 static int FirstCall = 1;
