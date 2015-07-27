@@ -840,6 +840,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Application/CVSD</GroupName>
+          <Files>
+            <File>
+              <FileName>cvsd_f32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\CVSD\cvsd_f32.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\CVSD\main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -1674,6 +1689,21 @@
               <FileName>vq_lib.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\MELP\vq_lib.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Application/CVSD</GroupName>
+          <Files>
+            <File>
+              <FileName>cvsd_f32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\CVSD\cvsd_f32.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\CVSD\main.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -73,22 +73,22 @@ void StartDataProcessTask(void const * argument)
 	float			*AudioOutF32[2];
 	float			*IVInF32[4];
 	
-	pAudio 	= osAlloc(DSM_AUDIO_SIZE_BYTES);
-	pIV 			= osAlloc(DSM_IV_SIZE_BYTES);
+	pAudio 	= osAlloc(AUDIO_SIZE_BYTES);
+	pIV 			= osAlloc(IV_SIZE_BYTES);
 
-	pAudioInLeft = osAlloc(DSM_AUDIO_BLOCK_SAMPLES * sizeof(float));
-	pAudioInRight = osAlloc(DSM_AUDIO_BLOCK_SAMPLES * sizeof(float));
-	pAudioOutLeft = osAlloc(DSM_AUDIO_BLOCK_SAMPLES * sizeof(float));
-	pAudioOutRight = osAlloc(DSM_AUDIO_BLOCK_SAMPLES * sizeof(float));
+	pAudioInLeft = osAlloc(AUDIO_BLOCK_SAMPLES * sizeof(float));
+	pAudioInRight = osAlloc(AUDIO_BLOCK_SAMPLES * sizeof(float));
+	pAudioOutLeft = osAlloc(AUDIO_BLOCK_SAMPLES * sizeof(float));
+	pAudioOutRight = osAlloc(AUDIO_BLOCK_SAMPLES * sizeof(float));
 	AudioInF32[0] = pAudioInLeft;
 	AudioInF32[1] = pAudioInRight;
 	AudioOutF32[0] = pAudioOutLeft;
 	AudioOutF32[1] = pAudioOutRight;
 	
-	pILeft = osAlloc(DSM_IV_BLOCK_SAMPLES * sizeof(float));
-	pIRight = osAlloc(DSM_IV_BLOCK_SAMPLES * sizeof(float));
-	pVLeft = osAlloc(DSM_IV_BLOCK_SAMPLES * sizeof(float));
-	pVRight = osAlloc(DSM_IV_BLOCK_SAMPLES * sizeof(float));
+	pILeft = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
+	pIRight = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
+	pVLeft = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
+	pVRight = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
 	IVInF32[0] = pILeft;
 	IVInF32[1] = pVLeft;
 	IVInF32[2] = pIRight;
@@ -105,31 +105,31 @@ void StartDataProcessTask(void const * argument)
 			//   call the appropriate processing function
 			if(pDataQ->Type == AUDIO_STEREO_Q15)
 			{
-				while(Queue_Count(pDataQ) >= DSM_AUDIO_SIZE_BYTES)
+				while(Queue_Count(pDataQ) >= AUDIO_SIZE_BYTES)
 				{
-					Queue_PopData(pDataQ, pAudio, DSM_AUDIO_SIZE_BYTES);
+					Queue_PopData(pDataQ, pAudio, AUDIO_SIZE_BYTES);
 					
 					//   Call Feed Forward data processing
-					Convert_S16_to_F32((int16_t *)pAudio, pAudioInLeft, 0, 4, DSM_AUDIO_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pAudio, pAudioInRight, 2, 4, DSM_AUDIO_BLOCK_SAMPLES);
-					FF_Process(&osParams, AudioInF32, AudioOutF32, DSM_AUDIO_BLOCK_SAMPLES);
+					Convert_S16_to_F32((int16_t *)pAudio, pAudioInLeft, 0, 4, AUDIO_BLOCK_SAMPLES);
+					Convert_S16_to_F32((int16_t *)pAudio, pAudioInRight, 2, 4, AUDIO_BLOCK_SAMPLES);
+					FF_Process(&osParams, AudioInF32, AudioOutF32, AUDIO_BLOCK_SAMPLES);
 					//   Distribute output data to all output data sinks (USB, I2S, etc)
-					Convert_F32_to_S16(pAudioOutLeft, (int16_t *)pAudio, 0, 4, DSM_AUDIO_BLOCK_SAMPLES);
-					Convert_F32_to_S16(pAudioOutRight, (int16_t *)pAudio, 2, 4, DSM_AUDIO_BLOCK_SAMPLES);
-					FF_Distribute(&osParams, pAudio, DSM_AUDIO_SIZE_BYTES);
+					Convert_F32_to_S16(pAudioOutLeft, (int16_t *)pAudio, 0, 4, AUDIO_BLOCK_SAMPLES);
+					Convert_F32_to_S16(pAudioOutRight, (int16_t *)pAudio, 2, 4, AUDIO_BLOCK_SAMPLES);
+					FF_Distribute(&osParams, pAudio, AUDIO_SIZE_BYTES);
 				}
 			}else if(pDataQ->Type == IV_MONO_Q15 )
 			{
-				while(Queue_Count(pDataQ) >= DSM_IV_SIZE_BYTES)
+				while(Queue_Count(pDataQ) >= IV_SIZE_BYTES)
 				{
-					Queue_PopData(pDataQ, pIV, DSM_IV_SIZE_BYTES);
+					Queue_PopData(pDataQ, pIV, IV_SIZE_BYTES);
 					//
 					//   Call Feed Back data processing
-					Convert_S16_to_F32((int16_t *)pIV, pILeft, 0, 8, DSM_IV_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pIV, pVLeft, 2, 8, DSM_IV_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pIV, pIRight, 4, 8, DSM_IV_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pIV, pVRight, 6, 4, DSM_IV_BLOCK_SAMPLES);
-					FB_Process(&osParams, IVInF32, DSM_IV_BLOCK_SAMPLES);
+					Convert_S16_to_F32((int16_t *)pIV, pILeft, 0, 8, IV_BLOCK_SAMPLES);
+					Convert_S16_to_F32((int16_t *)pIV, pVLeft, 2, 8, IV_BLOCK_SAMPLES);
+					Convert_S16_to_F32((int16_t *)pIV, pIRight, 4, 8, IV_BLOCK_SAMPLES);
+					Convert_S16_to_F32((int16_t *)pIV, pVRight, 6, 4, IV_BLOCK_SAMPLES);
+					FB_Process(&osParams, IVInF32, IV_BLOCK_SAMPLES);
 				}
 			}
 		}	

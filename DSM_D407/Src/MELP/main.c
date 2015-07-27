@@ -218,7 +218,7 @@ void melp_init()
 }
 
 
-void melp_process(float *pDataIn, float *pDataOut)
+void melp_process(float *pDataIn, float *pDataOut, int nSamples)
 {	
 	if(0 == bInitialized)
 	{
@@ -227,14 +227,14 @@ void melp_process(float *pDataIn, float *pDataOut)
 	}
 
 BSP_LED_On(LED3);
-	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], FRAME);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, FRAME/UPDOWNSAMPLE_RATIO);
+	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
+	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 BSP_LED_Off(LED3);
 	
-	FrameIdx += FRAME/UPDOWNSAMPLE_RATIO;
+	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= FRAME)
 	{
-		v_equ(speech_out, speech_in, FRAME);
+//		v_equ(speech_out, speech_in, FRAME);
 		v_equ(speech, speech_in, FRAME);
 BSP_LED_On(LED4);
 		melp_ana(speech, &melp_ana_par);

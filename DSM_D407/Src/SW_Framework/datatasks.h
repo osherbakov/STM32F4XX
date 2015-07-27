@@ -13,8 +13,8 @@
 #define	 NUM_PCM_BYTES  	(NUM_PCM_SAMPLES * NUM_CHANNELS * AUDIODATA_SIZE)
 
 
-#define DSM_AUDIO_BLOCK_SAMPLES		(180)		// Size in Samples
-#define DSM_IV_BLOCK_SAMPLES			(180)		// Size in Samples
+#define AUDIO_BLOCK_SAMPLES		(180)		// Size in Samples
+#define IV_BLOCK_SAMPLES			(180)		// Size in Samples
 
 typedef enum
 {
@@ -53,8 +53,8 @@ typedef  enum uint16_t
 	IV_STEREO_Q15 = (4 << 4) + IV_STEREO_Q15_SIZE,
 } DataType_t;
 
-#define DSM_AUDIO_SIZE_BYTES	(DSM_AUDIO_BLOCK_SAMPLES * AUDIO_STEREO_Q15_SIZE)
-#define DSM_IV_SIZE_BYTES (DSM_IV_BLOCK_SAMPLES * IV_STEREO_Q15_SIZE)
+#define AUDIO_SIZE_BYTES	(AUDIO_BLOCK_SAMPLES * AUDIO_STEREO_Q15_SIZE)
+#define IV_SIZE_BYTES (IV_BLOCK_SAMPLES * IV_STEREO_Q15_SIZE)
 	
 void StartDefaultTask(void const * argument);
 void StartDataInPDMTask(void const * argument);

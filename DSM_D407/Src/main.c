@@ -68,10 +68,10 @@ int main(void)
 
 	/* Allocate and initialize data queues that will be used to pass data between tasks */
 
-	Queue_Init(&osParams.USB_Out_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
-	Queue_Init(&osParams.USB_In_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
-	Queue_Init(&osParams.PCM_Out_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
-	Queue_Init(&osParams.PCM_In_data, DSM_AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
+	Queue_Init(&osParams.USB_Out_data, AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
+	Queue_Init(&osParams.USB_In_data, AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
+	Queue_Init(&osParams.PCM_Out_data, AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
+	Queue_Init(&osParams.PCM_In_data, AUDIO_SIZE_BYTES * 8, AUDIO_STEREO_Q15);
 
   /* Start scheduler */
   osKernelStart();
