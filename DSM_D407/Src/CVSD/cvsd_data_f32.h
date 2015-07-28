@@ -50,7 +50,7 @@
 #define INTEGRATOR_LEAK			(ONE / (BITRATE_KB * RC_INTEGRATOR_LEAK_MS))
 
 #define SYLLABIC_MAX_RATIO		(9)
-#define SYLLABIC_MIN_RATIO		(32)
+#define SYLLABIC_MIN_RATIO		(16)
 #define SYLLABIC_MAX			(SAMPLE_MAX_VALUE * SYLLABIC_MAX_RATIO)
 #define SYLLABIC_MIN			(SAMPLE_MAX_VALUE / SYLLABIC_MIN_RATIO)
 
@@ -59,6 +59,7 @@ typedef struct CVSD_STATE_F32{
 	uint32_t	ShiftRegister;
 	float		V_syllabic;
 	float		V_integrator;
+	uint32_t	bitcount;
 }CVSD_STATE_F32_t;
 
 #endif	// __CVSD_DATA_F32_H__

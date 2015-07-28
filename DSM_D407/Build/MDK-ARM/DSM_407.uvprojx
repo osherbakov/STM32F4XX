@@ -663,14 +663,14 @@
               <FilePath>..\..\Src\DSM_Process\processtask.c</FilePath>
             </File>
             <File>
-              <FileName>dataqueues.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\SW_Framework\dataqueues.c</FilePath>
-            </File>
-            <File>
               <FileName>dsmprocess.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\DSM_Process\dsmprocess.c</FilePath>
+            </File>
+            <File>
+              <FileName>dataqueues.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\SW_Framework\dataqueues.c</FilePath>
             </File>
             <File>
               <FileName>HardFaultHandler.c</FileName>
@@ -1516,14 +1516,14 @@
               <FilePath>..\..\Src\DSM_Process\processtask.c</FilePath>
             </File>
             <File>
-              <FileName>dataqueues.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\SW_Framework\dataqueues.c</FilePath>
-            </File>
-            <File>
               <FileName>dsmprocess.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\DSM_Process\dsmprocess.c</FilePath>
+            </File>
+            <File>
+              <FileName>dataqueues.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\SW_Framework\dataqueues.c</FilePath>
             </File>
             <File>
               <FileName>HardFaultHandler.c</FileName>

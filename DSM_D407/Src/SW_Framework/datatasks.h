@@ -14,7 +14,7 @@
 
 
 #define AUDIO_BLOCK_SAMPLES		(180)		// Size in Samples
-#define IV_BLOCK_SAMPLES			(180)		// Size in Samples
+#define IV_BLOCK_SAMPLES		(180)		// Size in Samples
 
 typedef enum
 {
