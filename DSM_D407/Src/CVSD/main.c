@@ -61,11 +61,13 @@ int FileTest(int argc, char *argv[])
 {
 	int32_t		length;
 	int16_t		speech_in[BLOCK_SIZE], speech_out[BLOCK_SIZE];
-	uint8_t		bitstream[BLOCK_SIZE/8];
-	/* size of the bitstream buffer */
-	int		eof_reached = FALSE;
+	float32_t	speech_in_f32[BLOCK_SIZE], speech_out_f32[BLOCK_SIZE];
+	uint8_t		bitstream[(BLOCK_SIZE +7)/8];
+
+	int		    eof_reached = FALSE;
 	FILE		*fp_in, *fp_out;
 	void		*enc, *dec;
+    int         i;
 
 	/* ====== Get input parameters from command line ====== */
 	parseCommandLine(argc, argv);
@@ -94,8 +96,10 @@ int FileTest(int argc, char *argv[])
 
 		length = fread(speech_in, sizeof(int16_t), BLOCK_SIZE, fp_in);
 
-		cvsd_encode_f32(enc, bitstream, speech_in, length);	
-		cvsd_decode_f32(dec, speech_out, bitstream, length);
+        arm_q15_to_float(speech_in, speech_in_f32, length);
+		cvsd_encode_f32(enc, bitstream, speech_in_f32, length);
+		cvsd_decode_f32(dec, speech_out_f32, bitstream, length);
+        arm_float_to_q15(speech_out_f32, speech_out, length);
 
 		fwrite(speech_out, sizeof(int16_t), length, fp_out);
 		if (length < BLOCK_SIZE)
@@ -201,9 +205,9 @@ static float UpSampleBuff[(AUDIO_BLOCK_SAMPLES + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RAT
 static float UpSampleCoeff[UPSAMPLE_TAPS] = {
 0.00449248310178518f, -0.0288104526698589f, -0.0499703288078308f, -0.0734485313296318f,
 -0.082396112382412f, -0.0617895275354385f, -0.00137842050753534f, 0.0993839502334595f,
-0.228658899664879f, 0.363589704036713f, 0.475823938846588f, 0.539592683315277f, 
-0.539592683315277f, 0.475823938846588f, 0.363589704036713f, 0.228658899664879f, 
-0.0993839502334595f, -0.00137842050753534f, -0.0617895275354385f, -0.082396112382412f, 
+0.228658899664879f, 0.363589704036713f, 0.475823938846588f, 0.539592683315277f,
+0.539592683315277f, 0.475823938846588f, 0.363589704036713f, 0.228658899664879f,
+0.0993839502334595f, -0.00137842050753534f, -0.0617895275354385f, -0.082396112382412f,
 -0.0734485313296318f, -0.0499703288078308f, -0.0288104526698589f, 0.00449248310178518f};
 
 static arm_fir_decimate_instance_f32 Dec;
@@ -219,7 +223,7 @@ static float speech_out[AUDIO_BLOCK_SAMPLES];
 void cvsd_init()
 {
 	/* ====== Initialize Decimator and interpolator ====== */
-	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
+	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 			DownSampleCoeff, DownSampleBuff, AUDIO_BLOCK_SAMPLES);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSampleCoeff, UpSampleBuff, AUDIO_BLOCK_SAMPLES/UPDOWNSAMPLE_RATIO);
@@ -227,29 +231,29 @@ void cvsd_init()
 	/* ====== Initialize CVSD analysis and synthesis ====== */
 	cvsd_ana = osAlloc(cvsd_mem_req_f32());
 	cvsd_syn = osAlloc(cvsd_mem_req_f32());
-	
+
 	cvsd_init_f32(cvsd_ana);
 	cvsd_init_f32(cvsd_syn);
 }
 
 
 void cvsd_process(float *pDataIn, float *pDataOut, int nSamples)
-{	
+{
 	if(0 == bInitialized)
 	{
 		cvsd_init();
-		bInitialized = 1;	
+		bInitialized = 1;
 	}
 
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 BSP_LED_Off(LED3);
-	
+
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= AUDIO_BLOCK_SAMPLES)
 	{
-		
+
 BSP_LED_On(LED4);
 		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, AUDIO_BLOCK_SAMPLES);
 BSP_LED_Off(LED4);
