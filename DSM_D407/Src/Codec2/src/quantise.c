@@ -711,7 +711,7 @@ float speech_to_uq_lsps(float lsp[],
 
     /* trap 0 energy case as LPC analysis will fail */
     
-    if (e == 0.0) {
+    if (e == 0.0f) {
 		for(i=0; i<order; i++)
 			lsp[i] = (PI/order) * i;
 		return 0.0;
@@ -1161,7 +1161,7 @@ void compute_weights2(const float *x, const float *xp, float *w)
      w[1] *= .3f;
   }
   /* Higher weight if pitch is stable */
-  if (fabsf(x[0]-xp[0])<.2)
+  if (fabsf(x[0]-xp[0])<.2f)
   {
      w[0] *= 2;
      w[1] *= 1.5f;
@@ -1277,7 +1277,7 @@ int encode_WoE(MODEL *model, float e, float xq[])
   int          nb_entries = ge_cb[0].m;
   int          ndim = ge_cb[0].k;
 
-  if (e < 0.0) e = 0;  /* occasional small negative energies due LPC round off I guess */
+  if (e < 0.0f) e = 0;  /* occasional small negative energies due LPC round off I guess */
 
   x[0] = log10f((model->Wo/PI)*4000.0f/50.0f)/log10f(2);
   x[1] = 10.0f*log10f(1e-4f + e);

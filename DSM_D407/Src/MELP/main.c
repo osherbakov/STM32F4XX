@@ -20,7 +20,6 @@ Group (phone 972 480 7442).
 /*                                                                  */
 
 /*  compiler include files  */
-#include <stdio.h>
 #include "melp.h"
 #include "spbstd.h"
 #include "mat.h"

@@ -51,7 +51,7 @@ void codec2_close(struct CODEC2 *codec2_state);
 void codec2_encode(struct CODEC2 *codec2_state, unsigned char * bits, short speech_in[]);
 void codec2_decode(struct CODEC2 *codec2_state, short speech_out[], const unsigned char *bits);
 
-int  codec2_state_memory_req();
+int  codec2_state_memory_req(void);
 int  codec2_samples_per_frame(struct CODEC2 *codec2_state);
 int  codec2_bits_per_frame(struct CODEC2 *codec2_state);
 

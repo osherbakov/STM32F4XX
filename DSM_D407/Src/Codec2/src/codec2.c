@@ -1421,16 +1421,12 @@ int codec2_get_spare_bit_index(struct CODEC2 *c2)
     switch(c2->mode) {
     case CODEC2_MODE_1300:
         return 2; // bit 2 (3th bit) is v2 (third voicing bit)
-        break;
     case CODEC2_MODE_1400:
         return 10; // bit 10 (11th bit) is v2 (third voicing bit)
-        break;
     case CODEC2_MODE_1600:
         return 15; // bit 15 (16th bit) is v2 (third voicing bit)
-        break;
     case CODEC2_MODE_700:
         return 26; // bits 26 and 27 are spare
-        break;
     }
     
     return -1;

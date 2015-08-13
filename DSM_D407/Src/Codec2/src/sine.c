@@ -341,7 +341,6 @@ void estimate_amplitudes(MODEL *model, COMP Sw[], COMP W[])
 {
   int   i,m;		/* loop variables */
   int   am,bm;		/* bounds of current harmonic */
-  int   b;		/* DFT bin of centre of current harmonic */
   float den;		/* denominator of amplitude expression */
   float r, one_on_r;	/* number of rads/bin */
   int   offset;
@@ -353,7 +352,6 @@ void estimate_amplitudes(MODEL *model, COMP Sw[], COMP W[])
   for(m=1; m<=model->L; m++) {
     am = (int)floorf((m - 0.5f)*model->Wo*one_on_r + 0.5f);
     bm = (int)floorf((m + 0.5f)*model->Wo*one_on_r + 0.5f);
-    b = (int)floorf(m*model->Wo/r + 0.5f);
 
     /* Estimate ampltude of harmonic */
 

@@ -61,7 +61,7 @@ extern const struct lsp_codebook lsp_cbvqanssi[];
 extern const struct lsp_codebook mel_cb[];
 extern const struct lsp_codebook ge_cb[];
 
-void quantise_init();
+void quantise_init(void);
 float lpc_model_amplitudes(float Sn[], float w[], MODEL *model, int order,
 			   int lsp,float ak[]);
 void aks_to_M2(float ak[], int order, MODEL *model, 

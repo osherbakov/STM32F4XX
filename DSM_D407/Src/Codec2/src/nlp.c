@@ -110,12 +110,13 @@ float post_process_sub_multiples(COMP Fw[],
 
 \*---------------------------------------------------------------------------*/
 
-void nlp_init(NLP *nlp,
+void nlp_init(void *state,
 	int    m			/* analysis window size */
 )
 {
     int  i;
-
+		NLP  *nlp = (NLP *)state;
+	
     nlp->m = m;
 
 	nlp->w = tbl.Nlp_w;	
