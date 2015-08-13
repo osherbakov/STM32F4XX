@@ -178,27 +178,37 @@ float nlp(
     float  notch;		    /* current notch filter output    */
     float  gmax;
     int    gmax_bin;
-    int    m, i, new_idx;
+    int    m, i, j, new_idx, nCount;
 	int    idx_start, idx_end;
+	float  x, y;
+	float  *pData;
     float  best_f0;
     COMP   *Fw = tmp.Fw;	    /* DFT of squared signal (input/output) */
 
     nlp = (NLP*)nlp_state;
     m = nlp->m;
 	new_idx = m - n;
+	idx_start = FFT_PE*DEC/pmax;
+	idx_end = FFT_PE*DEC/pmin;
 
     /* Square, notch filter at DC, and LP filter vector */
 	arm_mult_f32(&Sn[new_idx],&Sn[new_idx], &nlp->sq[new_idx], n);
 
-	for(i=new_idx; i<m; i++) {	/* notch filter at DC */
-		notch = nlp->sq[i] - nlp->mem_x;
-		notch += COEFF*nlp->mem_y;
-		nlp->mem_x = nlp->sq[i];
-		nlp->mem_y = notch;
-		nlp->sq[i] = notch + 1.0f;  
-    }
-
-    arm_fir_f32 (&nlp->arm_fir, &nlp->sq[new_idx], &nlp->sq[new_idx], n);
+	// Implement simplest IIR "mono-quad" filter:
+	//   y(n) = x(n) - x(n-1) + C * y(n-1)
+	//
+	pData = &nlp->sq[new_idx];
+	nCount = n;
+	x = nlp->mem_x; y = nlp->mem_y;   /* load state variables */
+	while(nCount-- > 0) {	/* notch filter at DC */
+		notch = *pData;
+		y = notch - x + COEFF * y;
+		x = notch;
+		*pData++ = y;
+	}
+	nlp->mem_x = x; nlp->mem_y = y; /* store state variables   */
+    
+	arm_fir_f32 (&nlp->arm_fir, &nlp->sq[new_idx], &nlp->sq[new_idx], n);
 
 	/* Decimate and DFT */
 	v_zap(Fw, 2 * FFT_PE);
@@ -208,14 +218,13 @@ float nlp(
 	arm_cfft_f32(&arm_cfft_sR_f32_len512, (float32_t *)Fw, 0, 1);
 
 
-	arm_cmplx_mag_squared_f32((float *)&Fw[0], &((float *)Fw)[0], FFT_PE);
+	arm_cmplx_mag_squared_f32(&Fw[0], &((float *)Fw)[0], FFT_PE);
 
     /* find global peak */
-	idx_start = FFT_PE*DEC/pmax;
-	idx_end = FFT_PE*DEC/pmin;    
 	arm_max_f32(&((float *)Fw)[idx_start], idx_end - idx_start + 1, &gmax, &gmax_bin);
 	gmax_bin += idx_start;
-    best_f0 = post_process_sub_multiples((float *)Fw, pmin, pmax, gmax, gmax_bin, prev_Wo);
+    
+	best_f0 = post_process_sub_multiples((float *)Fw, pmin, pmax, gmax, gmax_bin, prev_Wo);
 
     /* Shift samples in buffer to make room for new samples */
 	v_equ(&nlp->sq[0], &nlp->sq[n], new_idx);
@@ -279,7 +288,7 @@ float post_process_sub_multiples(float Fw[],
 		else
 			thresh = CNLP*gmax;
 
-		arm_max_f32((float32_t *)&Fw[bmin], bmax - bmin + 1, &lmax, &lmax_bin);
+		arm_max_f32(&Fw[bmin], bmax - bmin + 1, &lmax, &lmax_bin);
 		lmax_bin += bmin;
 
 		if ((lmax > thresh) &&
