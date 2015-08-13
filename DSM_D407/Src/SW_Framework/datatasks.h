@@ -14,7 +14,6 @@
 
 
 #define AUDIO_BLOCK_SAMPLES		(180)		// Size in Samples
-#define IV_BLOCK_SAMPLES		(180)		// Size in Samples
 
 typedef enum
 {
@@ -42,19 +41,15 @@ typedef enum
 
 #define AUDIO_MONO_Q15_SIZE	sizeof(int16_t)
 #define AUDIO_STEREO_Q15_SIZE	(2 * sizeof(int16_t))
-#define IV_MONO_Q15_SIZE	(2 * sizeof(int16_t))
-#define IV_STEREO_Q15_SIZE	(4 * sizeof(int16_t))
+
 
 typedef  enum uint16_t
 {
 	AUDIO_MONO_Q15 = (1<< 4) + AUDIO_MONO_Q15_SIZE  ,
 	AUDIO_STEREO_Q15 = (2 << 4) + AUDIO_STEREO_Q15_SIZE,
-	IV_MONO_Q15 = (3 << 4) + IV_MONO_Q15_SIZE,
-	IV_STEREO_Q15 = (4 << 4) + IV_STEREO_Q15_SIZE,
 } DataType_t;
 
 #define AUDIO_SIZE_BYTES	(AUDIO_BLOCK_SAMPLES * AUDIO_STEREO_Q15_SIZE)
-#define IV_SIZE_BYTES (IV_BLOCK_SAMPLES * IV_STEREO_Q15_SIZE)
 	
 void StartDefaultTask(void const * argument);
 void StartDataInPDMTask(void const * argument);
@@ -84,7 +79,6 @@ typedef struct
 
 extern osObjects_t osParams;
 
-extern void FF_Process(void *dsmHandle, float *pIn[], float *pOut[], uint32_t nSamples);
-extern void FB_Process(void *dsmHandle, float *pIn[], uint32_t nSamples);
+extern void Data_Process(void *dsmHandle, float *pIn[], float *pOut[], uint32_t nSamples);
 
 #endif // __TASKS_H__

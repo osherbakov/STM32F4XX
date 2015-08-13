@@ -26,9 +26,7 @@
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef __cplusplus
-  extern "C" {
-#endif
+
 
 #ifndef __CODEC2__
 #define  __CODEC2__
@@ -45,6 +43,9 @@ CODEC2_MODE_700  = 700
 
 struct CODEC2;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void codec2_init(struct CODEC2 *codec2_state, int mode);
 void codec2_close(struct CODEC2 *codec2_state);
 
@@ -58,11 +59,19 @@ int  codec2_bits_per_frame(struct CODEC2 *codec2_state);
 void codec2_set_lpc_post_filter(struct CODEC2 *codec2_state, int enable, int bass_boost, float beta, float gamma);
 int  codec2_get_spare_bit_index(struct CODEC2 *codec2_state);
 int  codec2_rebuild_spare_bit(struct CODEC2 *codec2_state, int unpacked_bits[]);
-
-
-#endif
-
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef _MSC_VER
+#define CCMRAM
+#define RODATA
+#else
+#define CCMRAM __attribute__((section (".ccmram")))
+#define RODATA __attribute__((section (".rodata")))
+#endif
+
+#endif
+
+
 

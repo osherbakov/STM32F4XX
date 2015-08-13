@@ -45,11 +45,11 @@ int		rate;
 
 /* ========== Static Variables ========== */
 
-float	speech_in[FRAME], speech_out[FRAME];
-float	speech[FRAME]; 
-char in_name[100], out_name[100];
-struct melp_param	melp_ana_par;                 /* melp analysis parameters */
-struct melp_param	melp_syn_par;                 /* melp synthesis parameters */
+static float	speech_in[FRAME] CCMRAM, speech_out[FRAME] CCMRAM;
+static float	speech[FRAME] CCMRAM; 
+static char in_name[100], out_name[100];
+struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
+struct melp_param	melp_syn_par CCMRAM;                 /* melp synthesis parameters */
 
 
 /* ========== Local Private Prototypes ========== */
@@ -65,7 +65,7 @@ extern int main_cmd(int argc, char *argv[]);
 
 #define SIGMAX 32767
 typedef short SPEECH;
-SPEECH	int_sp[FRAME] ; /*  integer input array	*/
+SPEECH	int_sp[FRAME] CCMRAM ; /*  integer input array	*/
 	
 /*								*/
 /*	Subroutine READBL: read block of input data		*/
@@ -183,16 +183,16 @@ static int FrameIdx = 0;
 #define UPSAMPLE_TAPS		(24)
 #define UPDOWNSAMPLE_RATIO (48000/8000)
 
-static float DownSampleBuff[FRAME + DOWNSAMPLE_TAPS - 1];
-static float DownSampleCoeff[DOWNSAMPLE_TAPS] = {
+static float DownSampleBuff[FRAME + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 -0.0163654778152704f, -0.0205210950225592f, 0.00911782402545214f, 0.0889585390686989f,
 0.195298701524735f, 0.272262066602707f, 0.272262066602707f, 0.195298701524735f,
 0.0889585390686989f, 0.00911782402545214f, -0.0205210950225592f, -0.0163654778152704f
 };
 
 
-static float UpSampleBuff[(FRAME + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1];
-static float UpSampleCoeff[UPSAMPLE_TAPS] = {
+static float UpSampleBuff[(FRAME + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
 -0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
 0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f, 
@@ -201,8 +201,8 @@ static float UpSampleCoeff[UPSAMPLE_TAPS] = {
 -0.10541670024395f, -0.0317823477089405f, 0.0118295839056373f, 0.0420790389180183f
 };
 
-arm_fir_decimate_instance_f32 Dec;
-arm_fir_interpolate_instance_f32 Int;
+static arm_fir_decimate_instance_f32 CCMRAM Dec ;
+static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
 void melp_init()
 {

@@ -1450,7 +1450,6 @@ int codec2_rebuild_spare_bit(struct CODEC2 *c2, int unpacked_bits[])
         /* if either adjacent frame is voiced, make this one voiced */
         unpacked_bits[2] = (v1 || v3);  
         return 0;
-        break;
 
     case CODEC2_MODE_1400:
 
@@ -1458,14 +1457,12 @@ int codec2_rebuild_spare_bit(struct CODEC2 *c2, int unpacked_bits[])
         /* if either adjacent frame is voiced, make this one voiced */
         unpacked_bits[10] = (v1 || v3);  
         return 0;
-        break;
 
     case CODEC2_MODE_1600:
         v3 = unpacked_bits[1+1+8+5+1];
         /* if either adjacent frame is voiced, make this one voiced */
         unpacked_bits[15] = (v1 || v3);  
         return 0;
-        break;
     }
     return -1;
 }

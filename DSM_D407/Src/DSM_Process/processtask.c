@@ -63,18 +63,15 @@ void StartDataProcessTask(void const * argument)
 	osEvent		event;
 	BuffBlk_t *pDataQ;
 
-	uint8_t		*pAudio, *pIV;
+	uint8_t		*pAudio;
 	float			*pAudioInLeft, *pAudioInRight; 
 	float			*pAudioOutLeft, *pAudioOutRight; 
-	float			*pILeft, *pIRight; 
-	float			*pVLeft, *pVRight; 
+
 
 	float			*AudioInF32[2];
 	float			*AudioOutF32[2];
-	float			*IVInF32[4];
 	
 	pAudio 	= osAlloc(AUDIO_SIZE_BYTES);
-	pIV 			= osAlloc(IV_SIZE_BYTES);
 
 	pAudioInLeft = osAlloc(AUDIO_BLOCK_SAMPLES * sizeof(float));
 	pAudioInRight = osAlloc(AUDIO_BLOCK_SAMPLES * sizeof(float));
@@ -84,15 +81,6 @@ void StartDataProcessTask(void const * argument)
 	AudioInF32[1] = pAudioInRight;
 	AudioOutF32[0] = pAudioOutLeft;
 	AudioOutF32[1] = pAudioOutRight;
-	
-	pILeft = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
-	pIRight = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
-	pVLeft = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
-	pVRight = osAlloc(IV_BLOCK_SAMPLES * sizeof(float));
-	IVInF32[0] = pILeft;
-	IVInF32[1] = pVLeft;
-	IVInF32[2] = pIRight;
-	IVInF32[3] = pVRight;
 
 	while(1)
 	{	
@@ -112,24 +100,11 @@ void StartDataProcessTask(void const * argument)
 					//   Call Feed Forward data processing
 					Convert_S16_to_F32((int16_t *)pAudio, pAudioInLeft, 0, 4, AUDIO_BLOCK_SAMPLES);
 					Convert_S16_to_F32((int16_t *)pAudio, pAudioInRight, 2, 4, AUDIO_BLOCK_SAMPLES);
-					FF_Process(&osParams, AudioInF32, AudioOutF32, AUDIO_BLOCK_SAMPLES);
+					Data_Process(&osParams, AudioInF32, AudioOutF32, AUDIO_BLOCK_SAMPLES);
 					//   Distribute output data to all output data sinks (USB, I2S, etc)
 					Convert_F32_to_S16(pAudioOutLeft, (int16_t *)pAudio, 0, 4, AUDIO_BLOCK_SAMPLES);
 					Convert_F32_to_S16(pAudioOutRight, (int16_t *)pAudio, 2, 4, AUDIO_BLOCK_SAMPLES);
 					FF_Distribute(&osParams, pAudio, AUDIO_SIZE_BYTES);
-				}
-			}else if(pDataQ->Type == IV_MONO_Q15 )
-			{
-				while(Queue_Count(pDataQ) >= IV_SIZE_BYTES)
-				{
-					Queue_PopData(pDataQ, pIV, IV_SIZE_BYTES);
-					//
-					//   Call Feed Back data processing
-					Convert_S16_to_F32((int16_t *)pIV, pILeft, 0, 8, IV_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pIV, pVLeft, 2, 8, IV_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pIV, pIRight, 4, 8, IV_BLOCK_SAMPLES);
-					Convert_S16_to_F32((int16_t *)pIV, pVRight, 6, 4, IV_BLOCK_SAMPLES);
-					FB_Process(&osParams, IVInF32, IV_BLOCK_SAMPLES);
 				}
 			}
 		}	

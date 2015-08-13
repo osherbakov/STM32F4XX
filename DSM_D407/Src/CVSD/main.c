@@ -20,7 +20,7 @@
 #define PROGRAM_NAME			"CVSD 16000 bps speech coder"
 #define PROGRAM_VERSION			"Version 2.0"
 #define PROGRAM_DATE			"14 NOV 2014"
-#define BLOCK_SIZE				4000
+#define BLOCK_SIZE				1000
 
 #ifndef TRUE
 #define TRUE (1)
@@ -67,7 +67,6 @@ int FileTest(int argc, char *argv[])
 	int		    eof_reached = FALSE;
 	FILE		*fp_in, *fp_out;
 	void		*enc, *dec;
-    int         i;
 
 	/* ====== Get input parameters from command line ====== */
 	parseCommandLine(argc, argv);
@@ -194,15 +193,15 @@ static int FrameIdx = 0;
 #define UPSAMPLE_TAPS		 (24)
 #define UPDOWNSAMPLE_RATIO (48000/16000)
 
-static float DownSampleBuff[AUDIO_BLOCK_SAMPLES + DOWNSAMPLE_TAPS - 1];
-static float DownSampleCoeff[DOWNSAMPLE_TAPS] = {
+static float DownSampleBuff[AUDIO_BLOCK_SAMPLES + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 -0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
 0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
 0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003};
 
 
-static float UpSampleBuff[(AUDIO_BLOCK_SAMPLES + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1];
-static float UpSampleCoeff[UPSAMPLE_TAPS] = {
+static float UpSampleBuff[(AUDIO_BLOCK_SAMPLES + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.00449248310178518f, -0.0288104526698589f, -0.0499703288078308f, -0.0734485313296318f,
 -0.082396112382412f, -0.0617895275354385f, -0.00137842050753534f, 0.0993839502334595f,
 0.228658899664879f, 0.363589704036713f, 0.475823938846588f, 0.539592683315277f,
@@ -210,15 +209,15 @@ static float UpSampleCoeff[UPSAMPLE_TAPS] = {
 0.0993839502334595f, -0.00137842050753534f, -0.0617895275354385f, -0.082396112382412f,
 -0.0734485313296318f, -0.0499703288078308f, -0.0288104526698589f, 0.00449248310178518f};
 
-static arm_fir_decimate_instance_f32 Dec;
-static arm_fir_interpolate_instance_f32 Int;
+static arm_fir_decimate_instance_f32 CCMRAM Dec ;
+static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
 void *cvsd_ana;
 void *cvsd_syn;
 
-static uint8_t dataBits[AUDIO_BLOCK_SAMPLES];
-static float speech_in[AUDIO_BLOCK_SAMPLES];
-static float speech_out[AUDIO_BLOCK_SAMPLES];
+static uint8_t dataBits[AUDIO_BLOCK_SAMPLES] CCMRAM;
+static float speech_in[AUDIO_BLOCK_SAMPLES] CCMRAM;
+static float speech_out[AUDIO_BLOCK_SAMPLES] CCMRAM;
 
 void cvsd_init()
 {
