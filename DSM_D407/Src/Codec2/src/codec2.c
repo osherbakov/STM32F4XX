@@ -1346,17 +1346,16 @@ void analyse_one_frame(struct CODEC2 *c2, MODEL *model, short speech[])
     int     i;
     COMP    *Sw = tmp.Sw;
 
-    /* Shift all buffer to the beginning and add new input speech at the end*/
+    /* Shift all samples in the buffer to the beginning and add new input speech at the end*/
 
 	v_equ(&c2->Sn[0], &c2->Sn[FRAME_SIZE],P_SIZE-FRAME_SIZE);
-    for(i=0; i<FRAME_SIZE; i++)
-      c2->Sn[i+P_SIZE-FRAME_SIZE] = speech[i];
+    for(i=0; i<FRAME_SIZE; i++) c2->Sn[i+P_SIZE-FRAME_SIZE] = speech[i];
 
     dft_speech(Sw, c2->Sn, c2->w);
 
     /* Estimate pitch */
 
-    nlp(&c2->nlp, c2->Sn, FRAME_SIZE, P_MIN,P_MAX, &pitch, Sw, c2->W, c2->prev_Wo_enc);
+    nlp(&c2->nlp, c2->Sn, FRAME_SIZE, P_MIN, P_MAX, &pitch, Sw, c2->W, c2->prev_Wo_enc);
 
     model->Wo = TWO_PI/pitch;
     model->L = PI/model->Wo;

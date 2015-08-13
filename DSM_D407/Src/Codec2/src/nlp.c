@@ -29,7 +29,7 @@
 #include "defines.h"
 #include "nlp.h"
 #include "codec2_internal.h"
-
+#include "codec2.h"
 #include "mat.h"
 /*---------------------------------------------------------------------------*\
                                                                              
@@ -46,7 +46,7 @@
 
 /* 48 tap 600Hz low pass FIR filter coefficients */
 
-static const float nlp_fir[] = {
+static const float nlp_fir[] RODATA = {
   -1.0818124e-03,
   -1.1008344e-03,
   -9.2768838e-04,
@@ -98,7 +98,7 @@ static const float nlp_fir[] = {
 };
 
 
-float post_process_sub_multiples(COMP Fw[], 
+float post_process_sub_multiples(float Fw[], 
 				 int pmin, int pmax, float gmax, int gmax_bin,
 				 float prev_Wo);
 
@@ -115,7 +115,7 @@ void nlp_init(void *state,
 )
 {
     int  i;
-		NLP  *nlp = (NLP *)state;
+	NLP  *nlp = (NLP *)state;
 	
     nlp->m = m;
 
@@ -123,6 +123,7 @@ void nlp_init(void *state,
 	for(i=0; i<m/DEC; i++) {
 		nlp->w[i] = 0.5f - 0.5f*cosf(2*PI*i/(m/DEC-1));
     }
+    arm_fir_init_f32 (&nlp->arm_fir, NLP_NTAP, (float32_t *) nlp_fir, nlp->mem_fir, FRAME_SIZE);
 
 	nlp->mem_x = 0.0;
     nlp->mem_y = 0.0;
@@ -177,68 +178,47 @@ float nlp(
     float  notch;		    /* current notch filter output    */
     float  gmax;
     int    gmax_bin;
-    int    m, i, j, size;
+    int    m, i, new_idx;
+	int    idx_start, idx_end;
     float  best_f0;
     COMP   *Fw = tmp.Fw;	    /* DFT of squared signal (input/output) */
 
     nlp = (NLP*)nlp_state;
     m = nlp->m;
-	size = m - n;
+	new_idx = m - n;
 
     /* Square, notch filter at DC, and LP filter vector */
-	arm_mult_f32(&Sn[size],&Sn[size], &nlp->sq[size], n);
+	arm_mult_f32(&Sn[new_idx],&Sn[new_idx], &nlp->sq[new_idx], n);
 
-    for(i=size; i<m; i++) {	/* notch filter at DC */
+	for(i=new_idx; i<m; i++) {	/* notch filter at DC */
 		notch = nlp->sq[i] - nlp->mem_x;
 		notch += COEFF*nlp->mem_y;
 		nlp->mem_x = nlp->sq[i];
 		nlp->mem_y = notch;
-		nlp->sq[i] = notch + 1.0f;  /* With 0 input vectors to codec,
-						  kiss_fft() would take a long
-						  time to execute when running in
-						  real time.  Problem was traced
-						  to kiss_fft function call in
-						  this function. Adding this small
-						  constant fixed problem.  Not
-						  exactly sure why. */
+		nlp->sq[i] = notch + 1.0f;  
     }
 
-    for(i=size; i<m; i++) {	/* FIR filter vector */
-		for(j=0; j<NLP_NTAP-1; j++)
-			nlp->mem_fir[j] = nlp->mem_fir[j+1];
-		nlp->mem_fir[NLP_NTAP-1] = nlp->sq[i];
+    arm_fir_f32 (&nlp->arm_fir, &nlp->sq[new_idx], &nlp->sq[new_idx], n);
 
-		nlp->sq[i] = 0.0;
-		for(j=0; j<NLP_NTAP; j++)
-			nlp->sq[i] += nlp->mem_fir[j]*nlp_fir[j];
-		}
- 
-    /* Decimate and DFT */
-
+	/* Decimate and DFT */
 	v_zap(Fw, 2 * FFT_PE);
     for(i=0; i<m/DEC; i++) {
 		Fw[i].real = nlp->sq[i*DEC]*nlp->w[i];
     }
-
 	arm_cfft_f32(&arm_cfft_sR_f32_len512, (float32_t *)Fw, 0, 1);
 
-    for(i=0; i<FFT_PE; i++)
-		Fw[i].real = Fw[i].real*Fw[i].real + Fw[i].imag*Fw[i].imag;
+
+	arm_cmplx_mag_squared_f32((float *)&Fw[0], &((float *)Fw)[0], FFT_PE);
 
     /* find global peak */
-    gmax = 0.0;
-    gmax_bin = FFT_PE*DEC/pmax;
-    for(i=FFT_PE*DEC/pmax; i<=FFT_PE*DEC/pmin; i++) {
-		if (Fw[i].real > gmax) {
-			gmax = Fw[i].real;
-			gmax_bin = i;
-		}
-	}
-    
-    best_f0 = post_process_sub_multiples(Fw, pmin, pmax, gmax, gmax_bin, prev_Wo);
+	idx_start = FFT_PE*DEC/pmax;
+	idx_end = FFT_PE*DEC/pmin;    
+	arm_max_f32(&((float *)Fw)[idx_start], idx_end - idx_start + 1, &gmax, &gmax_bin);
+	gmax_bin += idx_start;
+    best_f0 = post_process_sub_multiples((float *)Fw, pmin, pmax, gmax, gmax_bin, prev_Wo);
 
     /* Shift samples in buffer to make room for new samples */
-	v_equ(&nlp->sq[0], &nlp->sq[n], size);
+	v_equ(&nlp->sq[0], &nlp->sq[n], new_idx);
 
     /* return pitch and F0 estimate */
     *pitch = (float)SAMPLE_RATE/best_f0;
@@ -267,9 +247,9 @@ float nlp(
 
 \*---------------------------------------------------------------------------*/
 
-float post_process_sub_multiples(COMP Fw[], 
-				 int pmin, int pmax, float gmax, int gmax_bin,
-				 float prev_Wo)
+float post_process_sub_multiples(float Fw[], 
+	int pmin, int pmax, float gmax, int gmax_bin,
+	float prev_Wo)
 {
     int   min_bin, cmax_bin;
     int   mult;
@@ -286,30 +266,25 @@ float post_process_sub_multiples(COMP Fw[],
     prev_f0_bin = prev_Wo*(4000.0f/PI)*(FFT_PE*DEC)/SAMPLE_RATE;
     
     while(gmax_bin/mult >= min_bin) {
-	b = gmax_bin/mult;			/* determine search interval */
-	bmin = 0.8f*b;
-	bmax = 1.2f*b;
-	if (bmin < min_bin) bmin = min_bin;
+		b = gmax_bin/mult;			/* determine search interval */
+		bmin = 0.8f*b;
+		bmax = 1.2f*b;
+		if (bmin < min_bin) bmin = min_bin;
 
-	/* lower threshold to favour previous frames pitch estimate,
-	    this is a form of pitch tracking */
+		/* lower threshold to favour previous frames pitch estimate,
+			this is a form of pitch tracking */
 
-	if ((prev_f0_bin > bmin) && (prev_f0_bin < bmax))
-	    thresh = CNLP*0.5f*gmax;
-	else
-	    thresh = CNLP*gmax;
+		if ((prev_f0_bin > bmin) && (prev_f0_bin < bmax))
+			thresh = CNLP*0.5f*gmax;
+		else
+			thresh = CNLP*gmax;
 
-	lmax = 0;
-	lmax_bin = bmin;
-	for (b=bmin; b<=bmax; b++) 	     /* look for maximum in interval */
-	    if (Fw[b].real > lmax) {
-			lmax = Fw[b].real;
-			lmax_bin = b;
-	    }
+		arm_max_f32((float32_t *)&Fw[bmin], bmax - bmin + 1, &lmax, &lmax_bin);
+		lmax_bin += bmin;
 
-	if (lmax > thresh)
-	    if ((lmax > Fw[lmax_bin-1].real) && (lmax > Fw[lmax_bin+1].real)) {
-			cmax_bin = lmax_bin;
+		if ((lmax > thresh) &&
+		    (lmax > Fw[lmax_bin-1]) && (lmax > Fw[lmax_bin+1])) {
+				cmax_bin = lmax_bin;
 	    }
 		mult++;
     }

@@ -30,21 +30,23 @@
   You should have received a copy of the GNU Lesser General Public License
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
-#include "stm32f4_discovery.h"
+
 #ifndef _MSC_VER
+#include "stm32f4_discovery.h"
 #ifndef ARM_MATH_CM4
 #define ARM_MATH_CM4
 #endif
 #define __TARGET_FPU_VFP 1
 #define __FPU_PRESENT 1
 #include <stdint.h>
+#include "cmsis_os.h"
+static inline void exit(int a){ do{}while(a);}
 #endif
 
 #include "arm_math.h"
 #include "arm_const_structs.h"
-#include "arm_math.h"
 
-#include "cmsis_os.h"
+
 #include "codec2.h"
 #include "sine.h"
 #include <stdio.h>
@@ -52,8 +54,6 @@
 #include <string.h>
 #include <errno.h>
 
-#define exit(a) do{}while(a)
-	
 	
 int main_codec2(int argc, char *argv[])
 {
@@ -120,7 +120,7 @@ static int FrameIdx = 0;
 #define MAX_FRAME_SIZE    (320)
 
 #define DOWNSAMPLE_TAPS  	(12)
-#define UPSAMPLE_TAPS			(24)
+#define UPSAMPLE_TAPS		(24)
 #define UPDOWNSAMPLE_RATIO (48000/8000)
 
 static float DownSampleBuff[MAX_FRAME_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
@@ -146,6 +146,12 @@ static arm_fir_interpolate_instance_f32 Int;
 static struct CODEC2 *p_codec;
 static int  frame_size;
 
+static float	speech_in[MAX_FRAME_SIZE] CCMRAM, speech_out[MAX_FRAME_SIZE] CCMRAM;
+static int16_t	speech[MAX_FRAME_SIZE] CCMRAM; 
+static unsigned char bits[64] CCMRAM;
+
+#ifndef _MSC_VER
+
 void codec_init()
 {
 
@@ -162,10 +168,6 @@ void codec_init()
 			UpSampleCoeff, UpSampleBuff, frame_size/UPDOWNSAMPLE_RATIO);
 	FrameIdx = 0;	
 }
-
-static float	speech_in[MAX_FRAME_SIZE] CCMRAM, speech_out[MAX_FRAME_SIZE] CCMRAM;
-static int16_t	speech[MAX_FRAME_SIZE] CCMRAM; 
-static unsigned char bits[64] CCMRAM;
 
 void codec2_process(float *pDataIn, float *pDataOut, int nSamples)
 {	
@@ -199,3 +201,4 @@ BSP_LED_Off(LED5);
 	}
 }
 
+#endif

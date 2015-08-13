@@ -28,6 +28,7 @@
 
 #ifndef __CODEC2_INTERNAL__
 #define __CODEC2_INTERNAL__
+#include "mat.h"
 
 #define PMAX_M      600		/* maximum NLP analysis window size     */
 #define DEC         5		/* decimation factor                    */
@@ -38,7 +39,8 @@ typedef struct NLP{
     float         *w;				 /* DFT window                   */ 
     float         sq[PMAX_M];	     /* squared speech samples       */
     float         mem_x,mem_y;       /* memory for notch filter      */
-    float         mem_fir[NLP_NTAP]; /* decimation FIR filter memory */
+    float         mem_fir[NLP_NTAP + FRAME_SIZE - 1]; /* decimation FIR filter memory */
+    arm_fir_instance_f32 arm_fir;  /* fir from arm */
 } NLP;
 
 struct CODEC2 {
@@ -48,11 +50,13 @@ struct CODEC2 {
     float         *Pn;						/* trapezoidal synthesis window              */
     float         *w;						/* time domain hamming window                */
     COMP          *W;						/* DFT of w[]                                */
-
-	float         Sn[P_SIZE];              /* analized input speech                              */
+	
+	/* Analysis parameters and states      */
+	float         Sn[P_SIZE];              /* analized input speech                     */
     NLP           nlp;					   /* pitch predictor states                    */
     float         bg_est;                  /* background noise estimate for post filter */
-
+	
+	/* Synthesis parameters and states     */
     float         Sn_[2*FRAME_SIZE];	   /* synthesised output speech                 */
     float         ex_phase;                /* excitation model phase track              */
 
