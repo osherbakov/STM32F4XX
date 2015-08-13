@@ -165,7 +165,7 @@ void codec_init()
 
 static float	speech_in[MAX_FRAME_SIZE], speech_out[MAX_FRAME_SIZE];
 static int16_t	speech[MAX_FRAME_SIZE]; 
-static unsigned char bits[8];
+static unsigned char bits[64];
 
 void codec2_process(float *pDataIn, float *pDataOut, int nSamples)
 {	

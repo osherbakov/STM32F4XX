@@ -92,6 +92,7 @@ void v_Gen_Sin(SinGen_t* pState, float *pBuff, uint32_t nSamples)
 
 extern void melp_process(float *pDataIn, float *pDataOut, uint32_t nSamples);
 extern void cvsd_process(float *pDataIn, float *pDataOut, uint32_t nSamples);
+extern void codec2_process(float *pDataIn, float *pDataOut, uint32_t nSamples);
 
 //
 //  For test purposes the FF Function just copies input data buffer to output buffer
@@ -100,8 +101,9 @@ void FF_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_MA
 {
 	//	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
 	//  memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float)); 	
-	cvsd_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-//	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
+//	cvsd_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
+	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
+//	codec2_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
 	memcpy(pAudioOut[CH_LEFT], pAudioOut[CH_RIGHT], nSamples * sizeof(float));
 }
 
