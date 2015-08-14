@@ -37,8 +37,7 @@ CODEC2_MODE_2400 = 2400,
 CODEC2_MODE_1600 = 1600,
 CODEC2_MODE_1400 = 1400,
 CODEC2_MODE_1300 = 1300,
-CODEC2_MODE_1200 = 1200,
-CODEC2_MODE_700  = 700
+CODEC2_MODE_1200 = 1200
 } CODEC2_MODE_t;
 
 struct CODEC2;
@@ -56,7 +55,6 @@ int  codec2_state_memory_req(void);
 int  codec2_samples_per_frame(struct CODEC2 *codec2_state);
 int  codec2_bits_per_frame(struct CODEC2 *codec2_state);
 
-void codec2_set_lpc_post_filter(struct CODEC2 *codec2_state, int enable, int bass_boost, float beta, float gamma);
 int  codec2_get_spare_bit_index(struct CODEC2 *codec2_state);
 int  codec2_rebuild_spare_bit(struct CODEC2 *codec2_state, int unpacked_bits[]);
 #ifdef __cplusplus

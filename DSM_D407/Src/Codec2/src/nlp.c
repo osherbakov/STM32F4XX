@@ -217,11 +217,10 @@ float nlp(
     }
 	arm_cfft_f32(&arm_cfft_sR_f32_len512, (float32_t *)Fw, 0, 1);
 
-
 	arm_cmplx_mag_squared_f32((float32_t *)&Fw[0], &((float *)Fw)[0], FFT_PE);
 
     /* find global peak */
-	arm_max_f32(&((float *)Fw)[idx_start], idx_end - idx_start + 1, &gmax, (uint32_t *) &gmax_bin);
+	arm_max_f32(&((float *)Fw)[idx_start], idx_end - idx_start + 1, &gmax, &gmax_bin);
 	gmax_bin += idx_start;
     
 	best_f0 = post_process_sub_multiples((float *)Fw, pmin, pmax, gmax, gmax_bin, prev_Wo);
@@ -288,7 +287,7 @@ float post_process_sub_multiples(float Fw[],
 		else
 			thresh = CNLP*gmax;
 
-		arm_max_f32(&Fw[bmin], bmax - bmin + 1, &lmax, (uint32_t *)&lmax_bin);
+		arm_max_f32(&Fw[bmin], bmax - bmin + 1, &lmax, &lmax_bin);
 		lmax_bin += bmin;
 
 		if ((lmax > thresh) &&
