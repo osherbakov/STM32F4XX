@@ -54,7 +54,8 @@ static inline void exit(int a){ do{}while(a);}
 #include <string.h>
 #include <errno.h>
 
-	
+#include "mat.h"
+
 int main_codec2(int argc, char *argv[])
 {
     struct CODEC2 *codec2;
@@ -117,7 +118,7 @@ int main_codec2(int argc, char *argv[])
 static int bInitialized = 0;
 static int FrameIdx = 0;
 
-#define MAX_FRAME_SIZE    (320)
+#define MAX_FRAME_SIZE    (180)
 
 #define DOWNSAMPLE_TAPS  	(12)
 #define UPSAMPLE_TAPS		(24)
@@ -161,7 +162,8 @@ void codec_init()
 	codec2_init(p_codec, CODEC2_MODE_2400);
 	
 	/* ====== Initialize Decimator and interpolator ====== */
-	frame_size = codec2_samples_per_frame(p_codec);	
+//	frame_size = codec2_samples_per_frame(p_codec);	
+	frame_size = MAX_FRAME_SIZE;
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
 			DownSampleCoeff, DownSampleBuff, frame_size);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
@@ -180,13 +182,15 @@ void codec2_process(float *pDataIn, float *pDataOut, int nSamples)
 
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
+//	v_equ(speech_out, speech_in, frame_size);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
+//	v_equ(pDataOut, pDataIn, nSamples);
 BSP_LED_Off(LED3);
 	
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= frame_size)
 	{
-//		v_equ(speech_out, speech_in, FRAME);
+		// v_equ(speech_out, speech_in, frame_size);
 		// v_equ(speech, speech_in, frame_size);
 BSP_LED_On(LED4);
 		for(i = 0; i < frame_size; i++) speech[i] = speech_in[i]; 

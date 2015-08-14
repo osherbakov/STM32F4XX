@@ -254,12 +254,12 @@ BSP_LED_Off(LED3);
 	{
 
 BSP_LED_On(LED4);
-		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, AUDIO_BLOCK_SAMPLES);
+//		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, AUDIO_BLOCK_SAMPLES);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, AUDIO_BLOCK_SAMPLES);
+//		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, AUDIO_BLOCK_SAMPLES);
 BSP_LED_Off(LED5);
-//		memcpy(speech_out, speech_in, AUDIO_BLOCK_SAMPLES * sizeof(float));
+		memcpy(speech_out, speech_in, AUDIO_BLOCK_SAMPLES * sizeof(float));
 		FrameIdx = 0;
 	}
 }

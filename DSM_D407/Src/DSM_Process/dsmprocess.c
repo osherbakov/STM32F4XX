@@ -97,8 +97,8 @@ void Data_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_
 	//	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
 	//  memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float)); 	
 //	cvsd_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-//	codec2_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
+//	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
+	codec2_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
 	memcpy(pAudioOut[CH_LEFT], pAudioOut[CH_RIGHT], nSamples * sizeof(float));
 }
 
