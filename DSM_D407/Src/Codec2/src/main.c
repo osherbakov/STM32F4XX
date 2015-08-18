@@ -56,6 +56,11 @@ static inline void exit(int a){ do{}while(a);}
 
 #include "mat.h"
 
+#include "dataqueues.h"
+
+#define CODEC2_MAX_FRAME_SIZE    (320)
+
+
 int main_codec2(int argc, char *argv[])
 {
     struct CODEC2 *codec2;
@@ -118,13 +123,12 @@ int main_codec2(int argc, char *argv[])
 static int bInitialized = 0;
 static int FrameIdx = 0;
 
-#define MAX_FRAME_SIZE    (180)
 
 #define DOWNSAMPLE_TAPS  	(12)
 #define UPSAMPLE_TAPS		(24)
 #define UPDOWNSAMPLE_RATIO (48000/8000)
 
-static float DownSampleBuff[MAX_FRAME_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSampleBuff[CODEC2_MAX_FRAME_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 -0.0163654778152704f, -0.0205210950225592f, 0.00911782402545214f, 0.0889585390686989f,
 0.195298701524735f, 0.272262066602707f, 0.272262066602707f, 0.195298701524735f,
@@ -132,7 +136,7 @@ static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 };
 
 
-static float UpSampleBuff[(MAX_FRAME_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSampleBuff[(CODEC2_MAX_FRAME_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
 static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
 -0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
@@ -147,13 +151,13 @@ static arm_fir_interpolate_instance_f32 Int;
 static struct CODEC2 *p_codec;
 static int  frame_size;
 
-static float	speech_in[MAX_FRAME_SIZE] CCMRAM, speech_out[MAX_FRAME_SIZE] CCMRAM;
-static int16_t	speech[MAX_FRAME_SIZE] CCMRAM; 
+static float	speech_in[CODEC2_MAX_FRAME_SIZE] CCMRAM, speech_out[CODEC2_MAX_FRAME_SIZE] CCMRAM;
+static int16_t	speech[CODEC2_MAX_FRAME_SIZE] CCMRAM; 
 static unsigned char bits[64] CCMRAM;
 
 #ifndef _MSC_VER
 
-void codec_init()
+void codec_init(void *pHandle)
 {
 
 	/* ====== Initialize CODEC2 analysis and synthesis ====== */
@@ -161,9 +165,9 @@ void codec_init()
 	p_codec = osAlloc(mem_req);
 	codec2_init(p_codec, CODEC2_MODE_2400);
 	
-	/* ====== Initialize Decimator and interpolator ====== */
-//	frame_size = codec2_samples_per_frame(p_codec);	
-	frame_size = MAX_FRAME_SIZE;
+	/* ====== Initialize Decimator and Interpolator ====== */
+  frame_size = codec2_samples_per_frame(p_codec);	
+//	frame_size = MAX_FRAME_SIZE;
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
 			DownSampleCoeff, DownSampleBuff, frame_size);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
@@ -171,12 +175,12 @@ void codec_init()
 	FrameIdx = 0;	
 }
 
-void codec2_process(float *pDataIn, float *pDataOut, int nSamples)
+void codec2_process(void *pHandle, float *pDataIn, float *pDataOut, int nSamples)
 {	
 	int i;
 	if(0 == bInitialized)
 	{
-		codec_init();
+		codec_init(pHandle);
 		bInitialized = 1;	
 	}
 
@@ -191,7 +195,6 @@ BSP_LED_Off(LED3);
 	if(FrameIdx >= frame_size)
 	{
 		// v_equ(speech_out, speech_in, frame_size);
-		// v_equ(speech, speech_in, frame_size);
 BSP_LED_On(LED4);
 		for(i = 0; i < frame_size; i++) speech[i] = speech_in[i]; 
 		codec2_encode(p_codec, bits, speech);
@@ -199,10 +202,15 @@ BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		codec2_decode(p_codec, speech, bits);	
 		for(i = 0; i < frame_size; i++) speech_out[i] = speech[i]; 
-		// v_equ(speech_out, speech, frame_size);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 	}
+}
+
+uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DATA_TYPE_F32_32K | DATA_CH_1;
+	 return codec2_samples_per_frame(p_codec) * sizeof(float32_t);
 }
 
 #endif

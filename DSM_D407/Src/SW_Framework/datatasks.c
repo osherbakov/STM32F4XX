@@ -42,7 +42,7 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
 		{
-				Queue_PopData(&osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
+				Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
 		}
 }
 
@@ -53,7 +53,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 		if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
 		{
 				BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
-				Queue_PopData(&osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
+				Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 		}
 }
 
@@ -80,11 +80,12 @@ void StartDataInPDMTask(void const * argument)
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
 		event = osMessageGet(osParams.dataInPDMMsg, osWaitForever);
-		if( event.status == osEventMessage  ) // Valid Data is present
+		if( event.status == osEventMessage  ) // Valid Data is present in the queue
 		{
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES * event.value.v];
+			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
-			Queue_PushData(&osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
+			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
 			
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)&osParams.PCM_In_data, 0);

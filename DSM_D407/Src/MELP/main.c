@@ -33,9 +33,9 @@ Group (phone 972 480 7442).
 #include <string.h>
 #include <stdlib.h>
 
-/* ====== External memory ====== */
+#include "dataqueues.h"
 
-#define FRAME				180              /* speech frame size */
+/* ====== External memory ====== */
 
 typedef unsigned short uint16_t;
 typedef signed short int16_t;
@@ -43,10 +43,12 @@ typedef signed short int16_t;
 int		mode;
 int		rate;
 
+#define MELP_FRAME_SIZE  (180)
+
 /* ========== Static Variables ========== */
 
-static float	speech_in[FRAME] CCMRAM, speech_out[FRAME] CCMRAM;
-static float	speech[FRAME] CCMRAM; 
+static float	speech_in[MELP_FRAME_SIZE] CCMRAM, speech_out[MELP_FRAME_SIZE] CCMRAM;
+static float	speech[MELP_FRAME_SIZE] CCMRAM; 
 static char in_name[100], out_name[100];
 struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par CCMRAM;                 /* melp synthesis parameters */
@@ -65,7 +67,7 @@ extern int main_cmd(int argc, char *argv[]);
 
 #define SIGMAX 32767
 typedef short SPEECH;
-SPEECH	int_sp[FRAME] CCMRAM ; /*  integer input array	*/
+SPEECH	int_sp[MELP_FRAME_SIZE] CCMRAM ; /*  integer input array	*/
 	
 /*								*/
 /*	Subroutine READBL: read block of input data		*/
@@ -157,7 +159,7 @@ int main_cmd(int argc, char *argv[])
 		fprintf(stderr, "Frame = %d\r", frame_count);
 
 		/* Perform MELP analysis */
-		length = readbl(speech_in, fp_in, FRAME);
+		length = readbl(speech_in, fp_in, MELP_FRAME_SIZE);
 		if (length < FRAME){
 			eof_reached = TRUE;
 		}
@@ -183,7 +185,7 @@ static int FrameIdx = 0;
 #define UPSAMPLE_TAPS		(24)
 #define UPDOWNSAMPLE_RATIO (48000/8000)
 
-static float DownSampleBuff[FRAME + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSampleBuff[MELP_FRAME_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 -0.0163654778152704f, -0.0205210950225592f, 0.00911782402545214f, 0.0889585390686989f,
 0.195298701524735f, 0.272262066602707f, 0.272262066602707f, 0.195298701524735f,
@@ -191,7 +193,7 @@ static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 };
 
 
-static float UpSampleBuff[(FRAME + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSampleBuff[(MELP_FRAME_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
 static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
 -0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
@@ -204,13 +206,13 @@ static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 static arm_fir_decimate_instance_f32 CCMRAM Dec ;
 static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
-void melp_init()
+void melp_init(void *pHandle)
 {
 	/* ====== Initialize Decimator and interpolator ====== */
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
-			DownSampleCoeff, DownSampleBuff, FRAME);
+			DownSampleCoeff, DownSampleBuff, MELP_FRAME_SIZE);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
-			UpSampleCoeff, UpSampleBuff, FRAME/UPDOWNSAMPLE_RATIO);
+			UpSampleCoeff, UpSampleBuff, MELP_FRAME_SIZE/UPDOWNSAMPLE_RATIO);
 	FrameIdx = 0;
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_ana_init(&melp_ana_par);
@@ -218,11 +220,11 @@ void melp_init()
 }
 
 
-void melp_process(float *pDataIn, float *pDataOut, int nSamples)
+void melp_process(void *pHandle, float *pDataIn, float *pDataOut, int nSamples)
 {	
 	if(0 == bInitialized)
 	{
-		melp_init();
+		melp_init(pHandle);
 		bInitialized = 1;	
 	}
 
@@ -232,19 +234,25 @@ BSP_LED_On(LED3);
 BSP_LED_Off(LED3);
 	
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
-	if(FrameIdx >= FRAME)
+	if(FrameIdx >= MELP_FRAME_SIZE)
 	{
-//		v_equ(speech_out, speech_in, FRAME);
-		v_equ(speech, speech_in, FRAME);
+//		v_equ(speech_out, speech_in, MELP_FRAME_SIZE);
+		v_equ(speech, speech_in, MELP_FRAME_SIZE);
 BSP_LED_On(LED4);
 		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		melp_syn(&melp_syn_par, speech);
-		v_equ(speech_out, speech, FRAME);
+		v_equ(speech_out, speech, MELP_FRAME_SIZE);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 	}
+}
+
+uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DATA_TYPE_F32_32K | DATA_CH_1;
+	 return MELP_FRAME_SIZE * sizeof(float32_t);
 }
 
 

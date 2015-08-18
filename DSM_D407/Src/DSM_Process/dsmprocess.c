@@ -52,7 +52,6 @@ void Gen_Init(SinGen_t* pState, float SamplingFreq, float GenerateFreq, float Am
 		pState->TwoCosDelta = 2 * arm_cos_f32(PhaseStep);
 }
 
-static int GenInit = 0;
 
 //
 // generate the next sample of the SIN Quadrature generator
@@ -66,40 +65,18 @@ float Gen_Sin(SinGen_t* pState)
 	return pState->Amplitude * S1;
 }
 
-static SinGen_t SinBlk;
-
-void v_Gen_Sin(SinGen_t* pState, float *pBuff, uint32_t nSamples)
-{
-	if(0 == GenInit)
-	{
-		Gen_Init(pState, SAMPLE_FREQ, 1333.0f, 0.99f);
-		GenInit = 1;
-	}	
-	for(int i = 0; i < nSamples; i++)
-	{
-		float val = Gen_Sin(&SinBlk);
-		for(int j = 0; j < CH_MAX; j++)
-		{
-				pBuff[i] = val;
-		}
-	}
-}
-
-extern void melp_process(float *pDataIn, float *pDataOut, uint32_t nSamples);
-extern void cvsd_process(float *pDataIn, float *pDataOut, uint32_t nSamples);
-extern void codec2_process(float *pDataIn, float *pDataOut, uint32_t nSamples);
 
 //
 //  For test purposes the Data_Process Function just copies input data buffer to output buffer
 //
-void Data_Process(void *dsmHandle, float *pAudioIn[CH_MAX], float *pAudioOut[CH_MAX], uint32_t nSamples)
+void Data_Process(void *pHandle, void *pAudioIn, void *pAudioOut, uint32_t nBytes)
 {
 	//	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
 	//  memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float)); 	
 //	cvsd_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
 //	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-	codec2_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-	memcpy(pAudioOut[CH_LEFT], pAudioOut[CH_RIGHT], nSamples * sizeof(float));
+//	codec2_process(pHandle, pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nBytes);
+//	memcpy(pAudioOut[CH_LEFT], pAudioOut[CH_RIGHT], nBytes );
 }
 
 

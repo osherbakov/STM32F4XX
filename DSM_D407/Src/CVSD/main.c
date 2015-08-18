@@ -20,7 +20,9 @@
 #define PROGRAM_NAME			"CVSD 16000 bps speech coder"
 #define PROGRAM_VERSION			"Version 2.0"
 #define PROGRAM_DATE			"14 NOV 2014"
-#define BLOCK_SIZE				1000
+
+
+#define CVSD_BLOCK_SIZE   (120)
 
 #ifndef TRUE
 #define TRUE (1)
@@ -35,7 +37,7 @@ typedef int BOOL;
 #endif
 
 /* ========== Static Variables ========== */
-static char in_name[256], out_name[256];
+static char in_name[128], out_name[128];
 
 #define exit(a) do{}while(a)
 
@@ -60,9 +62,9 @@ static void		printHelpMessage(char *argv[]);
 int FileTest(int argc, char *argv[])
 {
 	int32_t		length;
-	int16_t		speech_in[BLOCK_SIZE], speech_out[BLOCK_SIZE];
-	float32_t	speech_in_f32[BLOCK_SIZE], speech_out_f32[BLOCK_SIZE];
-	uint8_t		bitstream[(BLOCK_SIZE +7)/8];
+	int16_t		speech_in[CVSD_BLOCK_SIZE], speech_out[CVSD_BLOCK_SIZE];
+	float32_t	speech_in_f32[CVSD_BLOCK_SIZE], speech_out_f32[CVSD_BLOCK_SIZE];
+	uint8_t		bitstream[(CVSD_BLOCK_SIZE + 7)/8];
 
 	int		    eof_reached = FALSE;
 	FILE		*fp_in, *fp_out;
@@ -93,7 +95,7 @@ int FileTest(int argc, char *argv[])
 	while (!eof_reached)
 	{
 
-		length = fread(speech_in, sizeof(int16_t), BLOCK_SIZE, fp_in);
+		length = fread(speech_in, sizeof(int16_t), CVSD_BLOCK_SIZE, fp_in);
 
         arm_q15_to_float(speech_in, speech_in_f32, length);
 		cvsd_encode_f32(enc, bitstream, speech_in_f32, length);
@@ -101,7 +103,7 @@ int FileTest(int argc, char *argv[])
         arm_float_to_q15(speech_out_f32, speech_out, length);
 
 		fwrite(speech_out, sizeof(int16_t), length, fp_out);
-		if (length < BLOCK_SIZE)
+		if (length < CVSD_BLOCK_SIZE)
 		{
 			eof_reached = TRUE;
 		}
@@ -189,18 +191,19 @@ static void		printHelpMessage(char *argv[])
 static int bInitialized = 0;
 static int FrameIdx = 0;
 
+
 #define DOWNSAMPLE_TAPS  (12)
 #define UPSAMPLE_TAPS		 (24)
 #define UPDOWNSAMPLE_RATIO (48000/16000)
 
-static float DownSampleBuff[AUDIO_BLOCK_SAMPLES + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSampleBuff[CVSD_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
 -0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
 0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
 0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003};
 
 
-static float UpSampleBuff[(AUDIO_BLOCK_SAMPLES + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSampleBuff[(CVSD_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
 static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.00449248310178518f, -0.0288104526698589f, -0.0499703288078308f, -0.0734485313296318f,
 -0.082396112382412f, -0.0617895275354385f, -0.00137842050753534f, 0.0993839502334595f,
@@ -215,17 +218,17 @@ static arm_fir_interpolate_instance_f32 CCMRAM Int;
 void *cvsd_ana;
 void *cvsd_syn;
 
-static uint8_t dataBits[AUDIO_BLOCK_SAMPLES] CCMRAM;
-static float speech_in[AUDIO_BLOCK_SAMPLES] CCMRAM;
-static float speech_out[AUDIO_BLOCK_SAMPLES] CCMRAM;
+static uint8_t dataBits[CVSD_BLOCK_SIZE] CCMRAM;
+static float speech_in[CVSD_BLOCK_SIZE] CCMRAM;
+static float speech_out[CVSD_BLOCK_SIZE] CCMRAM;
 
-void cvsd_init()
+void cvsd_init(void *pHandle)
 {
 	/* ====== Initialize Decimator and interpolator ====== */
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
-			DownSampleCoeff, DownSampleBuff, AUDIO_BLOCK_SAMPLES);
+			DownSampleCoeff, DownSampleBuff, CVSD_BLOCK_SIZE);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
-			UpSampleCoeff, UpSampleBuff, AUDIO_BLOCK_SAMPLES/UPDOWNSAMPLE_RATIO);
+			UpSampleCoeff, UpSampleBuff, CVSD_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 	FrameIdx = 0;
 	/* ====== Initialize CVSD analysis and synthesis ====== */
 	cvsd_ana = osAlloc(cvsd_mem_req_f32());
@@ -236,11 +239,11 @@ void cvsd_init()
 }
 
 
-void cvsd_process(float *pDataIn, float *pDataOut, int nSamples)
+void cvsd_process(void *pHandle, float *pDataIn, float *pDataOut, int nSamples)
 {
 	if(0 == bInitialized)
 	{
-		cvsd_init();
+		cvsd_init(pHandle);
 		bInitialized = 1;
 	}
 
@@ -250,16 +253,22 @@ BSP_LED_On(LED3);
 BSP_LED_Off(LED3);
 
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
-	if(FrameIdx >= AUDIO_BLOCK_SAMPLES)
+	if(FrameIdx >= CVSD_BLOCK_SIZE)
 	{
 
 BSP_LED_On(LED4);
-//		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, AUDIO_BLOCK_SAMPLES);
+		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-//		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, AUDIO_BLOCK_SAMPLES);
+		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED5);
-		memcpy(speech_out, speech_in, AUDIO_BLOCK_SAMPLES * sizeof(float));
+//		memcpy(speech_out, speech_in, AUDIO_BLOCK_SAMPLES * sizeof(float));
 		FrameIdx = 0;
 	}
+}
+
+uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DATA_TYPE_F32_32K | DATA_CH_1;
+	 return CVSD_BLOCK_SIZE * sizeof(float32_t);
 }

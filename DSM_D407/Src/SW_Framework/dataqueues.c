@@ -9,26 +9,34 @@
 #define ABS(a)		 (((a) >   0) ? (a) : -(a))
 
 
-BuffBlk_t *Queue_Create(uint32_t nBytes, uint32_t Type)
+DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 {
 	if(nBytes == 0) return 0;
-	BuffBlk_t *pQ = osAlloc(sizeof(BuffBlk_t));	if(pQ == 0) return 0;
+	DQueue_t *pQ = osAlloc(sizeof(DQueue_t));	if(pQ == 0) return 0;
 	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
 	pQ->nSize = nBytes;
-	pQ->Type = Type;
+	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
+		pQ->Type = Type;
+	}else{
+		pQ->ElemType = Type >> 8;
+		pQ->ElemSize = DATA_ELEM_SIZE(Type);
+	}
 	Queue_Clear(pQ);
 	return pQ;
 }
 
-void Queue_Init(BuffBlk_t *pQueue, uint32_t nBytes, uint32_t Type)
+void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 {
-	pQueue->pBuffer = osAlloc(nBytes); if(pQueue->pBuffer == 0)  return ;
-	pQueue->nSize = nBytes;
-	pQueue->Type = Type;
+	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
+		pQueue->Type = Type;
+	}else{
+		pQueue->ElemType = Type >> 8;
+		pQueue->ElemSize = DATA_ELEM_SIZE(Type);
+	}
 	Queue_Clear(pQueue);
 }
 
-uint32_t Queue_Count(BuffBlk_t *pQueue)
+uint32_t Queue_Count(DQueue_t *pQueue)
 {
 	int Count;
 	uint32_t iPut, iGet, nSize;
@@ -39,7 +47,7 @@ uint32_t Queue_Count(BuffBlk_t *pQueue)
 	return Count;
 }
 
-uint32_t Queue_Space(BuffBlk_t *pQueue)
+uint32_t Queue_Space(DQueue_t *pQueue)
 {
 	int Space;
 	uint32_t iPut, iGet, nSize;
@@ -50,12 +58,12 @@ uint32_t Queue_Space(BuffBlk_t *pQueue)
 	return Space;
 }
 
-void Queue_Clear(BuffBlk_t *pQueue)
+void Queue_Clear(DQueue_t *pQueue)
 {
 	pQueue->iPut = pQueue->iGet = 0;
 }
 
-uint32_t Queue_PushData(BuffBlk_t *pQueue, uint8_t *pData, uint32_t nBytes)
+uint32_t Queue_PushData(DQueue_t *pQueue, uint8_t *pData, uint32_t nBytes)
 {
 	int diff, space;
 	uint32_t iPut, iGet, nSize;
@@ -89,7 +97,7 @@ uint32_t Queue_PushData(BuffBlk_t *pQueue, uint8_t *pData, uint32_t nBytes)
 	return ret;
 }
 
-uint32_t Queue_PopData(BuffBlk_t *pQueue, uint8_t *pData, uint32_t nBytes)
+uint32_t Queue_PopData(DQueue_t *pQueue, uint8_t *pData, uint32_t nBytes)
 {
 	int diff, count;
 	uint32_t iPut, iGet, nSize;
@@ -125,20 +133,4 @@ uint32_t Queue_PopData(BuffBlk_t *pQueue, uint8_t *pData, uint32_t nBytes)
 	return ret;
 }
 
-uint32_t Queue_CopyData(BuffBlk_t *pDestQ, BuffBlk_t *pSrcQ, uint32_t nBytes)
-{
-	uint8_t	 	tmpbuff[32];
-	uint32_t	num_bytes, ret, blk_size;
-
-	num_bytes = MIN(Queue_Count(pSrcQ), Queue_Space(pDestQ));
-	ret = num_bytes = MIN(num_bytes, nBytes);
-	while(num_bytes)
-	{
-		blk_size = MIN(num_bytes, sizeof(tmpbuff));
-		Queue_PopData(pSrcQ, tmpbuff, blk_size);
-		Queue_PushData(pDestQ, tmpbuff, blk_size);
-		num_bytes -= blk_size;
-	}
-	return ret;
-}
 
