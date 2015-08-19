@@ -43,6 +43,17 @@ extern DataProcessBlock_t  CODEC2;
 DataProcessBlock_t  *pModule;
 
 
+void DataConvert(void *pDest, uint32_t TypeDest, void *pSrc, uint32_t TypeSrc, uint32_t nBytes)
+{
+	if(TypeDest == TypeSrc)
+	{
+		memcpy(pDest, pSrc, nBytes);
+		return;
+	}		
+	
+	
+}
+
 //
 //  Task to handle all incoming data
 //
@@ -51,16 +62,15 @@ void StartDataProcessTask(void const * argument)
 	osEvent		event;
 	DQueue_t 	*pDataQ;
 
-	uint8_t		*pAudio;
-	float			*pAudioIn;
-	float			*pAudioOut;
-	uint32_t	nBytes, Type;
+	uint8_t 	*pAudio;
+	float		*pAudioIn_f32;
+	float		*pAudioOut_f32;
 	
-	pAudio 	= osAlloc(MAX_AUDIO_SIZE_BYTES);
-
-	pAudioIn = osAlloc(MAX_AUDIO_SIZE_BYTES * sizeof(float));	
-	pAudioOut = osAlloc(MAX_AUDIO_SIZE_BYTES * sizeof(float));
-
+	uint32_t	nBytesQueue, nBytesModule, Type, nSamplesQueue, nSamplesBlock;
+	
+	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);	
+	pAudioIn_f32 = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
+	pAudioOut_f32 = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
 
 	while(1)
 	{	
@@ -69,16 +79,18 @@ void StartDataProcessTask(void const * argument)
 		{
 			pDataQ = (DQueue_t *) event.value.p;
 			// - Figure out what type of data is it
-			// - If there is enough data accumulated - place in appropriate buffer and 
+			// - If there is enough data accumulated - place in a buffer and 
 			//   call the appropriate processing function
-			nBytes = pModule->TypeSize(NULL, &Type);
-			while(Queue_Count(pDataQ) >= nBytes)
+			nBytesQueue = Queue_Count(pDataQ); nSamplesQueue = NUM_SAMPLES(nBytesQueue, pDataQ->Type);
+			nBytesModule = pModule->TypeSize(NULL, &Type); nSamplesBlock = NUM_SAMPLES(nBytesModule, Type);
+			while(nSamplesQueue >= nSamplesBlock)
 			{
-				Queue_PopData(pDataQ, pAudio, nBytes);
+				Queue_PopData(pDataQ, pAudio, nBytesQueue);
 				//   Call data processing
-				pModule->Process(NULL, pAudioIn, pAudioOut, nBytes);
+				DataConvert(pAudioIn_f32, Type, pAudio, pDataQ->Type, nBytesQueue);
+				pModule->Process(NULL, pAudioIn_f32, pAudioOut_f32, nBytesModule);
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
-				Data_Distribute(&osParams, pAudio, nBytes);
+				Data_Distribute(&osParams, pAudio, nBytesModule);
 			}
 		}	
 	}

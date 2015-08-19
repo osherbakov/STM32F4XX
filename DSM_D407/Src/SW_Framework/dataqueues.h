@@ -43,6 +43,7 @@ typedef enum DataChannels
 
 #define DATA_ELEM_SIZE(a)  (DATA_TYPE_SIZE(a) * DATA_CH_NUM(a))
 
+#define NUM_SAMPLES(n, t) (DATA_ELEM_SIZE(t) == 0 ? (n) :  (n) / DATA_ELEM_SIZE(t))
 
 typedef struct DQueue
 {
