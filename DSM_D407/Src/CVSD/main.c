@@ -269,6 +269,6 @@ BSP_LED_Off(LED5);
 
 uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 {
-	 *pType = DATA_TYPE_F32_32K | DATA_CH_1;
-	 return CVSD_BLOCK_SIZE * sizeof(float32_t);
+	 *pType = DATA_TYPE_F32_32K | DATA_NUM_CH_1 | sizeof(float32_t);
+	 return CVSD_BLOCK_SIZE;
 }

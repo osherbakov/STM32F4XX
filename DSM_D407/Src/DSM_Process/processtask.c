@@ -19,7 +19,7 @@ void Data_Distribute(osObjects_t *hFF, void *pData, uint32_t nBytes)
 		Queue_PushData(hFF->PCM_Out_data, pData, nBytes);
 		
 		// Check if we have to start playing audio thru external codec
-		if(hFF->bStartPlay  && ( Queue_Count(hFF->PCM_Out_data) >= (hFF->PCM_Out_data->nSize /2) ))
+		if(hFF->bStartPlay  && ( Queue_Count_Bytes(hFF->PCM_Out_data) >= (hFF->PCM_Out_data->nSize /2) ))
 		{
 			Queue_PopData(hFF->PCM_Out_data, hFF->pPCM_Out, NUM_PCM_BYTES);
 			BSP_AUDIO_OUT_Play((uint16_t *)hFF->pPCM_Out, NUM_PCM_BYTES);					
@@ -43,15 +43,18 @@ extern DataProcessBlock_t  CODEC2;
 DataProcessBlock_t  *pModule;
 
 
-void DataConvert(void *pDest, uint32_t TypeDest, void *pSrc, uint32_t TypeSrc, uint32_t nBytes)
+void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nElements)
 {
-	if(TypeDest == TypeSrc)
+	int  srcStep, dstStep;
+	int  srcSize, dstSize;
+	
+	if((DstType == SrcType) && (DstChMask == SrcChMask))
 	{
-		memcpy(pDest, pSrc, nBytes);
+		memcpy(pDst, pSrc, nElements * (SrcType & 0x00FF));
 		return;
 	}		
-	
-	
+  srcStep = (SrcType & 0x00FF); 	// Step size to reach the next element
+	dstStep = (DstType & 0x00FF); 
 }
 
 //
@@ -66,7 +69,7 @@ void StartDataProcessTask(void const * argument)
 	float		*pAudioIn_f32;
 	float		*pAudioOut_f32;
 	
-	uint32_t	nBytesQueue, nBytesModule, Type, nSamplesQueue, nSamplesBlock;
+	uint32_t	Type, nSamplesQueue, nSamplesModule;
 	
 	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);	
 	pAudioIn_f32 = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
@@ -75,22 +78,30 @@ void StartDataProcessTask(void const * argument)
 	while(1)
 	{	
 		event = osMessageGet(osParams.dataReadyMsg, osWaitForever);
-		if( event.status == osEventMessage  ) // Valid Input Data is present
+		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
 			pDataQ = (DQueue_t *) event.value.p;
 			// - Figure out what type of data is it
-			// - If there is enough data accumulated - place in a buffer and 
-			//   call the appropriate processing function
-			nBytesQueue = Queue_Count(pDataQ); nSamplesQueue = NUM_SAMPLES(nBytesQueue, pDataQ->Type);
-			nBytesModule = pModule->TypeSize(NULL, &Type); nSamplesBlock = NUM_SAMPLES(nBytesModule, Type);
-			while(nSamplesQueue >= nSamplesBlock)
+			// - If there is enough data accumulated - place it in a buffer and 
+			//      call the appropriate processing function
+			nSamplesQueue = Queue_Count_Elems(pDataQ);
+			nSamplesModule = pModule->TypeSize(&osParams, &Type); 
+			
+			while(nSamplesQueue >= nSamplesModule)
 			{
-				Queue_PopData(pDataQ, pAudio, nBytesQueue);
+				Queue_PopData(pDataQ, pAudio, nSamplesModule * pDataQ->ElemSize);
+				
+				// Convert data from the Queue-provided type to the Processing-Module-required type
+				DataConvert(pAudioIn_f32, Type, DATA_CHANNEL_1, pAudio, pDataQ->Type, DATA_CHANNEL_1, nSamplesModule);
 				//   Call data processing
-				DataConvert(pAudioIn_f32, Type, pAudio, pDataQ->Type, nBytesQueue);
-				pModule->Process(NULL, pAudioIn_f32, pAudioOut_f32, nBytesModule);
+				pModule->Process(&osParams, pAudioIn_f32, pAudioOut_f32, nSamplesModule);
+				
+				// Convert data from the Processing-Module-provided type to the HW Queue type
+				DataConvert(pAudio, pDataQ->Type, DATA_CHANNEL_1 | DATA_CHANNEL_2 , pAudioOut_f32, Type, DATA_CHANNEL_ALL, nSamplesModule);
+
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
-				Data_Distribute(&osParams, pAudio, nBytesModule);
+				Data_Distribute(&osParams, pAudio, nSamplesModule);
+				nSamplesQueue = Queue_Count_Elems(pDataQ);
 			}
 		}	
 	}

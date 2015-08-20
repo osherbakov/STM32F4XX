@@ -9,34 +9,47 @@
 #define ABS(a)		 (((a) >   0) ? (a) : -(a))
 
 
+//
+// Definitions:
+//   Data type and type_size - the type (char, short, int, fixed, float) and size (in bytes) of a single element
+//	 Element - the combination of N data types, as having the same type, where N is number of channels
+//   The data types in the element can be INTERLEAVED (CH1 CH2 CH1 CH2 ...) or SEQUENTIAL (CH1 CH1 CH1 ... CH2 CH2 CH2...)
+
+#define DATA_TYPE_ELEM_SIZE(a)  		(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
+
+
 DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 {
 	if(nBytes == 0) return 0;
 	DQueue_t *pQ = osAlloc(sizeof(DQueue_t));	if(pQ == 0) return 0;
 	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
 	pQ->nSize = nBytes;
-	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
+	if((Type & (DATA_TYPE_MASK | DATA_NUM_CH_MASK )) == 0){
 		pQ->Type = Type;
 	}else{
 		pQ->ElemType = Type >> 8;
-		pQ->ElemSize = DATA_ELEM_SIZE(Type);
+		pQ->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
+	// The final sanity check - Element size cannot be 0!!!
+	if(pQ->ElemSize == 0) pQ->Type = 1;
 	Queue_Clear(pQ);
 	return pQ;
 }
 
 void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 {
-	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
+	if((Type & (DATA_TYPE_MASK | DATA_NUM_CH_MASK )) == 0){
 		pQueue->Type = Type;
 	}else{
 		pQueue->ElemType = Type >> 8;
-		pQueue->ElemSize = DATA_ELEM_SIZE(Type);
+		pQueue->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
+	// The final sanity check - Element size cannot be 0!!!
+	if(pQueue->ElemSize == 0) pQueue->Type = 1;
 	Queue_Clear(pQueue);
 }
 
-uint32_t Queue_Count(DQueue_t *pQueue)
+uint32_t Queue_Count_Bytes(DQueue_t *pQueue)
 {
 	int Count;
 	uint32_t iPut, iGet, nSize;
@@ -46,8 +59,17 @@ uint32_t Queue_Count(DQueue_t *pQueue)
 	else if(Count > nSize) {Count -= nSize;}
 	return Count;
 }
+uint32_t Queue_Count_Elems(DQueue_t *pQueue)
+{
+	uint32_t Count, ElemSize;
+	
+	Count = Queue_Count_Bytes(pQueue);
+	ElemSize = pQueue->ElemSize;
+	return (ElemSize == 0) ? Count : Count/ElemSize;
+}
 
-uint32_t Queue_Space(DQueue_t *pQueue)
+
+uint32_t Queue_Space_Bytes(DQueue_t *pQueue)
 {
 	int Space;
 	uint32_t iPut, iGet, nSize;
@@ -56,6 +78,15 @@ uint32_t Queue_Space(DQueue_t *pQueue)
 	if(Space > nSize) {Space -= nSize;}
 	else if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}
 	return Space;
+}
+
+uint32_t Queue_Space_Elems(DQueue_t *pQueue)
+{
+	uint32_t Space, ElemSize;
+	
+	Space = Queue_Space_Bytes(pQueue);
+	ElemSize = pQueue->ElemSize;
+	return (ElemSize == 0) ? Space: Space/ElemSize;
 }
 
 void Queue_Clear(DQueue_t *pQueue)
