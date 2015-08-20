@@ -46,6 +46,15 @@ uint32_t Queue_Count(DQueue_t *pQueue)
 	else if(Count > nSize) {Count -= nSize;}
 	return Count;
 }
+uint32_t Queue_Count_Elem(DQueue_t *pQueue)
+{
+	uint32_t Count, ElemSize;
+	
+	Count = Queue_Count(pQueue);
+	ElemSize = pQueue->ElemSize;
+	return (ElemSize == 0) ? Count : Count/ElemSize;
+}
+
 
 uint32_t Queue_Space(DQueue_t *pQueue)
 {
@@ -56,6 +65,15 @@ uint32_t Queue_Space(DQueue_t *pQueue)
 	if(Space > nSize) {Space -= nSize;}
 	else if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}
 	return Space;
+}
+
+uint32_t Queue_Space_Elem(DQueue_t *pQueue)
+{
+	uint32_t Space, ElemSize;
+	
+	Space = Queue_Space(pQueue);
+	ElemSize = pQueue->ElemSize;
+	return (ElemSize == 0) ? Space: Space/ElemSize;
 }
 
 void Queue_Clear(DQueue_t *pQueue)

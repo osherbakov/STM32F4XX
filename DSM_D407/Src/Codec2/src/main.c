@@ -209,7 +209,7 @@ BSP_LED_Off(LED5);
 
 uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
 {
-	 *pType = DATA_TYPE_F32_32K | DATA_CH_1;
+	 *pType = DATA_TYPE_F32_32K | DATA_CH_1 | sizeof(float32_t);
 	 return codec2_samples_per_frame(p_codec) * sizeof(float32_t);
 }
 
