@@ -43,18 +43,25 @@ extern DataProcessBlock_t  CODEC2;
 DataProcessBlock_t  *pModule;
 
 
-void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nElements)
+void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcElements)
 {
 	int  srcStep, dstStep;
 	int  srcSize, dstSize;
+	int	 chanMask;
 	
 	if((DstType == SrcType) && (DstChMask == SrcChMask))
 	{
-		memcpy(pDst, pSrc, nElements * (SrcType & 0x00FF));
+		memcpy(pDst, pSrc, nSrcElements * (SrcType & 0x00FF));
 		return;
 	}		
-  srcStep = (SrcType & 0x00FF); 	// Step size to reach the next element
-	dstStep = (DstType & 0x00FF); 
+  srcStep = (SrcType & 0x00FF); 	// Step size to get the next element
+	dstStep = (DstType & 0x00FF);
+	// There is a difference between DATA_CHANNEL_ANY and DATA_CHANNEL_ALL - 
+	//  when moving data from buffers with different number of channels,
+	//  DATA_CHANNEL_ANY will populate AABBCCDDEEFF from ABCDEF buffer, and ABCDEF out of AABBCCDDEEFF
+	//  DATA_CHANNEL_ALL will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF 
+	
+	
 }
 
 //
@@ -66,14 +73,14 @@ void StartDataProcessTask(void const * argument)
 	DQueue_t 	*pDataQ;
 
 	uint8_t 	*pAudio;
-	float		*pAudioIn_f32;
-	float		*pAudioOut_f32;
+	float		*pAudioIn;
+	float		*pAudioOut;
 	
 	uint32_t	Type, nSamplesQueue, nSamplesModule;
 	
 	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);	
-	pAudioIn_f32 = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
-	pAudioOut_f32 = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
+	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
+	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
 
 	while(1)
 	{	
@@ -92,12 +99,12 @@ void StartDataProcessTask(void const * argument)
 				Queue_PopData(pDataQ, pAudio, nSamplesModule * pDataQ->ElemSize);
 				
 				// Convert data from the Queue-provided type to the Processing-Module-required type
-				DataConvert(pAudioIn_f32, Type, DATA_CHANNEL_1, pAudio, pDataQ->Type, DATA_CHANNEL_1, nSamplesModule);
+				DataConvert(pAudioIn, Type, DATA_CHANNEL_1, pAudio, pDataQ->Type, DATA_CHANNEL_1, nSamplesModule);
 				//   Call data processing
-				pModule->Process(&osParams, pAudioIn_f32, pAudioOut_f32, nSamplesModule);
+				pModule->Process(&osParams, pAudioIn, pAudioOut, nSamplesModule);
 				
 				// Convert data from the Processing-Module-provided type to the HW Queue type
-				DataConvert(pAudio, pDataQ->Type, DATA_CHANNEL_1 | DATA_CHANNEL_2 , pAudioOut_f32, Type, DATA_CHANNEL_ALL, nSamplesModule);
+				DataConvert(pAudio, pDataQ->Type, DATA_CHANNEL_1 | DATA_CHANNEL_2 , pAudioOut, Type, DATA_CHANNEL_ALL, nSamplesModule);
 
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
 				Data_Distribute(&osParams, pAudio, nSamplesModule);
