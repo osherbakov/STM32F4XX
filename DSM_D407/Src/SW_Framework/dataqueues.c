@@ -65,7 +65,7 @@ uint32_t Queue_Count_Elems(DQueue_t *pQueue)
 	
 	Count = Queue_Count_Bytes(pQueue);
 	ElemSize = pQueue->ElemSize;
-	return (ElemSize == 0) ? Count : Count/ElemSize;
+	return Count/ElemSize;
 }
 
 
@@ -86,7 +86,7 @@ uint32_t Queue_Space_Elems(DQueue_t *pQueue)
 	
 	Space = Queue_Space_Bytes(pQueue);
 	ElemSize = pQueue->ElemSize;
-	return (ElemSize == 0) ? Space: Space/ElemSize;
+	return Space/ElemSize;
 }
 
 void Queue_Clear(DQueue_t *pQueue)

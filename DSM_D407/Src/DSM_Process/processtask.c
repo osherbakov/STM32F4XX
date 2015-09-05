@@ -47,7 +47,12 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 {
 	int  srcStep, dstStep;
 	int  srcSize, dstSize;
-	int	 chanMask;
+	int  srcOffset[8], dstOffset[8];
+	int  srcCntr, dstCntr;
+	int  data, srcIdx, dstIdx;
+	int  bSameType, bNonFloat, dataShift;
+	
+	void *pSrcNext, *pDstNext;
 	
 	if((DstType == SrcType) && (DstChMask == SrcChMask))
 	{
@@ -56,12 +61,44 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 	}		
   srcStep = (SrcType & 0x00FF); 	// Step size to get the next element
 	dstStep = (DstType & 0x00FF);
+	srcSize = DATA_TYPE_SIZE(SrcType);
+	dstSize = DATA_TYPE_SIZE(DstType);
+	bSameType = (SrcType & DATA_TYPE_MASK) == (DstType & DATA_TYPE_MASK);
+	bNonFloat = ((SrcType & DATA_FP_MASK) == 0 ) && ((DstType & DATA_FP_MASK) == 0);
+	dataShift = dstSize - srcSize;
+	
+	srcIdx = 0;
 	// There is a difference between DATA_CHANNEL_ANY and DATA_CHANNEL_ALL - 
 	//  when moving data from buffers with different number of channels,
-	//  DATA_CHANNEL_ANY will populate AABBCCDDEEFF from ABCDEF buffer, and ABCDEF out of AABBCCDDEEFF
-	//  DATA_CHANNEL_ALL will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF 
-	
-	
+	//  DATA_CHANNEL_ANY in Source will populate AABBCCDDEEFF from ABCDEF buffer, and ABCDEF out of AABBCCDDEEFF
+	//  DATA_CHANNEL_ALL in Source will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF 
+	//    i.e nSrcElements will be consumed in all cases
+	while(nSrcElements-- > 0)
+	{
+		// Prepare the next src pointer (the current one will be corrupted)
+		pSrcNext = (void *)((uint32_t)pSrc + srcStep);
+		for (dstIdx = 0; dstIdx < dstCntr; dstIdx++)
+		{
+			// 1. Adjust the SRC pointer to point to the next data type in the element
+			pSrc = (void *) (((uint32_t)pSrc) + srcOffset[srcIdx++]); if(srcIdx >= srcCntr) srcIdx = 0;
+			// 2. Get the data into the register with proper alignmenrt
+			if(srcSize==1) data = *(int8_t *)pSrc; else if(srcSize==2)data = *(int16_t *)pSrc; else data = *(int32_t *)pSrc;
+			// 3. Convert the data from one type to another
+			if( !bSameType) 
+			{	// Special cases - Integer to Integer conversion (No FP)
+				//  or Q7, Q15, Q31 into another Integer/Q format
+				if (bNonFloat)
+				{
+					data = (dataShift > 0) ? data << (8 * dataShift) : data >> (8 * dataShift);
+				}
+			}
+			// 4. Adjust the DST pointer to point to the next data type in the element
+			pDst = (void *) (((uint32_t)pDst) + dstOffset[dstIdx]); 
+			// 5. Save the data with proper alignmenrt
+			if(dstSize==1) *(int8_t *)pDst = data; else if(dstSize==2)*(int16_t *)pDst = data; else *(int32_t *)pDst = data;
+		}
+		pSrc = pSrcNext;
+	}
 }
 
 //
@@ -104,7 +141,7 @@ void StartDataProcessTask(void const * argument)
 				pModule->Process(&osParams, pAudioIn, pAudioOut, nSamplesModule);
 				
 				// Convert data from the Processing-Module-provided type to the HW Queue type
-				DataConvert(pAudio, pDataQ->Type, DATA_CHANNEL_1 | DATA_CHANNEL_2 , pAudioOut, Type, DATA_CHANNEL_ALL, nSamplesModule);
+				DataConvert(pAudio, pDataQ->Type, DATA_CHANNEL_1 | DATA_CHANNEL_2 , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModule);
 
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
 				Data_Distribute(&osParams, pAudio, nSamplesModule);
