@@ -7,9 +7,9 @@
 typedef enum DataType
 {
 		DATA_TYPE_BITS 		= 0x0000,		// Bits, not grouped into integers
-		DATA_TYPE_I8 			= 0x0000,		// 8-bit Integer, range 0 - 255 (-128 +127)
+		DATA_TYPE_I8 			= 0x0000,		// 8-bit Integer, full range 0 - 255 (-128 +127)
 		DATA_TYPE_Q7			= 0x0100,		// Q7 signed (-1.0 +1.0)
-		DATA_TYPE_I16			= 0x0400,		// 16-bit Integer, range (-32768 +32768)
+		DATA_TYPE_I16			= 0x0400,		// 16-bit Integer, full range (-32768 +32768)
 	  DATA_TYPE_Q15   	= 0x0500,		// Q15 signed, range (-1.0 +1.0)
 		DATA_TYPE_I24			= 0x0800,		// 24-bit Integer, full range
 		DATA_TYPE_Q23			= 0x0900,   // Q23 signed, range (-1.0 +1.0)
