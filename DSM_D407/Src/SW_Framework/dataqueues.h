@@ -85,5 +85,19 @@ extern void Queue_Clear(DQueue_t *pQueue);
 extern uint32_t Queue_PushData(DQueue_t *pQueue, uint8_t *pDataSrc, uint32_t nBytes);
 extern uint32_t Queue_PopData(DQueue_t *pQueue, uint8_t *pDataDst, uint32_t nBytes);
 
+typedef void *Data_Create_t(uint32_t Params);
+typedef void Data_Init_t(void *pHandle);
+typedef uint32_t Data_TypeSize_t(void *pHandle, uint32_t *pDataType);
+typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t nBytes);
+typedef void Data_Close_t(void *pHandle);
+
+typedef struct DataProcessBlock {
+	Data_Create_t		*Create;
+	Data_Init_t			*Init;
+	Data_TypeSize_t	*TypeSize;
+	Data_Process_t  *Process;
+	Data_Close_t		*Close;
+} DataProcessBlock_t;
+
 
 #endif // __DATAQUEUES_H__

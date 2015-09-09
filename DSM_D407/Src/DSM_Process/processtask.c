@@ -10,7 +10,7 @@
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio.h"
 
-#define  Q31_F						((float)(1<<31))
+#define  Q31_F						((float)(1U<<31))
 #define	 Q31_INV_F				(1.0F / Q31_F)
 
 #define  FLOAT_TO_Q31(a) 	( (int)(((float) (a)) * Q31_F))
@@ -46,7 +46,7 @@ extern DataProcessBlock_t  Melp;
 extern DataProcessBlock_t  CVSD;
 extern DataProcessBlock_t  CODEC2;
 
-DataProcessBlock_t  *pModule;
+DataProcessBlock_t  *pModule = &Melp;
 
 
 void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcElements)
@@ -58,7 +58,6 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 	int  srcCntr, dstCntr;
 	int  data, srcIdx, dstIdx;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
-	int  dataConv;
 	
 	void *pS, *pD;
 	
@@ -69,14 +68,16 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 	}		
   srcStep = (SrcType & 0x00FF); 			// Step size to get the next element
 	dstStep = (DstType & 0x00FF);
+	
 	srcSize = DATA_TYPE_SIZE(SrcType);	// Size of one datatype(1,2,3,4 bytes)
 	dstSize = DATA_TYPE_SIZE(DstType);
+	
 	srcChan = DATA_TYPE_NUM_CHANNELS(SrcType);
 	dstChan = DATA_TYPE_NUM_CHANNELS(DstType);
+	
 	bSameType = (SrcType & DATA_TYPE_MASK) == (DstType & DATA_TYPE_MASK) ? 1 : 0;
 	bNonFloat = ((SrcType & DATA_FP_MASK) == 0 ) && ((DstType & DATA_FP_MASK) == 0) ? 1 : 0;
 	bToFloat = ((DstType & DATA_FP_MASK) == 0) ? 1 : 0;
-	dataConv = ((DstType & DATA_RANGE_MASK) == 0) ? 32768 : 1;
 	dataShift = 8 * (dstSize - srcSize);
 	
 	// Check and create the proper mask for the destination, populate the offsets array
@@ -100,9 +101,7 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 		{
 			srcOffset[srcIdx] = 0;
 		}
-	}else
-	{
-		SrcChMask = (SrcChMask == DATA_CHANNEL_ANY)? DATA_CHANNEL_ALL : SrcChMask;
+	}else	{
 		SrcChMask &= ((1 << srcChan) - 1);
 		for(srcCntr = 0, srcIdx = 0; srcIdx < srcChan; srcIdx++)
 		{
@@ -174,6 +173,9 @@ void StartDataProcessTask(void const * argument)
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
 
+	pModule->Create(0);
+	pModule->Init(0);
+	
 	while(1)
 	{	
 		event = osMessageGet(osParams.dataReadyMsg, osWaitForever);

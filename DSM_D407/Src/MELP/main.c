@@ -178,7 +178,6 @@ int main_cmd(int argc, char *argv[])
 	return(0);
 }
 
-static int bInitialized = 0;
 static int FrameIdx = 0;
 
 #define DOWNSAMPLE_TAPS  	(12)
@@ -206,6 +205,16 @@ static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 static arm_fir_decimate_instance_f32 CCMRAM Dec ;
 static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
+void *melp_create(uint32_t Params)
+{
+	return 0;
+}
+
+void melp_close(void *pHandle)
+{
+	return;
+}
+
 void melp_init(void *pHandle)
 {
 	/* ====== Initialize Decimator and interpolator ====== */
@@ -220,14 +229,8 @@ void melp_init(void *pHandle)
 }
 
 
-void melp_process(void *pHandle, float *pDataIn, float *pDataOut, int nSamples)
+void melp_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
 {	
-	if(0 == bInitialized)
-	{
-		melp_init(pHandle);
-		bInitialized = 1;	
-	}
-
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
@@ -255,6 +258,8 @@ uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
 	 return MELP_FRAME_SIZE;
 }
 
+
+DataProcessBlock_t  Melp = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
 
 /****************************************************************************
 **

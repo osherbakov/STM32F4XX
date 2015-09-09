@@ -120,7 +120,6 @@ int main_codec2(int argc, char *argv[])
 }
 
 
-static int bInitialized = 0;
 static int FrameIdx = 0;
 
 
@@ -157,7 +156,17 @@ static unsigned char bits[64] CCMRAM;
 
 #ifndef _MSC_VER
 
-void codec_init(void *pHandle)
+void *codec2_create(uint32_t Params)
+{
+	return 0;
+}
+
+void codec2_close(void *pHandle)
+{
+	return;
+}
+
+void codec2_init(void *pHandle)
 {
 
 	/* ====== Initialize CODEC2 analysis and synthesis ====== */
@@ -175,14 +184,9 @@ void codec_init(void *pHandle)
 	FrameIdx = 0;	
 }
 
-void codec2_process(void *pHandle, float *pDataIn, float *pDataOut, int nSamples)
+void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
 {	
 	int i;
-	if(0 == bInitialized)
-	{
-		codec_init(pHandle);
-		bInitialized = 1;	
-	}
 
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
@@ -212,5 +216,8 @@ uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
 	 *pType = DATA_TYPE_F32_32K | DATA_NUM_CH_1 | sizeof(float32_t);
 	 return codec2_samples_per_frame(p_codec);
 }
+
+DataProcessBlock_t  Melp = {codec2_create, codec2_init, codec2_data_typesize, codec2_process, codec2_close};
+
 
 #endif

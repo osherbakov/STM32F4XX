@@ -76,18 +76,4 @@ typedef struct
 
 extern osObjects_t osParams;
 
-typedef void *Data_Create_t(uint32_t Params);
-typedef void Data_Close_t(void *pHandle);
-typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t nBytes);
-typedef void Data_Init_t(void *pHandle);
-typedef uint32_t Data_TypeSize_t(void *pHandle, uint32_t *pDataType);
-
-typedef struct DataProcessBlock {
-	Data_Create_t		*Create;
-	Data_Close_t		*Close;
-	Data_Init_t			*Init;
-	Data_TypeSize_t	*TypeSize;
-	Data_Process_t  *Process;
-} DataProcessBlock_t;
-
 #endif // __TASKS_H__
