@@ -279,7 +279,7 @@ uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
 
 
-#define  BYPASS_DATA_TYPE		(DATA_TYPE_F32_1 | DATA_NUM_CH_1 | (4))
+#define  BYPASS_DATA_TYPE		(DATA_TYPE_F32_32K | DATA_NUM_CH_1 | (4))
 
 void *bypass_create(uint32_t Params)
 {

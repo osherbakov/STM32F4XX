@@ -81,8 +81,8 @@ uint32_t Queue_Space_Bytes(DQueue_t *pQueue)
 	uint32_t iPut, iGet, nSize;
 	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->nSize;
 	Space =  iGet - iPut;
-	if(Space > nSize) {Space -= nSize;}
-	else if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}
+	if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}	
+	else if(Space > nSize) {Space -= nSize;}
 	return Space;
 }
 
@@ -177,7 +177,9 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 	int  srcChan, dstChan;
 	int  srcOffset[8], dstOffset[8];
 	int  srcCntr, dstCntr;
-	int  data, srcIdx, dstIdx;
+	int  data;
+	int	 srcIdx, dstIdx;
+	float fdata, scale;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
 	
 	void *pS, *pD;
@@ -200,7 +202,9 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 	bNonFloat = ((SrcType & DATA_FP_MASK) == 0 ) && ((DstType & DATA_FP_MASK) == 0) ? 1 : 0;
 	bToFloat = ((DstType & DATA_FP_MASK) != 0) ? 1 : 0;
 	dataShift = 8 * (dstSize - srcSize);
-	
+	scale = (SrcType & DATA_RANGE_MASK) == (DstType & DATA_RANGE_MASK) ? 1.0F :
+					(SrcType & DATA_RANGE_MASK) && !(DstType & DATA_RANGE_MASK) ? 32768.0F :
+					1.0F/32768.0F;
 	// Check and create the proper mask for the destination, populate the offsets array
 	DstChMask = (DstChMask == DATA_CHANNEL_ANY)? DATA_CHANNEL_ALL : DstChMask;
 	DstChMask &= ((1 << dstChan) - 1);
@@ -238,31 +242,37 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 		{
 			// 1. Adjust the SRC pointer to point to the next data type in the element
 			pS = (void *) (((uint32_t)pSrc) + srcOffset[srcIdx]); 
-			// 2. Get the data into the register with proper alignmenrt
-			if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;
-			// 3. Convert the data from one type to another
+			// 2. Adjust the DST pointer to point to the next data type in the element
+			pD = (void *) (((uint32_t)pDst) + dstOffset[dstIdx]); 			
+			// 3. Get the data and convert from one type to another
 			if( !bSameType) 
 			{	// Special cases - Integer to Integer conversion (No FP)
 				//  or Q7, Q15, Q31 into another Integer/Q format
 				if( bNonFloat )
 				{
+					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
 					data = (dataShift >= 0) ? data << dataShift : data >> -dataShift;
+				  if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
 				}else if(bToFloat)
 				{
-					data = (dataShift >= 0) ? data << dataShift : data >> -dataShift;
-					*((float *)(&data)) = Q31_TO_FLOAT(data);
+					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
+					data = data << dataShift;
+					fdata = Q31_TO_FLOAT(data);
+					*(float *) pD = fdata * scale;
 				}else
 				{
-					data = FLOAT_TO_Q31(data);
+					fdata = (*(float *) pS) * scale;
+					data = FLOAT_TO_Q31(fdata);
 					data = data >> -dataShift;
+				  if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;					
 				}
+			}else
+			{
+				if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;
+				if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
 			}
-			// 4. Adjust the DST pointer to point to the next data type in the element
-			pD = (void *) (((uint32_t)pDst) + dstOffset[dstIdx]); 
-			// 5. Save the data with proper alignmenrt
-			if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;
-			
-			// 6. Adjust the Src index, and check for exit condition
+
+			// 4. Adjust the Src index, and check for exit condition
 			srcIdx++;
 			if(srcIdx >= srcCntr)
 			{

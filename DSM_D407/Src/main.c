@@ -74,10 +74,10 @@ int main(void)
 	osParams.USB_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_I16 | DATA_NUM_CH_2);
 	
 	// Queue to get the data from PDM microphone or I2S PCM data source
-	osParams.PCM_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_I16 | DATA_NUM_CH_2);
+	osParams.PCM_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to pass data to the output DAC
-	osParams.PCM_Out_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_I16 | DATA_NUM_CH_2);
+	osParams.PCM_Out_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
   /* Start scheduler */
   osKernelStart();
