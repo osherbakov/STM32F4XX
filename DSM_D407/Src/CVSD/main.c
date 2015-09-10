@@ -188,9 +188,7 @@ static void		printHelpMessage(char *argv[])
 // *****************************
 //
 
-static int bInitialized = 0;
 static int FrameIdx = 0;
-
 
 #define DOWNSAMPLE_TAPS  (12)
 #define UPSAMPLE_TAPS		 (24)
@@ -222,6 +220,20 @@ static uint8_t dataBits[CVSD_BLOCK_SIZE] CCMRAM;
 static float speech_in[CVSD_BLOCK_SIZE] CCMRAM;
 static float speech_out[CVSD_BLOCK_SIZE] CCMRAM;
 
+void *cvsd_create(uint32_t Params)
+{
+	/* ====== Initialize CVSD analysis and synthesis ====== */
+	cvsd_ana = osAlloc(cvsd_mem_req_f32());
+	cvsd_syn = osAlloc(cvsd_mem_req_f32());
+
+	return 0;
+}
+
+void cvsd_close(void *pHandle)
+{
+	return;
+}
+
 void cvsd_init(void *pHandle)
 {
 	/* ====== Initialize Decimator and interpolator ====== */
@@ -230,24 +242,15 @@ void cvsd_init(void *pHandle)
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSampleCoeff, UpSampleBuff, CVSD_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 	FrameIdx = 0;
-	/* ====== Initialize CVSD analysis and synthesis ====== */
-	cvsd_ana = osAlloc(cvsd_mem_req_f32());
-	cvsd_syn = osAlloc(cvsd_mem_req_f32());
-
 	cvsd_init_f32(cvsd_ana);
 	cvsd_init_f32(cvsd_syn);
 }
 
 
-void cvsd_process(void *pHandle, float *pDataIn, float *pDataOut, int nSamples)
+void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
 {
-	if(0 == bInitialized)
-	{
-		cvsd_init(pHandle);
-		bInitialized = 1;
-	}
 
-BSP_LED_On(LED3);
+	BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 BSP_LED_Off(LED3);
@@ -272,3 +275,37 @@ uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 	 *pType = DATA_TYPE_F32_32K | DATA_NUM_CH_1 | sizeof(float32_t);
 	 return CVSD_BLOCK_SIZE;
 }
+
+DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
+
+
+#define  BYPASS_DATA_TYPE		(DATA_TYPE_F32_1 | DATA_NUM_CH_1 | (4))
+
+void *bypass_create(uint32_t Params)
+{
+	return 0;
+}
+
+void bypass_close(void *pHandle)
+{
+	return;
+}
+
+void bypass_init(void *pHandle)
+{
+}
+
+void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
+{
+BSP_LED_On(LED5);
+		memcpy(pDataOut, pDataIn, nSamples * (BYPASS_DATA_TYPE & 0x00FF) );
+BSP_LED_Off(LED5);
+}
+
+uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = BYPASS_DATA_TYPE;
+	 return CVSD_BLOCK_SIZE;
+}
+
+DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, bypass_process, bypass_close};

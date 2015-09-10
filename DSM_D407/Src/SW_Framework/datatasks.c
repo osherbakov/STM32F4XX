@@ -88,7 +88,7 @@ void StartDataInPDMTask(void const * argument)
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
 			
 			// Report converted samples to the main data processing task
-			osMessagePut(osParams.dataReadyMsg, (uint32_t)&osParams.PCM_In_data, 0);
+			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}
 	}
 }

@@ -158,20 +158,21 @@ static unsigned char bits[64] CCMRAM;
 
 void *codec2_create(uint32_t Params)
 {
-	return 0;
-}
-
-void codec2_close(void *pHandle)
-{
-	return;
-}
-
-void codec2_init(void *pHandle)
-{
-
 	/* ====== Initialize CODEC2 analysis and synthesis ====== */
 	int mem_req = codec2_state_memory_req();
 	p_codec = osAlloc(mem_req);
+	return p_codec;
+}
+
+void codec2_deinit(void *pHandle)
+{
+	codec2_close(p_codec);
+	return;
+}
+
+void codec2_initialize(void *pHandle)
+{
+
 	codec2_init(p_codec, CODEC2_MODE_2400);
 	
 	/* ====== Initialize Decimator and Interpolator ====== */
@@ -217,7 +218,7 @@ uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
 	 return codec2_samples_per_frame(p_codec);
 }
 
-DataProcessBlock_t  Melp = {codec2_create, codec2_init, codec2_data_typesize, codec2_process, codec2_close};
+DataProcessBlock_t  CODEC2 = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};
 
 
 #endif

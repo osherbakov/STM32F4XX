@@ -92,7 +92,7 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
 			{
 				// Place data into the queue and report to the main data processing task that data had arrived
 				Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
-				osMessagePut(osParams.dataReadyMsg, (uint32_t)&osParams.USB_Out_data, 0);
+				osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
 			}
 			break;
   }
