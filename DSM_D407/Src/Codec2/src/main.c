@@ -80,7 +80,7 @@ int main_codec2(int argc, char *argv[])
 	printf("usage: %s InputRawSpeechFile OutputRawSpeechFile\n", argv[0]);
 	exit(1);
     }
- 
+
     if ( (fin = fopen(argv[1],"rb")) == NULL ) {
 	fprintf(stderr, "Error opening input speech file: %s: %s.\n",
          argv[1], strerror(errno));
@@ -139,7 +139,7 @@ static float UpSampleBuff[(CODEC2_MAX_FRAME_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_R
 static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
 -0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
-0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f, 
+0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f,
 1.24106538295746f, 1.05075252056122f, 0.727912843227386f, 0.365344613790512f,
 0.0557445883750916f, -0.140164494514465f, -0.209222942590714f, -0.180645510554314f,
 -0.10541670024395f, -0.0317823477089405f, 0.0118295839056373f, 0.0420790389180183f
@@ -151,7 +151,7 @@ static struct CODEC2 *p_codec;
 static int  frame_size;
 
 static float	speech_in[CODEC2_MAX_FRAME_SIZE] CCMRAM, speech_out[CODEC2_MAX_FRAME_SIZE] CCMRAM;
-static int16_t	speech[CODEC2_MAX_FRAME_SIZE] CCMRAM; 
+static int16_t	speech[CODEC2_MAX_FRAME_SIZE] CCMRAM;
 static unsigned char bits[64] CCMRAM;
 
 #ifndef _MSC_VER
@@ -174,36 +174,36 @@ void codec2_initialize(void *pHandle)
 {
 
 	codec2_init(p_codec, CODEC2_MODE_2400);
-	
+
 	/* ====== Initialize Decimator and Interpolator ====== */
-  frame_size = 180; //    codec2_samples_per_frame(p_codec);	
-	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
+  frame_size = 180; //    codec2_samples_per_frame(p_codec);
+	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 			DownSampleCoeff, DownSampleBuff, frame_size);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSampleCoeff, UpSampleBuff, frame_size/UPDOWNSAMPLE_RATIO);
-	FrameIdx = 0;	
+	FrameIdx = 0;
 }
 
 uint32_t codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
-{	
+{
 	int i;
 
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);	
+	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 //	v_equ(pDataOut, pDataIn, nSamples);
 BSP_LED_Off(LED3);
-	
+
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= frame_size)
 	{
 BSP_LED_On(LED4);
-		for(i = 0; i < frame_size; i++) speech[i] = speech_in[i]; 
-		codec2_encode(p_codec, bits, speech);
+		for(i = 0; i < frame_size; i++) speech[i] = speech_in[i];
+//		codec2_encode(p_codec, bits, speech);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		codec2_decode(p_codec, speech, bits);	
-		for(i = 0; i < frame_size; i++) speech_out[i] = speech[i]; 
+//		codec2_decode(p_codec, speech, bits);
+		for(i = 0; i < frame_size; i++) speech_out[i] = speech[i];
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 		v_equ(speech_out, speech_in, frame_size);

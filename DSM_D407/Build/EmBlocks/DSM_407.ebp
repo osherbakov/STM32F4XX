@@ -2409,6 +2409,84 @@
 		<Unit filename="..\..\Src\CVSD\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\CMSIS\mat.h" />
+		<Unit filename="..\..\Src\Codec2\src\CMSIS\math_ext.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebook.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookdt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookge.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookjvm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookmel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookres.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookvq.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codebookvqanssi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codec2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\codec2.h" />
+		<Unit filename="..\..\Src\Codec2\src\codec2_internal.h" />
+		<Unit filename="..\..\Src\Codec2\src\comp.h" />
+		<Unit filename="..\..\Src\Codec2\src\comp_prim.h" />
+		<Unit filename="..\..\Src\Codec2\src\defines.h" />
+		<Unit filename="..\..\Src\Codec2\src\interp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\interp.h" />
+		<Unit filename="..\..\Src\Codec2\src\lpc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\lpc.h" />
+		<Unit filename="..\..\Src\Codec2\src\lsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\lsp.h" />
+		<Unit filename="..\..\Src\Codec2\src\machdep.h" />
+		<Unit filename="..\..\Src\Codec2\src\main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\nlp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\nlp.h" />
+		<Unit filename="..\..\Src\Codec2\src\pack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\phase.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\phase.h" />
+		<Unit filename="..\..\Src\Codec2\src\postfilter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\postfilter.h" />
+		<Unit filename="..\..\Src\Codec2\src\quantise.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\quantise.h" />
+		<Unit filename="..\..\Src\Codec2\src\sine.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\Codec2\src\sine.h" />
 		<Unit filename="..\..\Src\DSM_Process\dsmprocess.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -2523,6 +2601,23 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
+				<target_debugging_settings target="DSM_407_2015Q1_Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
 				<target_debugging_settings target="DSM_407_GNU_Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
@@ -2535,6 +2630,23 @@
 							<option opt_id="ID_VEC_TABLE" opt_value="1" />
 							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
 							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+				<target_debugging_settings target="DSM_407_Keil_Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="1" />
 							<option opt_id="ID_DEV_ADDR" opt_value="" />
 							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
 						</family_options>
@@ -2569,40 +2681,6 @@
 							<option opt_id="ID_VEC_TABLE" opt_value="1" />
 							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
 							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
-							<option opt_id="ID_DEV_ADDR" opt_value="" />
-							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
-						</family_options>
-					</debug_interface>
-				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_2015Q1_Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
-						<family_options family_id="STMicroelectronics">
-							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
-							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
-							<option opt_id="ID_RESET_TYPE" opt_value="System" />
-							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
-							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
-							<option opt_id="ID_RAM_EXEC" opt_value="0" />
-							<option opt_id="ID_VEC_TABLE" opt_value="1" />
-							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
-							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
-							<option opt_id="ID_DEV_ADDR" opt_value="" />
-							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
-						</family_options>
-					</debug_interface>
-				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_Keil_Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
-						<family_options family_id="STMicroelectronics">
-							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
-							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
-							<option opt_id="ID_RESET_TYPE" opt_value="System" />
-							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
-							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
-							<option opt_id="ID_RAM_EXEC" opt_value="0" />
-							<option opt_id="ID_VEC_TABLE" opt_value="1" />
-							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
-							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="1" />
 							<option opt_id="ID_DEV_ADDR" opt_value="" />
 							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
 						</family_options>
