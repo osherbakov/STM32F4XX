@@ -58,7 +58,7 @@ static inline void exit(int a){ do{}while(a);}
 
 #include "dataqueues.h"
 
-#define CODEC2_MAX_FRAME_SIZE    (320)
+#define CODEC2_MAX_FRAME_SIZE    (330)
 
 
 int main_codec2(int argc, char *argv[])
@@ -176,8 +176,7 @@ void codec2_initialize(void *pHandle)
 	codec2_init(p_codec, CODEC2_MODE_2400);
 	
 	/* ====== Initialize Decimator and Interpolator ====== */
-  frame_size = codec2_samples_per_frame(p_codec);	
-//	frame_size = MAX_FRAME_SIZE;
+  frame_size = 180; //    codec2_samples_per_frame(p_codec);	
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
 			DownSampleCoeff, DownSampleBuff, frame_size);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
@@ -185,21 +184,19 @@ void codec2_initialize(void *pHandle)
 	FrameIdx = 0;	
 }
 
-void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
+uint32_t codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {	
 	int i;
 
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
-//	v_equ(speech_out, speech_in, frame_size);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
+	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);	
 //	v_equ(pDataOut, pDataIn, nSamples);
 BSP_LED_Off(LED3);
 	
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= frame_size)
 	{
-		// v_equ(speech_out, speech_in, frame_size);
 BSP_LED_On(LED4);
 		for(i = 0; i < frame_size; i++) speech[i] = speech_in[i]; 
 		codec2_encode(p_codec, bits, speech);
@@ -209,13 +206,15 @@ BSP_LED_On(LED5);
 		for(i = 0; i < frame_size; i++) speech_out[i] = speech[i]; 
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
+		v_equ(speech_out, speech_in, frame_size);
 	}
+	return nSamples;
 }
 
 uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
 {
-	 *pType = DATA_TYPE_F32_32K | DATA_NUM_CH_1 | sizeof(float32_t);
-	 return codec2_samples_per_frame(p_codec);
+	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	 return frame_size;
 }
 
 DataProcessBlock_t  CODEC2 = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};

@@ -35,7 +35,7 @@ void Data_Distribute(osObjects_t *hFF, void *pData, uint32_t nBytes)
 	}
 }
 
-extern DataProcessBlock_t  Melp;
+extern DataProcessBlock_t  MELP;
 extern DataProcessBlock_t  CVSD;
 extern DataProcessBlock_t  CODEC2;
 extern DataProcessBlock_t  BYPASS;
@@ -45,7 +45,7 @@ extern DataProcessBlock_t  BYPASS;
 //  Task to handle all incoming data
 //
 
-DataProcessBlock_t  *pModule = &BYPASS;
+DataProcessBlock_t  *pModule = &CODEC2;
 
 void StartDataProcessTask(void const * argument)
 {
@@ -83,17 +83,13 @@ void StartDataProcessTask(void const * argument)
 				Queue_PopData(pDataQ, pAudio, nSamplesModule * pDataQ->ElemSize);
 				
 				// Convert data from the Queue-provided type to the Processing-Module-required type
-BSP_LED_On(LED3);
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nSamplesModule);
-BSP_LED_Off(LED3);
 
 				//   Call data processing
 				pModule->Process(pModuleState, pAudioIn, pAudioOut, nSamplesModule);
 				
 				// Convert data from the Processing-Module-provided type to the HW Queue type
-BSP_LED_On(LED4);
 				DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModule);
-BSP_LED_Off(LED4);
 
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
 				Data_Distribute(&osParams, pAudio, nSamplesModule * (osParams.PCM_Out_data->ElemSize));

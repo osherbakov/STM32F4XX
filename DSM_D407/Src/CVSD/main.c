@@ -225,7 +225,6 @@ void *cvsd_create(uint32_t Params)
 	/* ====== Initialize CVSD analysis and synthesis ====== */
 	cvsd_ana = osAlloc(cvsd_mem_req_f32());
 	cvsd_syn = osAlloc(cvsd_mem_req_f32());
-
 	return 0;
 }
 
@@ -247,39 +246,40 @@ void cvsd_init(void *pHandle)
 }
 
 
-void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
+uint32_t cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {
 
-	BSP_LED_On(LED3);
+BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
+	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);	
+//	memcpy(pDataOut, pDataIn, nSamples * sizeof(float));
 BSP_LED_Off(LED3);
 
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= CVSD_BLOCK_SIZE)
 	{
-
 BSP_LED_On(LED4);
 		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED5);
-//		memcpy(speech_out, speech_in, AUDIO_BLOCK_SAMPLES * sizeof(float));
 		FrameIdx = 0;
+		memcpy(speech_out, speech_in, CVSD_BLOCK_SIZE * sizeof(float));
 	}
+	return nSamples;
 }
 
 uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 {
-	 *pType = DATA_TYPE_F32_32K | DATA_NUM_CH_1 | sizeof(float32_t);
+	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
 	 return CVSD_BLOCK_SIZE;
 }
 
 DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
 
 
-#define  BYPASS_DATA_TYPE		(DATA_TYPE_F32_32K | DATA_NUM_CH_1 | (4))
+#define  BYPASS_DATA_TYPE		(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 
 void *bypass_create(uint32_t Params)
 {
@@ -295,11 +295,12 @@ void bypass_init(void *pHandle)
 {
 }
 
-void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
+uint32_t bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {
 BSP_LED_On(LED5);
 		memcpy(pDataOut, pDataIn, nSamples * (BYPASS_DATA_TYPE & 0x00FF) );
 BSP_LED_Off(LED5);
+	return nSamples;
 }
 
 uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)

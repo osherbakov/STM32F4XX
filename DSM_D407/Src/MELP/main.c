@@ -229,37 +229,38 @@ void melp_init(void *pHandle)
 }
 
 
-void melp_process(void *pHandle, void *pDataIn, void *pDataOut, unsigned int nSamples)
+uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {	
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
+//	v_equ(pDataOut, pDataIn, nSamples);
 BSP_LED_Off(LED3);
 	
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= MELP_FRAME_SIZE)
 	{
-//		v_equ(speech_out, speech_in, MELP_FRAME_SIZE);
-		v_equ(speech, speech_in, MELP_FRAME_SIZE);
 BSP_LED_On(LED4);
-		melp_ana(speech, &melp_ana_par);
+		v_equ(speech, speech_in, MELP_FRAME_SIZE);
+//		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		melp_syn(&melp_syn_par, speech);
+//		melp_syn(&melp_syn_par, speech);
 		v_equ(speech_out, speech, MELP_FRAME_SIZE);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 	}
+	return nSamples;
 }
 
 uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
 {
-	 *pType = DATA_TYPE_F32_32K | DATA_NUM_CH_1 | sizeof(float32_t);
+	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
 	 return MELP_FRAME_SIZE;
 }
 
 
-DataProcessBlock_t  Melp = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
+DataProcessBlock_t  MELP = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
 
 /****************************************************************************
 **
