@@ -16,12 +16,12 @@ void Data_Distribute(osObjects_t *hFF, void *pData, uint32_t nBytes)
 	{
 		// Move the input audio samples into I2S output queue
 		Queue_PushData(hFF->PCM_Out_data, pData, nBytes);
-		
+
 		// Check if we have to start playing audio thru external codec
 		if(hFF->bStartPlay  && ( Queue_Count_Bytes(hFF->PCM_Out_data) >= (hFF->PCM_Out_data->nSize /2) ))
 		{
 			Queue_PopData(hFF->PCM_Out_data, hFF->pPCM_Out, NUM_PCM_BYTES);
-			BSP_AUDIO_OUT_Play((uint16_t *)hFF->pPCM_Out, NUM_PCM_BYTES);					
+			BSP_AUDIO_OUT_Play((uint16_t *)hFF->pPCM_Out, NUM_PCM_BYTES);
 			hFF->bStartPlay = 0;
 		}
 	}
@@ -56,38 +56,38 @@ void StartDataProcessTask(void const * argument)
 	float		*pAudioIn;
 	float		*pAudioOut;
 	void		*pModuleState;
-	
+
 	uint32_t	Type, nSamplesQueue, nSamplesModule;
-	
-	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);	
-	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
-	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));	
+
+	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
+	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
+	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
 	pModuleState = pModule->Create(0);
 	pModule->Init(pModuleState);
-	
+
 	while(1)
-	{	
+	{
 		event = osMessageGet(osParams.dataReadyMsg, osWaitForever);
 		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
 			pDataQ = (DQueue_t *) event.value.p;
 			// - Figure out what type of data is it
-			// - If there is enough data accumulated - place it in a buffer and 
+			// - If there is enough data accumulated - place it in a buffer and
 			//      call the appropriate processing function
 			nSamplesQueue = Queue_Count_Elems(pDataQ);
-			nSamplesModule = pModule->TypeSize(&osParams, &Type); 
-			
+			nSamplesModule = pModule->TypeSize(&osParams, &Type);
+
 			while(nSamplesQueue >= nSamplesModule)
 			{
 				Queue_PopData(pDataQ, pAudio, nSamplesModule * pDataQ->ElemSize);
-				
+
 				// Convert data from the Queue-provided type to the Processing-Module-required type
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nSamplesModule);
 
 				//   Call data processing
 				pModule->Process(pModuleState, pAudioIn, pAudioOut, nSamplesModule);
-				
+
 				// Convert data from the Processing-Module-provided type to the HW Queue type
 				DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModule);
 
@@ -95,7 +95,7 @@ void StartDataProcessTask(void const * argument)
 				Data_Distribute(&osParams, pAudio, nSamplesModule * (osParams.PCM_Out_data->ElemSize));
 				nSamplesQueue = Queue_Count_Elems(pDataQ);
 			}
-		}	
+		}
 	}
 }
 

@@ -251,7 +251,7 @@ uint32_t cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSa
 
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);	
+	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 //	memcpy(pDataOut, pDataIn, nSamples * sizeof(float));
 BSP_LED_Off(LED3);
 
@@ -259,13 +259,15 @@ BSP_LED_Off(LED3);
 	if(FrameIdx >= CVSD_BLOCK_SIZE)
 	{
 BSP_LED_On(LED4);
+        arm_scale_f32(speech_in, 32768.0f, speech_in, CVSD_BLOCK_SIZE);
 		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, CVSD_BLOCK_SIZE);
+        arm_scale_f32(speech_out, 1.0f/32768.0f, speech_out, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
-		memcpy(speech_out, speech_in, CVSD_BLOCK_SIZE * sizeof(float));
+//		memcpy(speech_out, speech_in, CVSD_BLOCK_SIZE * sizeof(float));
 	}
 	return nSamples;
 }
@@ -278,8 +280,61 @@ uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 
 DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
 
+//
+//  Decimator processing module
+//
+#define  DECIMATOR_DATA_TYPE		(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
+#define  DECIMATOR_BLOCK_SIZE		(120)	// Decimate by 2,3,4,5,6,8,10,12,15,20
+static arm_fir_decimate_instance_f32 Decim;
+static int DownsampleRatio;
+static float DecimatorBuff[DECIMATOR_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float Decimator48_16_Coeff[DOWNSAMPLE_TAPS] RODATA = {
+-0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
+0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
+0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003};
+
+static float Decimator48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
+-0.0163654778152704f, -0.0205210950225592f, 0.00911782402545214f, 0.0889585390686989f,
+0.195298701524735f, 0.272262066602707f, 0.272262066602707f, 0.195298701524735f,
+0.0889585390686989f, 0.00911782402545214f, -0.0205210950225592f, -0.0163654778152704f};
+
+
+void *decimator_create(uint32_t Params)
+{
+	DownsampleRatio = Params;
+	return &Decim;
+}
+
+void decimator_close(void *pHandle)
+{
+	return;
+}
+
+void decimator_init(void *pHandle)
+{
+	/* ====== Initialize Decimator and interpolator ====== */
+	arm_fir_decimate_init_f32((arm_fir_decimate_instance_f32 *)pHandle, DOWNSAMPLE_TAPS, DownsampleRatio,
+						(DownsampleRatio == (48/8)) ? Decimator48_8_Coeff : Decimator48_16_Coeff, 
+						DecimatorBuff, DECIMATOR_BLOCK_SIZE);
+}
+
+uint32_t decimator_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+{
+	arm_fir_decimate_f32((arm_fir_decimate_instance_f32 *)pHandle, pDataIn, pDataOut, nSamples);
+	return nSamples/DownsampleRatio;
+}
+
+uint32_t decimator_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	 return DECIMATOR_BLOCK_SIZE;
+}
+
+DataProcessBlock_t  DECIM = {decimator_create, decimator_init, decimator_typesize, decimator_process, decimator_close};
+
 
 #define  BYPASS_DATA_TYPE		(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
+#define  BYPASS_BLOCK_SIZE  (60)
 
 void *bypass_create(uint32_t Params)
 {
@@ -306,7 +361,7 @@ BSP_LED_Off(LED5);
 uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)
 {
 	 *pType = BYPASS_DATA_TYPE;
-	 return CVSD_BLOCK_SIZE;
+	 return BYPASS_BLOCK_SIZE;
 }
 
 DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, bypass_process, bypass_close};

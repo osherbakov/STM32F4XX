@@ -4,7 +4,7 @@
 
 version 1.2
 
-Copyright (c) 1996, Texas Instruments, Inc.  
+Copyright (c) 1996, Texas Instruments, Inc.
 
 Texas Instruments has intellectual property rights on the MELP
 algorithm.  The Texas Instruments contact for licensing issues for
@@ -48,7 +48,7 @@ int		rate;
 /* ========== Static Variables ========== */
 
 static float	speech_in[MELP_FRAME_SIZE] CCMRAM, speech_out[MELP_FRAME_SIZE] CCMRAM;
-static float	speech[MELP_FRAME_SIZE] CCMRAM; 
+static float	speech[MELP_FRAME_SIZE] CCMRAM;
 static char in_name[100], out_name[100];
 struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par CCMRAM;                 /* melp synthesis parameters */
@@ -66,9 +66,9 @@ extern int main_cmd(int argc, char *argv[]);
 #define exit(a) do{}while(a)
 
 #define SIGMAX 32767
-typedef short SPEECH;
-SPEECH	int_sp[MELP_FRAME_SIZE] CCMRAM ; /*  integer input array	*/
-	
+
+int16_t	int_sp[MELP_FRAME_SIZE] CCMRAM ; /*  integer input array	*/
+
 /*								*/
 /*	Subroutine READBL: read block of input data		*/
 /*								*/
@@ -76,7 +76,7 @@ int readbl(float input[], FILE *fp_in, int size)
 {
 	int i, length;
 
-	length = fread(int_sp,sizeof(SPEECH),size,fp_in);
+	length = fread(int_sp,sizeof(int16_t),size,fp_in);
 	for (i = 0; i < length; i++ )
 		input[i] = (float) int_sp[i];
 	for (i = length; i < size; i++ )
@@ -99,9 +99,9 @@ void writebl(float output[], FILE *fp_out, int size)
 		/* clamp to +- SIGMAX */
 		if (temp > SIGMAX)	  temp = SIGMAX;
 		if (temp < -SIGMAX)	  temp = -SIGMAX;
-		int_sp[i] = (SPEECH)temp;
+		int_sp[i] = (int16_t)temp;
 	}
-	fwrite(int_sp,sizeof(SPEECH),size,fp_out);
+	fwrite(int_sp,sizeof(int16_t),size,fp_out);
 }
 
 
@@ -196,7 +196,7 @@ static float UpSampleBuff[(MELP_FRAME_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO -
 static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
 0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
 -0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
-0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f, 
+0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f,
 1.24106538295746f, 1.05075252056122f, 0.727912843227386f, 0.365344613790512f,
 0.0557445883750916f, -0.140164494514465f, -0.209222942590714f, -0.180645510554314f,
 -0.10541670024395f, -0.0317823477089405f, 0.0118295839056373f, 0.0420790389180183f
@@ -218,7 +218,7 @@ void melp_close(void *pHandle)
 void melp_init(void *pHandle)
 {
 	/* ====== Initialize Decimator and interpolator ====== */
-	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO, 
+	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 			DownSampleCoeff, DownSampleBuff, MELP_FRAME_SIZE);
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSampleCoeff, UpSampleBuff, MELP_FRAME_SIZE/UPDOWNSAMPLE_RATIO);
@@ -230,24 +230,27 @@ void melp_init(void *pHandle)
 
 
 uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
-{	
+{
 BSP_LED_On(LED3);
 	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
 	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 //	v_equ(pDataOut, pDataIn, nSamples);
 BSP_LED_Off(LED3);
-	
+
 	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
 	if(FrameIdx >= MELP_FRAME_SIZE)
 	{
 BSP_LED_On(LED4);
-		v_equ(speech, speech_in, MELP_FRAME_SIZE);
-//		melp_ana(speech, &melp_ana_par);
+//		v_equ(speech, speech_in, MELP_FRAME_SIZE);
+		arm_scale_f32(speech_in, 32768.0f, speech, MELP_FRAME_SIZE);
+		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-//		melp_syn(&melp_syn_par, speech);
-		v_equ(speech_out, speech, MELP_FRAME_SIZE);
+		melp_syn(&melp_syn_par, speech);
+		arm_scale_f32(speech, 1.0f/32768.0f, speech_out, MELP_FRAME_SIZE);		
+//		v_equ(speech_out, speech, MELP_FRAME_SIZE);
 BSP_LED_Off(LED5);
+//    v_equ(speech_out, speech_in, nSamples);
 		FrameIdx = 0;
 	}
 	return nSamples;
