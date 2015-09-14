@@ -79,9 +79,31 @@ static __INLINE float arm_cos(float x)
 	return res;
 }
 
+static __INLINE float powf_fast(float a, float b) {
+	union { float d; int x; } u = { a };
+	u.x = (int)(b * (u.x - 1064866805) + 1064866805);
+	return u.d;
+}
+
+static __INLINE float log2f_fast (float val)
+{
+	union { float d; int x; } u = { val };	
+	float  log_2 = (float)(((u.x >> 23) & 255) - 128);
+	u.x &= ~(255 << 23);
+	u.x += (127 << 23);
+
+	u.d = ((-0.3358287811f) * u.d + 2.0f) * u.d - 0.65871759316667f;   // (1)
+	return (u.d + log_2);
+} 
+
+
 #define sqrtf		arm_sqrt
 #define sinf		arm_sin
 #define cosf		arm_cos
+#define powf		powf_fast
+#define log2f(a)	log2f_fast((a))
+#define log10f(a)	(log2f(a)* 0.301029995f)
+
 
 #define window(inp,cof,outp,n)		arm_mult_f32((float32_t *)inp, (float32_t *)cof, (float32_t *)outp, n)
 #define v_zap(v,n)					arm_fill_f32(0.0f, (float32_t *)v, n)

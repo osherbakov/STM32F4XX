@@ -10,6 +10,10 @@
 #include <stdint.h>
 #endif
 
+/*  Generic math constants   */
+#ifndef PI
+#define PI			3.141592654f	/* mathematical constant                */
+#endif
 #define TWO_PI		(2 * PI)		/* mathematical constant                */
 #define HALF_PI		(PI/2.0f)
 #define ONEQTR_PI	(PI/4.0f)

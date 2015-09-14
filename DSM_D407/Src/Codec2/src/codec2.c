@@ -27,6 +27,7 @@
 */
 
 #include <math.h>
+#include "mat.h"
 
 #include "defines.h"
 #include "sine.h"
@@ -40,30 +41,27 @@
 #include "lsp.h"
 #include "codec2_internal.h"
 
-#include "mat.h"
-
 /*---------------------------------------------------------------------------*\
                                                        
                              FUNCTION HEADERS
 
 \*---------------------------------------------------------------------------*/
 
-void analyse_one_frame(struct CODEC2 *c2, MODEL *model, short speech[]);
-void synthesise_one_frame(struct CODEC2 *c2, short speech[], MODEL *model,
+void analyse_one_frame(struct CODEC2 *c2, MODEL *model, float speech[]);
+void synthesise_one_frame(struct CODEC2 *c2, float speech[], MODEL *model,
 			  COMP Aw[]);
-void codec2_encode_3200(struct CODEC2 *c2, unsigned char * bits, short speech[]);
-void codec2_decode_3200(struct CODEC2 *c2, short speech[], const unsigned char * bits);
-void codec2_encode_2400(struct CODEC2 *c2, unsigned char * bits, short speech[]);
-void codec2_decode_2400(struct CODEC2 *c2, short speech[], const unsigned char * bits);
-void codec2_encode_1600(struct CODEC2 *c2, unsigned char * bits, short speech[]);
-void codec2_decode_1600(struct CODEC2 *c2, short speech[], const unsigned char * bits);
-void codec2_encode_1400(struct CODEC2 *c2, unsigned char * bits, short speech[]);
-void codec2_decode_1400(struct CODEC2 *c2, short speech[], const unsigned char * bits);
-void codec2_encode_1300(struct CODEC2 *c2, unsigned char * bits, short speech[]);
-void codec2_decode_1300(struct CODEC2 *c2, short speech[], const unsigned char * bits);
-void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, short speech[]);
-void codec2_decode_1200(struct CODEC2 *c2, short speech[], const unsigned char * bits);
-static void ear_protection(float in_out[], int n);
+void codec2_encode_3200(struct CODEC2 *c2, unsigned char * bits, float speech[]);
+void codec2_decode_3200(struct CODEC2 *c2, float speech[], const unsigned char * bits);
+void codec2_encode_2400(struct CODEC2 *c2, unsigned char * bits, float speech[]);
+void codec2_decode_2400(struct CODEC2 *c2, float speech[], const unsigned char * bits);
+void codec2_encode_1600(struct CODEC2 *c2, unsigned char * bits, float speech[]);
+void codec2_decode_1600(struct CODEC2 *c2, float speech[], const unsigned char * bits);
+void codec2_encode_1400(struct CODEC2 *c2, unsigned char * bits, float speech[]);
+void codec2_decode_1400(struct CODEC2 *c2, float speech[], const unsigned char * bits);
+void codec2_encode_1300(struct CODEC2 *c2, unsigned char * bits, float speech[]);
+void codec2_decode_1300(struct CODEC2 *c2, float speech[], const unsigned char * bits);
+void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, float speech[]);
+void codec2_decode_1200(struct CODEC2 *c2, float speech[], const unsigned char * bits);
 
 /*---------------------------------------------------------------------------*\
                                                        
@@ -207,7 +205,7 @@ int codec2_samples_per_frame(struct CODEC2 *c2) {
     return 0; /* shouldnt get here */
 }
 
-void codec2_encode(struct CODEC2 *c2, unsigned char *bits, short speech[])
+void codec2_encode(struct CODEC2 *c2, unsigned char *bits, float speech[])
 {
     if (c2->mode == CODEC2_MODE_3200)
 	codec2_encode_3200(c2, bits, speech);
@@ -223,7 +221,7 @@ void codec2_encode(struct CODEC2 *c2, unsigned char *bits, short speech[])
 	codec2_encode_1200(c2, bits, speech);
 }
 
-void codec2_decode(struct CODEC2 *c2, short speech[], const unsigned char *bits)
+void codec2_decode(struct CODEC2 *c2, float speech[], const unsigned char *bits)
 {
     if (c2->mode == CODEC2_MODE_3200)
 	codec2_decode_3200(c2, speech, bits);
@@ -266,7 +264,7 @@ void codec2_decode(struct CODEC2 *c2, short speech[], const unsigned char *bits)
  
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_3200(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_3200(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
     float   ak[LPC_ORD+1];
     float   lsps[LPC_ORD];
@@ -312,7 +310,7 @@ void codec2_encode_3200(struct CODEC2 *c2, unsigned char * bits, short speech[])
 
 \*---------------------------------------------------------------------------*/
 
-void codec2_decode_3200(struct CODEC2 *c2, short speech[], const unsigned char * bits)
+void codec2_decode_3200(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
     int     lspd_indexes[LPC_ORD];
     float   lsps[2][LPC_ORD];
@@ -398,7 +396,7 @@ void codec2_decode_3200(struct CODEC2 *c2, short speech[], const unsigned char *
  
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_2400(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_2400(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
     float   ak[LPC_ORD+1];
     float   lsps[LPC_ORD];
@@ -443,7 +441,7 @@ void codec2_encode_2400(struct CODEC2 *c2, unsigned char * bits, short speech[])
 
 \*---------------------------------------------------------------------------*/
 
-void codec2_decode_2400(struct CODEC2 *c2, short speech[], const unsigned char * bits)
+void codec2_decode_2400(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
     int     lsp_indexes[LPC_ORD];
     float   lsps[2][LPC_ORD];
@@ -529,7 +527,7 @@ void codec2_decode_2400(struct CODEC2 *c2, short speech[], const unsigned char *
  
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_1600(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_1600(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
     float   lsps[LPC_ORD];
     float   ak[LPC_ORD+1];
@@ -593,7 +591,7 @@ void codec2_encode_1600(struct CODEC2 *c2, unsigned char * bits, short speech[])
 
 \*---------------------------------------------------------------------------*/
 
-void codec2_decode_1600(struct CODEC2 *c2, short speech[], const unsigned char * bits)
+void codec2_decode_1600(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
     int     lsp_indexes[LPC_ORD];
     float   lsps[4][LPC_ORD];
@@ -697,7 +695,7 @@ void codec2_decode_1600(struct CODEC2 *c2, short speech[], const unsigned char *
  
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_1400(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_1400(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
     float   lsps[LPC_ORD];
     float   ak[LPC_ORD+1];
@@ -756,7 +754,7 @@ void codec2_encode_1400(struct CODEC2 *c2, unsigned char * bits, short speech[])
 
 \*---------------------------------------------------------------------------*/
 
-void codec2_decode_1400(struct CODEC2 *c2, short speech[], const unsigned char * bits)
+void codec2_decode_1400(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
     int     lsp_indexes[LPC_ORD];
     float   lsps[4][LPC_ORD];
@@ -852,7 +850,7 @@ void codec2_decode_1400(struct CODEC2 *c2, short speech[], const unsigned char *
  
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_1300(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_1300(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
     float   lsps[LPC_ORD];
     float   ak[LPC_ORD+1];
@@ -907,7 +905,7 @@ void codec2_encode_1300(struct CODEC2 *c2, unsigned char * bits, short speech[])
   Decodes frames of 52 bits into 320 samples (40ms) of speech.
 
 \*---------------------------------------------------------------------------*/
-void codec2_decode_1300(struct CODEC2 *c2, short speech[], const unsigned char * bits)
+void codec2_decode_1300(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
     int     lsp_indexes[LPC_ORD];
     float   lsps[4][LPC_ORD];
@@ -1002,7 +1000,7 @@ void codec2_decode_1300(struct CODEC2 *c2, short speech[], const unsigned char *
  
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
     float   lsps[LPC_ORD];
     float   lsps_[LPC_ORD];
@@ -1065,7 +1063,7 @@ void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, short speech[])
 
 \*---------------------------------------------------------------------------*/
 
-void codec2_decode_1200(struct CODEC2 *c2, short speech[], const unsigned char * bits)
+void codec2_decode_1200(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
     int     lsp_indexes[LPC_ORD];
     float   lsps[4][LPC_ORD];
@@ -1143,24 +1141,12 @@ void codec2_decode_1200(struct CODEC2 *c2, short speech[], const unsigned char *
 
 \*---------------------------------------------------------------------------*/
 
-void synthesise_one_frame(struct CODEC2 *c2, short speech[], MODEL *model, COMP Aw[])
+void synthesise_one_frame(struct CODEC2 *c2, float speech[], MODEL *model, COMP Aw[])
 {
-    int     i;
-	int		sample;
     phase_synth_zero_order(model, &c2->ex_phase, Aw);
-
     postfilter(model, &c2->bg_est);
-
     synthesise(c2->Sn_, model, c2->Pn);
-
-    ear_protection(c2->Sn_, FRAME_SIZE);
-
-    for(i=0; i<FRAME_SIZE; i++) {
-		sample = (int) c2->Sn_[i];
-		if (sample > 32767)			sample = 32767;
-		else if (sample < -32767)	sample = -32767;
-		speech[i] = sample;
-    }
+	v_equ(speech, c2->Sn_, FRAME_SIZE);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -1174,21 +1160,19 @@ void synthesise_one_frame(struct CODEC2 *c2, short speech[], MODEL *model, COMP 
  
 \*---------------------------------------------------------------------------*/
 
-void analyse_one_frame(struct CODEC2 *c2, MODEL *model, short speech[])
+void analyse_one_frame(struct CODEC2 *c2, MODEL *model, float speech[])
 {
     float   pitch;
-    int     i;
     COMP    *Sw = tmp.Sw;
 
     /* Shift all samples in the buffer to the beginning and add new input speech at the end*/
 
 	v_equ(&c2->Sn[0], &c2->Sn[FRAME_SIZE],P_SIZE-FRAME_SIZE);
-    for(i=0; i<FRAME_SIZE; i++) c2->Sn[i+P_SIZE-FRAME_SIZE] = speech[i];
+	v_equ(&c2->Sn[P_SIZE-FRAME_SIZE], speech, FRAME_SIZE);
 
     dft_speech(Sw, c2->Sn, c2->w);
 
     /* Estimate pitch */
-
     nlp(&c2->nlp, c2->Sn, FRAME_SIZE, P_MIN, P_MAX, &pitch, Sw, c2->W, c2->prev_Wo_enc);
 
     model->Wo = TWO_PI/pitch;
@@ -1200,39 +1184,6 @@ void analyse_one_frame(struct CODEC2 *c2, MODEL *model, short speech[])
     estimate_amplitudes(model, Sw, c2->W);
     est_voicing_mbe(model, Sw, c2->W);
     c2->prev_Wo_enc = model->Wo;
-}
-
-/*---------------------------------------------------------------------------*\
-                                                       
-  FUNCTION....: ear_protection()   
-  AUTHOR......: David Rowe			      
-  DATE CREATED: Nov 7 2012
-
-  Limits output level to protect ears when there are bit errors or the input
-  is overdriven.  This doesn't correct or mask bit errors, just reduces the
-  worst of their damage.
-
-\*---------------------------------------------------------------------------*/
-
-static void ear_protection(float in_out[], int n) {
-    float max_sample, over, gain;
-    int   i;
-
-    /* find maximum sample in frame */
-	i = findmax(in_out, n);
-    max_sample = in_out[i];
-    /* determine how far above set point */
-
-    over = max_sample/30000.0f;
-
-    /* If we are x dB over set point we reduce level by 2x dB, this
-       attenuates major excursions in amplitude (likely to be caused
-       by bit errors) more than smaller ones */
-
-    if (over > 1.0f) {
-        gain = 1.0f/(over*over);
-		v_scale(in_out, gain, n);
-    }
 }
 
 

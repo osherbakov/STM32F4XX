@@ -63,10 +63,11 @@ int main_codec2(int argc, char *argv[])
     struct CODEC2 *codec2;
     FILE          *fin;
     FILE          *fout;
-    short         *buf;
+    int16_t       *int_buf;
+    float         *buf;
     unsigned char *bits;
     int            nsam, nbit, i, r;
-		int			   		mem_req;
+	int			   mem_req;
 
     for(i=0; i<10; i++) {
         r = codec2_rand();
@@ -74,39 +75,43 @@ int main_codec2(int argc, char *argv[])
     }
 
     if (argc != 3) {
-	printf("usage: %s InputRawSpeechFile OutputRawSpeechFile\n", argv[0]);
-	exit(1);
+		printf("usage: %s InputRawSpeechFile OutputRawSpeechFile\n", argv[0]);
+		exit(1);
     }
 
     if ( (fin = fopen(argv[1],"rb")) == NULL ) {
-	fprintf(stderr, "Error opening input speech file: %s: %s.\n",
-         argv[1], strerror(errno));
-	exit(1);
+		fprintf(stderr, "Error opening input speech file: %s: %s.\n",
+			 argv[1], strerror(errno));
+		exit(1);
     }
 
     if ( (fout = fopen(argv[2],"wb")) == NULL ) {
-	fprintf(stderr, "Error opening output speech file: %s: %s.\n",
-         argv[2], strerror(errno));
-	exit(1);
+		fprintf(stderr, "Error opening output speech file: %s: %s.\n",
+			 argv[2], strerror(errno));
+		exit(1);
     }
 
     /* Note only one set of Codec 2 states is required for an encoder
        and decoder pair. */
     mem_req = codec2_state_memory_req();
-	  codec2 = (struct CODEC2 *) malloc(mem_req);
-	  codec2_init(codec2, CODEC2_MODE_2400);
+	codec2 = (struct CODEC2 *) malloc(mem_req);
+	codec2_init(codec2, CODEC2_MODE_2400);
     nsam = codec2_samples_per_frame(codec2);
-    buf = (short*)malloc(nsam*sizeof(short));
+    int_buf = (int16_t *) malloc(nsam*sizeof(int16_t));
+    buf = (float *) malloc(nsam*sizeof(float));
     nbit = codec2_bits_per_frame(codec2);
     bits = (unsigned char*)malloc(nbit*sizeof(char));
 
-    while(fread(buf, sizeof(short), nsam, fin) == (size_t)nsam) {
+    while(fread(int_buf, sizeof(short), nsam, fin) == (size_t)nsam) {
+		arm_q15_to_float(int_buf, buf, nsam);
 		codec2_encode(codec2, bits, buf);
 		codec2_decode(codec2, buf, bits);
+		arm_float_to_q15(buf, int_buf, nsam);
 		fwrite(buf, sizeof(short), nsam, fout);
     }
 
     free(buf);
+    free(int_buf);
     free(bits);
     codec2_close(codec2);
 
@@ -150,7 +155,6 @@ static struct CODEC2 *p_codec;
 static int  frame_size;
 
 static float	speech_in[CODEC2_BUFF_SIZE] CCMRAM, speech_out[CODEC2_BUFF_SIZE] CCMRAM;
-static int16_t	speech[CODEC2_MAX_FRAME_SIZE] CCMRAM;
 static unsigned char bits[64] CCMRAM;
 
 #ifndef _MSC_VER
@@ -196,12 +200,12 @@ BSP_LED_Off(LED3);
 	if(FrameIdx >= frame_size)
 	{
 BSP_LED_On(LED4);
-		arm_float_to_q15(speech_in, speech, frame_size);
-		codec2_encode(p_codec, bits, speech);
+		arm_scale_f32(speech_in, 32767.0f, speech_in, frame_size);
+		codec2_encode(p_codec, bits, speech_in);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		codec2_decode(p_codec, speech, bits);
-		arm_q15_to_float(speech, speech_out, frame_size);
+		codec2_decode(p_codec, speech_out, bits);
+		arm_scale_f32(speech_out, 1.0f/32768.0f, speech_out, frame_size);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 //		v_equ(speech_out, speech_in, frame_size);

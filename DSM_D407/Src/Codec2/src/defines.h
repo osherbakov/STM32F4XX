@@ -60,15 +60,6 @@
 #define THRESH      0.1f    /* threshold for local minima candidate */
 #define CNLP        0.3f	/* post processor constant              */
 
-/*  Generic math constants   */
-#ifndef PI
-#define PI			3.141592654f	/* mathematical constant                */
-#endif
-#define TWO_PI		(2 * PI)		/* mathematical constant                */
-#define HALF_PI		(PI/2.0f)
-#define ONEQTR_PI	(PI/4.0f)
-#define THRQTR_PI   (3.0f*PI/4.0f)
-
 /*---------------------------------------------------------------------------*\
                                                                              
 				TYPEDEFS                                      
@@ -91,7 +82,7 @@ struct lsp_codebook {
     int			k;        /* dimension of vector	*/
     int			log2m;    /* number of bits in m	*/
     int			m;        /* elements in codebook	*/
-    const float	*	cb;	  /* The elements		*/
+    const float	*cb;	  /* The elements		*/
 };
 
 #endif

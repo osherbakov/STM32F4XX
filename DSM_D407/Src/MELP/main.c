@@ -241,7 +241,7 @@ BSP_LED_Off(LED3);
 	if(FrameIdx >= MELP_FRAME_SIZE)
 	{
 BSP_LED_On(LED4);
-		arm_scale_f32(speech_in, 32768.0f, speech, MELP_FRAME_SIZE);
+		arm_scale_f32(speech_in, 32767.0f, speech, MELP_FRAME_SIZE);
 		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
