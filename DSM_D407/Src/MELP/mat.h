@@ -79,9 +79,9 @@ static __INLINE float arm_cos(float x)
 	return res;
 }
 
-//#define arm_sqrt		sqrtf
-//#define arm_sin		sinf
-//#define arm_cos		cosf
+#define sqrtf		arm_sqrt
+#define sinf		arm_sin
+#define cosf		arm_cos
 
 #define window(inp,cof,outp,n)		arm_mult_f32((float32_t *)inp, (float32_t *)cof, (float32_t *)outp, n)
 #define v_zap(v,n)					arm_fill_f32(0.0f, (float32_t *)v, n)

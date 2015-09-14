@@ -259,12 +259,12 @@ BSP_LED_Off(LED3);
 	if(FrameIdx >= CVSD_BLOCK_SIZE)
 	{
 BSP_LED_On(LED4);
-        arm_scale_f32(speech_in, 32768.0f, speech_in, CVSD_BLOCK_SIZE);
+    arm_scale_f32(speech_in, 32768.0f, speech_in, CVSD_BLOCK_SIZE);
 		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, CVSD_BLOCK_SIZE);
-        arm_scale_f32(speech_out, 1.0f/32768.0f, speech_out, CVSD_BLOCK_SIZE);
+    arm_scale_f32(speech_out, 1.0f/32768.0f, speech_out, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 //		memcpy(speech_out, speech_in, CVSD_BLOCK_SIZE * sizeof(float));

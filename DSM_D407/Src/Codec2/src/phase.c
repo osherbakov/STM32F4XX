@@ -153,7 +153,6 @@ void phase_synth_zero_order(
 		/* Sample phase at harmonics */
 		b = (int)floorf(m*model->Wo/r + 0.5f);
         phi = -atan2f(Aw[b].imag, Aw[b].real);
-//		phi_ = -fastest_atan2f(Aw[b].imag, Aw[b].real);
         H.real = cosf(phi);
         H.imag = sinf(phi);
     

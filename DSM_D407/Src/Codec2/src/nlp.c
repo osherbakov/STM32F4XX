@@ -192,8 +192,8 @@ float nlp(
 	idx_end = FFT_PE*DEC/pmin;
 
     /* Square, notch filter at DC, and LP filter vector */
-	arm_mult_f32(&Sn[new_idx],&Sn[new_idx], &nlp->sq[new_idx], n);
-
+	//arm_mult_f32(&Sn[new_idx],&Sn[new_idx], &nlp->sq[new_idx], n);
+	arm_sqr_f32(&Sn[new_idx], &nlp->sq[new_idx], n);
 	// Implement simplest IIR "mono-quad" filter:
 	//   y(n) = x(n) - x(n-1) + C * y(n-1)
 	//
@@ -220,7 +220,7 @@ float nlp(
 	arm_cmplx_mag_squared_f32((float32_t *)&Fw[0], &((float *)Fw)[0], FFT_PE);
 
     /* find global peak */
-	arm_max_f32(&((float *)Fw)[idx_start], idx_end - idx_start + 1, &gmax, &gmax_bin);
+	arm_max_f32(&((float *)Fw)[idx_start], idx_end - idx_start + 1, &gmax, (uint32_t *)&gmax_bin);
 	gmax_bin += idx_start;
     
 	best_f0 = post_process_sub_multiples((float *)Fw, pmin, pmax, gmax, gmax_bin, prev_Wo);
@@ -287,7 +287,7 @@ float post_process_sub_multiples(float Fw[],
 		else
 			thresh = CNLP*gmax;
 
-		arm_max_f32(&Fw[bmin], bmax - bmin + 1, &lmax, &lmax_bin);
+		arm_max_f32(&Fw[bmin], bmax - bmin + 1, &lmax, (uint32_t *)&lmax_bin);
 		lmax_bin += bmin;
 
 		if ((lmax > thresh) &&

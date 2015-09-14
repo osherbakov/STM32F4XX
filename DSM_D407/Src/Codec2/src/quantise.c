@@ -25,6 +25,7 @@
 */
 
 #include <math.h>
+#include "mat.h"
 
 #include "defines.h"
 #include "quantise.h"
@@ -32,7 +33,6 @@
 #include "lsp.h"
 #include "codec2_internal.h"
 
-#include "mat.h"
 
 #define LSP_DELTA1 0.01         /* grid spacing for LSP root searches */
 

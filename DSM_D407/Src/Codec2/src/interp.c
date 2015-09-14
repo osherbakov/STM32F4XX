@@ -26,6 +26,8 @@
 */
 
 #include <math.h>
+#include "mat.h"
+
 #include "defines.h"
 #include "interp.h"
 #include "lsp.h"

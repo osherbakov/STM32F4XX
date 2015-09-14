@@ -339,12 +339,10 @@ void hs_pitch_refinement(MODEL *model, COMP Sw[], float pmin, float pmax, float 
 
 void estimate_amplitudes(MODEL *model, COMP Sw[], COMP W[])
 {
-  int   i,m;		/* loop variables */
+  int   m;		/* loop variables */
   int   am,bm;		/* bounds of current harmonic */
   float den;		/* denominator of amplitude expression */
   float r, one_on_r;	/* number of rads/bin */
-  int   offset;
-  COMP  Am;
 
   r = TWO_PI/FFT_ENC;
   one_on_r = 1.0f/r;
@@ -354,17 +352,12 @@ void estimate_amplitudes(MODEL *model, COMP Sw[], COMP W[])
     bm = (int)floorf((m + 0.5f)*model->Wo*one_on_r + 0.5f);
 
     /* Estimate ampltude of harmonic */
-
-    den = 0.0;
-    Am.real = Am.imag = 0.0;
-    offset = FFT_ENC/2 - (int)floorf(m*model->Wo*one_on_r + 0.5f);
-    for(i=am; i<bm; i++) {
-      den += Sw[i].real*Sw[i].real + Sw[i].imag*Sw[i].imag;
-      Am.real += Sw[i].real*W[i + offset].real;
-      Am.imag += Sw[i].imag*W[i + offset].real;
-    }
-
-    model->A[m] = sqrtf(den);
+//    den = 0.0;	  
+//    for(i=am; i<bm; i++) {
+//      den += Sw[i].real*Sw[i].real + Sw[i].imag*Sw[i].imag;
+//    }
+	arm_power_f32((float32_t*)&Sw[2*am], 2*(bm-am), &den);  
+    model->A[m] = sqrtf(den);  
   }
 }
 
@@ -406,42 +399,42 @@ float est_voicing_mbe(
     /* Just test across the harmonics in the first 1000 Hz (L/4) */
 
     for(l=1; l<=model->L/4; l++) {
-		Am.real = 0.0;
-		Am.imag = 0.0;
-		al = ceilf((l - 0.5f)*Wo*FFT_ENC/TWO_PI);
-		bl = ceilf((l + 0.5f)*Wo*FFT_ENC/TWO_PI);
-		offset = floorf(FFT_ENC/2 - l*Wo*FFT_ENC/TWO_PI + 0.5f);
+			Am.real = 0.0;
+			Am.imag = 0.0;
+			al = ceilf((l - 0.5f)*Wo*FFT_ENC/TWO_PI);
+			bl = ceilf((l + 0.5f)*Wo*FFT_ENC/TWO_PI);
+			offset = floorf(FFT_ENC/2 - l*Wo*FFT_ENC/TWO_PI + 0.5f);
 
-		/* Estimate amplitude of harmonic assuming harmonic is totally voiced */
+			/* Estimate amplitude of harmonic assuming harmonic is totally voiced */
 
-		den = 0.0;
-		for(m=al; m<bl; m++) {
-			W_real = W[offset+m].real;
-			Am.real += Sw[m].real*W_real;
-			Am.imag += Sw[m].imag*W_real;
-			den += W_real*W_real;
-		}
+			den = 0.0;
+			for(m=al; m<bl; m++) {
+				W_real = W[offset+m].real;
+				Am.real += Sw[m].real*W_real;
+				Am.imag += Sw[m].imag*W_real;
+				den += W_real*W_real;
+			}
 
-		Am.real = Am.real/den;
-		Am.imag = Am.imag/den;
+			Am.real = Am.real/den;
+			Am.imag = Am.imag/den;
 
-		/* Determine error between estimated harmonic and original */
+			/* Determine error between estimated harmonic and original */
 
-		for(m=al; m<bl; m++) {
-			W_real = W[offset+m].real;
-			Sw_.real = Am.real*W_real;
-			Sw_.imag = Am.imag*W_real;
-			Ew.real = Sw[m].real - Sw_.real;
-			Ew.imag = Sw[m].imag - Sw_.imag;
-			error += Ew.real*Ew.real + Ew.imag*Ew.imag;
-		}
+			for(m=al; m<bl; m++) {
+				W_real = W[offset+m].real;
+				Sw_.real = Am.real*W_real;
+				Sw_.imag = Am.imag*W_real;
+				Ew.real = Sw[m].real - Sw_.real;
+				Ew.imag = Sw[m].imag - Sw_.imag;
+				error += Ew.real*Ew.real + Ew.imag*Ew.imag;
+			}
     }
     
     snr = 10.0f*log10f(sig/error);
     if (snr > V_THRESH)
-		model->voiced = 1;
+			model->voiced = 1;
     else
-		model->voiced = 0;
+			model->voiced = 0;
  
     /* post processing, helps clean up some voicing errors ------------------*/
 

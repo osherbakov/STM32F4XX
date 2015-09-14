@@ -29,13 +29,14 @@
 
 
 #include <math.h>
+#include "mat.h"
 
 #include "defines.h"
 #include "comp.h"
 #include "sine.h"
 #include "postfilter.h"
 
-#include "mat.h"
+
 
 /*---------------------------------------------------------------------------*\
 

@@ -70,9 +70,8 @@
  */
 
 /**        
- * @brief Floating-point vector multiplication.        
- * @param[in]       *pSrcA points to the first input vector        
- * @param[in]       *pSrcB points to the second input vector        
+ * @brief Floating-point vector squaring.        
+ * @param[in]       *pSrcA points to the input vector            
  * @param[out]      *pDst points to the output vector        
  * @param[in]       blockSize number of samples in each vector        
  * @return none.        
