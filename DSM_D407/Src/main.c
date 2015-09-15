@@ -56,15 +56,15 @@ int main(void)
 	BSP_LED_Init(LED6);
 	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
  	BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 85, SAMPLE_FREQ);
-  BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
+	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
 
 	osParams.bStartPlay = 1;
 	osParams.audioinMode =  AUDIO_MODE_IN_MIC;
 	osParams.audiooutMode =  AUDIO_MODE_OUT_I2S;
 
 
-  /* Call init function for freertos objects (in freertos.c) */
-  MX_FREERTOS_Init();
+	/* Call init function for freertos objects (in freertos.c) */
+	MX_FREERTOS_Init();
 
 	/* Allocate and initialize data queues that will be used to pass data between tasks */
 	/* Technically, we can do that at the beginning of the task, but the safest way is to allocate them now, before any task is run */
@@ -79,14 +79,18 @@ int main(void)
 	// Queue to pass data to the output DAC
 	osParams.PCM_Out_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
-  /* Start scheduler */
-  osKernelStart();
+	// Queues for Upsample and Downsample
+	osParams.DownSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.UpSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_F32 | DATA_NUM_CH_1);
 
-  /* We should never get here as control is now taken by the scheduler */
-  /* Infinite loop */
-  while (1)
-  {
-  }
+	/* Start scheduler */
+	osKernelStart();
+
+	/* We should never get here as control is now taken by the scheduler */
+	/* Infinite loop */
+	while (1)
+	{
+	}
 }
 
 /** System Clock Configuration

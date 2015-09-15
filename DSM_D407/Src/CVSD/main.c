@@ -189,41 +189,14 @@ static void		printHelpMessage(char *argv[])
 // *****************************
 //
 
-static int FrameIdx = 0;
-
-#define DOWNSAMPLE_TAPS  (12)
-#define UPSAMPLE_TAPS		 (24)
-#define UPDOWNSAMPLE_RATIO (48000/16000)
-
-static float DownSampleBuff[CVSD_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
-static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
--0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
-0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
-0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003};
-
-
-static float UpSampleBuff[(CVSD_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
-static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
-0.00449248310178518f, -0.0288104526698589f, -0.0499703288078308f, -0.0734485313296318f,
--0.082396112382412f, -0.0617895275354385f, -0.00137842050753534f, 0.0993839502334595f,
-0.228658899664879f, 0.363589704036713f, 0.475823938846588f, 0.539592683315277f,
-0.539592683315277f, 0.475823938846588f, 0.363589704036713f, 0.228658899664879f,
-0.0993839502334595f, -0.00137842050753534f, -0.0617895275354385f, -0.082396112382412f,
--0.0734485313296318f, -0.0499703288078308f, -0.0288104526698589f, 0.00449248310178518f};
-
-static arm_fir_decimate_instance_f32 CCMRAM Dec ;
-static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
 void *cvsd_ana;
 void *cvsd_syn;
 
 static uint8_t dataBits[CVSD_BLOCK_SIZE] CCMRAM;
-static float speech_in[CVSD_BLOCK_SIZE] CCMRAM;
-static float speech_out[CVSD_BLOCK_SIZE] CCMRAM;
 
 void *cvsd_create(uint32_t Params)
 {
-	/* ====== Initialize CVSD analysis and synthesis ====== */
 	cvsd_ana = osAlloc(cvsd_mem_req_f32());
 	cvsd_syn = osAlloc(cvsd_mem_req_f32());
 	return 0;
@@ -236,12 +209,6 @@ void cvsd_close(void *pHandle)
 
 void cvsd_init(void *pHandle)
 {
-	/* ====== Initialize Decimator and interpolator ====== */
-	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
-			DownSampleCoeff, DownSampleBuff, CVSD_BLOCK_SIZE);
-	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
-			UpSampleCoeff, UpSampleBuff, CVSD_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
-	FrameIdx = 0;
 	cvsd_init_f32(cvsd_ana);
 	cvsd_init_f32(cvsd_syn);
 }
@@ -249,28 +216,23 @@ void cvsd_init(void *pHandle)
 
 uint32_t cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {
-
-BSP_LED_On(LED3);
-	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
 //	v_equ(pDataOut, pDataIn, nSamples);
-BSP_LED_Off(LED3);
-
-	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
-	if(FrameIdx >= CVSD_BLOCK_SIZE)
+	uint32_t	Processed = 0;
+	while(nSamples >= CVSD_BLOCK_SIZE)
 	{
 BSP_LED_On(LED4);
-		arm_scale_f32(speech_in, 32767.0f, speech_in, CVSD_BLOCK_SIZE);
-		cvsd_encode_f32(cvsd_ana, dataBits, speech_in, CVSD_BLOCK_SIZE);
+		arm_scale_f32(pDataIn, 32767.0f, pDataIn, CVSD_BLOCK_SIZE);
+		cvsd_encode_f32(cvsd_ana, dataBits, pDataIn, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		cvsd_decode_f32(cvsd_syn, speech_out, dataBits, CVSD_BLOCK_SIZE);
-		arm_scale_f32(speech_out, 1.0f/32768.0f, speech_out, CVSD_BLOCK_SIZE);
+		cvsd_decode_f32(cvsd_syn, pDataOut, dataBits, CVSD_BLOCK_SIZE);
+		arm_scale_f32(pDataOut, 1.0f/32768.0f, pDataOut, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED5);
-		FrameIdx = 0;
 //		v_equ(speech_out, speech_in, CVSD_BLOCK_SIZE);
+		nSamples -= CVSD_BLOCK_SIZE;
+		Processed += CVSD_BLOCK_SIZE;
 	}
-	return nSamples;
+	return Processed;
 }
 
 uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
@@ -281,7 +243,9 @@ uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 
 DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
 
-
+//
+//  BYPASS functionality module
+//
 #define  BYPASS_DATA_TYPE		(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define  BYPASS_BLOCK_SIZE  	(180)
 
@@ -314,3 +278,115 @@ uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)
 }
 
 DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, bypass_process, bypass_close};
+
+
+//
+//  Downsample 48KHz to 16 KHz and 16 KHZ to 48KHz upsample functionality modules
+//
+#define  DOWNSAMPLE_TAPS  		(12)
+#define  UPSAMPLE_TAPS			(24)
+#define  UPDOWNSAMPLE_RATIO 	(48000/16000)
+#define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
+#define  DOWNSAMPLE_BLOCK_SIZE  (120)	// Divisable by 2,3,4,5,6,8,10,12,15,20,24,30,40,60
+
+static float DownSample48_16_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSample48_16_Coeff[DOWNSAMPLE_TAPS] RODATA = {
+-0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
+0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
+0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003};
+
+
+static float UpSample16_48_Buff[(DOWNSAMPLE_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSample16_48_Coeff[UPSAMPLE_TAPS] RODATA = {
+0.00449248310178518f, -0.0288104526698589f, -0.0499703288078308f, -0.0734485313296318f,
+-0.082396112382412f, -0.0617895275354385f, -0.00137842050753534f, 0.0993839502334595f,
+0.228658899664879f, 0.363589704036713f, 0.475823938846588f, 0.539592683315277f,
+0.539592683315277f, 0.475823938846588f, 0.363589704036713f, 0.228658899664879f,
+0.0993839502334595f, -0.00137842050753534f, -0.0617895275354385f, -0.082396112382412f,
+-0.0734485313296318f, -0.0499703288078308f, -0.0288104526698589f, 0.00449248310178518f};
+
+static arm_fir_decimate_instance_f32 CCMRAM Dec ;
+
+void *ds_48_16_create(uint32_t Params)
+{
+	return &Dec;
+}
+
+void ds_48_16_close(void *pHandle)
+{
+	return;
+}
+
+void ds_48_16_init(void *pHandle)
+{
+	arm_fir_decimate_init_f32(pHandle, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
+			DownSample48_16_Coeff, DownSample48_16_Buff, DOWNSAMPLE_BLOCK_SIZE);
+}
+
+uint32_t ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+{
+	uint32_t	nProcessed = 0;
+BSP_LED_On(LED3);
+	while(nSamples >= DOWNSAMPLE_BLOCK_SIZE)
+	{
+		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
+		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
+		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
+		nSamples -= DOWNSAMPLE_BLOCK_SIZE;
+		nProcessed += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+	}
+BSP_LED_Off(LED3);
+	return nProcessed;
+}
+
+uint32_t ds_48_16_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DOWNSAMPLE_DATA_TYPE;
+	 return DOWNSAMPLE_BLOCK_SIZE;
+}
+
+DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_typesize, ds_48_16_process, ds_48_16_close};
+
+static arm_fir_interpolate_instance_f32 CCMRAM Int;
+
+void *us_16_48_create(uint32_t Params)
+{
+	return &Int;
+}
+
+void us_16_48_close(void *pHandle)
+{
+	return;
+}
+
+void us_16_48_init(void *pHandle)
+{
+	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
+			UpSample16_48_Coeff, UpSample16_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
+}
+
+uint32_t us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+{
+	uint32_t	nProcessed = 0;
+BSP_LED_On(LED3);
+	while(nSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
+	{
+		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
+		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
+		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
+		nSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		nProcessed += DOWNSAMPLE_BLOCK_SIZE;
+	}
+BSP_LED_Off(LED3);
+	return nProcessed;
+}
+
+uint32_t us_16_48_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DOWNSAMPLE_DATA_TYPE;
+	 return DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+}
+
+DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_typesize, us_16_48_process, us_16_48_close};
+
+

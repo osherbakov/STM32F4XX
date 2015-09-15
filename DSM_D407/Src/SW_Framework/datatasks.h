@@ -6,7 +6,7 @@
 
 // Parameters for the input audio that comes from MIC, I2S and USB
 #define  SAMPLE_FREQ			(48000)
-#define  SAMPLE_FREQ_KHZ	((SAMPLE_FREQ)/1000)
+#define  SAMPLE_FREQ_KHZ		((SAMPLE_FREQ)/1000)
 #define  PDM_DOWNSAMPLE_RATIO	(64)
 #define  NUM_CHANNELS			(2)
 
@@ -63,13 +63,16 @@ typedef struct
 		osMessageQId dataInPDMMsg;			// Message queue to indicate that PDM data is ready
 		osMessageQId dataReadyMsg;			// Message queue to indicate that any data for routing is ready
 	
-	  uint8_t		*pPDM_In;							// Pointer to DMA Buffer for PDM In
-	  uint8_t		*pPCM_Out;						// Pointer to DMA Buffer for PCM Out
+		uint8_t		*pPDM_In;						// Pointer to DMA Buffer for PDM In
+		uint8_t		*pPCM_Out;						// Pointer to DMA Buffer for PCM Out
 	
 		DQueue_t	*PCM_In_data;					// Data Queue for PCM In (Periph -> CPU) (Converted PDM)  data
-		DQueue_t	*PCM_Out_data;				// Data Queue for PCM OUT (CPU -> Periph) CODEC data
+		DQueue_t	*PCM_Out_data;					// Data Queue for PCM OUT (CPU -> Periph) CODEC data
+
+		DQueue_t	*DownSample_data;				// Data Queue for Downsampled  data
+		DQueue_t	*UpSample_data;					// Data Queue for Upsampled data
 	
-		DQueue_t	*USB_Out_data;				// Data Queue for USB OUT (Host -> Device) SPEAKER data 
+		DQueue_t	*USB_Out_data;					// Data Queue for USB OUT (Host -> Device) SPEAKER data 
 		DQueue_t	*USB_In_data;					// Data Queue for USB IN (Device -> Host) MIC data 
 	
 }osObjects_t;
