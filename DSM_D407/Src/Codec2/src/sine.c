@@ -356,7 +356,7 @@ void estimate_amplitudes(MODEL *model, COMP Sw[], COMP W[])
 //    for(i=am; i<bm; i++) {
 //      den += Sw[i].real*Sw[i].real + Sw[i].imag*Sw[i].imag;
 //    }
-	arm_power_f32((float32_t*)&Sw[2*am], 2*(bm-am), &den);  
+	arm_power_f32((float32_t*)&Sw[am], 2*(bm-am), &den);  
     model->A[m] = sqrtf(den);  
   }
 }

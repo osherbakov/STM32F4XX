@@ -33,11 +33,12 @@
 
 
 #include <math.h>
+#include "mat.h"
 
 #include "defines.h"
 #include "lpc.h"
 
-#include "mat.h"
+
 
 
 /*---------------------------------------------------------------------------*\

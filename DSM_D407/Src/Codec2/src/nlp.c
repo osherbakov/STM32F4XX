@@ -25,12 +25,13 @@
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 #include <math.h>
+#include "mat.h"
 
 #include "defines.h"
 #include "nlp.h"
 #include "codec2_internal.h"
 #include "codec2.h"
-#include "mat.h"
+
 /*---------------------------------------------------------------------------*\
                                                                              
  				DEFINES                                       
