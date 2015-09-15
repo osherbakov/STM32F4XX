@@ -21,13 +21,6 @@
 #define M_PI           3.14159265358979323846f
 #endif
 
-typedef enum {
-	CH_LEFT = 0,
-	CH_RIGHT = 1,
-
-	CH_MAX = 2,
-} Channels_t;
-
 
 //
 //  Sin quadrature generator structure
@@ -69,14 +62,9 @@ float Gen_Sin(SinGen_t* pState)
 //
 //  For test purposes the Data_Process Function just copies input data buffer to output buffer
 //
-void Data_Process(void *pHandle, void *pAudioIn, void *pAudioOut, uint32_t nBytes)
+uint32_t Data_Process(void *pHandle, void *pAudioIn, void *pAudioOut, uint32_t nElements)
 {
-	//	memcpy(pAudioOut[CH_LEFT], pAudioIn[CH_LEFT], nSamples * sizeof(float));
-	//  memcpy(pAudioOut[CH_RIGHT], pAudioIn[CH_RIGHT], nSamples * sizeof(float)); 	
-//	cvsd_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-//	melp_process(pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nSamples);
-//	codec2_process(pHandle, pAudioIn[CH_RIGHT], pAudioOut[CH_RIGHT], nBytes);
-//	memcpy(pAudioOut[CH_LEFT], pAudioOut[CH_RIGHT], nBytes );
+
 }
 
 

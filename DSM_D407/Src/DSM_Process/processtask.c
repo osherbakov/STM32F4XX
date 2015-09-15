@@ -57,7 +57,8 @@ void StartDataProcessTask(void const * argument)
 	float		*pAudioOut;
 	void		*pModuleState;
 
-	uint32_t	Type, nSamplesQueue, nSamplesModule;
+	uint32_t	Type;
+	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated;
 
 	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
@@ -75,25 +76,26 @@ void StartDataProcessTask(void const * argument)
 			// - Figure out what type of data is it
 			// - If there is enough data accumulated - place it in a buffer and
 			//      call the appropriate processing function
-			nSamplesQueue = Queue_Count_Elems(pDataQ);
-			nSamplesModule = pModule->TypeSize(&osParams, &Type);
+			nSamplesInQueue = Queue_Count_Elems(pDataQ);
+			nSamplesModuleNeeds = pModule->TypeSize(pModuleState, &Type);
 
-			while(nSamplesQueue >= nSamplesModule)
+			while(nSamplesInQueue >= nSamplesModuleNeeds)
 			{
-				Queue_PopData(pDataQ, pAudio, nSamplesModule * pDataQ->ElemSize);
+				Queue_PopData(pDataQ, pAudio, nSamplesModuleNeeds * pDataQ->ElemSize);
 
 				// Convert data from the Queue-provided type to the Processing-Module-required type
-				DataConvert(pAudioIn, Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nSamplesModule);
+				DataConvert(pAudioIn, Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nSamplesModuleNeeds);
 
 				//   Call data processing
-				pModule->Process(pModuleState, pAudioIn, pAudioOut, nSamplesModule);
+				nSamplesModuleGenerated = pModule->Process(pModuleState, pAudioIn, pAudioOut, nSamplesModuleNeeds);
 
 				// Convert data from the Processing-Module-provided type to the HW Queue type
-				DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModule);
+				DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModuleGenerated);
 
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
-				Data_Distribute(&osParams, pAudio, nSamplesModule * (osParams.PCM_Out_data->ElemSize));
-				nSamplesQueue = Queue_Count_Elems(pDataQ);
+				Data_Distribute(&osParams, pAudio, nSamplesModuleGenerated * (osParams.PCM_Out_data->ElemSize));
+				nSamplesInQueue = Queue_Count_Elems(pDataQ);
+				nSamplesModuleNeeds = pModule->TypeSize(pModuleState, &Type);
 			}
 		}
 	}
