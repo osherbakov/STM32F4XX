@@ -41,6 +41,8 @@
 #include "lsp.h"
 #include "codec2_internal.h"
 
+
+
 /*---------------------------------------------------------------------------*\
                                                        
                              FUNCTION HEADERS
@@ -62,6 +64,7 @@ void codec2_encode_1300(struct CODEC2 *c2, unsigned char * bits, float speech[])
 void codec2_decode_1300(struct CODEC2 *c2, float speech[], const unsigned char * bits);
 void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, float speech[]);
 void codec2_decode_1200(struct CODEC2 *c2, float speech[], const unsigned char * bits);
+static void ear_protection(float in_out[], int n);
 
 /*---------------------------------------------------------------------------*\
                                                        
@@ -1144,8 +1147,13 @@ void codec2_decode_1200(struct CODEC2 *c2, float speech[], const unsigned char *
 void synthesise_one_frame(struct CODEC2 *c2, float speech[], MODEL *model, COMP Aw[])
 {
     phase_synth_zero_order(model, &c2->ex_phase, Aw);
+
     postfilter(model, &c2->bg_est);
+
     synthesise(c2->Sn_, model, c2->Pn);
+
+    ear_protection(c2->Sn_, FRAME_SIZE);
+
 	v_equ(speech, c2->Sn_, FRAME_SIZE);
 }
 
@@ -1173,6 +1181,7 @@ void analyse_one_frame(struct CODEC2 *c2, MODEL *model, float speech[])
     dft_speech(Sw, c2->Sn, c2->w);
 
     /* Estimate pitch */
+
     nlp(&c2->nlp, c2->Sn, FRAME_SIZE, P_MIN, P_MAX, &pitch, Sw, c2->W, c2->prev_Wo_enc);
 
     model->Wo = TWO_PI/pitch;
@@ -1184,6 +1193,39 @@ void analyse_one_frame(struct CODEC2 *c2, MODEL *model, float speech[])
     estimate_amplitudes(model, Sw, c2->W);
     est_voicing_mbe(model, Sw, c2->W);
     c2->prev_Wo_enc = model->Wo;
+}
+
+/*---------------------------------------------------------------------------*\
+                                                       
+  FUNCTION....: ear_protection()   
+  AUTHOR......: David Rowe			      
+  DATE CREATED: Nov 7 2012
+
+  Limits output level to protect ears when there are bit errors or the input
+  is overdriven.  This doesn't correct or mask bit errors, just reduces the
+  worst of their damage.
+
+\*---------------------------------------------------------------------------*/
+
+static void ear_protection(float in_out[], int n) {
+    float max_sample, over, gain;
+    int   i;
+
+    /* find maximum sample in frame */
+	i = findmax(in_out, n);
+    max_sample = in_out[i];
+    /* determine how far above set point */
+
+    over = max_sample/30000.0f;
+
+    /* If we are x dB over set point we reduce level by 2x dB, this
+       attenuates major excursions in amplitude (likely to be caused
+       by bit errors) more than smaller ones */
+
+    if (over > 1.0f) {
+        gain = 1.0f/(over*over);
+		v_scale(in_out, gain, n);
+    }
 }
 
 

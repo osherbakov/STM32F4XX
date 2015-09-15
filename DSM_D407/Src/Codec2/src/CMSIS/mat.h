@@ -122,15 +122,14 @@ static __INLINE float atan2f_fast( float y, float x )
 #define sinf(x)  	arm_sin(x)
 #define cosf(x)	 	arm_cos(x)
 #define sqrtf(x) 	arm_sqrt(x)
-#define atan2f(y,x)	atan2f_fast((y),(x))
-#define powf(a,b)	powf_fast((a),(b))
-#define log2f(a)	log2f_fast((a))
-#define log10f(a)	(log2f(a)* 0.301029995f)
+//#define atan2f(y,x)	atan2f_fast((y),(x))
+//#define powf(a,b)	powf_fast((a),(b))
+//#define log2f(a)	log2f_fast((a))
+//#define log10f(a)	(log2f(a)* 0.301029995f)
 
 
 extern  void arm_sqr_f32(float32_t * pSrc, float32_t * pDst, uint32_t numSamples);
 
-#define window(inp,cof,outp,n)		arm_mult_f32((float32_t *)inp, (float32_t *)cof, (float32_t *)outp, n)
 #define v_zap(v,n)					arm_fill_f32(0.0f, (float32_t *)v, n)
 #define v_fill(v,val,n)				arm_fill_f32(val, (float32_t *)v, n)
 #define v_equ(v1,v2,n) 				arm_copy_f32((float32_t *)v2, (float32_t *)v1, n)
