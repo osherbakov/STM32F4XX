@@ -25,12 +25,14 @@
   along with this program; if not,see <http://www.gnu.org/licenses/>. 
 */
 #include <math.h>
+#include "mat.h"
+
 #include "defines.h"
 #include "phase.h"
 #include "comp.h"
 #include "sine.h"
 
-#include "mat.h"
+
 
 /*---------------------------------------------------------------------------*\
 

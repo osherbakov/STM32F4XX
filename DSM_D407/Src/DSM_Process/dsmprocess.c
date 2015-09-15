@@ -64,7 +64,7 @@ float Gen_Sin(SinGen_t* pState)
 //
 uint32_t Data_Process(void *pHandle, void *pAudioIn, void *pAudioOut, uint32_t nElements)
 {
-
+	return nElements;
 }
 
 

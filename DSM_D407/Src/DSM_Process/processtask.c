@@ -37,7 +37,7 @@ void Data_Distribute(osObjects_t *hFF, void *pData, uint32_t nBytes)
 
 extern DataProcessBlock_t  MELP;
 extern DataProcessBlock_t  CVSD;
-extern DataProcessBlock_t  CODEC2;
+extern DataProcessBlock_t  CODEC;
 extern DataProcessBlock_t  BYPASS;
 
 
@@ -45,7 +45,7 @@ extern DataProcessBlock_t  BYPASS;
 //  Task to handle all incoming data
 //
 
-DataProcessBlock_t  *pModule = &CODEC2;
+DataProcessBlock_t  *pModule = &CODEC;
 
 void StartDataProcessTask(void const * argument)
 {

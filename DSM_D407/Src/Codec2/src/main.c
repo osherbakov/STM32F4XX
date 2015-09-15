@@ -155,13 +155,13 @@ static struct CODEC2 *p_codec;
 static int  frame_size;
 
 static float	speech_in[CODEC2_BUFF_SIZE] CCMRAM, speech_out[CODEC2_BUFF_SIZE] CCMRAM;
+static float    speech[CODEC2_BUFF_SIZE] CCMRAM;
 static unsigned char bits[64] CCMRAM;
 
 #ifndef _MSC_VER
 
 void *codec2_create(uint32_t Params)
 {
-	/* ====== Initialize CODEC2 analysis and synthesis ====== */
 	int mem_req = codec2_state_memory_req();
 	p_codec = osAlloc(mem_req);
 	return p_codec;
@@ -179,7 +179,7 @@ void codec2_initialize(void *pHandle)
 	codec2_init(p_codec, CODEC2_MODE_2400);
 
 	/* ====== Initialize Decimator and Interpolator ====== */
-  frame_size = codec2_samples_per_frame(p_codec);
+	frame_size = codec2_samples_per_frame(p_codec);
 	frame_size = ((frame_size + UPDOWNSAMPLE_RATIO - 1)/UPDOWNSAMPLE_RATIO) * UPDOWNSAMPLE_RATIO;
 	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 			DownSampleCoeff, DownSampleBuff, frame_size);
@@ -200,12 +200,12 @@ BSP_LED_Off(LED3);
 	if(FrameIdx >= frame_size)
 	{
 BSP_LED_On(LED4);
-		arm_scale_f32(speech_in, 32767.0f, speech_in, frame_size);
-		codec2_encode(p_codec, bits, speech_in);
+		arm_scale_f32(speech_in, 32767.0f, speech, frame_size);
+		codec2_encode(p_codec, bits, speech);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		codec2_decode(p_codec, speech_out, bits);
-		arm_scale_f32(speech_out, 1.0f/32768.0f, speech_out, frame_size);
+		codec2_decode(p_codec, speech, bits);
+		arm_scale_f32(speech, 1.0f/32768.0f, speech_out, frame_size);
 BSP_LED_Off(LED5);
 		FrameIdx = 0;
 //		v_equ(speech_out, speech_in, frame_size);
@@ -219,7 +219,7 @@ uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
 	 return frame_size;
 }
 
-DataProcessBlock_t  CODEC2 = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};
+DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};
 
 
 #endif
