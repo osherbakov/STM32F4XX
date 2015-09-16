@@ -194,23 +194,24 @@ void melp_init(void *pHandle)
 }
 
 
-uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nProcessed = 0;
 	
-	while(nSamples >= MELP_FRAME_SIZE)
+	while(*pInSamples >= MELP_FRAME_SIZE)
 	{
 BSP_LED_On(LED4);
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
-		melp_ana(speech, &melp_ana_par);
+//		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-		melp_syn(&melp_syn_par, speech);
+//		melp_syn(&melp_syn_par, speech);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
 BSP_LED_Off(LED5);
+//		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
 		pDataIn += MELP_FRAME_SIZE * 4;
 		pDataOut += MELP_FRAME_SIZE * 4;
-		nSamples -= MELP_FRAME_SIZE;
+		*pInSamples -= MELP_FRAME_SIZE;
 		nProcessed += MELP_FRAME_SIZE;
 	}
 	return nProcessed;
@@ -272,16 +273,16 @@ void ds_48_8_init(void *pHandle)
 			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nProcessed = 0;
 BSP_LED_On(LED3);
-	while(nSamples >= DOWNSAMPLE_BLOCK_SIZE)
+	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
 		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
 		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
-		nSamples -= DOWNSAMPLE_BLOCK_SIZE;
+		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
 		nProcessed += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
 BSP_LED_Off(LED3);
@@ -314,16 +315,16 @@ void us_8_48_init(void *pHandle)
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nProcessed = 0;
 BSP_LED_On(LED3);
-	while(nSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
+	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
 		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
-		nSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nProcessed += DOWNSAMPLE_BLOCK_SIZE;
 	}
 BSP_LED_Off(LED3);

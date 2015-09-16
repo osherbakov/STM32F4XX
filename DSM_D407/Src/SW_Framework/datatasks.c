@@ -26,10 +26,10 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 //  Ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
-		if(osParams.audioinMode == AUDIO_MODE_IN_MIC)
-		{
-			osMessagePut(osParams.dataInPDMMsg, DONE_SECOND, 0);
-		}
+	if(osParams.audioinMode == AUDIO_MODE_IN_MIC)
+	{
+		osMessagePut(osParams.dataInPDMMsg, DONE_SECOND, 0);
+	}
 }
 
 //
@@ -40,21 +40,21 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 // Half of the  data buffer was sent out to the output device
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
-		if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
-		{
-				Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
-		}
+	if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
+	{
+		Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
+	}
 }
 
 
 // Full data buffer was sent out to the output device
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
-		if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
-		{
-				BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
-				Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
-		}
+	if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
+	{
+		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
+		Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
+	}
 }
 
 

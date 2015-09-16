@@ -189,7 +189,7 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 		memcpy(pDst, pSrc, nSrcElements * (SrcType & 0x00FF));
 		return;
 	}		
-  srcStep = (SrcType & 0x00FF); 			// Step size to get the next element
+	srcStep = (SrcType & 0x00FF); 			// Step size to get the next element
 	dstStep = (DstType & 0x00FF);
 	
 	srcSize = DATA_TYPE_SIZE(SrcType);	// Size of one datatype(1,2,3,4 bytes)
