@@ -125,7 +125,7 @@ int main_codec2(int argc, char *argv[])
 static struct CODEC2 *p_codec;
 static int  frame_size;
 
-#define 	CODEC2_BUFF_SIZE (360)
+#define 	CODEC2_BUFF_SIZE (320)
 
 static float    speech[CODEC2_BUFF_SIZE] CCMRAM;
 static unsigned char bits[64] CCMRAM;
@@ -147,13 +147,13 @@ void codec2_deinit(void *pHandle)
 
 void codec2_initialize(void *pHandle)
 {
-	codec2_init(p_codec, CODEC2_MODE_1200);
+	codec2_init(p_codec, CODEC2_MODE_2400);
 	frame_size = codec2_samples_per_frame(p_codec); 
 }
 
 uint32_t codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 	while(*pInSamples >= frame_size)
 	{
 BSP_LED_On(LED4);
@@ -168,9 +168,9 @@ BSP_LED_Off(LED5);
 		pDataIn += frame_size * 4;
 		pDataOut += frame_size * 4;
 		*pInSamples -= frame_size;
-		nProcessed += frame_size;		
+		nGenerated += frame_size;		
 	}
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)

@@ -23,7 +23,7 @@
 
 #define v_equ(v1,v2,n) 			arm_copy_f32((float32_t *)v2, (float32_t *)v1, n)
 
-#define CVSD_BLOCK_SIZE   (120)
+#define CVSD_BLOCK_SIZE   		(180)
 
 #ifndef TRUE
 #define TRUE (1)
@@ -216,7 +216,7 @@ void cvsd_init(void *pHandle)
 
 uint32_t cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 	while(*pInSamples >= CVSD_BLOCK_SIZE)
 	{
 BSP_LED_On(LED4);
@@ -230,9 +230,9 @@ BSP_LED_Off(LED5);
 		pDataIn += CVSD_BLOCK_SIZE * 4;
 		pDataOut += CVSD_BLOCK_SIZE * 4;
 		*pInSamples -= CVSD_BLOCK_SIZE;
-		nProcessed += CVSD_BLOCK_SIZE;
+		nGenerated += CVSD_BLOCK_SIZE;
 	}
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
@@ -265,12 +265,12 @@ void bypass_init(void *pHandle)
 
 uint32_t bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t nProcessed = *pInSamples;
+	uint32_t nGenerated = *pInSamples;
 BSP_LED_On(LED5);
 	v_equ(pDataOut, pDataIn, *pInSamples );
 BSP_LED_Off(LED5);
 	*pInSamples = 0;
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)
@@ -289,7 +289,7 @@ DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, 
 #define  UPSAMPLE_TAPS			(24)
 #define  UPDOWNSAMPLE_RATIO 	(48000/16000)
 #define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
-#define  DOWNSAMPLE_BLOCK_SIZE  (120)	// Divisable by 2,3,4,5,6,8,10,12,15,20,24,30,40,60
+#define  DOWNSAMPLE_BLOCK_SIZE  (60)	// Divisable by 2,3,4,5,6,10,12,15,20,30
 
 static float DownSample48_16_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static float DownSample48_16_Coeff[DOWNSAMPLE_TAPS] RODATA = {
@@ -327,7 +327,7 @@ void ds_48_16_init(void *pHandle)
 
 uint32_t ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
@@ -335,10 +335,10 @@ BSP_LED_On(LED3);
 		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
 		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
-		nProcessed += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
 BSP_LED_Off(LED3);
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t ds_48_16_typesize(void *pHandle, uint32_t *pType)
@@ -369,7 +369,7 @@ void us_16_48_init(void *pHandle)
 
 uint32_t us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
@@ -377,10 +377,10 @@ BSP_LED_On(LED3);
 		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
 		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
-		nProcessed += DOWNSAMPLE_BLOCK_SIZE;
+		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
 BSP_LED_Off(LED3);
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t us_16_48_typesize(void *pHandle, uint32_t *pType)

@@ -196,25 +196,25 @@ void melp_init(void *pHandle)
 
 uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 	
 	while(*pInSamples >= MELP_FRAME_SIZE)
 	{
 BSP_LED_On(LED4);
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
-//		melp_ana(speech, &melp_ana_par);
+		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
-//		melp_syn(&melp_syn_par, speech);
+		melp_syn(&melp_syn_par, speech);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
 BSP_LED_Off(LED5);
 //		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
 		pDataIn += MELP_FRAME_SIZE * 4;
 		pDataOut += MELP_FRAME_SIZE * 4;
 		*pInSamples -= MELP_FRAME_SIZE;
-		nProcessed += MELP_FRAME_SIZE;
+		nGenerated += MELP_FRAME_SIZE;
 	}
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
@@ -234,7 +234,7 @@ DataProcessBlock_t  MELP = {melp_create, melp_init, melp_data_typesize, melp_pro
 #define  UPSAMPLE_TAPS			(24)
 #define  UPDOWNSAMPLE_RATIO 	(48000/8000)
 #define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
-#define  DOWNSAMPLE_BLOCK_SIZE  (120)	// Divisable by 2,3,4,5,6,8,10,12,15,20,24,30,40,60
+#define  DOWNSAMPLE_BLOCK_SIZE  (60)	// Divisable by 2,3,4,5,6,10,12,15,20,30
 
 
 static float DownSample48_8_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
@@ -275,7 +275,7 @@ void ds_48_8_init(void *pHandle)
 
 uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
@@ -283,10 +283,10 @@ BSP_LED_On(LED3);
 		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
 		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
-		nProcessed += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
 BSP_LED_Off(LED3);
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t ds_48_8_typesize(void *pHandle, uint32_t *pType)
@@ -317,7 +317,7 @@ void us_8_48_init(void *pHandle)
 
 uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
-	uint32_t	nProcessed = 0;
+	uint32_t	nGenerated = 0;
 BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
@@ -325,10 +325,10 @@ BSP_LED_On(LED3);
 		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
 		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
-		nProcessed += DOWNSAMPLE_BLOCK_SIZE;
+		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
 BSP_LED_Off(LED3);
-	return nProcessed;
+	return nGenerated;
 }
 
 uint32_t us_8_48_typesize(void *pHandle, uint32_t *pType)
