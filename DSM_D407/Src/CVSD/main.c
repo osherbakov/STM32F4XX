@@ -216,8 +216,7 @@ void cvsd_init(void *pHandle)
 
 uint32_t cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {
-//	v_equ(pDataOut, pDataIn, nSamples);
-	uint32_t	Processed = 0;
+	uint32_t	nProcessed = 0;
 	while(nSamples >= CVSD_BLOCK_SIZE)
 	{
 BSP_LED_On(LED4);
@@ -228,11 +227,12 @@ BSP_LED_On(LED5);
 		cvsd_decode_f32(cvsd_syn, pDataOut, dataBits, CVSD_BLOCK_SIZE);
 		arm_scale_f32(pDataOut, 1.0f/32768.0f, pDataOut, CVSD_BLOCK_SIZE);
 BSP_LED_Off(LED5);
-//		v_equ(speech_out, speech_in, CVSD_BLOCK_SIZE);
+		pDataIn += CVSD_BLOCK_SIZE * 4;
+		pDataOut += CVSD_BLOCK_SIZE * 4;
 		nSamples -= CVSD_BLOCK_SIZE;
-		Processed += CVSD_BLOCK_SIZE;
+		nProcessed += CVSD_BLOCK_SIZE;
 	}
-	return Processed;
+	return nProcessed;
 }
 
 uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)

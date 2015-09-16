@@ -42,6 +42,8 @@ extern DataProcessBlock_t  BYPASS;
 
 extern DataProcessBlock_t  US_16_48;
 extern DataProcessBlock_t  DS_48_16;
+extern DataProcessBlock_t  US_8_48;
+extern DataProcessBlock_t  DS_48_8;
 
 
 //

@@ -46,8 +46,6 @@ int		rate;
 #define MELP_FRAME_SIZE  (180)
 
 /* ========== Static Variables ========== */
-
-static float	speech_in[MELP_FRAME_SIZE] CCMRAM, speech_out[MELP_FRAME_SIZE] CCMRAM;
 static float	speech[MELP_FRAME_SIZE] CCMRAM;
 static char in_name[100], out_name[100];
 struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
@@ -159,15 +157,15 @@ int main_cmd(int argc, char *argv[])
 		fprintf(stderr, "Frame = %d\r", frame_count);
 
 		/* Perform MELP analysis */
-		length = readbl(speech_in, fp_in, MELP_FRAME_SIZE);
+		length = readbl(speech, fp_in, MELP_FRAME_SIZE);
 		if (length < FRAME){
 			eof_reached = TRUE;
 		}
-		melp_ana(speech_in, &melp_ana_par);
+		melp_ana(speech, &melp_ana_par);
 
 		/* Perform MELP synthesis */
-		melp_syn(&melp_syn_par, speech_out);
-		writebl(speech_out, fp_out, FRAME);
+		melp_syn(&melp_syn_par, speech);
+		writebl(speech, fp_out, FRAME);
 		frame_count++;
 	}
 
@@ -177,33 +175,6 @@ int main_cmd(int argc, char *argv[])
 
 	return(0);
 }
-
-static int FrameIdx = 0;
-
-#define DOWNSAMPLE_TAPS  	(12)
-#define UPSAMPLE_TAPS		(24)
-#define UPDOWNSAMPLE_RATIO (48000/8000)
-
-static float DownSampleBuff[MELP_FRAME_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
-static float DownSampleCoeff[DOWNSAMPLE_TAPS] RODATA = {
--0.0163654778152704f, -0.0205210950225592f, 0.00911782402545214f, 0.0889585390686989f,
-0.195298701524735f, 0.272262066602707f, 0.272262066602707f, 0.195298701524735f,
-0.0889585390686989f, 0.00911782402545214f, -0.0205210950225592f, -0.0163654778152704f
-};
-
-
-static float UpSampleBuff[(MELP_FRAME_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
-static float UpSampleCoeff[UPSAMPLE_TAPS] RODATA = {
-0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
--0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
-0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f,
-1.24106538295746f, 1.05075252056122f, 0.727912843227386f, 0.365344613790512f,
-0.0557445883750916f, -0.140164494514465f, -0.209222942590714f, -0.180645510554314f,
--0.10541670024395f, -0.0317823477089405f, 0.0118295839056373f, 0.0420790389180183f
-};
-
-static arm_fir_decimate_instance_f32 CCMRAM Dec ;
-static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
 void *melp_create(uint32_t Params)
 {
@@ -217,12 +188,6 @@ void melp_close(void *pHandle)
 
 void melp_init(void *pHandle)
 {
-	/* ====== Initialize Decimator and interpolator ====== */
-	arm_fir_decimate_init_f32(&Dec, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
-			DownSampleCoeff, DownSampleBuff, MELP_FRAME_SIZE);
-	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
-			UpSampleCoeff, UpSampleBuff, MELP_FRAME_SIZE/UPDOWNSAMPLE_RATIO);
-	FrameIdx = 0;
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_ana_init(&melp_ana_par);
 	melp_syn_init(&melp_syn_par);
@@ -231,27 +196,24 @@ void melp_init(void *pHandle)
 
 uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
 {
-BSP_LED_On(LED3);
-	arm_fir_decimate_f32(&Dec, pDataIn, &speech_in[FrameIdx], nSamples);
-	arm_fir_interpolate_f32(&Int, &speech_out[FrameIdx], pDataOut, nSamples/UPDOWNSAMPLE_RATIO);
-//	v_equ(pDataOut, pDataIn, nSamples);
-BSP_LED_Off(LED3);
-
-	FrameIdx += nSamples/UPDOWNSAMPLE_RATIO;
-	if(FrameIdx >= MELP_FRAME_SIZE)
+	uint32_t	nProcessed = 0;
+	
+	while(nSamples >= MELP_FRAME_SIZE)
 	{
 BSP_LED_On(LED4);
-		arm_scale_f32(speech_in, 32767.0f, speech, MELP_FRAME_SIZE);
+		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
 		melp_ana(speech, &melp_ana_par);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		melp_syn(&melp_syn_par, speech);
-		arm_scale_f32(speech, 1.0f/32768.0f, speech_out, MELP_FRAME_SIZE);		
+		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
 BSP_LED_Off(LED5);
-//    v_equ(speech_out, speech_in, nSamples);
-		FrameIdx = 0;
+		pDataIn += MELP_FRAME_SIZE * 4;
+		pDataOut += MELP_FRAME_SIZE * 4;
+		nSamples -= MELP_FRAME_SIZE;
+		nProcessed += MELP_FRAME_SIZE;
 	}
-	return nSamples;
+	return nProcessed;
 }
 
 uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
@@ -262,6 +224,121 @@ uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
 
 
 DataProcessBlock_t  MELP = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
+
+
+//
+//  Downsample 48KHz to 8KHz and 8KHZ to 48KHz upsample functionality modules
+//
+#define  DOWNSAMPLE_TAPS  		(12)
+#define  UPSAMPLE_TAPS			(24)
+#define  UPDOWNSAMPLE_RATIO 	(48000/8000)
+#define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
+#define  DOWNSAMPLE_BLOCK_SIZE  (120)	// Divisable by 2,3,4,5,6,8,10,12,15,20,24,30,40,60
+
+
+static float DownSample48_8_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
+static float DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
+-0.0163654778152704f, -0.0205210950225592f, 0.00911782402545214f, 0.0889585390686989f,
+0.195298701524735f, 0.272262066602707f, 0.272262066602707f, 0.195298701524735f,
+0.0889585390686989f, 0.00911782402545214f, -0.0205210950225592f, -0.0163654778152704f
+};
+
+
+static float UpSample8_48_Buff[(DOWNSAMPLE_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
+static float UpSample8_48_Coeff[UPSAMPLE_TAPS] RODATA = {
+0.0420790389180183f, 0.0118295839056373f, -0.0317823477089405f, -0.10541670024395f,
+-0.180645510554314f, -0.209222942590714f, -0.140164494514465f, 0.0557445883750916f,
+0.365344613790512f, 0.727912843227386f, 1.05075252056122f, 1.24106538295746f,
+1.24106538295746f, 1.05075252056122f, 0.727912843227386f, 0.365344613790512f,
+0.0557445883750916f, -0.140164494514465f, -0.209222942590714f, -0.180645510554314f,
+-0.10541670024395f, -0.0317823477089405f, 0.0118295839056373f, 0.0420790389180183f
+};
+
+static arm_fir_decimate_instance_f32 CCMRAM Dec ;
+
+void *ds_48_8_create(uint32_t Params)
+{
+	return &Dec;
+}
+
+void ds_48_8_close(void *pHandle)
+{
+	return;
+}
+
+void ds_48_8_init(void *pHandle)
+{
+	arm_fir_decimate_init_f32(pHandle, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
+			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
+}
+
+uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+{
+	uint32_t	nProcessed = 0;
+BSP_LED_On(LED3);
+	while(nSamples >= DOWNSAMPLE_BLOCK_SIZE)
+	{
+		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
+		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
+		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
+		nSamples -= DOWNSAMPLE_BLOCK_SIZE;
+		nProcessed += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+	}
+BSP_LED_Off(LED3);
+	return nProcessed;
+}
+
+uint32_t ds_48_8_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DOWNSAMPLE_DATA_TYPE;
+	 return DOWNSAMPLE_BLOCK_SIZE;
+}
+
+DataProcessBlock_t  DS_48_8 = {ds_48_8_create, ds_48_8_init, ds_48_8_typesize, ds_48_8_process, ds_48_8_close};
+
+static arm_fir_interpolate_instance_f32 CCMRAM Int;
+
+void *us_8_48_create(uint32_t Params)
+{
+	return &Int;
+}
+
+void us_8_48_close(void *pHandle)
+{
+	return;
+}
+
+void us_8_48_init(void *pHandle)
+{
+	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
+			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
+}
+
+uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t nSamples)
+{
+	uint32_t	nProcessed = 0;
+BSP_LED_On(LED3);
+	while(nSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
+	{
+		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
+		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
+		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
+		nSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		nProcessed += DOWNSAMPLE_BLOCK_SIZE;
+	}
+BSP_LED_Off(LED3);
+	return nProcessed;
+}
+
+uint32_t us_8_48_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = DOWNSAMPLE_DATA_TYPE;
+	 return DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+}
+
+DataProcessBlock_t  US_8_48 = {us_8_48_create, us_8_48_init, us_8_48_typesize, us_8_48_process, us_8_48_close};
+
+
 
 /****************************************************************************
 **
