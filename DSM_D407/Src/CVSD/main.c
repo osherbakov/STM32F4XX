@@ -247,7 +247,7 @@ DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_pro
 //  BYPASS functionality module
 //
 #define  BYPASS_DATA_TYPE		(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
-#define  BYPASS_BLOCK_SIZE  	(180)
+#define  BYPASS_BLOCK_SIZE  	(60)
 
 void *bypass_create(uint32_t Params)
 {

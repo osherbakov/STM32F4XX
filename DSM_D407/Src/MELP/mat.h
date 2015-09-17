@@ -100,9 +100,9 @@ static __INLINE float log2f_fast (float val)
 #define sqrtf		arm_sqrt
 #define sinf		arm_sin
 #define cosf		arm_cos
-#define powf		powf_fast
-#define log2f(a)	log2f_fast((a))
-#define log10f(a)	(log2f(a)* 0.301029995f)
+//#define powf		powf_fast
+//#define log2f(a)	log2f_fast((a))
+//#define log10f(a)	(log2f(a)* 0.301029995f)
 
 
 #define window(inp,cof,outp,n)		arm_mult_f32((float32_t *)inp, (float32_t *)cof, (float32_t *)outp, n)

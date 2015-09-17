@@ -26,7 +26,7 @@ extern DataProcessBlock_t  DS_48_8;
 //  Task to handle all incoming data
 //
 
-DataProcessBlock_t  *pProcModule = 	&CODEC;
+DataProcessBlock_t  *pProcModule = 	&MELP;
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
