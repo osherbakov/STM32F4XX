@@ -25,9 +25,9 @@ updated MELP parameter structure (channel pointers)
 Returns: void
 */
 
-#include <stdio.h>
 #include <math.h>
 #include "mat.h"
+
 #include <string.h>
 #include "melp.h"
 #include "vq.h"

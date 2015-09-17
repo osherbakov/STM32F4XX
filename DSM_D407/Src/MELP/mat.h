@@ -36,6 +36,24 @@ Group (phone 972 480 7442).
 #include "arm_math.h"
 #include "arm_const_structs.h"
 
+/*
+** Constant definitions.
+*/
+#ifndef TRUE
+#define TRUE            1
+#endif
+#ifndef FALSE
+#define FALSE           0
+#endif
+
+#ifndef PI
+#define PI			3.14159265358979f
+#endif
+#define TWO_PI		(2 * PI)		/* mathematical constant                */
+#define HALF_PI		(PI/2.0f)
+#define ONEQTR_PI	(PI/4.0f)
+#define THRQTR_PI   (3.0f*PI/4.0f)
+
 static __INLINE float v_inner(float *v1,float *v2,int n)
 {
 	float innerprod;
@@ -96,13 +114,50 @@ static __INLINE float log2f_fast (float val)
 	return (u.d + log_2);
 } 
 
+static __INLINE float atan2f_fast( float y, float x )
+{
+	float atan, z;	
+	if ( x == 0.0f )
+	{
+		if ( y > 0.0f ) return HALF_PI;
+		if ( y == 0.0f ) return 0.0f;
+		return -HALF_PI;
+	}
 
-#define sqrtf		arm_sqrt
-#define sinf		arm_sin
-#define cosf		arm_cos
+	z = y/x;
+	if ( fabsf( z ) < 1.0f )
+	{
+		atan = z/(1.0f + 0.28f*z*z);
+		if ( x < 0.0f )
+		{
+			if ( y < 0.0f ) return atan - PI;
+			return atan + PI;
+		}
+	}else
+	{
+		atan = HALF_PI - z/(z*z + 0.28f);
+		if ( y < 0.0f ) return atan - PI;
+	}
+	return atan;
+}
+
+static __INLINE float acosf_fast(float x) {
+   return (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f;
+}
+
+
+//#define sqrtf		arm_sqrt
+//#define sinf		arm_sin
+//#define cosf		arm_cos
 //#define powf		powf_fast
 //#define log2f(a)	log2f_fast((a))
 //#define log10f(a)	(log2f(a)* 0.301029995f)
+//#define acosf		acosf_fast
+//#define atan2f(y,x)	atan2f_fast((y),(x))
+
+#ifndef SQR
+#define SQR(x)          ((x)*(x))
+#endif
 
 
 #define window(inp,cof,outp,n)		arm_mult_f32((float32_t *)inp, (float32_t *)cof, (float32_t *)outp, n)

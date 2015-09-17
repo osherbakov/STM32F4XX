@@ -111,7 +111,6 @@ void StartDataProcessTask(void const * argument)
 			if(nSamplesInQueue >= nSamplesModuleNeeds)
 			{
 				Queue_PopData(osParams.UpSample_data, pAudio, nSamplesModuleNeeds * osParams.UpSample_data->ElemSize);
-
 				// Convert data from the Queue-provided type to the Processing-Module-required type
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_1, pAudio, osParams.UpSample_data->Type, DATA_CHANNEL_1, nSamplesModuleNeeds);
 				//   Call data processing

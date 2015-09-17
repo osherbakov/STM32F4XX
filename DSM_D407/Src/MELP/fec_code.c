@@ -27,7 +27,7 @@ Group (phone 972 480 7442).
     Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.
 */
 
-#include <stdio.h>
+#include "mat.h"
 #include "melp.h"
 
 /* Prototypes */

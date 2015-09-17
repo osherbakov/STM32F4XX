@@ -12,7 +12,7 @@
 
 /*  Generic math constants   */
 #ifndef PI
-#define PI			3.141592654f	/* mathematical constant                */
+#define PI					3.14159265358979f
 #endif
 #define TWO_PI		(2 * PI)		/* mathematical constant                */
 #define HALF_PI		(PI/2.0f)
@@ -117,15 +117,19 @@ static __INLINE float atan2f_fast( float y, float x )
 	}
 	return atan;
 }
+static __INLINE float acosf_fast(float x) {
+   return (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f;
+}
 
 
-#define sinf(x)  	arm_sin(x)
-#define cosf(x)	 	arm_cos(x)
-#define sqrtf(x) 	arm_sqrt(x)
-#define atan2f(y,x)	atan2f_fast((y),(x))
-#define powf(a,b)	powf_fast((a),(b))
-#define log2f(a)	log2f_fast((a))
-#define log10f(a)	(log2f(a)* 0.301029995f)
+//#define sinf(x)  	arm_sin(x)
+//#define cosf(x)	 	arm_cos(x)
+//#define sqrtf(x) 	arm_sqrt(x)
+//#define atan2f(y,x)	atan2f_fast((y),(x))
+//#define powf(a,b)	powf_fast((a),(b))
+//#define log2f(a)	log2f_fast((a))
+//#define log10f(a)	(log2f(a)* 0.301029995f)
+//#define acosf		acosf_fast
 
 
 extern  void arm_sqr_f32(float32_t * pSrc, float32_t * pDst, uint32_t numSamples);

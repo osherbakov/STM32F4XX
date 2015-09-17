@@ -22,12 +22,11 @@ Group (phone 972 480 7442).
 */
 
 /*  compiler include files  */
-#include	<stdio.h>
 #include	<stdlib.h>
 #include	<math.h>
-#include	"dsp_sub.h"
-#include	"spbstd.h"
 #include	"mat.h"
+
+#include	"dsp_sub.h"
 
 #define MAXSORT 5
 static float sorted[MAXSORT];
@@ -264,6 +263,7 @@ int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits
 /*	Note: The filter coefficients represent the		*/
 /*	denominator only, and the leading coefficient		*/
 /*	is assumed to be 1.					*/
+/*	The (order) samples BEFORE the output[0] contain previous	states		*/
 /*      The output array can overlay the input.                 */
 /*								*/
 void polflt(float input[], const float coeff[], float output[], int order,int npts)
@@ -341,18 +341,10 @@ void iirflt(float input[], const float coeff[], float output[], float delay[], i
 	v_equ(delay,&output[npts - order], order);
 }
 
-
 /*								*/
-/*	Subroutine firflt: all zero (FIR) filter.		*/
+/*	Subroutine zerflt: all zero (FIR) filter.		*/
 /*      Note: the output array can overlay the input.           */
 /*								*/
-void firflt(float input[], const float coeff[], float output[], float delay[], int order, int npts)
-{
-	v_equ(&input[-order], delay, order);
-	v_equ(delay, &input[npts - order], order);
-	zerflt(input, coeff, output, order, npts);
-}
-
 void zerflt(float *pSrc, const float *pCoeffs, float *pDst, int order, int npts)
 {
    const float *px, *pb;                      /* Temporary pointers for state and coefficient buffers */
@@ -529,6 +521,18 @@ void zerflt(float *pSrc, const float *pCoeffs, float *pDst, int order, int npts)
       pSrc--;
       blkCnt--;
    }
+}
+
+
+/*								*/
+/*	Subroutine firflt: all zero (FIR) filter.		*/
+/*      Note: the output array can overlay the input.           */
+/*								*/
+void firflt(float input[], const float coeff[], float output[], float delay[], int order, int npts)
+{
+	v_equ(&input[-order], delay, order);
+	v_equ(delay, &input[npts - order], order);
+	zerflt(input, coeff, output, order, npts);
 }
 
 //void zerflt(float input[], const float coeff[], float output[], int order, int npts)

@@ -20,9 +20,9 @@ Group (phone 972 480 7442).
 /*                                                                  */
 
 /*  compiler include files  */
-#include "melp.h"
-#include "spbstd.h"
 #include "mat.h"
+
+#include "melp.h"
 #include "dsp_sub.h"
 #include "melp_sub.h"
 #include "stm32f4_discovery.h"

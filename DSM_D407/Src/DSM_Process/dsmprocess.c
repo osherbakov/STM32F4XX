@@ -16,6 +16,7 @@
 #endif
 #include "arm_math.h"
 #include "arm_const_structs.h"
+#include "mat.h"
 
 #ifndef M_PI
 #define M_PI           3.14159265358979323846f
@@ -41,8 +42,8 @@ void Gen_Init(SinGen_t* pState, float SamplingFreq, float GenerateFreq, float Am
 		float PhaseStep = 2 * M_PI * GenerateFreq / SamplingFreq;
 		pState->Amplitude = Amplitude;
 		pState->S1 = 0;
-		pState->S2 = arm_sin_f32(PhaseStep);
-		pState->TwoCosDelta = 2 * arm_cos_f32(PhaseStep);
+		pState->S2 = sinf(PhaseStep);
+		pState->TwoCosDelta = 2 * cosf(PhaseStep);
 }
 
 

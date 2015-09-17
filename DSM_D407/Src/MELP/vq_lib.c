@@ -22,13 +22,12 @@ Group (phone 972 480 7442).
 */
 
 
-#include <stdio.h>
 #include <math.h>
-#include "spbstd.h"
-#include "vq.h"
 #include "mat.h"
-#include "lpc.h"
+
 #include "melp.h"
+#include "vq.h"
+#include "lpc.h"
 
 #define BIGVAL 1E20f
 
@@ -48,7 +47,7 @@ float *vq_lspw(float *w,float *lsp,float *a,int p)
 
     for(j=0; j < p; j++)
     {
-        w[j] = (float)powf(lpc_aejw(a,lsp[j]*M_PI,p),-0.3f);
+        w[j] = (float)powf(lpc_aejw(a,lsp[j]*PI,p),-0.3f);
         if (j == 8)
             w[j] *= 0.64f;
         else if (j == 9)
@@ -402,10 +401,10 @@ void vq_fsw(float *w_fs, int num_harm, float pitch)
     float w0;
 
     /* Calculate fundamental frequency */
-    w0 = 2 * M_PI/pitch;    
+    w0 = 2 * PI/pitch;    
     for(j=0; j < num_harm; j++) {
 		/* Bark-scale weighting */
 		w_fs[j] = 117.0f / (25.0f + 75.0f *
-				   powf(1.0f + 1.4f * SQR(w0 * (j+1) / (0.25f * M_PI)), 0.69f));
+				   powf(1.0f + 1.4f * SQR(w0 * (j+1) / (0.25f * PI)), 0.69f));
     }
 }

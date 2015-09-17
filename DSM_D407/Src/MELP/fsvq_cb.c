@@ -18,7 +18,6 @@ Group (phone 972 480 7442).
 /* VQ Codebook file           */
 /* (C) 1995 Texas Instruments */
 
-#include	<stdio.h>
 #include	"melp.h"
 
 int fsvq_weighted = 0;

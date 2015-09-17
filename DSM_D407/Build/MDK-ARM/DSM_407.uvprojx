@@ -798,11 +798,6 @@
               <FilePath>..\..\Src\MELP\main.c</FilePath>
             </File>
             <File>
-              <FileName>mat_lib.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\MELP\mat_lib.c</FilePath>
-            </File>
-            <File>
               <FileName>melp_ana.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\MELP\melp_ana.c</FilePath>
@@ -1759,11 +1754,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\MELP\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>mat_lib.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\MELP\mat_lib.c</FilePath>
             </File>
             <File>
               <FileName>melp_ana.c</FileName>

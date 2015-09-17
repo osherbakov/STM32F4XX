@@ -18,9 +18,9 @@ osObjects_t osParams;
 
 /* Init FreeRTOS */
 void MX_FREERTOS_Init() {
-  /* USER CODE BEGIN Init */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
-  osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
+	/* USER CODE BEGIN Init */
+	osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
+	osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
 	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
 	
 	osMessageQDef(PDMINDATA, 2, uint32_t);

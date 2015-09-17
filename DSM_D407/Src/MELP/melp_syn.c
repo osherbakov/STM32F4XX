@@ -31,12 +31,11 @@ Group (phone 972 480 7442).
 
 /* compiler include files */
 
-#include <stdio.h>
 #include <math.h>
-#include "melp.h"
-#include "spbstd.h"
-#include "lpc.h"
 #include "mat.h"
+
+#include "melp.h"
+#include "lpc.h"
 #include "vq.h"
 #include "fs.h"
 #include "dsp_sub.h"

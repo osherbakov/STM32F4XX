@@ -38,8 +38,6 @@ void estimate_amplitudes(MODEL *model, COMP Sw[], COMP W[]);
 float est_voicing_mbe(MODEL *model, COMP Sw[], COMP W[]);
 void make_synthesis_window(float Pn[]);
 void synthesise(float Sn_[], MODEL *model, float Pn[]);
-float fast_atan2f(float y, float x);
-float fastest_atan2f(float y, float x);
 
 #define CODEC2_RAND_MAX 32767
 int codec2_rand(void);

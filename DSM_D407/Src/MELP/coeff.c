@@ -20,8 +20,7 @@ Group (phone 972 480 7442).
 /*                                                                  */
 /* (C) 1993,1994  Texas Instruments                                 */
 /*                                                                  */
-#include	<stdio.h>
-#include "melp.h"
+#include 	"melp.h"
 
 /* Butterworth lowpass filter	*/
 /* numerator */

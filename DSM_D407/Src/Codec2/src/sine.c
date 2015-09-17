@@ -55,57 +55,6 @@ void hs_pitch_refinement(MODEL *model, COMP Sw[], float pmin, float pmax,
                                                                              
 \*---------------------------------------------------------------------------*/
 
-// Fast atan2f function
-
-float fast_atan2f( float y, float x )
-{
-	float r, angle;
-	float abs_y = fabsf(y);      // kludge to prevent 0/0 condition
-	if ( x < 0.0f )
-	{
-		r = (x + abs_y) / (abs_y - x);
-		angle = THRQTR_PI;
-	}else
-	{
-		r = (x - abs_y) / (x + abs_y);
-		angle = ONEQTR_PI;
-	}
-	angle += (0.1963f * r * r - 0.9817f) * r;
-	if ( y < 0.0f )
-		return( -angle );     // negate if in quad III or IV
-	else
-		return( angle );
-}
-
-// |error| < 0.005
-float fastest_atan2f( float y, float x )
-{
-	float atan, z;	
-	if ( x == 0.0f )
-	{
-		if ( y > 0.0f ) return HALF_PI;
-		if ( y == 0.0f ) return 0.0f;
-		return -HALF_PI;
-	}
-
-	z = y/x;
-	if ( fabsf( z ) < 1.0f )
-	{
-		atan = z/(1.0f + 0.28f*z*z);
-		if ( x < 0.0f )
-		{
-			if ( y < 0.0f ) return atan - PI;
-			return atan + PI;
-		}
-	}else
-	{
-		atan = HALF_PI - z/(z*z + 0.28f);
-		if ( y < 0.0f ) return atan - PI;
-	}
-	return atan;
-}
-
-
 /*---------------------------------------------------------------------------*\
                                                        
   FUNCTION....: make_analysis_window	     

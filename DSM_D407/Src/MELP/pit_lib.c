@@ -21,11 +21,10 @@ Group (phone 972 480 7442).
 
 */
 
-#include <stdio.h>
 #include <math.h>
-#include "melp.h"
-#include "spbstd.h"
 #include "mat.h"
+
+#include "melp.h"
 #include "melp_sub.h"
 #include "dsp_sub.h"
 #include "pit.h"

@@ -100,7 +100,7 @@ void Queue_Clear(DQueue_t *pQueue)
 	pQueue->iPut = pQueue->iGet = 0;
 }
 
-uint32_t Queue_PushData(DQueue_t *pQueue, uint8_t *pData, uint32_t nBytes)
+uint32_t Queue_PushData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 {
 	int diff, space;
 	uint32_t iPut, iGet, nSize;
@@ -134,7 +134,7 @@ uint32_t Queue_PushData(DQueue_t *pQueue, uint8_t *pData, uint32_t nBytes)
 	return ret;
 }
 
-uint32_t Queue_PopData(DQueue_t *pQueue, uint8_t *pData, uint32_t nBytes)
+uint32_t Queue_PopData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 {
 	int diff, count;
 	uint32_t iPut, iGet, nSize;

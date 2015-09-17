@@ -22,12 +22,10 @@ Group (phone 972 480 7442).
 */
 
 /*  compiler include files  */
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include "spbstd.h"
-#include "melp.h"
 #include "mat.h"
+
+#include "melp.h"
 #include "fs.h"
 
 
@@ -122,9 +120,9 @@ void	idft_real(float real[], float signal[], int length)
     float	w, accum;
 
     length2 = (length/2)+1;
-    w = 2 * M_PI / length;
+    w = 2 * PI / length;
     for (i = 0; i < length; i++ ) {
-		idftc[i] = arm_cos(w*i);
+		idftc[i] = cosf(w*i);
     }
     real[0] *= (1.0f/length);
     for (i = 1; i < length2-1; i++ ) {
