@@ -2406,7 +2406,7 @@
 		<Unit filename="..\..\Src\CVSD\cvsd_f32.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\Src\CVSD\main.c">
+		<Unit filename="..\..\Src\CVSD\module.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\Src\Codec2\src\CMSIS\mat.h" />
@@ -2461,7 +2461,7 @@
 		</Unit>
 		<Unit filename="..\..\Src\Codec2\src\lsp.h" />
 		<Unit filename="..\..\Src\Codec2\src\machdep.h" />
-		<Unit filename="..\..\Src\Codec2\src\main.c">
+		<Unit filename="..\..\Src\Codec2\src\module.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\Src\Codec2\src\nlp.c">
@@ -2550,9 +2550,6 @@
 		<Unit filename="..\..\Src\MELP\lpc_lib.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\Src\MELP\main.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\..\Src\MELP\mat.h" />
 		<Unit filename="..\..\Src\MELP\mat_lib.c">
 			<Option compilerVar="CC" />
@@ -2569,6 +2566,9 @@
 		</Unit>
 		<Unit filename="..\..\Src\MELP\melp_sub.h" />
 		<Unit filename="..\..\Src\MELP\melp_syn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELP\module.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\..\Src\MELP\msvq_cb.c">
@@ -2618,24 +2618,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_2015Q1_Release" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
-						<family_options family_id="STMicroelectronics">
-							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
-							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
-							<option opt_id="ID_RESET_TYPE" opt_value="System" />
-							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
-							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
-							<option opt_id="ID_RAM_EXEC" opt_value="0" />
-							<option opt_id="ID_VEC_TABLE" opt_value="1" />
-							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
-							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
-							<option opt_id="ID_DEV_ADDR" opt_value="" />
-							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
-						</family_options>
-					</debug_interface>
-				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_2015Q1_Debug" active_interface="ST-link">
+				<target_debugging_settings target="DSM_407_GNU_Debug" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -2669,7 +2652,24 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_GNU_Debug" active_interface="ST-link">
+				<target_debugging_settings target="DSM_407_2015Q1_Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+				<target_debugging_settings target="DSM_407_2015Q1_Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
