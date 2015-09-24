@@ -74,9 +74,6 @@ BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
 
 void	window_Q(int16_t input[], int16_t win_coeff[], int16_t output[], int16_t npts, int16_t Qin);
 
-void	polflt_q(int16_t input[], int16_t coeff[], int16_t output[],
-			   int16_t order, int16_t npts);
-
 void	zerflt_q(int16_t input[], const int16_t coeff[], int16_t output[],
 			   int16_t order, int16_t npts);
 

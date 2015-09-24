@@ -37,6 +37,9 @@ Secretariat fax: +33 493 65 47 16.
 #ifndef _MATH_LIB_H_
 #define _MATH_LIB_H_
 
+#include "arm_math.h"
+#include "arm_const_structs.h"
+
 
 /* External function definitions */
 

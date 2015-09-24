@@ -126,7 +126,7 @@ uint32_t melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *p
 	{
 BSP_LED_On(LED4);
 		arm_float_to_q15(pDataIn, speech, nFrameSize);
-#if 0	// NPP
+#if NPP
 		if (melp_parameters->rate == RATE1200){
 			npp(melp_parameters, speech, speech);
 			npp(melp_parameters, &(speech[FRAME]), &(speech[FRAME]));

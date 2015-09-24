@@ -127,7 +127,8 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 	int16_t	guard;
 
 	arm_cfft_q15(&arm_cfft_sR_q15_len256, datam1, 0, 1);
-	return 0;
+	arm_shift_q15(datam1, 3, datam1, FFTLENGTH);
+	return 6;
 	
 	guard = 0;
 	/* Use pointer indexed from 1 instead of 0 */
@@ -273,7 +274,7 @@ int16_t fft_npp(int16_t data[], int16_t dir)
 {
 	int16_t guard, n;
 	
-	guard = cfft(data, 256);
+	guard = cfft(data, FFTLENGTH/2);
 	if (dir < 0){ /* Reverse FFT */
 		for (n = 1; n < 128; n++){
 			SWAP(data[2*n], data[2*(256-n)]);

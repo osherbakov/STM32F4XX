@@ -567,35 +567,13 @@ void window_Q(int16_t input[], int16_t win_coeff[], int16_t output[],
 	register int16_t	i;
 	int16_t	shift;
 
+//	arm_copy_q15(input, output, npts);
+//	return;
+	
 	/* After computing "shift", win_coeff[]*2^(-shift) is considered Q15.     */
 	shift = 15 -  Qin;
 	for (i = 0; i < npts; i++){
 		output[i] = extract_h(L_shl(L_mult(win_coeff[i], input[i]), shift));
-	}
-}
-
-
-/* Subroutine polflt(): all pole (IIR) filter.                                */
-/*   Note: The filter coefficients (Q13) represent the denominator only, and  */
-/*         the leading coefficient is assumed to be 1.  The output array can  */
-/*         overlay the input.                                                 */
-/* Q value:                                                                   */
-/*   input[], output[]: Q0, coeff[]: Q12                                      */
-
-void polflt_q(int16_t input[], int16_t coeff[], int16_t output[],
-			int16_t order, int16_t npts)
-{
-	register int16_t	i, j;
-	int32_t	accum;                                                 /* Q12 */
-
-
-	for (i = 0; i < npts; i++ ){
-		accum = L_shl(L_deposit_l(input[i]), 12);
-		for (j = 1; j <= order; j++)
-			accum = L_msu(accum, output[i - j], coeff[j]);
-		/* Round off output */
-		accum = L_shl(accum, 3);
-		output[i] = round_l(accum);
 	}
 }
 
@@ -612,7 +590,9 @@ void zerflt_q(int16_t input[], const int16_t coeff[], int16_t output[],
 	register int16_t	i, j;
 	int32_t	accum;
 
-
+//	arm_copy_q15(input, output, npts);
+//	return;
+	
 	for (i = sub(npts, 1); i >= 0; i--){ 
 		accum = 0;
 		for (j = 0; j <= order; j++)
@@ -637,6 +617,8 @@ void zerflt_Q(int16_t input[], const int16_t coeff[], int16_t output[],
 	int16_t	scale;
 	int32_t	accum;
 
+//	arm_copy_q15(input, output, npts);
+//	return;
 
 	scale = sub(15, Q_coeff);
 	for (i = sub(npts, 1); i >= 0; i--){
@@ -745,7 +727,6 @@ void iir_2nd_s(int16_t input[], const int16_t den[], const int16_t num[],
 int16_t interp_scalar_q(int16_t prev, int16_t curr, int16_t ifact)
 {
 	int16_t	out;
-
 
 	interp_array_q(&prev, &curr, &out, ifact, 1);
 	return(out);

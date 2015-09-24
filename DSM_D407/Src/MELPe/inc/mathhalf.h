@@ -32,6 +32,8 @@ Secretariat fax: +33 493 65 47 16.
 
 
 #include "constant.h"
+#include "arm_math.h"
+#include "arm_const_structs.h"
 
 
 /* addition */

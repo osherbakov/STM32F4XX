@@ -57,9 +57,9 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 
 #define SKIP_CHANNEL    FALSE
 
-#define POSTFILTER      TRUE
-#define NPP             TRUE
-#define	NEW_DC_FILTER	TRUE
+// #define POSTFILTER      TRUE
+// #define NPP             TRUE
+// #define	NEW_DC_FILTER	TRUE
 
 /* ================================================================ *
  *                  Global Constants                                *

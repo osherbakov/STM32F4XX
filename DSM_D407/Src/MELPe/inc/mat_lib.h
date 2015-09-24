@@ -38,6 +38,7 @@ Secretariat fax: +33 493 65 47 16.
 #define _MAT_LIB_H_
 
 #include "arm_math.h"
+#include "arm_const_structs.h"
 
 //int16_t	*v_add(int16_t vec1[], const int16_t vec2[], int16_t n);
 #define v_add(dst,src,n) arm_add_q15((q15_t *)src, (q15_t *)dst, (q15_t *)dst, n)
