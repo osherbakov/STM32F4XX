@@ -209,7 +209,7 @@ void pack_code_q(int16_t code, unsigned char **ptr_ch_begin,
 /* --------                                                                   */
 /* peak_fact - Q12, input - Q0                                                */
 
-static int16_t temp_buf[PITCHMAX];
+static int16_t temp_buf[PITCHMAX] CCMRAM;
 
 int16_t peakiness_q(int16_t input[], int16_t npts)
 {

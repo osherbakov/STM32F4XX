@@ -56,8 +56,8 @@ BSP_LED_On(LED5);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
 BSP_LED_Off(LED5);
 //		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
-		pDataIn += MELP_FRAME_SIZE * 4;
-		pDataOut += MELP_FRAME_SIZE * 4;
+		pDataIn = (void *)((int32_t)pDataIn + MELP_FRAME_SIZE * 4);
+		pDataOut = (void *)((void *)pDataOut + MELP_FRAME_SIZE * 4);
 		*pInSamples -= MELP_FRAME_SIZE;
 		nGenerated += MELP_FRAME_SIZE;
 	}

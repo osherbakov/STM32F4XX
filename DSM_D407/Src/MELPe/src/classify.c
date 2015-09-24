@@ -51,14 +51,14 @@
 #define LOG2_Q11				617                 /* log10(2.0) * (1 << 11) */
 #define ONE_OV_SQRT2_Q15		23170                /* 1/sqrt(2) * (1 << 15) */
 
-const int16_t     enlpf_coef[EN_FILTER_ORDER] = {                    /* Q14 */
+const int16_t     enlpf_coef[EN_FILTER_ORDER] RODATA = {                    /* Q14 */
 	/* the coefs of the filter (NOT h) */
 	6764,  4336,  -274, -2536, -1491,
 	  24,  -228, -1370, -1502,  -480,
 	 383,   390,    57,   -18,   104,
 	 132,    51 
 };
-const int16_t     enhpf_coef[EN_FILTER_ORDER] = {                    /* Q14 */
+const int16_t     enhpf_coef[EN_FILTER_ORDER] RODATA = {                    /* Q14 */
 	/* the coefs of the filter (NOT h) */
 	7783, -5211,   439,  1707,  -483,
 	-978,   564,   630,  -861,   214,
@@ -89,22 +89,24 @@ static void		frac_cor(int16_t inbuf[], int16_t pitch, int16_t *cor);
 ** Return value:	None
 **
 *****************************************************************************/
+static int16_t	bpfdel[BPF_ORD + BPF_ORD/3] CCMRAM;
+static int16_t	back_sigbuf[PIT_COR_LEN - PIT_SUBFRAME] CCMRAM;
+static int16_t	sigbuf_a[BPF_ORD/3 + PIT_COR_LEN] CCMRAM;
+static int16_t	sigbuf_b[BPF_ORD/3 + PIT_COR_LEN] CCMRAM;
+static int16_t	inspeech[PIT_SUBFRAME] CCMRAM;     /* Normalized buffer for inbuf[]. */
+
 void classify(int16_t inbuf[], classParam *classStat, int16_t autocorr[])
 {
 	register int16_t	i, j;
 	static BOOLEAN	firstTime = TRUE;
-	static int16_t	bpfdel[BPF_ORD + BPF_ORD/3];
-	static int16_t	back_sigbuf[PIT_COR_LEN - PIT_SUBFRAME];
+
 	const int16_t	*ptr_bpf_num, *ptr_bpf_den;
 	int16_t	classy, sum1_shift = 0;
 	int32_t	L_sum1, L_sum2;                                         /* Q0 */
 	int16_t	temp1, temp2, max;
 	int32_t	L_temp;
-	int16_t	sigbuf_a[BPF_ORD/3 + PIT_COR_LEN];
-	int16_t	sigbuf_b[BPF_ORD/3 + PIT_COR_LEN];
 	int16_t	*sigbuf_in, *sigbuf_out, *temp_sigbuf;
 	int16_t	sigbuf_len;
-	int16_t	inspeech[PIT_SUBFRAME];     /* Normalized buffer for inbuf[]. */
 	int16_t	lowhighBandDiff;                                       /* Q12 */
 	int16_t	zeroCrosRateDiff;                                      /* Q15 */
 	int16_t	subEnergyDiff;                                         /* Q11 */
@@ -210,8 +212,7 @@ void classify(int16_t inbuf[], classParam *classStat, int16_t autocorr[])
 	L_sum2 = 0;
 	for (i = 0; i < PIT_SUBFRAME; i++){
 		temp1 = abs_s(inbuf[i]);
-		if (max < temp1)
-			max = temp1;
+		if (max < temp1) max = temp1;
 		L_sum2 = L_add(L_sum2, temp1);       /* L_sum2 is safe from overflow. */
 	}
 
@@ -397,13 +398,13 @@ void classify(int16_t inbuf[], classParam *classStat, int16_t autocorr[])
 **	int16_t				Zero Crossing Rate (Q15)
 **
 *****************************************************************************/
+static int16_t	dcfree_speech[PIT_SUBFRAME] CCMRAM;
 static int16_t	zeroCrosCount(int16_t speech[])
 {
 	register int16_t	i;
-	int16_t	dcfree_speech[PIT_SUBFRAME];
+
 	int16_t	prev_sign, current_sign;
 	int16_t	count;
-
 
 	/* ======== Short term DC remove ======== */
 	remove_dc(speech, dcfree_speech, PIT_SUBFRAME);
@@ -509,7 +510,7 @@ static void		frac_cor(int16_t inbuf[], int16_t pitch, int16_t *cor)
 	int16_t	gp, maxgp, root, win, temp;
 	int16_t	r0_shift, rk_shift, shift;
 	int32_t	L_r0, L_rk, L_temp;                                     /* Q7 */
-	Word40		ACC_r0, ACC_rk, ACC_A; /* Emulating 40Bit-Accumulator */
+	Word40	ACC_r0, ACC_rk, ACC_A; /* Emulating 40Bit-Accumulator */
 
 	/* ------ Calculate the autocorrelation function ------- */
 	/* This is the new version of the autocorrelation function */

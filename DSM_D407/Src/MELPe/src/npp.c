@@ -38,7 +38,7 @@
 #define X44_Q11			9011                               /* 4.4 * (1 << 11) */
 #define X88_Q11			18022                              /* 8.8 * (1 << 11) */
 
-const static int16_t	sqrt_tukey_256_180[ENH_WINLEN] = {             /* Q15 */
+const static int16_t	sqrt_tukey_256_180[ENH_WINLEN] RODATA = {             /* Q15 */
 	  677,	1354,  2030,  2705,  3380,  4053,  4724,  5393,
 	 6060,  6724,  7385,  8044,  8698,  9349,  9996, 10639,
 	11277, 11911, 12539, 13162, 13780, 14391, 14996, 15595,
@@ -167,12 +167,11 @@ static void		gain_mod(int16_t qk[], int16_t GainD[], int16_t m);
 ** Return value:	None
 **
 *****************************************************************************/
+static int16_t  speech_out_npp[ENH_WINLEN];            /* output of one frame */
+static int16_t	speech_overlap[ENH_OVERLAP_LEN];
 void	npp(struct melp_param *melp_par, int16_t sp_in[], int16_t sp_out[])
 {
-	static int16_t	speech_overlap[ENH_OVERLAP_LEN];
 	static BOOLEAN	first_time = TRUE;
-	int16_t   speech_out_npp[ENH_WINLEN];            /* output of one frame */
-
 
 	if (first_time){
 	
@@ -288,13 +287,12 @@ static void		gain_mod(int16_t qk[], int16_t GainD[], int16_t m)
 /*	  Subroutine compute_qk: compute the probability of speech absence       */
 /*		This uses an harddecision approach due to Malah (ICASSP 1999).		 */
 /*****************************************************************************/
+static int16_t	qla[ENH_VEC_LENF];
 static void		compute_qk(int16_t qk[], int16_t gamaK[],
 						   int16_t gamaK_shift[], int16_t GammaQ_TH)
 {
 	register int16_t	i;
 	static BOOLEAN		first_time = TRUE;
-	static int16_t	qla[ENH_VEC_LENF];
-
 
 	/* Initializing qla[] */
 	if (first_time){
@@ -488,7 +486,7 @@ static int16_t	ksi_min_adapt(BOOLEAN n_flag, int16_t ksi_min,
 static void		smoothing_win(int16_t initial_noise[])
 {
 	register int16_t	i;
-	const static int16_t	wtr_front[WTR_FRONT_LEN] = {               /* Q15 */
+	const static int16_t	wtr_front[WTR_FRONT_LEN] RODATA = {               /* Q15 */
 		32767, 32582, 32048, 31202, 30080, 28718, 27152, 25418,
 		23552, 21590, 19568, 17522, 15488, 13502, 11600,  9818,
 		 8192,  6750,  5488,  4394,  3456,  2662,  2000,  1458,
@@ -882,17 +880,17 @@ static int16_t	comp_data_shift(int16_t num1, int16_t shift1,
 /***************************************************************************/
 /*	Subroutine min_search: find minimum of psd's in circular buffer 	   */
 /***************************************************************************/
+	static int16_t	localflag[ENH_VEC_LENF];       	/* local minimum indicator */
+	static int16_t	circb_min[ENH_VEC_LENF];		/* minimum of circular buffer */
+    static int16_t	circb_min_shift[ENH_VEC_LENF];
+
 static void		min_search(int16_t biased_spect[], int16_t bias_shift[],
 						   int16_t biased_spect_sub[],
 						   int16_t bias_sub_shift[])
 {
 	register int16_t	i, k;
-	static int16_t	localflag[ENH_VEC_LENF];       /* local minimum indicator */
 	static int16_t	minspec_counter = 0;             /* count sub-windows */
 	static int16_t	circb_index = 0;               /* ring buffer counter */
-	static int16_t	circb_min[ENH_VEC_LENF];
-                                                /* minimum of circular buffer */
-    static int16_t	circb_min_shift[ENH_VEC_LENF];
 	int16_t	noise_slope_max, tmp, tmp_shift, temp1, temp2;
 	int32_t	L_sum;
 
@@ -1206,15 +1204,26 @@ static void		minstat_init()
 ** Return value:    None
 **
  ***************************************************************************/
+	static int16_t	agal[ENH_VEC_LENF];                     /* GainD*Ymag */
+	static int16_t	agal_shift[ENH_VEC_LENF];
+	static int16_t	qk[ENH_VEC_LENF];   /* probability of noise only, Q15 */
+	static int16_t	Gain[ENH_VEC_LENF];    /* MMSE LOG STA estimator gain */
+	static int16_t	Ymag[ENH_VEC_LENF];             /* magnitude of current frame */
+	static int16_t	Ymag_shift[ENH_VEC_LENF];
+	static int16_t	GainD[ENH_VEC_LENF];                          /* Gain[].*GM[] */
+	static int16_t	analy[ENH_WINLEN];
+	static int16_t	gamaK[ENH_VEC_LENF];                      /* a posteriori SNR */
+    static int16_t	gamaK_shift[ENH_VEC_LENF];
+	static int16_t	biased_smoothedspect[ENH_VEC_LENF];      /* weighted smoothed */
+                                                    /* spect. for long window */
+    static int16_t	biased_smoothedspect_sub[ENH_VEC_LENF];      /* for subwindow */
+    static int16_t	bias_shift[ENH_VEC_LENF], bias_sub_shift[ENH_VEC_LENF];
 static void		process_frame(int16_t inspeech[], int16_t outspeech[])
 {
 	register int16_t	i;
 	static BOOLEAN	first_time = TRUE;
-	static int16_t	agal[ENH_VEC_LENF];                     /* GainD*Ymag */
-	static int16_t	agal_shift[ENH_VEC_LENF];
+
 	static int16_t	Ksi_min_var = GM_MIN;
-	static int16_t	qk[ENH_VEC_LENF];   /* probability of noise only, Q15 */
-	static int16_t	Gain[ENH_VEC_LENF];    /* MMSE LOG STA estimator gain */
 	static int16_t	YY_LT, YY_LT_shift;
 	static int16_t	SN_LT0, SN_LT0_shift;
 	BOOLEAN		n_flag;
@@ -1223,16 +1232,6 @@ static void		process_frame(int16_t inspeech[], int16_t outspeech[])
 	int16_t	shift, YY_av_shift, max, temp1, temp2, temp3, temp4;
 	int16_t	max_YY_shift, Y_shift, guard;
 	int16_t	a_shift, ygal;
-	int16_t	Ymag[ENH_VEC_LENF];             /* magnitude of current frame */
-	int16_t	Ymag_shift[ENH_VEC_LENF];
-	int16_t	GainD[ENH_VEC_LENF];                          /* Gain[].*GM[] */
-	int16_t	analy[ENH_WINLEN];
-	int16_t	gamaK[ENH_VEC_LENF];                      /* a posteriori SNR */
-    int16_t	gamaK_shift[ENH_VEC_LENF];
-	int16_t	biased_smoothedspect[ENH_VEC_LENF];      /* weighted smoothed */
-                                                    /* spect. for long window */
-    int16_t	biased_smoothedspect_sub[ENH_VEC_LENF];      /* for subwindow */
-    int16_t	bias_shift[ENH_VEC_LENF], bias_sub_shift[ENH_VEC_LENF];
 	int32_t	L_sum, L_max;
 
 

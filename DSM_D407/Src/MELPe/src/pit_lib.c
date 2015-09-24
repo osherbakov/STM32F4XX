@@ -558,19 +558,21 @@ int16_t p_avg_update_q(int16_t pitch, int16_t pcorr, int16_t pthresh)
 /*                                                                            */
 /* Q values                                                                   */
 /*      speech - Q0, resid - Q0, pitch_est - Q7, pitch_avg - Q7, pcorr2 - Q14 */
+	static int16_t	lpres_delin[LPF_ORD];
+	static int16_t	lpres_delout[LPF_ORD];
+	static int16_t	sigbuf[LPF_ORD + PITCH_FR];
+	static int16_t	temp_delin[LPF_ORD], temp_delout[LPF_ORD];
 
 int16_t pitch_ana_q(int16_t speech[], int16_t resid[],
 					int16_t pitch_est, int16_t pitch_avg,
 					int16_t *pcorr2)
 {
 	register int16_t	i, section;
-	static int16_t	lpres_delin[LPF_ORD];
-	static int16_t	lpres_delout[LPF_ORD];
-	static int16_t	sigbuf[LPF_ORD + PITCH_FR];
+
 	static BOOLEAN	firstTime = TRUE;
 	int16_t	pcorr, pitch;
 	int16_t	temp, temp2;
-	int16_t	temp_delin[LPF_ORD], temp_delout[LPF_ORD];
+
 
 
 	if (firstTime){

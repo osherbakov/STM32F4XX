@@ -55,11 +55,7 @@ static void		lpf3500(int16_t speech[]);
 ** Return value:	None
 **
 *****************************************************************/
-
-void postfilt(int16_t speech[], int16_t prev_lsf[], int16_t cur_lsf[])
-{
-	register int16_t	i, j, k;
-	static const int16_t	syn_inp[SYN_SUBNUM] = {                    /* Q15 */
+	static const int16_t	syn_inp[SYN_SUBNUM] RODATA = {                    /* Q15 */
 								4096, 12288, 20480, 28672
 	};
 	static BOOLEAN	postfilt_firsttime = TRUE;
@@ -70,22 +66,26 @@ void postfilt(int16_t speech[], int16_t prev_lsf[], int16_t cur_lsf[])
 	static int16_t	alphaipFIR[LPC_ORD];                           /* Q12 */
 	static int16_t	alphaipIIR[LPC_ORD];
 	static int16_t	window[SMOOTH_LEN];                            /* Q15 */
-	int16_t	temp, temp_shift;
-	int16_t	temp1, temp2;
-	int32_t	L_temp;
 	int16_t	synLPC[LPC_ORD];                                       /* Q12 */
 	int16_t	inplsf[LPC_ORD];
-
-	/* ---- High frequency emphasis ---- */
-	int16_t	emph;                                                  /* Q15 */
 	int16_t	synhp[SYN_SUBFRAME];                                    /* Q0 */
-
-	/* ---- FIR, IIR filter ---- */
-	int32_t	L_sum;
 	int16_t	mem1old[LPC_ORD];
 	int16_t	mem2old[LPC_ORD];
 
 	int16_t	nokori[SMOOTH_LEN];
+
+void postfilt(int16_t speech[], int16_t prev_lsf[], int16_t cur_lsf[])
+{
+	register int16_t	i, j, k;
+	int16_t	temp, temp_shift;
+	int16_t	temp1, temp2;
+	int32_t	L_temp;
+
+	/* ---- High frequency emphasis ---- */
+	int16_t	emph;                                                  /* Q15 */
+
+	/* ---- FIR, IIR filter ---- */
+	int32_t	L_sum;
 	int16_t	sp, sp_shift;
 	int16_t	op, op_shift;
 
@@ -339,10 +339,10 @@ void postfilt(int16_t speech[], int16_t prev_lsf[], int16_t cur_lsf[])
 
 static void		hpf60(int16_t speech[])
 {
-	static const int16_t  hpf60_num[3] = {                           /* Q13 */
+	static const int16_t  hpf60_num[3] RODATA = {                           /* Q13 */
 								8192, -16384, 8192
 	};
-	static const int16_t  hpf60_den[3] = {                  /* Negated; Q13 */
+	static const int16_t  hpf60_den[3] RODATA = {                  /* Negated; Q13 */
 								-8192, 15838, -7664
 	};
 	static int16_t	hpf60_delin[2] = {0, 0};                       /* Q13 */
@@ -367,10 +367,10 @@ static void		hpf60(int16_t speech[])
 
 static void		lpf3500(int16_t speech[])
 {
-	static const int16_t	lpf3500_num[3] = {                         /* Q13 */
+	static const int16_t	lpf3500_num[3] RODATA = {                         /* Q13 */
 								8192, 16384, 8192
 	};
-	static const int16_t	lpf3500_den[3] = {                /* Negated; Q13 */
+	static const int16_t	lpf3500_den[3] RODATA = {                /* Negated; Q13 */
 								-8192, -14997, -6919
 	};
 	static int16_t	lpf3500_delin[2] = {0, 0};                     /* Q13 */

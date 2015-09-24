@@ -72,22 +72,20 @@ Secretariat fax: +33 493 65 47 16.
 /*  Copyright (c) 1995,1997 by Texas Instruments, Inc.  All rights reserved.  */
 /*                                                                            */
 /* Q values: speech - Q0, fpitch - Q7, bpvc - Q14, pitch - Q7                 */
+static int16_t	bpfsp[NUM_BANDS][PITCH_FR - FRAME] CCMRAM;
+static int16_t	bpfdelin[NUM_BANDS][BPF_ORD] CCMRAM;
+static int16_t	bpfdelout[NUM_BANDS][BPF_ORD] CCMRAM;
+static int16_t	envdel[NUM_BANDS][ENV_ORD] CCMRAM;
+static int16_t	envdel2[NUM_BANDS] CCMRAM;
+static int16_t	sigbuf[BPF_ORD + PITCH_FR] CCMRAM;
 
 void bpvc_ana_q(int16_t speech[], int16_t fpitch[], int16_t bpvc[],
 			  int16_t *pitch)
 {
 	register int16_t	i, section;
-	static int16_t	bpfsp[NUM_BANDS][PITCH_FR - FRAME];
-	static int16_t	bpfdelin[NUM_BANDS][BPF_ORD];
-	static int16_t	bpfdelout[NUM_BANDS][BPF_ORD];
-	static int16_t	envdel[NUM_BANDS][ENV_ORD];
-	static int16_t	envdel2[NUM_BANDS];
 	static BOOLEAN	firstTime = TRUE;
-	int16_t	sigbuf[BPF_ORD + PITCH_FR];
 	int16_t	pcorr, temp, scale;
 	int16_t	filt_index;
-
-
 
 	if (firstTime){
 		for (i = 0; i < NUM_BANDS; i++){
@@ -208,7 +206,7 @@ void dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t delin[],
 			int16_t delout_hi[], int16_t delout_lo[],
 			int16_t frame)
 {
-	static const int16_t	dc_num[(DC_ORD/2)*3] = {             /* Maybe Q13 */
+	static const int16_t	dc_num[(DC_ORD/2)*3] RODATA = {             /* Maybe Q13 */
 #if NEW_DC_FILTER
 		8192,  -16376, 8192,
 		8192,  -16370, 8192,
@@ -221,7 +219,7 @@ void dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t delin[],
 
 	/* Signs of coefficients for dc_den are reversed.  dc_den[0] and          */
 	/* dc_den[3] are ignored.                                                 */
-	static const int16_t	dc_den[(DC_ORD/2)*3] = {
+	static const int16_t	dc_den[(DC_ORD/2)*3] RODATA= {
 #if NEW_DC_FILTER
 		-8192, 15729, -7569,
 		-8192, 16111, -7959,
@@ -778,7 +776,7 @@ void q_gain_dec_q(int16_t *gain, int16_t *gain_index, int16_t gn_qlo,
 /*	*speech - Q0                                                              */
 /*	gain - Q12                                                                */
 
-static int16_t tempbuf[PITCHMAX];
+static int16_t tempbuf[PITCHMAX] CCMRAM;
 
 
 void scale_adj_q(int16_t *speech, int16_t gain, int16_t length,

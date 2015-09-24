@@ -141,9 +141,9 @@ int main(int argc, char *argv[])
 	}
 
 	if (mode != SYNTHESIS)
-		melp_ana_init(melp_parameters);
+		melp_ana_init_q(melp_parameters);
 	if (mode != ANALYSIS)
-		melp_syn_init(melp_parameters);
+		melp_syn_init_q(melp_parameters);
 
 
 	/* ====== Run MELP coder on input signal ====== */
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 				} else
 					npp(melp_parameters, speech_in, speech_in);
 #endif
-				analysis(speech_in, melp_parameters);
+				analysis_q(speech_in, melp_parameters);
 
 				/* ---- Write channel output if needed ---- */
                 if (mode == ANALYSIS){
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 						break;
 					}
 				}
-				synthesis(melp_parameters, speech_out);
+				synthesis_q(melp_parameters, speech_out);
 				writebl(speech_out, fp_out, melp_parameters->frameSize);
 			}
 		}

@@ -27,8 +27,6 @@ Secretariat fax: +33 493 65 47 16.
 
 */
 
-#include <assert.h>
-
 #include "sc1200.h"
 #include "mathhalf.h"
 #include "mathdp31.h"
@@ -38,7 +36,7 @@ Secretariat fax: +33 493 65 47 16.
 #include "macro.h"
 
 /* log_table[] is Q13, and log_table[i] = log(i+1) * 2^11. */
-static const int16_t	log_table[256] = {
+static const int16_t	log_table[256] RODATA = {
 		0,  2466,  3908,  4932,  5725,  6374,  6923,  7398,  7817,  8192,
 	 8531,  8840,  9125,  9389,  9634,  9864, 10079, 10283, 10475, 10658,
 	10831, 10997, 11155, 11306, 11451, 11591, 11725, 11855, 11979, 12100,
@@ -110,8 +108,6 @@ int16_t L_divider2(int32_t numer, int32_t denom, int16_t numer_shift,
 	int32_t	L_temp;
 
 
-	assert(denom != 0);
-
 	if (numer < 0)
 		sign = (int16_t) (!sign);
 	if (denom < 0)
@@ -127,8 +123,6 @@ int16_t L_divider2(int32_t numer, int32_t denom, int16_t numer_shift,
 		short_shift = add(short_shift, 1);
 	}
 	numer = L_shr(numer, short_shift);
-
-	assert(numer <= denom);
 
 	result = divide_s(extract_l(numer), extract_l(denom));
 
@@ -182,8 +176,7 @@ int16_t log10_fxp(int16_t x, int16_t Q)
 	shift = sub(7, Q);
 
 	/* If x is 0, stop and return minus infinity. */
-	if (!x)
-		return(-SW_MAX);
+	if (!x) return(-SW_MAX);
 
 	/* Keep multiplying x by 2 until x is larger than 1 in Q7.  x in Q7 will  */
 	/* now lie between the two integers index1 and index2.                    */
@@ -253,8 +246,7 @@ int16_t L_log10_fxp(int32_t x, int16_t Q)
 
 
 	shift = sub(23, Q);
-	if (!x)
-		return((int16_t) -SW_MAX);
+	if (!x) return((int16_t) -SW_MAX);
 
 	index2 = extract_l(L_shr(x, 23));
 	while ((!index2) && x){
@@ -313,7 +305,7 @@ int16_t L_log10_fxp(int32_t x, int16_t Q)
 int16_t pow10_fxp(int16_t x, int16_t Q)
 {
 	/* table in Q11 */
-	static const int16_t	table[257] = {
+	static const int16_t	table[257] RODATA = {
 		 2048,  2066,  2085,  2104,  2123,  2142,  2161,  2181,  2200,  2220,
 		 2240,  2260,  2281,  2302,  2322,  2343,  2364,  2386,  2407,  2429,
 		 2451,  2473,  2496,  2518,  2541,  2564,  2587,  2610,  2634,  2658,
@@ -342,11 +334,11 @@ int16_t pow10_fxp(int16_t x, int16_t Q)
 		19404, 19579, 19756, 19934, 20114, 20296, 20480
 	};
 
-	static const int16_t	tens_table[9] = {
+	static const int16_t	tens_table[9] RODATA = {
 		26844, 16777, 20972, 26214, 1, 10, 100, 1000, 10000
 	};
 
-	static const int16_t	Q_table[4] = {
+	static const int16_t	Q_table[4] RODATA = {
 		28, 24, 21, 18
 	};
 
@@ -358,12 +350,8 @@ int16_t pow10_fxp(int16_t x, int16_t Q)
 
 
 	ten_multiple = shr(x, 12);      /* ten_multiple is the integral part of x */
-	if (ten_multiple < -4)
-		return((int16_t) 0);
-	else if (ten_multiple > 4){
-//		inc_saturation();
-		return((int16_t) SW_MAX);
-	}
+	if (ten_multiple < -4) return((int16_t) 0);
+	else if (ten_multiple > 4) return((int16_t) SW_MAX);
 
 	index1 = shr((int16_t) (x & (int16_t) 0x0ff0), 4);
 						/* index1 is the most significant 8 bits of the */
@@ -390,7 +378,6 @@ int16_t pow10_fxp(int16_t x, int16_t Q)
 		y = extract_l(L_y);
 		if (extract_h(L_y)){
 			y = SW_MAX;
-//			inc_saturation();
 		}
 	} else {
 		temp1 = add(Q_table[temp2], 12);
@@ -434,8 +421,7 @@ int16_t sqrt_fxp(int16_t x, int16_t Q)
 	int16_t	temp;
 
 
-	if (!x)
-		return((int16_t) 0);
+	if (!x) return((int16_t) 0);
 
 	temp = shr(log10_fxp(x, Q), 1);                        /* temp is now Q12 */
 	temp = pow10_fxp(temp, Q);
@@ -474,9 +460,7 @@ int16_t L_sqrt_fxp(int32_t x, int16_t Q)
 {
 	int16_t	temp;
 
-
-	if (!x)
-		return((int16_t) 0);
+	if (!x) return((int16_t) 0);
 
 	temp = L_log10_fxp(x, Q);
 	/* temp in Q11, pow10 treat it as Q12, => no need to shr by 1. */
@@ -524,8 +508,7 @@ int16_t L_pow_fxp(int32_t x, int16_t power, int16_t Q_in,
 	int16_t	temp;
 
 
-	if (!x)
-		return((int16_t) 0);
+	if (!x) return((int16_t) 0);
 
 	temp = L_log10_fxp(x, Q_in);                               /* temp in Q11 */
 	temp = mult(power, shl(temp, 1));                          /* temp in Q12 */
@@ -561,7 +544,7 @@ int16_t L_pow_fxp(int32_t x, int16_t power, int16_t Q_in,
 
 int16_t sin_fxp(int16_t x)
 {
-	static const int16_t	table[129] = {
+	static const int16_t	table[129] RODATA = {
 			0,	 402,	804,  1206,  1608,	2009,  2411,  2811,  3212,
 		 3612,	4011,  4410,  4808,  5205,	5602,  5998,  6393,  6787,
 		 7180,	7571,  7962,  8351,  8740,	9127,  9512,  9896, 10279,
@@ -650,7 +633,7 @@ int16_t sin_fxp(int16_t x)
  *************************************************************************/
 int16_t cos_fxp(int16_t x)
 {
-	static const int16_t	table[129] = {
+	static const int16_t	table[129] RODATA = {
 		32767, 32766, 32758, 32746, 32729, 32706, 32679, 32647, 32610,
 		32568, 32522, 32470, 32413, 32352, 32286, 32214, 32138, 32058,
 		31972, 31881, 31786, 31686, 31581, 31471, 31357, 31238, 31114,

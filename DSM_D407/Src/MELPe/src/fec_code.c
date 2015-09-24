@@ -53,20 +53,20 @@ static int16_t	codewd84[8];
 static int16_t	codewd_13x9[13];
 
 /* (7,4) Hamming code tables.  Parity generator matrix. */
-static const int16_t  pmat74[3][4] = {
+static const int16_t  pmat74[3][4] RODATA = {
 	{1, 1, 0, 1}, {1, 0, 1, 1}, {0, 1, 1, 1}
 };
 
 /* Syndrome table. */
-static const int16_t	syntab74[8] = {BEP_CORR, 6, 5, 2, 4, 1, 0, 3};
+static const int16_t	syntab74[8] RODATA = {BEP_CORR, 6, 5, 2, 4, 1, 0, 3};
 
 /* (8,4) extended Hamming code tables.  Parity generator matrix. */
-static const int16_t  pmat84[4][4] = {
+static const int16_t  pmat84[4][4] RODATA = {
 	{1, 1, 0, 1}, {1, 0, 1, 1}, {0, 1, 1, 1}, {1, 1, 1, 0}
 };
 
 /* Syndrome->error position lookup table. */
-static const int16_t  syntab84[16] = {
+static const int16_t  syntab84[16] RODATA = {
 	BEP_CORR,   7,          6,          BEP_UNCORR,
 	5,          BEP_UNCORR, BEP_UNCORR, 2,
 	4,          BEP_UNCORR, BEP_UNCORR, 1,
@@ -78,7 +78,7 @@ static const int16_t  syntab84[16] = {
 /* single bit voiced pitch errors.  Assign voiced pitch codes to values       */
 /* having Hamming weight > 2.                                                 */
 
-static const int16_t		pitch_enc[PIT_QLEV + 1] = {
+static const int16_t		pitch_enc[PIT_QLEV + 1] RODATA = {
 	0x0,	/* UV_PIND */
 	0x7,	/* 1 (first pitch QL - note offset) */
 	0xB,	/* 2 */
@@ -181,7 +181,7 @@ static const int16_t		pitch_enc[PIT_QLEV + 1] = {
 	0x7F	/* 99 */
 };
 
-const int16_t		low_rate_pitch_enc[4][PIT_QLEV] = {
+const int16_t		low_rate_pitch_enc[4][PIT_QLEV] RODATA = {
 {0},                                                             /* All zeros */
 {                                                             /* for UUV (6,7)*/
 	 63,  95, 111, 119, 123, 125, 126, 159, 175, 183,
@@ -226,7 +226,7 @@ const int16_t		low_rate_pitch_enc[4][PIT_QLEV] = {
 /* codes map to INVAL_PIND, protecting against 1-bit errors in voiced pitches */
 /* creating false unvoiced condition.                                         */
 
-static const int16_t		pitch_dec[1 << PIT_BITS] = {
+static const int16_t		pitch_dec[1 << PIT_BITS] RODATA = {
                                                 /* pitch index decoding table */
 	UV_PIND,	/* 0x0 */
 	UV_PIND,	/* 0x1 */
@@ -358,7 +358,7 @@ static const int16_t		pitch_dec[1 << PIT_BITS] = {
 	100 		/* 0x7F */
 };
 
-const int16_t		low_rate_pitch_dec[PITCH_VQ_SIZE] = {
+const int16_t		low_rate_pitch_dec[PITCH_VQ_SIZE] RODATA = {
 	UV_PIND,	/*   0 */
 	UV_PIND,	/*   1 */
 	UV_PIND,	/*   2 */

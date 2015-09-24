@@ -37,25 +37,6 @@ Secretariat fax: +33 493 65 47 16.
 #define _MACRO_H_
 
 
-/* OSTYPE-dependent definitions/macros. */
-
-#ifdef SunOS4
-
-/* some standard C function definitions missing from SunOS4 */
-extern int fclose(FILE *stream);
-extern int fprintf(FILE *stream, const char *format, ...);
-extern size_t fread(void *ptr, size_t size, size_t nobj, FILE *stream);
-extern int fseek(FILE *stream, long offset, int origin);
-extern size_t fwrite(const void *ptr, size_t size, size_t nobj, FILE *stream);
-extern int printf(const char *format, ...);
-extern long random(void);
-extern int sscanf (char *s, const char *format, ...);
-extern void rewind(FILE *stream);
-
-#else
-
-#endif
-
 /* ===================== */
 /* Constant definitions. */
 /* ===================== */

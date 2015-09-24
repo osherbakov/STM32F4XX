@@ -24,8 +24,8 @@
 #define SWAP(a, b)		{int16_t temp1; temp1 = (a); (a) = (b); (b) = temp1;}
 
 /* Memory definition */
-static int16_t		wr_array[FFTLENGTH/2];
-static int16_t		wi_array[FFTLENGTH/2];
+static int16_t		wr_array[FFTLENGTH/2] CCMRAM;
+static int16_t		wi_array[FFTLENGTH/2] CCMRAM;
 
 
 /* Radix-2, DIT, 2N-point Real FFT */

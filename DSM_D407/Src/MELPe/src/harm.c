@@ -59,6 +59,7 @@ static void		realIDFT(int16_t mag[], int16_t phase[],
 ** Return value:			None
 **
 *****************************************************************************/
+static int16_t	idftc[PITCHMAX] CCMRAM;
 static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 					 int16_t length)
 {
@@ -66,7 +67,7 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 	int16_t	w, w2, length2;
 	int16_t	temp;
 	int32_t	L_temp;
-	int16_t	idftc[PITCHMAX];
+
 
 	/*	length2 = (length/2) + 1; */
 	length2 = add(shr(length, 1), 1);
@@ -142,15 +143,15 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 ** Return value:			None
 **
 *****************************************************************************/
-
+const int16_t		syn_bp_map[16] RODATA = {                              /* Q0 */
+		 500,  500,  500,  500,  500,  500,  500, 4000,
+		1000, 1000, 1000, 4000, 2000, 3000, 3000, 4000
+	};
 void set_fc(int16_t bpvc[], int16_t *fc)
 {
 	register int16_t	i;
 	int16_t	index;
-	const int16_t		syn_bp_map[16] = {                              /* Q0 */
-		 500,  500,  500,  500,  500,  500,  500, 4000,
-		1000, 1000, 1000, 4000, 2000, 3000, 3000, 4000
-	};
+
 
 	/* ====== Generate voicing information ====== */
 	if (bpvc[0] < X05_Q14){                        /* ---- Pure unvoiced ---- */
@@ -191,16 +192,18 @@ void set_fc(int16_t bpvc[], int16_t *fc)
 ** Return value:			None
 **
 *****************************************************************************/
+static int16_t	rndphase[SYN_FFT_SIZE/2 + 1] CCMRAM;                           /* Q0 */
+static int16_t	mag[SYN_FFT_SIZE/2 + 1] CCMRAM;
+static int16_t	phase[SYN_FFT_SIZE/2 + 1] CCMRAM;                              /* Q0 */
+
 void harm_syn_pitch(int16_t amp[], int16_t signal[], int16_t fc, 
 					int16_t length)
 {
 	register int16_t	i;
-	int16_t	rndphase[SYN_FFT_SIZE/2 + 1];                           /* Q0 */
+
 	int16_t	factor, fn;                                            /* Q15 */
 	int16_t	temp1, temp2;
 	int16_t	totalCnt, voicedCnt, mixedCnt, index;
-	int16_t	mag[SYN_FFT_SIZE/2 + 1];
-	int16_t	phase[SYN_FFT_SIZE/2 + 1];                              /* Q0 */
 	int16_t	fc1, fc2;
 
 	/* ====== Generate random phase for unvoiced segment ====== */

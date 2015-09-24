@@ -21,7 +21,7 @@ void MX_FREERTOS_Init() {
 	/* USER CODE BEGIN Init */
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
 	osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
-	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
+	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 4096);
 	
 	osMessageQDef(PDMINDATA, 2, uint32_t);
 	osMessageQDef(DATAREADY, 16, uint32_t);

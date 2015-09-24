@@ -95,7 +95,7 @@ void lpc_acor(int16_t input[], const int16_t win_cof[],
 			  int16_t npts)
 {
 	/* Lag window coefficients */
-	static const int16_t		lagw_cof[EN_FILTER_ORDER - 1] = {
+	static const int16_t		lagw_cof[EN_FILTER_ORDER - 1] RODATA = {
 		32756, 32721, 32663, 32582, 32478, 32351, 32201, 32030, 31837, 31622,
 		31387, 31131, 30855, 30560, 30246, 29914
 	};
@@ -205,8 +205,7 @@ int32_t lpc_aejw_q(int16_t lpc[], int16_t omega, int16_t order)
 	int32_t	L_temp;
 
 
-	if (order == 0)
-		return((int32_t) ONE_Q19);
+	if (order == 0) return((int32_t) ONE_Q19);
 
 	/* use horners method                                                     */
 	/* A(exp(jw)) = 1+ e(-jw)[a(1) + e(-jw)[a(2) + e(-jw)[a(3) +..            */
@@ -401,8 +400,8 @@ int16_t lpc_clmp(int16_t lsp[], int16_t delta, int16_t order)
 /* local dynamic arrays because the calling environment does not need it nor  */
 /* use it.                                                                    */
 
-static int32_t	y1_[LPC_ORD], y2_[LPC_ORD + 1];
-static int16_t	refc[LPC_ORD];                                                 /* Q15 */
+static int32_t	y1_[LPC_ORD], y2_[LPC_ORD + 1] CCMRAM;
+static int16_t	refc[LPC_ORD] CCMRAM;                                                 /* Q15 */
 
 int16_t lpc_schr(int16_t autocorr[], int16_t lpc[], int16_t order)
 {
@@ -482,7 +481,7 @@ int16_t lpc_schr(int16_t autocorr[], int16_t lpc[], int16_t order)
 /* Q values:                                                                  */
 /* refc - Q15, lpc - Q12                                                      */
 
-static int16_t a1[LPC_ORD];
+static int16_t a1[LPC_ORD] CCMRAM;
 
 static int16_t	lpc_refl2pred(int16_t refc[], int16_t lpc[],
 								  int16_t order)
@@ -515,12 +514,13 @@ static int16_t	lpc_refl2pred(int16_t refc[], int16_t lpc[],
 /* Q values:                                                                  */
 /* lpc - Q12, lsf - Q15                                                       */
 
+static int16_t	p_cof[LPC_ORD/2 + 1] CCMRAM, q_cof[LPC_ORD/2 + 1] CCMRAM,
+				p_freq[LPC_ORD/2 + 1] CCMRAM, q_freq[LPC_ORD/2 + 1] CCMRAM;
+static int32_t	L_p_cof[LPC_ORD/2 + 1] CCMRAM, L_q_cof[LPC_ORD/2 + 1] CCMRAM;
+
 int16_t lpc_pred2lsp_q(int16_t lpc[], int16_t lsf[], int16_t order)
 {
 	register int16_t	i;
-	int16_t	p_cof[LPC_ORD/2 + 1], q_cof[LPC_ORD/2 + 1],
-				p_freq[LPC_ORD/2 + 1], q_freq[LPC_ORD/2 + 1];
-	int32_t	L_p_cof[LPC_ORD/2 + 1], L_q_cof[LPC_ORD/2 + 1];
 	int32_t	L_ai, L_api, L_temp;
 	int16_t	p2;
 
@@ -577,12 +577,11 @@ int16_t lpc_pred2lsp_q(int16_t lpc[], int16_t lsf[], int16_t order)
 /* Q values:                                                                  */
 /* lsp - Q10, freq - Q15                                                      */
 
+static int16_t	lsp_cos[DFTLENGTH] CCMRAM;                   /* cosine table */
 static void		lsp_to_freq(int16_t lsp[], int16_t freq[], int16_t order)
-
 {
 	register int16_t	i, j;
 	static BOOLEAN	firstTime = TRUE;
-	static int16_t	lsp_cos[DFTLENGTH];                   /* cosine table */
 	static int16_t	default_w, default_w0;
 	int16_t	p2, count;
     BOOLEAN		prev_less;
@@ -701,7 +700,7 @@ static void		lsp_to_freq(int16_t lsp[], int16_t freq[], int16_t order)
 /* Q values:                                                                  */
 /* lpc[] - Q12, *refc - Q15,                                                  */
 
-static 	int16_t	b[LPC_ORD], b1[LPC_ORD];
+static 	int16_t	b[LPC_ORD], b1[LPC_ORD] CCMRAM;
 
 int16_t lpc_pred2refl_q(int16_t lpc[], int16_t *refc, int16_t order)
 {
@@ -774,7 +773,7 @@ int16_t lpc_pred2refl_q(int16_t lpc[], int16_t *refc, int16_t order)
 /* Q values:                                                                  */
 /* lsf - Q15, lpc - Q12, c - Q14                                              */
 
-static int32_t	f0[LPC_ORD+1], f1[LPC_ORD+1];
+static int32_t	f0[LPC_ORD+1] CCMRAM, f1[LPC_ORD+1] CCMRAM;
 
 int16_t lpc_lsp2pred_q(int16_t lsf[], int16_t lpc[], int16_t order)
 {

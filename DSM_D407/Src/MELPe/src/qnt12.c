@@ -71,6 +71,13 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 ** Return value:	None
 **
 *****************************************************************************/
+	static int16_t	dcb[PITCH_VQ_CAND * NF];                               /* Q12 */
+	static int16_t	target[NF], deltp[NF];                                 /* Q12 */
+	static int16_t	deltw[NF];                                              /* Q0 */
+	static int16_t	weights[NF];                                            /* Q0 */
+	static int16_t	indexlist[PITCH_VQ_CAND];
+	static int32_t	distlist[PITCH_VQ_CAND];                               /* Q25 */
+
 void pitch_vq(struct melp_param *par)
 {
 	register int16_t	i;
@@ -81,13 +88,6 @@ void pitch_vq(struct melp_param *par)
 	int16_t	cnt, size, pitch_index;
 	int16_t	temp1, temp2;
 	int32_t	L_temp;
-	int16_t	dcb[PITCH_VQ_CAND * NF];                               /* Q12 */
-	int16_t	target[NF], deltp[NF];                                 /* Q12 */
-	int16_t	deltw[NF];                                              /* Q0 */
-	int16_t	weights[NF];                                            /* Q0 */
-	int16_t	indexlist[PITCH_VQ_CAND];
-	int32_t	distlist[PITCH_VQ_CAND];                               /* Q25 */
-
 
 	/* ---- Compute pitch in log domain ---- */
 	for (i = 0; i < NF; i++)
@@ -366,12 +366,12 @@ static int16_t	wvq2(int16_t target[], int16_t weights[],
 ** Return value:	None
 **
 *****************************************************************************/
+	static int16_t	gain_target[NF_X_NUM_GAINFR];
 void gain_vq(struct melp_param *par)
 {
 	register int16_t	i, j;
 	int16_t	index;
 	int16_t	temp, temp2;
-	int16_t	gain_target[NF_X_NUM_GAINFR];
 	int32_t	err, minErr;                                           /* Q17 */
 	int32_t	L_temp;
 
@@ -486,6 +486,10 @@ void quant_bp(struct melp_param *par, int16_t num_frames)
 ***********************************************************************/
 
 static int16_t	cand_target[2*LPC_ORD];
+static int16_t	index[LSP_VQ_CAND][LSP_VQ_STAGES];
+static int16_t	nextIndex[LSP_VQ_CAND][LSP_VQ_STAGES];
+static int16_t	cand[LSP_VQ_CAND][2*LPC_ORD];
+static int16_t	dMin[LSP_VQ_CAND];
 
 static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 					  const int16_t codebook[], int16_t tos,
@@ -495,12 +499,8 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 	register int16_t	i, entry;
 	register int16_t	c1, s1;
 	const int16_t		*cdbk_ptr, *cdbk_ptr2, *ptr1;
-	int16_t	index[LSP_VQ_CAND][LSP_VQ_STAGES];
-	int16_t	nextIndex[LSP_VQ_CAND][LSP_VQ_STAGES];
+	int16_t	max_dMin,  distortion; 
 	int16_t	ncPrev;
-	int16_t	cand[LSP_VQ_CAND][2*LPC_ORD];
-	int16_t	max_dMin, dMin[LSP_VQ_CAND], distortion; 
-
 	int32_t	L_temp;
 	int16_t	ptr_offset = 0;
 	int16_t	temp1, temp2;
@@ -896,33 +896,33 @@ void lspSort(int16_t lsp[], int16_t order)
 ** Return value:	None
 **
 *****************************************************************************/
+static int16_t	lpc[LPC_ORD];                                          /* Q12 */
+static int16_t	wgt[NF][LPC_ORD];                                      /* Q11 */
+static int16_t	mwgt[2*LPC_ORD];                                       /* Q11 */
+static int16_t	bestlsp0[LPC_ORD], bestlsp1[LPC_ORD];                  /* Q15 */
+static int16_t	res[2*LPC_ORD];                                        /* Q17 */
+static int16_t	qplsp[LPC_ORD];                                /* Q15 */
+static const int16_t		melp_cb_size[4] RODATA = {256, 64, 32, 32}; /* !!! (12/15/99) */
+static const int16_t		res_cb_size[4] RODATA = {256, 64, 64, 64};
+static const int16_t		melp_uv_cb_size[1] = {512};
+static 	int16_t	lsp_cand[LSP_INP_CAND][LPC_ORD]CCMRAM;                       /* Q15 */
+static 	int16_t	lsp_index_cand[LSP_INP_CAND*LSP_VQ_STAGES] CCMRAM;
+static 	int16_t	ilsp0[LPC_ORD] CCMRAM, ilsp1[LPC_ORD] CCMRAM;                        /* Q15 */
 
 void lsf_vq(struct melp_param *par)
 {
 	register int16_t	i, j, k;
 	static BOOLEAN	firstTime = TRUE;
-	static int16_t	qplsp[LPC_ORD];                                /* Q15 */
-	const int16_t		melp_cb_size[4] = {256, 64, 32, 32}; /* !!! (12/15/99) */
-	const int16_t		res_cb_size[4] = {256, 64, 64, 64};
-	const int16_t		melp_uv_cb_size[1] = {512};
 	int16_t	uv_config;     /* Bits of uv_config replace uv1, uv2 and cuv. */
 	int16_t	*lsp[NF];
 	int32_t	err, minErr, acc, bcc; /* !!! (12/15/99), Q11 */
 	int16_t	temp1, temp2;
-	int16_t	lpc[LPC_ORD];                                          /* Q12 */
-	int16_t	wgt[NF][LPC_ORD];                                      /* Q11 */
-	int16_t	mwgt[2*LPC_ORD];                                       /* Q11 */
-	int16_t	bestlsp0[LPC_ORD], bestlsp1[LPC_ORD];                  /* Q15 */
-	int16_t	res[2*LPC_ORD];                                        /* Q17 */
 
 	/* The original program declares lsp_cand[LSP_VQ_CAND][] and              */
 	/* lsp_index_cand[LSP_VQ_CAND*LSP_VQ_STAGES] with LSP_VQ_CAND == 8.  The  */
 	/* program only uses up to LSP_INP_CAND == 5 and the declaration is       */
 	/* modified.                                                              */
 
-	int16_t	lsp_cand[LSP_INP_CAND][LPC_ORD];                       /* Q15 */
-	int16_t	lsp_index_cand[LSP_INP_CAND*LSP_VQ_STAGES];
-	int16_t	ilsp0[LPC_ORD], ilsp1[LPC_ORD];                        /* Q15 */
 	int16_t	cand, inp_index_cand, tos, intfact;
 
 
@@ -1271,13 +1271,13 @@ void quant_jitter(struct melp_param *par)
 ** Return value:	None
 **
 *****************************************************************************/
-
+	static int16_t	prev_fsmag[NUM_HARM];
+	static int16_t	qmag[NUM_HARM];                                        /* Q13 */
 void quant_fsmag(struct melp_param *par)
 {
 	static BOOLEAN	prev_uv = TRUE;
 	register int16_t	i;
-	static int16_t	prev_fsmag[NUM_HARM];
-	int16_t	qmag[NUM_HARM];                                        /* Q13 */
+
 	int16_t	temp1, temp2;
 	int16_t	p_value, q_value;
 	int16_t	count, last;

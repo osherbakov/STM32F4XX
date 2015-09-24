@@ -87,16 +87,15 @@ Secretariat fax: +33 493 65 47 16.
 
 /* memory definitions */
 
-static int16_t sigbuf[SIG_LENGTH];
-static classParam classStat[TRACK_NUM];                 /* class of subframes */
-static pitTrackParam pitTrack[TRACK_NUM];               /* pitch of subframes */
+static int16_t sigbuf[SIG_LENGTH] CCMRAM;
+static classParam classStat[TRACK_NUM] CCMRAM;                 /* class of subframes */
+static pitTrackParam pitTrack[TRACK_NUM] CCMRAM;               /* pitch of subframes */
 
-int16_t	top_lpc[LPC_ORD];
+int16_t	top_lpc[LPC_ORD] CCMRAM;
 
 /* Prototype */
 
-static void		melp_ana(int16_t sp_in[], struct melp_param *par,
-						 int16_t subnum);
+static void		melp_ana(int16_t sp_in[], struct melp_param *par, int16_t subnum);
 void		sc_ana(struct melp_param *par);
 static BOOLEAN	subenergyRelation1(classParam classStat[], int16_t curTrack);
 static BOOLEAN	subenergyRelation2(classParam classStat[], int16_t curTrack);
@@ -116,12 +115,11 @@ static BOOLEAN	subenergyRelation2(classParam classStat[], int16_t curTrack);
 ** Return value:	None
 **
 *****************************************************************************/
+static int16_t	lpc[LPC_ORD + 1], weights[LPC_ORD] CCMRAM;
 void analysis_q(int16_t sp_in[], struct melp_param *par)
 {
 	register int16_t	i;
-	int16_t	lpc[LPC_ORD + 1], weights[LPC_ORD];
 	int16_t	num_frames;
-
 
 	num_frames = (int16_t) ((par->rate == RATE2400) ? 1 : NF);
 
@@ -274,24 +272,24 @@ void analysis_q(int16_t sp_in[], struct melp_param *par)
 /*    *par - MELP parameter structure                                         */
 /*  Returns: void                                                             */
 /* ========================================================================== */
+static int16_t	lpfsp_delin[LPF_ORD];
+static int16_t	lpfsp_delout[LPF_ORD];
+static int16_t	fpitch[NUM_PITCHES];
+int16_t	auto_corr[EN_FILTER_ORDER], lpc[LPC_ORD + 1];
+int16_t	temp_delin[LPF_ORD];
+int16_t	temp_delout[LPF_ORD];
 
-static void		melp_ana(int16_t speech[], struct melp_param *par,
-						 int16_t subnum)
+static void		melp_ana(int16_t speech[], struct melp_param *par, int16_t subnum)
 {
 	register int16_t	i;
 	static BOOLEAN	firstTime = TRUE;
-	static int16_t	lpfsp_delin[LPF_ORD];
-	static int16_t	lpfsp_delout[LPF_ORD];
+
 	static int16_t	pitch_avg;
-	static int16_t	fpitch[NUM_PITCHES];
+
 	int16_t	cur_track, begin;
 	int16_t	sub_pitch;
 	int16_t	temp, dontcare, pcorr;
-	int16_t	auto_corr[EN_FILTER_ORDER], lpc[LPC_ORD + 1];
 	int16_t	section;
-	int16_t	temp_delin[LPF_ORD];
-	int16_t	temp_delout[LPF_ORD];
-
 
 	if (firstTime){
 		v_zap(lpfsp_delin, LPF_ORD);      /* Release V2 only use "lpfsp_del". */
@@ -466,7 +464,6 @@ void melp_ana_init_q(struct melp_param *par)
 {
 	register int16_t	i;
 
-
 	v_zap(hpspeech, IN_BEG + BLOCK);   /* speech[] is declared IN_BEG + BLOCK */
 
 	/* Initialize fixed MSE weighting and inverse of weighting */
@@ -527,7 +524,6 @@ void		sc_ana(struct melp_param *par)
 	int16_t	index, index1, index2;
 	int16_t	temp1, temp2;
 	int16_t	w1_w2;                                                 /* Q15 */
-
 
 	/* ======== Update silence energy ======== */
 	for (i = 0; i < NF; i++){

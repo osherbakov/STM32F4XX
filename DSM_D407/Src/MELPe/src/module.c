@@ -10,6 +10,8 @@
 #include "math_lib.h"
 #include "math.h"
 
+#include "stm32f4_discovery.h"
+
 #if NPP
 #include "npp.h"
 #endif
@@ -18,19 +20,19 @@
 typedef enum DataType
 {
 	DATA_TYPE_BITS 		= 0x0000,		// Bits, not grouped into integers
-	DATA_TYPE_I8 			= 0x0000,		// 8-bit Integer, full range 0 - 255 (-128 +127)
-	DATA_TYPE_Q7			= 0x0100,		// Q7 signed (-1.0 +1.0)
-	DATA_TYPE_I16			= 0x0400,		// 16-bit Integer, full range (-32768 +32768)
+	DATA_TYPE_I8 		= 0x0000,		// 8-bit Integer, full range 0 - 255 (-128 +127)
+	DATA_TYPE_Q7		= 0x0100,		// Q7 signed (-1.0 +1.0)
+	DATA_TYPE_I16		= 0x0400,		// 16-bit Integer, full range (-32768 +32768)
 	DATA_TYPE_Q15   	= 0x0500,		// Q15 signed, range (-1.0 +1.0)
-	DATA_TYPE_I24			= 0x0800,		// 24-bit Integer, full range
-	DATA_TYPE_Q23			= 0x0900,   // Q23 signed, range (-1.0 +1.0)
-	DATA_TYPE_I32			= 0x0C00,		// 32-bit Integer
+	DATA_TYPE_I24		= 0x0800,		// 24-bit Integer, full range
+	DATA_TYPE_Q23		= 0x0900,   // Q23 signed, range (-1.0 +1.0)
+	DATA_TYPE_I32		= 0x0C00,		// 32-bit Integer
 	DATA_TYPE_Q31   	= 0x0D00,		// Q31 signed, range (-1.0 + 1.0)
 	DATA_TYPE_F32_32K	= 0x0E00,		// 32-bit Floating point, range (-32768.0  +32767.0)
-	DATA_TYPE_F32			= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
+	DATA_TYPE_F32		= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
 	DATA_TYPE_MASK		= 0x0F00,
 	DATA_RANGE_MASK		= 0x0100,		// Range is limited to (-1.0 +1.0)
-	DATA_FP_MASK			= 0x0200,		// Floating Point representation
+	DATA_FP_MASK		= 0x0200,		// Floating Point representation
 	DATA_TYPE_SHIFT   = 10
 }DataType_t;
 
@@ -47,8 +49,8 @@ typedef enum DataChannels
 	DATA_NUM_CH_6 		= 0x5000,
 	DATA_NUM_CH_7 		= 0x6000,
 	DATA_NUM_CH_8 		= 0x7000,
-	DATA_ALT 					= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating
-	DATA_SEQ					= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another
+	DATA_ALT 			= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating
+	DATA_SEQ			= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another
 	DATA_NUM_CH_MASK	= 0x7000,
 	DATA_SEQ_MASK 		= 0x8000,
 	DATA_NUM_CH_SHIFT = 12
@@ -124,17 +126,17 @@ uint32_t melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *p
 	
 	while(*pInSamples >= MELP_FRAME_SIZE)
 	{
-//BSP_LED_On(LED4);
+BSP_LED_On(LED4);
 		arm_copy_q15(pDataIn, speech, MELP_FRAME_SIZE);
 		analysis_q(speech, melp_parameters);
-//BSP_LED_Off(LED4);
-//BSP_LED_On(LED5);
+BSP_LED_Off(LED4);
+BSP_LED_On(LED5);
 		synthesis_q(melp_parameters, speech);
 		arm_copy_q15(speech, pDataOut, MELP_FRAME_SIZE);		
-//BSP_LED_Off(LED5);
+BSP_LED_Off(LED5);
 //		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
-		pDataIn = (void *) ((int32_t)pDataIn + MELP_FRAME_SIZE * 4);
-		pDataOut = (void *)((int32_t)pDataOut + MELP_FRAME_SIZE * 4);
+		pDataIn = (void *) ((int32_t)pDataIn + MELP_FRAME_SIZE * 2);
+		pDataOut = (void *)((int32_t)pDataOut + MELP_FRAME_SIZE * 2);
 		*pInSamples -= MELP_FRAME_SIZE;
 		nGenerated += MELP_FRAME_SIZE;
 	}

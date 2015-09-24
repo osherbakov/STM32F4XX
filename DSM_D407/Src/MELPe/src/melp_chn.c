@@ -72,7 +72,7 @@ Secretariat fax: +33 493 65 47 16.
 
 #define ORIGINAL_BIT_ORDER	0    /* flag to use bit order of original version */
 #if (ORIGINAL_BIT_ORDER)                             /* Original linear order */
-static int16_t	bit_order[NUM_CH_BITS] = {
+static int16_t	bit_order[NUM_CH_BITS] RODATA = {
 	 0,	 1,	 2,	 3,	 4,	 5,
 	 6,	 7,	 8,	 9,	10, 11,
 	12, 13, 14, 15, 16, 17,
@@ -84,7 +84,7 @@ static int16_t	bit_order[NUM_CH_BITS] = {
 	48, 49, 50, 51, 52, 53
 };
 #else                                      /* Order based on priority of bits */
-static int16_t	bit_order[NUM_CH_BITS] = {
+static int16_t	bit_order[NUM_CH_BITS] RODATA = {
 	 0,	17,  9,	28, 34,  3,
 	 4,	39,  1,	 2,	13, 38,
 	14, 10, 11, 40, 15, 21,
@@ -98,7 +98,7 @@ static int16_t	bit_order[NUM_CH_BITS] = {
 #endif
 
 /* Define bit buffer */
-static unsigned char	bit_buffer[NUM_CH_BITS];
+static unsigned char	bit_buffer[NUM_CH_BITS] CCMRAM;
 
 static int16_t	sync_bit = 0;                                 /* sync bit */
 
@@ -441,13 +441,16 @@ void low_rate_chn_write(struct quant_param *qpar, int32_t chwordsize)
 ** Return value:	None
 **
 *****************************************************************************/
+static int16_t	prev_fsmag[NUM_HARM];
+static int16_t	qplsp[LPC_ORD], prev_gain[2*NF*NUM_GAINFR];
+static int16_t	ilsp1[LPC_ORD], ilsp2[LPC_ORD], res[2*LPC_ORD];
+static int16_t	weighted_fsmag[NUM_HARM];                              /* Q13 */
 BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
 							struct melp_param *prev_par)
 {
 	register int16_t	i, j, k;
 	static int16_t	prev_uv = 1;
-    static int16_t	prev_fsmag[NUM_HARM];
-    static int16_t	qplsp[LPC_ORD], prev_gain[2*NF*NUM_GAINFR];
+
     static int16_t	firstTime = TRUE;
 	const int16_t		*codebook;
 	int16_t	erase = 0, lsp_check[NF] = {0,0,0};
@@ -455,10 +458,10 @@ BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
 	int16_t	prot_bp1, prot_bp2, prot_lsp;
 	int16_t	uv1, uv2, cuv, uv_index, uv_parity;
 	unsigned char	*bit_ptr, *bit_ptr1;
-	int16_t	ilsp1[LPC_ORD], ilsp2[LPC_ORD], res[2*LPC_ORD];
+
 	int16_t	temp1, temp2, p_value, q_value;
 	int16_t	intfact;
-	int16_t	weighted_fsmag[NUM_HARM];                              /* Q13 */
+
 
 	int16_t	erase_uuu = 0, erase_vvv = 0;
 	int16_t	flag_parity = 0, flag_dec_lsp = 1, flag_dec_pitch = 1;

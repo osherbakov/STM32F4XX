@@ -61,7 +61,7 @@ void	quant_u_q(int16_t *p_data, int16_t *p_index, int16_t qmin,
 void quant_u_dec_q(int16_t index, int16_t *p_data, int16_t qmin,
 				 int16_t qmax, int16_t nlev_q, int16_t scale);
 
-void	rand_num(int16_t output[], int16_t amplitude, int16_t npts);
+void	rand_num_q(int16_t output[], int16_t amplitude, int16_t npts);
 
 int16_t rand_minstdgen(void);
 

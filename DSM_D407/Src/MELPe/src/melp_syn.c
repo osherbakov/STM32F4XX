@@ -156,32 +156,35 @@ void synthesis_q(struct melp_param *par, int16_t sp_out[])
 /*  Outputs:                                                                  */
 /*    speech[] - output speech signal                                         */
 /*  Returns: void                                                             */
-
+	static int16_t	lpc_del[LPC_ORD];                               /* Q0 */
+	static int16_t	prev_pcof[MIX_ORD + 1], prev_ncof[MIX_ORD + 1];
+	static int16_t	disp_del[DISP_ORD];
+	static int16_t	ase_del[LPC_ORD], tilt_del[TILT_ORD];
+	static int16_t	pulse_del[MIX_ORD], noise_del[MIX_ORD];
+	static int16_t	fs_real[PITCHMAX];
+	static int16_t	sig2[BEGIN + PITCHMAX];
+	static int16_t	sigbuf[BEGIN + PITCHMAX];
+	static int16_t	curr_tilt, tilt_cof[TILT_ORD + 1];	
+	static int16_t	lsf[LPC_ORD];
+	static int16_t	lpc[LPC_ORD + 1];
+	static int16_t	ase_num[LPC_ORD + 1], ase_den[LPC_ORD];
+	static int16_t	curr_pcof[MIX_ORD + 1], curr_ncof[MIX_ORD + 1];
+	static int16_t	pulse_cof[MIX_ORD + 1], noise_cof[MIX_ORD + 1];
+	
 static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 {
 	register int16_t	i;
 	static BOOLEAN	firstTime = TRUE;
 	static int16_t	noise_gain = MIN_NOISE_Q8;
 	static int16_t	prev_lpc_gain = ONE_Q15;
-	static int16_t	lpc_del[LPC_ORD];                               /* Q0 */
 	static int16_t	prev_tilt;
-	static int16_t	prev_pcof[MIX_ORD + 1], prev_ncof[MIX_ORD + 1];
-	static int16_t	disp_del[DISP_ORD];
-	static int16_t	ase_del[LPC_ORD], tilt_del[TILT_ORD];
-	static int16_t	pulse_del[MIX_ORD], noise_del[MIX_ORD];
-	int16_t	fs_real[PITCHMAX];
-	int16_t	sig2[BEGIN + PITCHMAX];
-	int16_t	sigbuf[BEGIN + PITCHMAX];
+
 	int16_t	gaincnt, length;
 	int16_t	intfact, intfact1, ifact, ifact_gain;
 	int16_t	gain, pulse_gain, pitch, jitter;
-	int16_t	curr_tilt, tilt_cof[TILT_ORD + 1];
+
 	int16_t	sig_prob, syn_gain, lpc_gain;
-	int16_t	lsf[LPC_ORD];
-	int16_t	lpc[LPC_ORD + 1];
-	int16_t	ase_num[LPC_ORD + 1], ase_den[LPC_ORD];
-	int16_t	curr_pcof[MIX_ORD + 1], curr_ncof[MIX_ORD + 1];
-	int16_t	pulse_cof[MIX_ORD + 1], noise_cof[MIX_ORD + 1];
+
 	int16_t	temp1, temp2;
 	int32_t	L_temp1, L_temp2;
 	int16_t	fc_prev, fc_curr, fc;
@@ -386,7 +389,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		gain = mult(X005_Q19, gain);                           /* gain in Q12 */
 
 		/* Set period length based on pitch and jitter */
-		rand_num(&temp1, ONE_Q15, 1);
+		rand_num_q(&temp1, ONE_Q15, 1);
 		/*	length = pitch * (1.0 - jitter * temp) + 0.5; */
 		temp1 = mult(jitter, temp1);
 		temp1 = shr(temp1, 1);                                /* temp1 in Q14 */
@@ -507,7 +510,6 @@ void melp_syn_init_q(struct melp_param *par)
 {
 	register int16_t	i;
 	int16_t	temp;
-
 
 	v_zap(prev_par.gain, NUM_GAINFR);
 	prev_par.pitch = UV_PITCH_Q7;

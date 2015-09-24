@@ -33,8 +33,6 @@ Secretariat fax: +33 493 65 47 16.
 
 /*	compiler include files	*/
 
-#include <assert.h>
-
 #include "sc1200.h"
 #include "mathhalf.h"
 #include "mat_lib.h"
@@ -60,15 +58,16 @@ Secretariat fax: +33 493 65 47 16.
 /*  pitch - Q7                                                  */
 
 static int32_t L_fsmag[NUM_HARM];
+static int16_t	find_hbuf[2*FFTLENGTH] CCMRAM;
 void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 			   int16_t num_harm, int16_t length)
 {
 	register int16_t	i, j, k;
-	int16_t	find_hbuf[2*FFTLENGTH];
+
 	int16_t	iwidth, i2;
 	int16_t	fwidth, mult_fwidth, shift, max;
 	int32_t	L_temp, L_max;
-	Word40		avg;
+	Word40	avg;
 	int16_t	temp1, temp2;
 
 	/* Find normalization factor of frame and scale input to maximum          */
@@ -170,18 +169,16 @@ void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 /*                                                                            */
 /* Q values:                                                                  */
 /*      real - Q13, signal - Q15                                              */
-
+static int16_t	idftc[DFTMAX] CCMRAM;
 void idft_real_q(int16_t real[], int16_t signal[], int16_t length)
 {
 	register int16_t	i, j, k;
-	static int16_t	idftc[DFTMAX];
+
 	int16_t	k_inc, length2;
 	int16_t	w, w2;
 	int16_t	temp;
 	int32_t	L_temp;
 
-
-	assert(length <= DFTMAX);
 	length2 = add(shr(length, 1), 1);
 	/*	w = TWOPI / length; */
 	w = divide_s(TWO_Q3, length);                      /* w = 2/length in Q18 */
