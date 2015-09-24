@@ -55,7 +55,7 @@ BSP_LED_On(LED5);
 		melp_syn(&melp_syn_par, speech);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
 BSP_LED_Off(LED5);
-		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
+//		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
 		pDataIn += MELP_FRAME_SIZE * 4;
 		pDataOut += MELP_FRAME_SIZE * 4;
 		*pInSamples -= MELP_FRAME_SIZE;
