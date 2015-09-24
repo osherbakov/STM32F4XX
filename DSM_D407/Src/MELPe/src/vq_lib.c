@@ -117,13 +117,13 @@ int16_t *vq_lspw_q(int16_t weight[], int16_t lsp[], int16_t lpc[],
 /*      Note:                                                                 */
 /*          The coder does not use the returned value from vq_lspw() at all.  */
 
-static int16_t	indices[2*MSVQ_M*4];//  = v_get((int16_t) ());
-static int16_t	errors[2*MSVQ_M*LPC_ORD];	//  = v_get((int16_t) (2*ma*order));
-static int16_t	uhatw[LPC_ORD];	// = v_get(order);
-static int16_t	d[2*MSVQ_M];		//  = v_get((int16_t) (2*ma));
-static int16_t	parents[2*MSVQ_M];	// = v_get((int16_t) (2*ma));
-static int16_t	tmp_p_e[MSVQ_M*LPC_ORD];	// = v_get((int16_t) (ma*order));
-static int16_t	u_tmp[LPC_ORD +1];
+static int16_t	indices[2*MSVQ_M*4] CCMRAM;//  = v_get((int16_t) ());
+static int16_t	errors[2*MSVQ_M*LPC_ORD] CCMRAM;	//  = v_get((int16_t) (2*ma*order));
+static int16_t	uhatw[LPC_ORD] CCMRAM;	// = v_get(order);
+static int16_t	d[2*MSVQ_M] CCMRAM;		//  = v_get((int16_t) (2*ma));
+static int16_t	parents[2*MSVQ_M] CCMRAM;	// = v_get((int16_t) (2*ma));
+static int16_t	tmp_p_e[MSVQ_M*LPC_ORD] CCMRAM;	// = v_get((int16_t) (ma*order));
+static int16_t	u_tmp[LPC_ORD +1] CCMRAM;
 
 int16_t vq_ms4_q(const int16_t *cb, int16_t *u, const int16_t *u_est,
 				 const int16_t levels[], int16_t ma, int16_t stages,
@@ -387,7 +387,7 @@ int16_t vq_ms4_q(const int16_t *cb, int16_t *u, const int16_t *u_est,
 /*                                                                            */
 /*      Note:                                                                 */
 /*          The coder does not use the returned value from vq_lspw() at all.  */
-static int32_t	L_u_hat[LPC_ORD]; 
+static int32_t	L_u_hat[LPC_ORD] CCMRAM; 
 
 void vq_msd2_q(const int16_t *cb, int16_t *u_hat, const int16_t *u_est,
 			 int16_t *indices, const int16_t levels[], int16_t stages,

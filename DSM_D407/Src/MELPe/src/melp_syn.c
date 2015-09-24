@@ -85,7 +85,7 @@ Secretariat fax: +33 493 65 47 16.
 
 
 static struct melp_param	prev_par;
-static int16_t	sigsave[PITCHMAX];
+static int16_t	sigsave[PITCHMAX] CCMRAM;
 static int16_t	syn_begin;
 static BOOLEAN	erase;
 
@@ -158,12 +158,12 @@ void synthesis_q(struct melp_param *par, int16_t sp_out[])
 /*  Returns: void                                                             */
 	static int16_t	lpc_del[LPC_ORD];                               /* Q0 */
 	static int16_t	prev_pcof[MIX_ORD + 1], prev_ncof[MIX_ORD + 1];
-	static int16_t	disp_del[DISP_ORD];
+	static int16_t	disp_del[DISP_ORD] CCMRAM;
 	static int16_t	ase_del[LPC_ORD], tilt_del[TILT_ORD];
 	static int16_t	pulse_del[MIX_ORD], noise_del[MIX_ORD];
-	static int16_t	fs_real[PITCHMAX];
-	static int16_t	sig2[BEGIN + PITCHMAX];
-	static int16_t	sigbuf[BEGIN + PITCHMAX];
+	static int16_t	fs_real[PITCHMAX] CCMRAM;
+	static int16_t	sig2[BEGIN + PITCHMAX] CCMRAM;
+	static int16_t	sigbuf[BEGIN + PITCHMAX] CCMRAM;
 	static int16_t	curr_tilt, tilt_cof[TILT_ORD + 1];	
 	static int16_t	lsf[LPC_ORD];
 	static int16_t	lpc[LPC_ORD + 1];

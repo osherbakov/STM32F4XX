@@ -71,12 +71,12 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 ** Return value:	None
 **
 *****************************************************************************/
-	static int16_t	dcb[PITCH_VQ_CAND * NF];                               /* Q12 */
+	static int16_t	dcb[PITCH_VQ_CAND * NF] CCMRAM;                               /* Q12 */
 	static int16_t	target[NF], deltp[NF];                                 /* Q12 */
 	static int16_t	deltw[NF];                                              /* Q0 */
 	static int16_t	weights[NF];                                            /* Q0 */
-	static int16_t	indexlist[PITCH_VQ_CAND];
-	static int32_t	distlist[PITCH_VQ_CAND];                               /* Q25 */
+	static int16_t	indexlist[PITCH_VQ_CAND] CCMRAM;
+	static int32_t	distlist[PITCH_VQ_CAND] CCMRAM;                               /* Q25 */
 
 void pitch_vq(struct melp_param *par)
 {
@@ -485,11 +485,11 @@ void quant_bp(struct melp_param *par, int16_t num_frames)
 **
 ***********************************************************************/
 
-static int16_t	cand_target[2*LPC_ORD];
-static int16_t	index[LSP_VQ_CAND][LSP_VQ_STAGES];
-static int16_t	nextIndex[LSP_VQ_CAND][LSP_VQ_STAGES];
-static int16_t	cand[LSP_VQ_CAND][2*LPC_ORD];
-static int16_t	dMin[LSP_VQ_CAND];
+static int16_t	cand_target[2*LPC_ORD] CCMRAM;
+static int16_t	index[LSP_VQ_CAND][LSP_VQ_STAGES] CCMRAM;
+static int16_t	nextIndex[LSP_VQ_CAND][LSP_VQ_STAGES] CCMRAM;
+static int16_t	cand[LSP_VQ_CAND][2*LPC_ORD] CCMRAM;
+static int16_t	dMin[LSP_VQ_CAND] CCMRAM;
 
 static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 					  const int16_t codebook[], int16_t tos,
@@ -905,7 +905,7 @@ static int16_t	qplsp[LPC_ORD];                                /* Q15 */
 static const int16_t		melp_cb_size[4] RODATA = {256, 64, 32, 32}; /* !!! (12/15/99) */
 static const int16_t		res_cb_size[4] RODATA = {256, 64, 64, 64};
 static const int16_t		melp_uv_cb_size[1] = {512};
-static 	int16_t	lsp_cand[LSP_INP_CAND][LPC_ORD]CCMRAM;                       /* Q15 */
+static 	int16_t	lsp_cand[LSP_INP_CAND][LPC_ORD] CCMRAM;                       /* Q15 */
 static 	int16_t	lsp_index_cand[LSP_INP_CAND*LSP_VQ_STAGES] CCMRAM;
 static 	int16_t	ilsp0[LPC_ORD] CCMRAM, ilsp1[LPC_ORD] CCMRAM;                        /* Q15 */
 
@@ -1271,8 +1271,8 @@ void quant_jitter(struct melp_param *par)
 ** Return value:	None
 **
 *****************************************************************************/
-	static int16_t	prev_fsmag[NUM_HARM];
-	static int16_t	qmag[NUM_HARM];                                        /* Q13 */
+	static int16_t	prev_fsmag[NUM_HARM] CCMRAM;
+	static int16_t	qmag[NUM_HARM] CCMRAM;                                        /* Q13 */
 void quant_fsmag(struct melp_param *par)
 {
 	static BOOLEAN	prev_uv = TRUE;

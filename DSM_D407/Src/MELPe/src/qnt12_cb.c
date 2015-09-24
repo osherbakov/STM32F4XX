@@ -1279,7 +1279,7 @@ const int16_t 	pitch_vq_cb_vvv[PITCH_VQ_LEVEL_VVV * NF] RODATA = {       /* Q12 
 	  7725,   7733,   8639,   8746 
 };
 
-int16_t 	pitch_vq_cb_uvv[PITCH_VQ_LEVEL_UVV * NF] = {
+int16_t 	pitch_vq_cb_uvv[PITCH_VQ_LEVEL_UVV * NF] RODATA = {
 	  5975,   6068,   6231,   6833,   5926, 
 	  7786,   6556,   7235,   7330,   8365, 
 	  7546,   8739,   5680,   5672,   5679, 

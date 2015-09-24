@@ -178,7 +178,7 @@ static void		double_ver(int16_t sig_in[], int16_t *pcorr,
 
 /* f_pitch_scale.c: Scale pitch signal buffer for best precision              */
 
-static int16_t temp_[PITCH_FR];
+static int16_t temp_[PITCH_FR] CCMRAM;
 
 int16_t f_pitch_scale(int16_t sig_out[], int16_t sig_in[],
 						int16_t length)
@@ -558,10 +558,10 @@ int16_t p_avg_update_q(int16_t pitch, int16_t pcorr, int16_t pthresh)
 /*                                                                            */
 /* Q values                                                                   */
 /*      speech - Q0, resid - Q0, pitch_est - Q7, pitch_avg - Q7, pcorr2 - Q14 */
-	static int16_t	lpres_delin[LPF_ORD];
-	static int16_t	lpres_delout[LPF_ORD];
-	static int16_t	sigbuf[LPF_ORD + PITCH_FR];
-	static int16_t	temp_delin[LPF_ORD], temp_delout[LPF_ORD];
+	static int16_t	lpres_delin[LPF_ORD] CCMRAM;
+	static int16_t	lpres_delout[LPF_ORD] CCMRAM;
+	static int16_t	sigbuf[LPF_ORD + PITCH_FR] CCMRAM;
+	static int16_t	temp_delin[LPF_ORD] CCMRAM, temp_delout[LPF_ORD] CCMRAM;
 
 int16_t pitch_ana_q(int16_t speech[], int16_t resid[],
 					int16_t pitch_est, int16_t pitch_avg,

@@ -62,8 +62,8 @@ void minCostIndex(int16_t *costBuf, int16_t *index1, int16_t *index2);
 ** Return value:	None
 **
 *****************************************************************************/
-	static int16_t	lpbuf[PIT_COR_LEN];     /* low pass filter buffer, Q0 */
-	static int16_t	ivbuf[PIT_COR_LEN];     /* inverse filter buffer, Q12 */
+	static int16_t	lpbuf[PIT_COR_LEN] CCMRAM ;     /* low pass filter buffer, Q0 */
+	static int16_t	ivbuf[PIT_COR_LEN] CCMRAM;     /* inverse filter buffer, Q12 */
 
 void pitchAuto(int16_t inbuf[], pitTrackParam *pitTrack,
 			   classParam *classStat)
@@ -213,9 +213,9 @@ static void ivfilt(int16_t ivbuf[], int16_t lpbuf[], int16_t len)
  *	pitTrack	---- pitch pitTrackParam structure				*
  *	classStat	---- classification paramters					*
  *==============================================================*/
-	static int16_t	proBuf[PIT_COR_LEN];                                   /* Q15 */
-	static int16_t	index[MAXPITCH + 1];
-	static int16_t	gp[MAXPITCH + 1], peak[MAXPITCH + 1], corx[NODE];      /* Q15 */
+	static int16_t	proBuf[PIT_COR_LEN] CCMRAM;                                   /* Q15 */
+	static int16_t	index[MAXPITCH + 1] CCMRAM;
+	static int16_t	gp[MAXPITCH + 1] CCMRAM, peak[MAXPITCH + 1]CCMRAM , corx[NODE] CCMRAM;      /* Q15 */
 
 static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 											classParam *classStat)
