@@ -125,8 +125,8 @@ int melp_chn_read(struct melp_param *par)
 	par->pitch_index = param_buffer.pitch_index;
 	par->jit_index = param_buffer.jit_index;
 	par->bpvc_index = param_buffer.bpvc_index;
-	memcpy(par->msvq_par.indices, param_buffer.msvq_par.indices, sizeof(param_buffer.msvq_par));
-	memcpy(par->fsvq_par.indices, param_buffer.fsvq_par.indices, sizeof(param_buffer.fsvq_par));
+	memcpy(par->msvq_par.indices, param_buffer.msvq_par.indices, sizeof(param_buffer.msvq_par.indices));
+	memcpy(par->fsvq_par.indices, param_buffer.fsvq_par.indices, sizeof(param_buffer.fsvq_par.indices));
 
 	/* Clear unvoiced flag */
 	par->uv_flag = 0;
