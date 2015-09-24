@@ -23,19 +23,19 @@
 /* inv_bp_index_map[] reverses this mapping.  The declared dimension 16 is    */
 /* 2^(NUM_BANDS - 1).                                                         */
 
-int16_t 	bp_index_map[16] = {
+const int16_t 	bp_index_map[16] RODATA = {
 	0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 3, 2, 3, 3, 3
 };
 
-int16_t 	inv_bp_index_map[4] = {
+const int16_t 	inv_bp_index_map[4] RODATA = {
 	0, 8, 12, 15
 };
 
-int16_t vvv_index_map[4] = {
+const int16_t vvv_index_map[4] RODATA = {
         3, 5, 6, 7
 };
 
-int16_t 	pitch_uvflag_map[9] = {
+const int16_t 	pitch_uvflag_map[9] RODATA = {
 	0,		/* UUU	  (1) */
 	1,		/* UUV	 (99) */
 	100,	/* UVU	 (99) */
@@ -47,7 +47,7 @@ int16_t 	pitch_uvflag_map[9] = {
 	3882	/* end of CB  */
 };
 
-int16_t 	pitch_vq_cb_vvv[PITCH_VQ_LEVEL_VVV * NF] = {       /* Q12 */
+const int16_t 	pitch_vq_cb_vvv[PITCH_VQ_LEVEL_VVV * NF] RODATA = {       /* Q12 */
 	  5764,   5782,   6975,   6370,   5389, 
 	  7926,   6939,   7332,   8027,   8468, 
 	  8136,   7304,   5473,   5487,   5569, 
@@ -1593,7 +1593,7 @@ int16_t 	pitch_vq_cb_uvv[PITCH_VQ_LEVEL_UVV * NF] = {
 int16_t *pitch_vq_cb_vuv = pitch_vq_cb_uvv;
 int16_t *pitch_vq_cb_vvu = pitch_vq_cb_uvv;
 
-int16_t 	gain_vq_cb[GAIN_VQ_SIZE * NF * NUM_GAINFR] = {      /* Q8 */
+const int16_t 	gain_vq_cb[GAIN_VQ_SIZE * NF * NUM_GAINFR] RODATA = {      /* Q8 */
 	 12002,   8416,   4630,   3423,   3122, 
 	 12695,   2689,   2648,   2623,   2664, 
 	  2842,   5668,   6871,   6552,   7382, 
@@ -2825,7 +2825,7 @@ int16_t 	gain_vq_cb[GAIN_VQ_SIZE * NF * NUM_GAINFR] = {      /* Q8 */
 	 13603,  13688,  14097,  14664
 };
 
-int16_t 	inpCoef[16][2*LPC_ORD] = {                         /* Q14 */
+int16_t 	inpCoef[16][2*LPC_ORD] RODATA = {                         /* Q14 */
 {
      14503,      16237,      17990,      18726,      18434, 
      18493,      18534,      17188,      15822,      13680, 
@@ -2924,7 +2924,7 @@ int16_t 	inpCoef[16][2*LPC_ORD] = {                         /* Q14 */
 },
 };
 
-int16_t lsp_v_256x64x32x32[3840] = {				/* Q15 */
+const int16_t lsp_v_256x64x32x32[3840] RODATA = {				/* Q15 */
 	  5044,   7809,  11181,  13112,  15882, 
 	 18163,  20957,  23066,  25862,  27173, 
 	  3218,   5012,   8230,  11493,  16564, 
@@ -3695,7 +3695,7 @@ int16_t lsp_v_256x64x32x32[3840] = {				/* Q15 */
 	  -318,   -108,   -667,    819,    459
 };
 
-int16_t 	lsp_uv_9[512 * LPC_ORD] = {                        /* Q15 */
+const int16_t 	lsp_uv_9[512 * LPC_ORD] RODATA = {                        /* Q15 */
  	  1235,   2611,   6431,  10332,  12622, 
 	 15841,  19465,  22803,  26190,  28376, 
 	  1331,   2636,   6865,   8833,  12361, 
@@ -4722,7 +4722,7 @@ int16_t 	lsp_uv_9[512 * LPC_ORD] = {                        /* Q15 */
 	 20523,  22843,  24650,  26752,  27849
 };
 
-int16_t res256x64x64x64[(256 + 64 + 64 + 64)*2*LPC_ORD] = {   /*Q17*/
+const int16_t res256x64x64x64[(256 + 64 + 64 + 64)*2*LPC_ORD] RODATA = {   /*Q17*/
 	  4335,   9412,  15037,  15052,  11554, 
 	  9302,   5161,   2648,   4650,     18, 
 	  3432,   5024,  13498,  17824,  11180, 
@@ -6516,5 +6516,4 @@ int16_t res256x64x64x64[(256 + 64 + 64 + 64)*2*LPC_ORD] = {   /*Q17*/
 	  -159,     37,    290,   1087,    411, 
 	 -2674,  -1156,  -1028,   -994,     90
 };
-
 

@@ -1243,6 +1243,7 @@
       <TargetName>DSM_407_Release</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pArmCC>5050169::V5.05 update 2 (build 169)::ARMCC</pArmCC>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F407VG</Device>

@@ -32,12 +32,12 @@ Secretariat fax: +33 493 65 47 16.
 
 #include "sc1200.h"
 
-const int16_t		msvq_cb_mean[LPC_ORD] = {
+const int16_t		msvq_cb_mean[LPC_ORD] RODATA = {
 	2858, 4291, 6569, 9792, 12935, 15703, 19199, 21921, 25572, 27909
 };
 
 
-const int16_t		msvq_cb_q[(128 + 64 + 64 + 64) * LPC_ORD] = {
+const int16_t		msvq_cb_q[(128 + 64 + 64 + 64) * LPC_ORD] RODATA = {
 	   124,  -1043,  -5261,  -6947,   8481,
 	  7520,   2370,   2272,   -729,  -1243,
 
