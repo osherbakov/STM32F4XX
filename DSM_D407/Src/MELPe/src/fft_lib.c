@@ -39,6 +39,9 @@ void rfft(int16_t datam1[], int16_t n)
 
 	n_2 = shr(n, 1);
 	cfft(datam1, n_2);
+	return;
+	
+	
 	/* Check for overflow */
 	data_max = 0;
 	for (i = 0; i < n; i++){
@@ -123,7 +126,9 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 	int16_t	index, index_step;
 	int16_t	guard;
 
-
+	arm_cfft_q15(&arm_cfft_sR_q15_len256, datam1, 0, 1);
+	return 0;
+	
 	guard = 0;
 	/* Use pointer indexed from 1 instead of 0 */
 	data = &datam1[-1];

@@ -12,6 +12,7 @@
 
 
 extern DataProcessBlock_t  MELP;
+extern DataProcessBlock_t  MELPE;
 extern DataProcessBlock_t  CVSD;
 extern DataProcessBlock_t  CODEC;
 extern DataProcessBlock_t  BYPASS;

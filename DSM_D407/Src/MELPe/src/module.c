@@ -92,10 +92,8 @@ typedef struct DataProcessBlock {
 typedef unsigned short uint16_t;
 typedef signed short int16_t;
 
-#define MELP_FRAME_SIZE  (180)
-
 /* ========== Static Variables ========== */
-static int16_t	speech[MELP_FRAME_SIZE] CCMRAM;
+static int16_t	speech[BLOCK] CCMRAM;
 
 void *melpe_create(uint32_t Params)
 {
@@ -119,34 +117,42 @@ void melpe_init(void *pHandle)
 	melp_syn_init_q(melp_parameters);
 }
 
-
 uint32_t melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nGenerated = 0;
+	uint32_t	nFrameSize = melp_parameters->frameSize;
 	
-	while(*pInSamples >= MELP_FRAME_SIZE)
+	while(*pInSamples >= nFrameSize)
 	{
 BSP_LED_On(LED4);
-		arm_copy_q15(pDataIn, speech, MELP_FRAME_SIZE);
+		arm_float_to_q15(pDataIn, speech, nFrameSize);
+#if 0	// NPP
+		if (melp_parameters->rate == RATE1200){
+			npp(melp_parameters, speech, speech);
+			npp(melp_parameters, &(speech[FRAME]), &(speech[FRAME]));
+			npp(melp_parameters, &(speech[2*FRAME]), &(speech[2*FRAME]));
+		} else
+			npp(melp_parameters, speech, speech);
+#endif
 		analysis_q(speech, melp_parameters);
 BSP_LED_Off(LED4);
 BSP_LED_On(LED5);
 		synthesis_q(melp_parameters, speech);
-		arm_copy_q15(speech, pDataOut, MELP_FRAME_SIZE);		
+		arm_q15_to_float(speech, pDataOut, nFrameSize);		
 BSP_LED_Off(LED5);
 //		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
-		pDataIn = (void *) ((int32_t)pDataIn + MELP_FRAME_SIZE * 2);
-		pDataOut = (void *)((int32_t)pDataOut + MELP_FRAME_SIZE * 2);
-		*pInSamples -= MELP_FRAME_SIZE;
-		nGenerated += MELP_FRAME_SIZE;
+		pDataIn = (void *) ((int32_t)pDataIn + nFrameSize * 4);
+		pDataOut = (void *)((int32_t)pDataOut + nFrameSize * 4);
+		*pInSamples -= nFrameSize;
+		nGenerated += nFrameSize;
 	}
 	return nGenerated;
 }
 
 uint32_t melpe_data_typesize(void *pHandle, uint32_t *pType)
 {
-	 *pType = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
-	 return MELP_FRAME_SIZE;
+	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	 return melp_parameters->frameSize;
 }
 
 
