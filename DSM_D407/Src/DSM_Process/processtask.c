@@ -60,7 +60,7 @@ void StartDataProcessTask(void const * argument)
 	pProcModule->Init(pProcModuleState);
 	pDecModule->Init(pDecState);
 	pIntModule->Init(pIntState);
-	
+
 	while(1)
 	{
 		event = osMessageGet(osParams.dataReadyMsg, osWaitForever);
@@ -82,7 +82,7 @@ void StartDataProcessTask(void const * argument)
 				DataConvert(pAudio, osParams.DownSample_data->Type, DATA_CHANNEL_1 , pAudioOut, Type, DATA_CHANNEL_1, nSamplesModuleGenerated);
 				// Place the processed data into the queue for the next module to process
 				Queue_PushData(osParams.DownSample_data, pAudio, nSamplesModuleGenerated * osParams.DownSample_data->ElemSize);
-	
+
 				nSamplesInQueue = Queue_Count_Elems(pDataQ);
 				nSamplesModuleNeeds = pDecModule->TypeSize(pDecState, &Type);
 			}
@@ -101,11 +101,11 @@ void StartDataProcessTask(void const * argument)
 				DataConvert(pAudio, osParams.UpSample_data->Type, DATA_CHANNEL_1 , pAudioOut, Type, DATA_CHANNEL_1, nSamplesModuleGenerated);
 				// Place the processed data into the queue for the next module to process
 				Queue_PushData(osParams.UpSample_data, pAudio, nSamplesModuleGenerated * osParams.UpSample_data->ElemSize);
-				
+
 				nSamplesInQueue = Queue_Count_Elems(osParams.DownSample_data);
 				nSamplesModuleNeeds = pProcModule->TypeSize(pProcModuleState, &Type);
 			}
-			
+
 			// Third, upsample and distribute to the output channels
 			nSamplesInQueue = Queue_Count_Elems(osParams.UpSample_data);
 			nSamplesModuleNeeds = pIntModule->TypeSize(pIntState, &Type);
@@ -119,8 +119,8 @@ void StartDataProcessTask(void const * argument)
 				// Convert data from the Processing-Module-provided type to the HW Queue type
 				DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModuleGenerated);
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
-				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated * osParams.PCM_Out_data->ElemSize);	
-				Queue_PushData(osParams.USB_In_data, pAudio, nSamplesModuleGenerated * osParams.USB_In_data->ElemSize);	
+				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated * osParams.PCM_Out_data->ElemSize);
+				Queue_PushData(osParams.USB_In_data, pAudio, nSamplesModuleGenerated * osParams.USB_In_data->ElemSize);
 				nSamplesInQueue = Queue_Count_Elems(osParams.UpSample_data);
 				nSamplesModuleNeeds = pIntModule->TypeSize(pIntState, &Type);
 			}

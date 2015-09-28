@@ -1,11 +1,11 @@
 /* ================================================================== */
-/*                                                                    */ 
+/*                                                                    */
 /*    Microsoft Speech coder     ANSI-C Source Code                   */
 /*    SC1200 1200 bps speech coder                                    */
 /*    Fixed Point Implementation      Version 7.0                     */
 /*    Copyright (C) 2000, Microsoft Corp.                             */
 /*    All rights reserved.                                            */
-/*                                                                    */ 
+/*                                                                    */
 /* ================================================================== */
 
 /*------------------------------------------------------------------*/
@@ -43,13 +43,13 @@ static void		wvq1(int16_t target[], int16_t weights[],
 					 const int16_t codebook[], int16_t dim,
 					 int16_t cbsize, int16_t index[], int32_t dist[],
 					 int16_t cand);
-static int16_t	InsertCand(int16_t c1, int16_t s1, int16_t dMin[], 
-							int16_t distortion, int16_t entry, 
+static int16_t	InsertCand(int16_t c1, int16_t s1, int16_t dMin[],
+							int16_t distortion, int16_t entry,
 							int16_t nextIndex[], int16_t index[]);
 static int16_t	wvq2(int16_t target[], int16_t weights[],
 						 int16_t codebook[], int16_t dim,
 						 int16_t index[], int32_t dist[], int16_t cand);
-static int16_t	WeightedMSE(int16_t n, int16_t weight[], 
+static int16_t	WeightedMSE(int16_t n, int16_t weight[],
 						const int16_t x[], int16_t target[],
 						int16_t max_dMin);
 static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
@@ -304,7 +304,7 @@ static int16_t	wvq2(int16_t target[], int16_t weights[],
 {
 	register int16_t	i, j;
 	int16_t	ind;
-	int32_t	err, min;        
+	int32_t	err, min;
 	int32_t	L_temp;
 	int16_t	temp;
 
@@ -486,7 +486,7 @@ void quant_bp(struct melp_param *par, int16_t num_frames)
 ***********************************************************************/
 
 static int16_t	cand_target[2*LPC_ORD] CCMRAM;
-static int16_t	index[LSP_VQ_CAND][LSP_VQ_STAGES] CCMRAM;
+static int16_t	vq_index[LSP_VQ_CAND][LSP_VQ_STAGES] CCMRAM;
 static int16_t	nextIndex[LSP_VQ_CAND][LSP_VQ_STAGES] CCMRAM;
 static int16_t	cand[LSP_VQ_CAND][2*LPC_ORD] CCMRAM;
 static int16_t	dMin[LSP_VQ_CAND] CCMRAM;
@@ -499,7 +499,7 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 	register int16_t	i, entry;
 	register int16_t	c1, s1;
 	const int16_t		*cdbk_ptr, *cdbk_ptr2, *ptr1;
-	int16_t	max_dMin,  distortion; 
+	int16_t	max_dMin,  distortion;
 	int16_t	ncPrev;
 	int32_t	L_temp;
 	int16_t	ptr_offset = 0;
@@ -515,7 +515,7 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 	*==================================================================*/
 	for (i = 0; i < LSP_VQ_CAND; i++){
 		v_zap(cand[i], dim);
-		v_zap(index[i], LSP_VQ_STAGES);
+		v_zap(vq_index[i], LSP_VQ_STAGES);
 		v_zap(nextIndex[i], LSP_VQ_STAGES);
 	}
 
@@ -566,7 +566,7 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 				*=======================================================*/
 				if (distortion < max_dMin){
 					max_dMin = InsertCand(c1, s1, dMin, distortion, entry,
-							 	  nextIndex[0], index[0]);
+							 	  nextIndex[0], vq_index[0]);
 				}
 				ptr_offset = add(ptr_offset, dim);
 			}
@@ -612,10 +612,10 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 			v_zap(cand[c1], dim);
 			cdbk_ptr2 = codebook;
 			temp1 = add(s1, 1);
-			v_equ(index[c1], nextIndex[c1], temp1);
+			v_equ(vq_index[c1], nextIndex[c1], temp1);
 			for (i = 0; i < temp1; i++){
 				/*	v_add(cand[c1], cdbk_ptr2 + index[c1][i]*dim, dim); */
-				L_temp = L_mult(index[c1][i], dim);
+				L_temp = L_mult(vq_index[c1][i], dim);
 				L_temp = L_shr(L_temp, 1);
 				temp2 = extract_l(L_temp);
 				ptr1 = cdbk_ptr2 + temp2;
@@ -643,7 +643,7 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 	temp1 = 0;
 	temp2 = 0;
 	for (i = 0; i < ncPrev; i++){
-		v_equ(&(cb_index[temp1]), index[i], tos);
+		v_equ(&(cb_index[temp1]), vq_index[i], tos);
 		v_equ(&qout[temp2], cand[i], dim);
 		temp1 = add(temp1, tos);
 		temp2 = add(temp2, dim);
@@ -670,7 +670,7 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 **	int16_t WeightedMSE : distortion returned as function value (Q15/Q17)
 **
 ***********************************************************************/
-static int16_t	WeightedMSE(int16_t n, int16_t weight[], 
+static int16_t	WeightedMSE(int16_t n, int16_t weight[],
 				const int16_t x[], int16_t target[], int16_t max_dMin)
 {
 	register int16_t	i;
@@ -733,8 +733,8 @@ static int16_t	WeightedMSE(int16_t n, int16_t weight[],
 ** Return value:	int16_t
 **
 ***********************************************************************/
-static int16_t	InsertCand(int16_t c1, int16_t s1, int16_t dMin[], 
-							int16_t distortion, int16_t entry, 
+static int16_t	InsertCand(int16_t c1, int16_t s1, int16_t dMin[],
+							int16_t distortion, int16_t entry,
 							int16_t nextIndex[], int16_t index[])
 {
 	register int16_t	i, j;
@@ -755,7 +755,7 @@ static int16_t	InsertCand(int16_t c1, int16_t s1, int16_t dMin[],
 	/* shift the distortions and indices down to make room for the new one */
 	/*	ptr_offset = (LSP_VQ_CAND - 1) * vq_stages; */
 
-	
+
 	L_temp = L_mult((LSP_VQ_CAND - 1) , LSP_VQ_STAGES);
 	L_temp = L_shr(L_temp, 1);
 	ptr_offset = extract_l(L_temp);
@@ -1059,7 +1059,7 @@ void lsf_vq(struct melp_param *par)
 					temp1 = shl(sub(1, temp1), 1);
 					bcc = L_shl(bcc, sub(temp1, 3));                   /* Q24 */
 					err = L_add(err, bcc);
-					
+
 					/* computer the err for the last frame */
 					acc = L_shl(L_deposit_l(lsp[2][j]), 15);
 					acc = L_sub(acc, L_shl(L_deposit_l(lsp_cand[k][j]), 15));
@@ -1304,7 +1304,7 @@ void quant_fsmag(struct melp_param *par)
 			   &quant_par.fs_index);
 
 	if (count > 1){
-		if (prev_uv || par[0].uv_flag){ 
+		if (prev_uv || par[0].uv_flag){
 			for (i = 0; i <= last; i++){
 				if (!par[i].uv_flag)
 					v_equ(par[i].fs_mag, qmag, NUM_HARM);

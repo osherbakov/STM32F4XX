@@ -68,14 +68,14 @@ static __inline int16_t add(int32_t var1, int32_t var2)
 
 //int16_t	shl(int16_t var1, int16_t var2);                     /* 1 ops */
 //static __inline int16_t shl(int32_t a, int32_t b){ return (int16_t)(b >= 0 ? a<<b : a >> -b);}
-int16_t	shr(int16_t var1, int16_t var2);                     /* 1 ops */
+static int16_t	shr(int16_t var1, int16_t var2);                     /* 1 ops */
 static __inline int16_t shl(int16_t var1, int16_t var2)
 {
 	int16_t	swOut;
 	if (var2 < 0) return shr(var1, -var2);
 	if (var2 >= 15) return (var1 > 0) ? SW_MAX : SW_MIN;
 	swOut = var1 << var2;
-	if(swOut>>var2 != var1)return (var1 > 0) ? SW_MAX : SW_MIN; 
+	if(swOut>>var2 != var1)return (var1 > 0) ? SW_MAX : SW_MIN;
 	return (swOut);
 }
 
@@ -89,7 +89,7 @@ static __inline int16_t shr(int16_t var1, int16_t var2)
 }
 
 
-int32_t	L_shr(int32_t L_var1, int16_t var2);                  /* 2 ops */
+static int32_t	L_shr(int32_t L_var1, int16_t var2);                  /* 2 ops */
 //static __inline int32_t L_shr(int32_t a, int32_t b){ return b >= 0 ? a>>b : a << -b;}
 static __inline int32_t L_shl(int32_t var1, int16_t var2)
 {
@@ -97,7 +97,7 @@ static __inline int32_t L_shl(int32_t var1, int16_t var2)
 	if (var2 < 0) return L_shr(var1, -var2);
 	if (var2 >= 31) return (var1 > 0) ? LW_MAX : LW_MIN;
 	L_Out = var1 << var2;
-	if(L_Out>>var2 != var1) return (var1 > 0) ? LW_MAX : LW_MIN; 
+	if(L_Out>>var2 != var1) return (var1 > 0) ? LW_MAX : LW_MIN;
 	return (L_Out);
 }
 

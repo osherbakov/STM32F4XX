@@ -1,11 +1,11 @@
 /* ================================================================== */
-/*                                                                    */ 
+/*                                                                    */
 /*    Microsoft Speech coder     ANSI-C Source Code                   */
 /*    SC1200 1200 bps speech coder                                    */
 /*    Fixed Point Implementation      Version 7.0                     */
 /*    Copyright (C) 2000, Microsoft Corp.                             */
 /*    All rights reserved.                                            */
-/*                                                                    */ 
+/*                                                                    */
 /* ================================================================== */
 
 /*------------------------------------------------------------------*/
@@ -214,7 +214,7 @@ static void ivfilt(int16_t ivbuf[], int16_t lpbuf[], int16_t len)
  *	classStat	---- classification paramters					*
  *==============================================================*/
 	static int16_t	proBuf[PIT_COR_LEN] CCMRAM;                                   /* Q15 */
-	static int16_t	index[MAXPITCH + 1] CCMRAM;
+	static int16_t	trk_index[MAXPITCH + 1] CCMRAM;
 	static int16_t	gp[MAXPITCH + 1] CCMRAM, peak[MAXPITCH + 1]CCMRAM , corx[NODE] CCMRAM;      /* Q15 */
 
 static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
@@ -271,11 +271,11 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 	temp = extract_h(L_temp);
 	if (temp < 0)
 		temp = 0; /* Negative Autocorrelation doesn't make sense here */
-	gp [MAXPITCH] = divide_s(temp, root); 
+	gp [MAXPITCH] = divide_s(temp, root);
 	temp = gp[MAXPITCH];
 
 	/* ==== Here comes the Main loop ==== */
-	
+
 	lowStart = 0;
 	highStart = MAXPITCH;
 	for (i = MAXPITCH - 1; i >= MINPITCH; i--){
@@ -283,8 +283,8 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 			ACC_r0 = L_r0;
 			ACC_r0 = L40_shr(ACC_r0, r0_shift);
 			ACC_r0 = L40_msu(ACC_r0, proBuf[lowStart], proBuf[lowStart]);
-			ACC_r0 = L40_mac(ACC_r0, proBuf[lowStart + PIT_WIN], 
-												proBuf[lowStart + PIT_WIN]); 
+			ACC_r0 = L40_mac(ACC_r0, proBuf[lowStart + PIT_WIN],
+												proBuf[lowStart + PIT_WIN]);
 			if (ACC_r0 == 0)
 				ACC_r0 = 1;
 			r0_shift = norm32(ACC_r0);
@@ -296,8 +296,8 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 			ACC_rk = L_rk;
 			ACC_rk = L40_shr(ACC_rk, rk_shift);
 			ACC_rk = L40_mac(ACC_rk, proBuf[highStart], proBuf[highStart]);
-			ACC_rk = L40_msu(ACC_rk, proBuf[highStart+PIT_WIN], 
-													proBuf[highStart+PIT_WIN]); 
+			ACC_rk = L40_msu(ACC_rk, proBuf[highStart+PIT_WIN],
+													proBuf[highStart+PIT_WIN]);
 			if (ACC_rk == 0)
 				ACC_rk = 1;
 			rk_shift = norm32(ACC_rk);
@@ -322,18 +322,18 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 		temp = extract_h(L_temp);
 		if (temp < 0)
 			temp = 0; /* ignore negative autocorrelation */
-		gp [i] = divide_s(temp, root); 
+		gp [i] = divide_s(temp, root);
 	} /* Main loop ends */
 
 	/* ------ Find the local peak of gp function ------- */
-	if (gp[MINPITCH + 1] < gp[MINPITCH]) 
+	if (gp[MINPITCH + 1] < gp[MINPITCH])
 		peak[MINPITCH] = gp[MINPITCH];
 	else
 		peak[MINPITCH] = 0;
 
-	if (gp[MAXPITCH] > gp[MAXPITCH - 1]) 
+	if (gp[MAXPITCH] > gp[MAXPITCH - 1])
 		peak[MAXPITCH] = gp[MAXPITCH];
-	else	
+	else
 		peak[MAXPITCH] = 0;
 
 	for (i = MINPITCH + 1; i < MAXPITCH; i++){
@@ -344,7 +344,7 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 	}
 
 	/* --- Fill in the TRACK struct using the first NODE peaks --- */
-	v_zap(index, MAXPITCH + 1);
+	v_zap(trk_index, MAXPITCH + 1);
 
 	for (i = 0; i < NODE; i++){
 		temp = MAXPITCH;
@@ -352,7 +352,7 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 			if (peak[j] > peak[temp])
 				temp = j;
 		}
-		index[temp] = (int16_t) (i + 1);
+		trk_index[temp] = (int16_t) (i + 1);
 		corx[i] = peak[temp];
 		peak[temp] = 0;
 		if (i == 0)
@@ -363,9 +363,9 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 
 	j = 0;
 	for (i = MINPITCH; i <= MAXPITCH; i++){
-		if (index[i] != 0){
+		if (trk_index[i] != 0){
 			pitTrack->pit[j] = i;
-			pitTrack->weight[j] = corx[index[i] - 1];
+			pitTrack->weight[j] = corx[trk_index[i] - 1];
 			j ++;
 		}
 	}
@@ -559,7 +559,7 @@ int16_t trackPitch(int16_t pitch, pitTrackParam *pitTrack)
 
 /******************************************************************
 **
-** Function:	pitLookahead	
+** Function:	pitLookahead
 **
 ** Description: Find pitch at onset segment
 **
@@ -594,7 +594,7 @@ int16_t pitLookahead(pitTrackParam *pitTrack, int16_t num)
 
 			/*	pitTrack[i].cost[j] +=
 					abs(pitTrack[i].pit[j] - pitTrack[i + 1].pit[index]); */
-			L_sum = L_sub(L_deposit_h(pitTrack[i].pit[j]), 
+			L_sum = L_sub(L_deposit_h(pitTrack[i].pit[j]),
 						  L_deposit_h(pitTrack[i+1].pit[index]));
 			L_cost = L_add(L_cost, L_shl(L_abs(L_sum), 5));			/* Q5 */
 

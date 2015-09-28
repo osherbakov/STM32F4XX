@@ -1,11 +1,11 @@
 /* ================================================================== */
-/*                                                                    */ 
+/*                                                                    */
 /*    Microsoft Speech coder     ANSI-C Source Code                   */
 /*    SC1200 1200 bps speech coder                                    */
 /*    Fixed Point Implementation      Version 7.0                     */
 /*    Copyright (C) 2000, Microsoft Corp.                             */
 /*    All rights reserved.                                            */
-/*                                                                    */ 
+/*                                                                    */
 /* ================================================================== */
 
 /*------------------------------------------------------------------*/
@@ -19,17 +19,18 @@
 #ifndef  _SC1200_H_
 #define  _SC1200_H_
 
+#include "stdint.h"
 
 /* =================== */
 /* Definition of Types */
 /* =================== */
 
-typedef int				int32_t;				/* 32 bit "accumulator" (L_*) */
-typedef unsigned int	uint32_t;				/* 32 bit unsigned data */
-typedef short			int16_t;				/* 16 bit "register" (sw*) */
-typedef unsigned short	uint16_t;				/* 16 bit unsigned data */
+//typedef int				int32_t;				/* 32 bit "accumulator" (L_*) */
+//typedef unsigned int	uint32_t;				/* 32 bit unsigned data */
+//typedef short			int16_t;				/* 16 bit "register" (sw*) */
+//typedef unsigned short	uint16_t;				/* 16 bit unsigned data */
 
-typedef long long		Word40;					/* 40 bit "accumulator"	*/					
+typedef long long		Word40;					/* 40 bit "accumulator"	*/
 /* ================== */
 /* General Definition */
 /* ================== */

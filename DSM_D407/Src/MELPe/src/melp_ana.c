@@ -1,11 +1,11 @@
 /* ================================================================== */
-/*                                                                    */ 
+/*                                                                    */
 /*    Microsoft Speech coder     ANSI-C Source Code                   */
 /*    SC1200 1200 bps speech coder                                    */
 /*    Fixed Point Implementation      Version 7.0                     */
 /*    Copyright (C) 2000, Microsoft Corp.                             */
 /*    All rights reserved.                                            */
-/*                                                                    */ 
+/*                                                                    */
 /* ================================================================== */
 
 /*
@@ -115,7 +115,7 @@ static BOOLEAN	subenergyRelation2(classParam classStat[], int16_t curTrack);
 ** Return value:	None
 **
 *****************************************************************************/
-static int16_t	lpc[LPC_ORD + 1], weights[LPC_ORD] CCMRAM;
+static int16_t	lpc[LPC_ORD + 1] CCMRAM, weights[LPC_ORD] CCMRAM;
 void analysis_q(int16_t sp_in[], struct melp_param *par)
 {
 	register int16_t	i;
@@ -140,10 +140,10 @@ void analysis_q(int16_t sp_in[], struct melp_param *par)
 		/* (Q13) we use for RATE 2400.                                        */
 
 		if (par->rate == RATE2400)
-			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[OLD_IN_BEG], dcdelin, 
+			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[OLD_IN_BEG], dcdelin,
 										dcdelout_hi, dcdelout_lo, FRAME);
 		else
-			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[IN_BEG + i*FRAME], dcdelin, 
+			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[IN_BEG + i*FRAME], dcdelin,
 										dcdelout_hi, dcdelout_lo, FRAME);
 
 		melp_ana(&hpspeech[i*FRAME], &par[i], i);
@@ -275,7 +275,7 @@ void analysis_q(int16_t sp_in[], struct melp_param *par)
 static int16_t	lpfsp_delin[LPF_ORD];
 static int16_t	lpfsp_delout[LPF_ORD];
 static int16_t	fpitch[NUM_PITCHES];
-int16_t	auto_corr[EN_FILTER_ORDER], lpc[LPC_ORD + 1];
+static int16_t	auto_corr[EN_FILTER_ORDER], lpc[LPC_ORD + 1];
 int16_t	temp_delin[LPF_ORD];
 int16_t	temp_delout[LPF_ORD];
 
@@ -389,7 +389,7 @@ static void		melp_ana(int16_t speech[], struct melp_param *par, int16_t subnum)
 	begin = LPF_ORD + (PITCHMAX/2);
 	temp = peakiness_q(&sigbuf[begin], PITCHMAX);                /* temp in Q12 */
 
-	
+
 	/* Peakiness: force lowest band to be voiced  */
 	if (temp > PEAK_THRESH_Q12)
 		par->bpvc[0] = ONE_Q14;
@@ -534,7 +534,7 @@ void		sc_ana(struct melp_param *par)
 		if ((classStat[curTrack].classy == SILENCE) &&
 			(classStat[curTrack - 1].classy == SILENCE)){
 			/*	silenceEn = log10(EN_UP_RATE * pow(10.0, silenceEn) +
-								  (1.0 - EN_UP_RATE) * 
+								  (1.0 - EN_UP_RATE) *
 								  pow(10.0, classStat[curTrack].subEnergy)); */
 			silenceEn = updateEn(silenceEn, EN_UP_RATE_Q15,
 								 classStat[curTrack].subEnergy);
@@ -727,7 +727,7 @@ void		sc_ana(struct melp_param *par)
 				/* here is a pitch jump */
 				if (ratio(prev_pitch, pitCand) < X015_Q15)
 					par[2].pitch = pitCand;
-				else { 
+				else {
 					index1 = trackPitch(pitCand, &pitTrack[curTrack]);
 					index2 = trackPitch(par[2].pitch, &pitTrack[curTrack]);
 					w1_w2 = sub(pitTrack[curTrack].weight[index1],
@@ -812,7 +812,7 @@ void		sc_ana(struct melp_param *par)
 					sbp[i] = 8;
 			}
 		} else if ((sbp[i - 1] < 8) && (sbp[i + 1] < 8)){
-			if ((classStat[curTrack].subEnergy < voicedEn - X05_Q11) && 
+			if ((classStat[curTrack].subEnergy < voicedEn - X05_Q11) &&
 				(par[i - 1].bpvc[3] < X07_Q14)){
 				if (sbp[i] > 12)
 					sbp[i] = 12;
@@ -855,7 +855,7 @@ void		sc_ana(struct melp_param *par)
 		/* ---- update voiced energy ---- */
 		if (voicedCnt > 2){
 			/*	voicedEn = log10(EN_UP_RATE * pow(10.0, voicedEn) +
-								 (1.0 - EN_UP_RATE) * 
+								 (1.0 - EN_UP_RATE) *
 								 pow(10.0, classStat[curTrack].subEnergy)); */
 			voicedEn = updateEn(voicedEn, EN_UP_RATE_Q15,
 								classStat[curTrack].subEnergy);

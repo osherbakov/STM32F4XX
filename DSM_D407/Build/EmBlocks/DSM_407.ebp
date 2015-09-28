@@ -171,6 +171,7 @@
 					<Add option="-mfpu=fpv4-sp-d16" />
 					<Add directory="..\..\Inc" />
 					<Add directory="..\..\Src\SW_Framework" />
+					<Add directory="..\..\Src\MELPe\inc" />
 					<Add directory="..\..\Drivers\CMSIS\Include" />
 					<Add directory="..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include" />
 					<Add directory="..\..\Drivers\BSP\STM32F4-Discovery" />
@@ -190,9 +191,9 @@
 					<Add option="-mfloat-abi=hard" />
 				</Assembler>
 				<Linker>
-					<Add option="-eb_start_files" />
 					<Add option="-eb_lib=s" />
 					<Add option="-eb_use_semi" />
+					<Add option="-eb_start_files" />
 					<Add option="-Wl,--cref" />
 					<Add option="-Wl,--no-check-sections" />
 					<Add option="-Wl,--gc-sections" />
@@ -315,6 +316,7 @@
 					<Add option="-mfpu=fpv4-sp-d16" />
 					<Add option="-ffreestanding" />
 					<Add directory="..\..\Inc" />
+					<Add directory="..\..\Src\MELPe\inc" />
 					<Add directory="..\..\Src\SW_Framework" />
 					<Add directory="..\..\Drivers\CMSIS\Include" />
 					<Add directory="..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include" />
@@ -2583,6 +2585,78 @@
 		<Unit filename="..\..\Src\MELP\vq_lib.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\classify.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\coeff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\dsp_sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\fec_code.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\fft_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\fs_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\fsvq_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\global.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\harm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\lpc_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\math_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\melp_ana.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\melp_chn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\melp_sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\melp_syn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\msvq_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\npp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\pit_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\pitch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\postfilt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\qnt12.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\qnt12_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\MELPe\src\vq_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\Src\SW_Framework\HardFaultHandler.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -2601,7 +2675,7 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="DSM_407_GNU_Release" active_interface="ST-link">
+				<target_debugging_settings target="DSM_407_GNU_Debug" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -2618,7 +2692,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_GNU_Debug" active_interface="ST-link">
+				<target_debugging_settings target="DSM_407_GNU_Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -2652,7 +2726,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_2015Q1_Debug" active_interface="ST-link">
+				<target_debugging_settings target="DSM_407_2015Q1_Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -2669,7 +2743,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="DSM_407_2015Q1_Release" active_interface="ST-link">
+				<target_debugging_settings target="DSM_407_2015Q1_Debug" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBLOCKS}\share\contrib" executable="STLinkGDB.exe" description="STM32F40x.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
