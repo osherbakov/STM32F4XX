@@ -39,7 +39,7 @@ void rfft(int16_t datam1[], int16_t n)
 
 	n_2 = shr(n, 1);
 	cfft(datam1, n_2);
-	return;
+//	return;
 	
 	
 	/* Check for overflow */
