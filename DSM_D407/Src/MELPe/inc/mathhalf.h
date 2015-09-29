@@ -73,7 +73,7 @@ static __inline int16_t sub(int16_t a, int16_t b) {return (int16_t) __QSUB16(a,b
 
 //int16_t	shl(int16_t var1, int16_t var2);                     /* 1 ops */
 //static __inline int16_t shl(int32_t a, int32_t b){ return (int16_t)(b >= 0 ? a<<b : a >> -b);}
-int16_t	shr(int16_t var1, int16_t var2);                     /* 1 ops */
+static int16_t	shr(int16_t var1, int16_t var2);                     /* 1 ops */
 static __inline int16_t shl(int16_t var1, int16_t var2)
 {
 	int16_t	swOut;
@@ -91,14 +91,12 @@ static __inline int16_t shl(int16_t var1, int16_t var2)
 static __inline int16_t shr(int16_t var1, int16_t var2)
 {
 	if (var2 < 0) return shl(var1, -var2);
-	if (var2 >= 15) 
-//		var2 = 15;
-		return (var1 >= 0) ? 0 : -1;
+	if (var2 >= 15) return (var1 >= 0) ? 0 : -1;
 	return (var1>>var2);
 }
 
 
-int32_t	L_shr(int32_t L_var1, int16_t var2);                  /* 2 ops */
+static int32_t	L_shr(int32_t L_var1, int16_t var2);                  /* 2 ops */
 //static __inline int32_t L_shr(int32_t a, int32_t b){ return b >= 0 ? a>>b : a << -b;}
 static __inline int32_t L_shl(int32_t var1, int16_t var2)
 {
@@ -117,9 +115,7 @@ int32_t	L_shl(int32_t L_var1, int16_t var2);                  /* 2 ops */
 static __inline int32_t L_shr(int32_t var1, int16_t var2)
 {
 	if (var2 < 0) return L_shl(var1, -var2);
-	if (var2 >= 31) 
-//		var2 = 31;
-		return (var1 >= 0) ? 0 : -1;
+	if (var2 >= 31) return (var1 >= 0) ? 0 : -1;
 	return (var1>>var2);
 }
 

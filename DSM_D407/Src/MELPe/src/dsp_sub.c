@@ -510,7 +510,7 @@ BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
 	ch_bit = *ptr_ch_bit;
 	ch_word = *ptr_ch_begin;
 	*code = 0;
-	ret_code = (int16_t) (*ch_word & erase_mask); 
+	ret_code = (int16_t) (*ch_word & erase_mask);
 
 	for (i = 0; i < numbits; i++){
 		/* Mask in bit from channel word to code */
@@ -569,7 +569,7 @@ void window_Q(int16_t input[], int16_t win_coeff[], int16_t output[],
 
 //	arm_copy_q15(input, output, npts);
 //	return;
-	
+
 	/* After computing "shift", win_coeff[]*2^(-shift) is considered Q15.     */
 	shift = 15 -  Qin;
 	for (i = 0; i < npts; i++){
@@ -592,8 +592,8 @@ void zerflt_q(int16_t input[], const int16_t coeff[], int16_t output[],
 
 //	arm_copy_q15(input, output, npts);
 //	return;
-	
-	for (i = sub(npts, 1); i >= 0; i--){ 
+
+	for (i = sub(npts, 1); i >= 0; i--){
 		accum = 0;
 		for (j = 0; j <= order; j++)
 			accum = L_mac(accum, input[i - j], coeff[j]);

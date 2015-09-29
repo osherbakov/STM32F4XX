@@ -1,11 +1,11 @@
 /* ================================================================== */
-/*                                                                    */ 
+/*                                                                    */
 /*    Microsoft Speech coder     ANSI-C Source Code                   */
 /*    SC1200 1200 bps speech coder                                    */
 /*    Fixed Point Implementation      Version 7.0                     */
 /*    Copyright (C) 2000, Microsoft Corp.                             */
 /*    All rights reserved.                                            */
-/*                                                                    */ 
+/*                                                                    */
 /* ================================================================== */
 
 /* ===================================== */
@@ -39,9 +39,7 @@ void rfft(int16_t datam1[], int16_t n)
 
 	n_2 = shr(n, 1);
 	cfft(datam1, n_2);
-//	return;
-	
-	
+
 	/* Check for overflow */
 	data_max = 0;
 	for (i = 0; i < n; i++){
@@ -91,7 +89,7 @@ void rfft(int16_t datam1[], int16_t n)
 
 		L_temp1 = L_deposit_h(r1);
 		L_temp1	= L_add(L_temp1, L_mult(r2, wr));
-		L_temp1 = L_add(L_temp1, L_shl(0x0080, 8));	
+		L_temp1 = L_add(L_temp1, L_shl(0x0080, 8));
 		L_temp1	= L_shl(L_shr(L_temp1,16), 16);		/* round */
 		L_temp1 = L_sub(L_temp1, L_mult(i2, wi));
 		L_temp1 = L_add(L_temp1, L_shl(0x0080, 8));	/* round */
@@ -100,10 +98,10 @@ void rfft(int16_t datam1[], int16_t n)
 
 		L_temp2 = L_deposit_h(i1);
 		L_temp2 = L_sub(L_temp2, L_mult(r2, wi));
-		L_temp2 = L_add(L_temp2, L_shl(0x0080, 8));	
+		L_temp2 = L_add(L_temp2, L_shl(0x0080, 8));
 		L_temp2	= L_shl(L_shr(L_temp2,16), 16);		/* round */
 		L_temp2 = L_sub(L_temp2, L_mult(i2, wr));
-		L_temp2 = L_add(L_temp2, L_shl(0x0080, 8));	
+		L_temp2 = L_add(L_temp2, L_shl(0x0080, 8));
 		datam1[i+1]		= extract_h(L_temp2);
 		datam1[2*n-i+1] = extract_h(L_negate(L_temp2));
 
@@ -129,7 +127,7 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 	arm_cfft_q15(&arm_cfft_sR_q15_len256, datam1, 0, 1);
 	arm_shift_q15(datam1, 3, datam1, FFTLENGTH);
 	return 6;
-	
+
 	guard = 0;
 	/* Use pointer indexed from 1 instead of 0 */
 	data = &datam1[-1];
@@ -160,7 +158,7 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 		guard += 1;
 		for (i = 1; i <= n; i++)
 			data[i] = shr(data[i], 1);
-	} 
+	}
 	/* End of checking */
 	for (i = 0; i < n; i += 4){
 		sPR = datam1[i];
@@ -183,7 +181,7 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 		guard += 1;
 		for (i = 1; i <= n; i++)
 			data[i] = shr(data[i], 1);
-	} 
+	}
 	/* End of checking */
 	for (i = 0; i < n; i += 8){
 		/* Butterfly 1 */
@@ -249,7 +247,7 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 				sQR		= data[j];
 				data[i] = extract_h(L_add(L_deposit_h(sPR), L_tempr));
 				data[j] = extract_h(L_sub(L_deposit_h(sPR), L_tempr));
-				
+
 				L_temp1 = L_mult(wi, sQR);
 				L_temp2 = L_mult(wr, data[j+1]);
 				L_tempi = L_sub(L_temp1, L_temp2);
@@ -273,7 +271,7 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 int16_t fft_npp(int16_t data[], int16_t dir)
 {
 	int16_t guard, n;
-	
+
 	guard = cfft(data, FFTLENGTH/2);
 	if (dir < 0){ /* Reverse FFT */
 		for (n = 1; n < 128; n++){
