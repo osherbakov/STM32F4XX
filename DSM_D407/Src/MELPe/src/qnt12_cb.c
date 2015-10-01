@@ -1590,8 +1590,8 @@ const int16_t 	pitch_vq_cb_uvv[PITCH_VQ_LEVEL_UVV * NF] RODATA = {
 	  7612
 };
 
-int16_t *pitch_vq_cb_vuv = pitch_vq_cb_uvv;
-int16_t *pitch_vq_cb_vvu = pitch_vq_cb_uvv;
+const int16_t *pitch_vq_cb_vuv = pitch_vq_cb_uvv;
+const int16_t *pitch_vq_cb_vvu = pitch_vq_cb_uvv;
 
 const int16_t 	gain_vq_cb[GAIN_VQ_SIZE * NF * NUM_GAINFR] RODATA = {      /* Q8 */
 	 12002,   8416,   4630,   3423,   3122,

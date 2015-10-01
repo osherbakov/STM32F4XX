@@ -22,10 +22,10 @@ void MX_FREERTOS_Init() {
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
 	osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
 	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
-	
-	osMessageQDef(PDMINDATA, 2, uint32_t);
-	osMessageQDef(DATAREADY, 16, uint32_t);
-	
+
+	osMessageQDef(PDMINDATA, 32, uint32_t);
+	osMessageQDef(DATAREADY, 32, uint32_t);
+
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
