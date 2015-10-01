@@ -10,7 +10,8 @@
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include "cvsd_f32.h"
-#include "datatasks.h"
+#include "cvsd_data_f32.h"
+#include "dataqueues.h"
 #include "stm32f4_discovery.h"
 
 
@@ -33,12 +34,15 @@ typedef int BOOL;
 void *cvsd_ana;
 void *cvsd_syn;
 
+static CVSD_STATE_F32_t ana;
+static CVSD_STATE_F32_t syn;
+
 static uint8_t dataBits[CVSD_BLOCK_SIZE] CCMRAM;
 
 void *cvsd_create(uint32_t Params)
 {
-	cvsd_ana = osAlloc(cvsd_mem_req_f32());
-	cvsd_syn = osAlloc(cvsd_mem_req_f32());
+	cvsd_ana = &ana;
+	cvsd_syn = &syn;
 	return 0;
 }
 

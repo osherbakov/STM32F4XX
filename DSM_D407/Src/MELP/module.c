@@ -5,7 +5,6 @@
 #include "dsp_sub.h"
 #include "melp_sub.h"
 #include "stm32f4_discovery.h"
-#include "cmsis_os.h"
 #include "dataqueues.h"
 
 /* ====== External memory ====== */
