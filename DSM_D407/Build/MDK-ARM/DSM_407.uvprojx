@@ -552,6 +552,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Drivers\BSP\Components\cs43l22\cs43l22.c</FilePath>
             </File>
+            <File>
+              <FileName>nRF24L01.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\BSP\STM32F4-Discovery\nRF24L01.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -751,6 +756,11 @@
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\HW_Config\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\HW_Config\spi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1781,6 +1791,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\Drivers\BSP\Components\cs43l22\cs43l22.c</FilePath>
             </File>
+            <File>
+              <FileName>nRF24L01.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Drivers\BSP\STM32F4-Discovery\nRF24L01.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1980,6 +1995,11 @@
               <FileName>gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\HW_Config\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\HW_Config\spi.c</FilePath>
             </File>
           </Files>
         </Group>

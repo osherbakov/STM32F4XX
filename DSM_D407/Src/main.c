@@ -15,6 +15,7 @@
 #include "rng.h"
 #include "usb_device.h"
 #include "gpio.h"
+#include "spi.h"
 
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio.h"
@@ -45,7 +46,7 @@ int main(void)
   MX_I2S2_Init();
   MX_I2S3_Init();
   MX_RNG_Init();
-
+  MX_SPI1_Init();
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
 

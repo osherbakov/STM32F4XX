@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : CRC.c
+  * File Name          : SPI.h
   * Description        : This file provides code for the configuration
-  *                      of the CRC instances.
+  *                      of the SPI instances.
   ******************************************************************************
   *
   * COPYRIGHT(c) 2015 STMicroelectronics
@@ -31,60 +31,36 @@
   *
   ******************************************************************************
   */
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __spi_H
+#define __spi_H
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "crc.h"
+#include "stm32f4xx_hal.h"
 
-/* USER CODE BEGIN 0 */
+/* USER CODE BEGIN Includes */
 
-/* USER CODE END 0 */
+/* USER CODE END Includes */
 
-CRC_HandleTypeDef hcrc;
+extern SPI_HandleTypeDef hspi1;
 
-/* CRC init function */
-void MX_CRC_Init(void)
-{
+/* USER CODE BEGIN Private defines */
 
-  hcrc.Instance = CRC;
-  HAL_CRC_Init(&hcrc);
+/* USER CODE END Private defines */
 
+void MX_SPI1_Init(void);
+
+/* USER CODE BEGIN Prototypes */
+
+/* USER CODE END Prototypes */
+
+#ifdef __cplusplus
 }
-
-void HAL_CRC_MspInit(CRC_HandleTypeDef* hcrc)
-{
-
-  if(hcrc->Instance==CRC)
-  {
-  /* USER CODE BEGIN CRC_MspInit 0 */
-
-  /* USER CODE END CRC_MspInit 0 */
-    /* Peripheral clock enable */
-    __CRC_CLK_ENABLE();
-  /* USER CODE BEGIN CRC_MspInit 1 */
-
-  /* USER CODE END CRC_MspInit 1 */
-  }
-}
-
-void HAL_CRC_MspDeInit(CRC_HandleTypeDef* hcrc)
-{
-
-  if(hcrc->Instance==CRC)
-  {
-  /* USER CODE BEGIN CRC_MspDeInit 0 */
-
-  /* USER CODE END CRC_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __CRC_CLK_DISABLE();
-  }
-  /* USER CODE BEGIN CRC_MspDeInit 1 */
-
-  /* USER CODE END CRC_MspDeInit 1 */
-} 
-
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
+#endif
+#endif /*__ spi_H */
 
 /**
   * @}

@@ -1,7 +1,6 @@
 /**
   ******************************************************************************
   * File Name          : I2C.c
-  * Date               : 19/02/2015 12:46:45
   * Description        : This file provides code for the configuration
   *                      of the I2C instances.
   ******************************************************************************
@@ -70,8 +69,6 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
   /* USER CODE BEGIN I2C1_MspInit 0 */
 
   /* USER CODE END I2C1_MspInit 0 */
-    /* Peripheral clock enable */
-    __I2C1_CLK_ENABLE();
   
     /**I2C1 GPIO Configuration    
     PB6     ------> I2C1_SCL
@@ -84,6 +81,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* Peripheral clock enable */
+    __I2C1_CLK_ENABLE();
   /* USER CODE BEGIN I2C1_MspInit 1 */
 
   /* USER CODE END I2C1_MspInit 1 */
@@ -107,10 +106,10 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_9);
 
+  }
   /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
   /* USER CODE END I2C1_MspDeInit 1 */
-  }
 } 
 
 /* USER CODE BEGIN 1 */

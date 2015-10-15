@@ -10,6 +10,7 @@
 #include "pdm_filter.h"
 #include "usbd_audio_if.h"
 
+#include "spi.h"
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -61,6 +62,10 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 //
 //  Task to handle incoming PDM data (Mono) and convert it to PCM samples (Stereo)
 //
+
+uint8_t	 SPI_Tx[16] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0xAA};
+uint8_t	 SPI_Rx[16];
+
 void StartDataInPDMTask(void const * argument)
 {
 	osEvent		event;
@@ -84,9 +89,15 @@ void StartDataInPDMTask(void const * argument)
 		{
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES * event.value.v];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
+BSP_LED_On(LED6);
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
+BSP_LED_Off(LED6);
 			
+HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1, GPIO_PIN_RESET);
+HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2, GPIO_PIN_SET);
+HAL_SPI_TransmitReceive_DMA(&hspi1, SPI_Tx, SPI_Rx, 16);
+HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2, GPIO_PIN_RESET);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}
@@ -94,9 +105,7 @@ void StartDataInPDMTask(void const * argument)
 }
 
 
-//
-// Task to handle output data
-//
-
-//
-
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1, GPIO_PIN_SET);
+}

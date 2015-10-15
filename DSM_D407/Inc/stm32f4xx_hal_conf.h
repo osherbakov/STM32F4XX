@@ -48,6 +48,7 @@
   * @brief This is the list of modules to be used in the HAL driver 
   */
 #define HAL_MODULE_ENABLED  
+
 //#define HAL_ADC_MODULE_ENABLED   
 //#define HAL_CAN_MODULE_ENABLED   
 #define HAL_CRC_MODULE_ENABLED
@@ -70,7 +71,7 @@
 //#define HAL_RTC_MODULE_ENABLED   
 //#define HAL_SAI_MODULE_ENABLED   
 //#define HAL_SD_MODULE_ENABLED   
-#define HAL_SPI_MODULE_ENABLED   
+#define HAL_SPI_MODULE_ENABLED
 //#define HAL_TIM_MODULE_ENABLED   
 //#define HAL_UART_MODULE_ENABLED   
 //#define HAL_USART_MODULE_ENABLED   
@@ -79,6 +80,14 @@
 //#define HAL_WWDG_MODULE_ENABLED   
 #define HAL_PCD_MODULE_ENABLED
 //#define HAL_HCD_MODULE_ENABLED   
+//#define HAL_DSI_MODULE_ENABLED   
+//#define HAL_QSPI_MODULE_ENABLED   
+//#define HAL_QSPI_MODULE_ENABLED   
+//#define HAL_CEC_MODULE_ENABLED   
+//#define HAL_FMPI2C_MODULE_ENABLED   
+//#define HAL_SPDIFRX_MODULE_ENABLED   
+//#define HAL_DFSDM_MODULE_ENABLED   
+//#define HAL_LPTIM_MODULE_ENABLED   
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
@@ -373,6 +382,34 @@
 #ifdef HAL_HCD_MODULE_ENABLED
  #include "stm32f4xx_hal_hcd.h"
 #endif /* HAL_HCD_MODULE_ENABLED */
+   
+#ifdef HAL_DSI_MODULE_ENABLED
+ #include "stm32f4xx_hal_dsi.h"
+#endif /* HAL_DSI_MODULE_ENABLED */
+
+#ifdef HAL_QSPI_MODULE_ENABLED
+ #include "stm32f4xx_hal_qspi.h"
+#endif /* HAL_QSPI_MODULE_ENABLED */
+
+#ifdef HAL_CEC_MODULE_ENABLED
+ #include "stm32f4xx_hal_cec.h"
+#endif /* HAL_CEC_MODULE_ENABLED */
+
+#ifdef HAL_FMPI2C_MODULE_ENABLED
+ #include "stm32f4xx_hal_fmpi2c.h"
+#endif /* HAL_FMPI2C_MODULE_ENABLED */
+
+#ifdef HAL_SPDIFRX_MODULE_ENABLED
+ #include "stm32f4xx_hal_spdifrx.h"
+#endif /* HAL_SPDIFRX_MODULE_ENABLED */
+
+#ifdef HAL_DFSDM_MODULE_ENABLED
+ #include "stm32f4xx_hal_dfsdm.h"
+#endif /* HAL_DFSDM_MODULE_ENABLED */
+
+#ifdef HAL_LPTIM_MODULE_ENABLED
+ #include "stm32f4xx_hal_lptim.h"
+#endif /* HAL_LPTIM_MODULE_ENABLED */
    
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
