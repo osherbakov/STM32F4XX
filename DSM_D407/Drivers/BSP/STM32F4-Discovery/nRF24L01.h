@@ -10,4 +10,7 @@ uint8_t		NRF24L01_Read(uint8_t ReadReg, uint8_t *pBuffer,  uint32_t NumBytesToRe
 uint8_t		NRF24L01_WriteByte(uint8_t WriteReg, uint8_t DataByte);
 uint8_t		NRF24L01_ReadByte(uint8_t ReadReg);
 
+/* Basic Radio functions for nRF24L01+ radio module   */
+
+
 #endif

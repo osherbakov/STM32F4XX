@@ -11,6 +11,7 @@
 #include "usbd_audio_if.h"
 
 #include "spi.h"
+#include "NRF24L01.h"
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -94,10 +95,11 @@ BSP_LED_On(LED6);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
 BSP_LED_Off(LED6);
 			
-HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1, GPIO_PIN_RESET);
-HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2, GPIO_PIN_SET);
-HAL_SPI_TransmitReceive_DMA(&hspi1, SPI_Tx, SPI_Rx, 16);
-HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2, GPIO_PIN_RESET);
+
+		NRF24_CE_HIGH();
+		NRF24L01_Write(0x22, SPI_Tx,16);
+		NRF24_CE_LOW();
+		NRF24L01_Write(0x66, SPI_Tx,16);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}
