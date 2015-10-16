@@ -104,8 +104,3 @@ HAL_GPIO_WritePin(GPIOA,GPIO_PIN_2, GPIO_PIN_RESET);
 	}
 }
 
-
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
-{
-	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1, GPIO_PIN_SET);
-}

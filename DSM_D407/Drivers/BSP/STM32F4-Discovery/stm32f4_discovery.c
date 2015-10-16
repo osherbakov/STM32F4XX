@@ -142,6 +142,10 @@ void            ACCELERO_IO_Read(uint8_t *pBuffer, uint8_t ReadAddr, uint16_t Nu
 void            AUDIO_IO_Init(void);
 void            AUDIO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value);
 uint8_t         AUDIO_IO_Read(uint8_t Addr, uint8_t Reg);
+
+/* Link functions for nRF24L01+ peripheral */
+void		NRF24L01_Init(void *pSPIHandle);
+
 /**
   * @}
   */
@@ -294,6 +298,19 @@ void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef Mode)
 uint32_t BSP_PB_GetState(Button_TypeDef Button)
 {
   return HAL_GPIO_ReadPin(BUTTON_PORT[Button], BUTTON_PIN[Button]);
+}
+
+/**
+  * @}
+  */ 
+
+/** @defgroup STM32F4_DISCOVERY_RF24L01_Functions
+  * @{
+  */ 
+
+void BSP_RF24_Init(SPI_HandleTypeDef *pSPI)
+{
+  NRF24L01_Init(pSPI);
 }
 
 /**

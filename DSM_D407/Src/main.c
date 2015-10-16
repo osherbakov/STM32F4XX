@@ -58,6 +58,7 @@ int main(void)
 	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
  	BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 85, SAMPLE_FREQ);
 	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
+	BSP_RF24_Init(&hspi1);
 
 	osParams.bStartPlay = 1;
 	osParams.audioinMode =  AUDIO_MODE_IN_MIC;
@@ -141,7 +142,7 @@ void StartDefaultTask(void const * argument)
 	/* Infinite loop */
   for(;;)
   {
-    osDelay(200);
+    osDelay(100);
 
 		// Check the USER button and switch to the next mode if pressed
 		if( BSP_PB_GetState(BUTTON_KEY) != buttonState )
