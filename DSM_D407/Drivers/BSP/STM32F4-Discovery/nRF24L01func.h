@@ -58,7 +58,7 @@ typedef enum {
 	RF24_RX_PIPE_2, 
 	RF24_RX_PIPE_3, 
 	RF24_RX_PIPE_4, 
-	RF24_RX_PIPE_5}  rf24_pipe_e;
+	RF24_RX_PIPE_5 } rf24_pipe_e;
 
   /**
    * Begin operation of the chip
@@ -149,7 +149,7 @@ typedef enum {
    *
    * @code
    * radio.stopListening();
-   * radio.write(&data,sizeof(data));
+   * radio.write_payload(&data,sizeof(data));
    * @endcode
    * @return True if the payload was delivered successfully false if not
    */
@@ -251,7 +251,7 @@ s   *
    * @endcode
    * @return True if there is a payload available, false if none is
    */
-  int RF24_available(rf24_pipe_e *pipe_num);
+  int RF24_rxAvailable(rf24_pipe_e *pipe_num);
 
   /**
    * Check if the radio needs to be read. Can be used to prevent data loss
@@ -300,7 +300,7 @@ s   *
   * @param len Number of bytes to be sent
   * @param multicast Request ACK (0), NOACK (1)
   */
-  int RF24_write( const void* buf, uint8_t len, const int multicast );
+  int RF24_writeAck( const void* buf, uint8_t len, const int multicast );
 
   /**
    * This will not block until the 3 FIFO buffers are filled with data.
@@ -343,7 +343,7 @@ s   *
   * @param len Number of bytes to be sent
   * @param multicast Request ACK (0) or NOACK (1)
   */
-  int RF24_writeFast( const void* buf, uint8_t len, const int multicast );
+  int RF24_writeFastAck( const void* buf, uint8_t len, const int multicast );
 
   /**
    * This function extends the auto-retry mechanism to any specified duration.
@@ -417,7 +417,7 @@ s   *
    * @return True if transmission is successful
    *
    */
-   int RF24_txStandBy(uint32_t timeout, int startTx = 0);
+   int RF24_txStandByWait(uint32_t timeout, int startTx = 0);
 
   /**
    * Write an ack payload for the specified pipe
@@ -532,7 +532,7 @@ s   *
    *
    * @return Current value of status register
    */
-  uint8_t RF24_flush_tx(void);
+  uint8_t RF24_flushTx(void);
 
   /**
    * Test whether there was a carrier on the line for the
@@ -888,7 +888,7 @@ s   *
    *
    * @return Current value of status register
    */
-  uint8_t RF24_flush_rx(void);
+  uint8_t RF24_flushRx(void);
 
   /**
    * Retrieve the current status of the chip

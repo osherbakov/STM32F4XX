@@ -96,9 +96,9 @@ BSP_LED_On(LED6);
 BSP_LED_Off(LED6);
 			
 
-		NRF24_CE_HIGH();
+		NRF24L01_CE(1);
 		NRF24L01_Write(0x22, SPI_Tx,16);
-		NRF24_CE_LOW();
+		NRF24L01_CE(0);
 		NRF24L01_Write(0x66, SPI_Tx,16);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);

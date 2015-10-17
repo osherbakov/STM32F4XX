@@ -2,23 +2,40 @@
 #include "nRF24L01.h"
 #include <string.h>
 
-static  SPI_HandleTypeDef    *pSpiHandle;
-static  uint32_t	SPI_inprogress;
+#define  MAX_PAYLOAD_SIZE	(32)
 
+static  SPI_HandleTypeDef    *pSpiHandle;
+static  volatile uint32_t	SPI_inprogress;
+static 	uint8_t txBuffer[MAX_PAYLOAD_SIZE + 1];
+static 	uint8_t rxBuffer[MAX_PAYLOAD_SIZE + 1];
+
+#define		LOW  	(0)
+#define		HIGH	(1)
 
 /******************************* SPI Routines *********************************/
+/* NRF24L01 Chip Select functions */
+static void NRF24L01_CS(uint32_t newState)
+{	
+	return HAL_GPIO_WritePin(NRF24_CS_GPIO_PORT, NRF24_CS_PIN, (GPIO_PinState) newState);
+}
+
+/* NRF24L01 Chip Enable functions */
+void NRF24L01_CE(uint32_t newState)
+{	
+	return HAL_GPIO_WritePin(NRF24_CE_GPIO_PORT, NRF24_CE_PIN, (GPIO_PinState) newState);
+}
 
 /**
   * @brief  NRF24L01 Initialization
-  * @param  pSPI: pointer to the SPI  handler for that
+  * @param  pSPI: pointer to the SPI  handler for SPI driver that controls the chip
   * @retval None
   */
 void NRF24L01_Init(void *pSPI)
 {
 	pSpiHandle = (SPI_HandleTypeDef *)pSPI;
 	SPI_inprogress = 0;
-	NRF24_CS_HIGH();
-	NRF24_CE_LOW();
+	NRF24L01_CS(HIGH);
+	NRF24L01_CE(LOW);
 }
 
 
@@ -30,8 +47,6 @@ void NRF24L01_Init(void *pSPI)
   * @retval The status
   */
 
-static uint8_t txBuffer[33];
-static uint8_t rxBuffer[33];
 
 uint8_t		NRF24L01_Write(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesToWrite)
 {
@@ -41,11 +56,11 @@ uint8_t		NRF24L01_Write(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesTo
 	SPI_inprogress = 1;
 	txBuffer[0] = WriteReg;
 	memcpy(&txBuffer[1], pBuffer, NumBytesToWrite);
-	NRF24_CS_LOW();		// Drop CSN pin to LOW	
+	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	status = HAL_SPI_TransmitReceive_DMA(pSpiHandle, txBuffer, rxBuffer, NumBytesToWrite + 1);
 	if(status != HAL_OK)
 	{
-		NRF24_CS_HIGH();	// Set CSN pin to HIGH	  
+		NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
 		SPI_inprogress = 0;  
 	}
 	return status;
@@ -60,10 +75,10 @@ uint8_t		NRF24L01_Read(uint8_t ReadReg, uint8_t *pBuffer,  uint32_t NumBytesToRe
 	txBuffer[0] = ReadReg;
 	memset(&txBuffer[1], 0xFF, NumBytesToRead);
 
-	NRF24_CS_LOW();		// Drop CSN pin to LOW		
+	NRF24L01_CS(LOW);		// Drop CSN pin to LOW		
 	status = HAL_SPI_TransmitReceive_DMA(pSpiHandle, txBuffer, rxBuffer, NumBytesToRead + 1);
 	if(status != HAL_OK){
-		NRF24_CS_HIGH();	// Set CSN pin to HIGH	  
+		NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
 		SPI_inprogress = 0;  
 	}else {
 		/* Wait until this transaction is finished    */
@@ -82,9 +97,9 @@ uint8_t		NRF24L01_WriteByte(uint8_t WriteReg, uint8_t DataByte)
 	txBuffer[0] = WriteReg;
 	txBuffer[1] = DataByte;
 
-	NRF24_CS_LOW();		// Drop CSN pin to LOW	
+	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	HAL_SPI_TransmitReceive(pSpiHandle, txBuffer, rxBuffer, 2, HAL_MAX_DELAY);
-	NRF24_CS_HIGH();	// Set CSN pin to HIGH	  
+	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
 	SPI_inprogress = 0;
 
 	return rxBuffer[0];	// Byte 0 will have a status
@@ -99,18 +114,33 @@ uint8_t		NRF24L01_ReadByte(uint8_t ReadReg)
 	txBuffer[0] = ReadReg;
 	txBuffer[1] = 0xFF;
 
-	NRF24_CS_LOW();		// Drop CSN pin to LOW	
+	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	HAL_SPI_TransmitReceive(pSpiHandle, txBuffer, rxBuffer, 2, HAL_MAX_DELAY);
-	NRF24_CS_HIGH();	// Set CSN pin to HIGH	  
+	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
 	SPI_inprogress = 0;
 
 	return rxBuffer[1];	// Byte 1 will have the requested value
 }
 
+uint8_t		NRF24L01_TouchByte(uint8_t TouchReg)
+{
+	/* Wait until previous transaction is finished    */
+	while(SPI_inprogress) {}; 
+	SPI_inprogress = 1;
+	txBuffer[0] = TouchReg;
+
+	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
+	HAL_SPI_TransmitReceive(pSpiHandle, txBuffer, rxBuffer, 1, HAL_MAX_DELAY);
+	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
+	SPI_inprogress = 0;
+
+	return rxBuffer[0];	// Byte 0 will have the status value
+}
+
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi == pSpiHandle) {
-		NRF24_CS_HIGH();
+		NRF24L01_CS(HIGH);
 		SPI_inprogress = 0;
 	}
 }

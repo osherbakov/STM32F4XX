@@ -270,14 +270,6 @@ typedef enum
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
 #define DUMMY_BYTE                        ((uint8_t)0x00)
 
-/* NRF24L01 Chip Select macro definition */
-#define NRF24_CS_LOW()       HAL_GPIO_WritePin(NRF24_CS_GPIO_PORT, NRF24_CS_PIN, GPIO_PIN_RESET)
-#define NRF24_CS_HIGH()      HAL_GPIO_WritePin(NRF24_CS_GPIO_PORT, NRF24_CS_PIN, GPIO_PIN_SET)
-
-/* NRF24L01 Chip Enable macro definition */
-#define NRF24_CE_LOW()       HAL_GPIO_WritePin(NRF24_CE_GPIO_PORT, NRF24_CE_PIN, GPIO_PIN_RESET)
-#define NRF24_CE_HIGH()      HAL_GPIO_WritePin(NRF24_CE_GPIO_PORT, NRF24_CE_PIN, GPIO_PIN_SET)
-
 /**
   * @brief  ACCELEROMETER Interface pins
   */
