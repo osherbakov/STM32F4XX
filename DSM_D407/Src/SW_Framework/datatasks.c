@@ -96,10 +96,19 @@ BSP_LED_On(LED6);
 BSP_LED_Off(LED6);
 			
 
-		NRF24L01_CE(1);
-		NRF24L01_Write(0x22, SPI_Tx,16);
-		NRF24L01_CE(0);
-		NRF24L01_Write(0x66, SPI_Tx,16);
+			RF24_Init();
+//		NRF24L01_CE(1);
+//		delayMicroseconds(123);
+//		NRF24L01_CE(0);
+//		delayMicroseconds(330);
+//		NRF24L01_CE(1);
+//		delayMicroseconds(40);
+//		NRF24L01_CE(0);
+//		delayMicroseconds(500);
+//		NRF24L01_CE(0);
+			
+//		NRF24L01_Write(0x22, SPI_Tx,16);
+//		NRF24L01_Write(0x66, SPI_Tx,16);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}

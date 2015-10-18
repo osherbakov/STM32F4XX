@@ -16,6 +16,7 @@
 #include "usb_device.h"
 #include "gpio.h"
 #include "spi.h"
+#include "tim.h"
 
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio.h"
@@ -47,6 +48,7 @@ int main(void)
   MX_I2S3_Init();
   MX_RNG_Init();
   MX_SPI1_Init();
+  MX_TIM10_Init();
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
 
