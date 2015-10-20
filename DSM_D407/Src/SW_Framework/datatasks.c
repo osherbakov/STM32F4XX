@@ -12,6 +12,8 @@
 
 #include "spi.h"
 #include "NRF24L01.h"
+#include "NRF24L01func.h"
+
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -66,6 +68,11 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 
 uint8_t	 SPI_Tx[16] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0xAA};
 uint8_t	 SPI_Rx[16];
+uint8_t	 TxAddress[] = "1Node";
+uint8_t	 TxChannel = 0;
+int  	txOK;
+int  	txFail;
+int  	rxReady;
 
 void StartDataInPDMTask(void const * argument)
 {
@@ -83,6 +90,14 @@ void StartDataInPDMTask(void const * argument)
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, (NUM_PDM_BYTES * 2));
 	
+	
+	RF24_Init();
+	RF24_setAddressWidth(5);
+	RF24_setDynamicPayloads(0);
+	RF24_setAckPayload(0);
+	RF24_setAutoAckAll(0);
+	RF24_openWritingPipe(TxAddress);
+		
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
 		event = osMessageGet(osParams.dataInPDMMsg, osWaitForever);
@@ -96,7 +111,7 @@ BSP_LED_On(LED6);
 BSP_LED_Off(LED6);
 			
 
-			RF24_Init();
+
 //		NRF24L01_CE(1);
 //		delayMicroseconds(123);
 //		NRF24L01_CE(0);
@@ -109,6 +124,9 @@ BSP_LED_Off(LED6);
 			
 //		NRF24L01_Write(0x22, SPI_Tx,16);
 //		NRF24L01_Write(0x66, SPI_Tx,16);
+		RF24_whatHappened(&txOK, &txFail, &rxReady);
+		RF24_setChannel(TxChannel++);
+		RF24_write(SPI_Tx, 16);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}

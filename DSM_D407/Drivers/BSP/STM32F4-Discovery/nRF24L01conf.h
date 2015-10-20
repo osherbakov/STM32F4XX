@@ -10,8 +10,7 @@
 #define __RF24_CONFIG_H__
 
   /*** USER DEFINES:  ***/  
-#define FAILURE_HANDLING
-  //#define SERIAL_DEBUG
+
   //#define MINIMAL
   
 /**********************/
@@ -27,11 +26,6 @@
 
 
 #define _BV(x) (1<<(x))
-#ifdef SERIAL_DEBUG
-	#define IF_SERIAL_DEBUG(x) ({x;})
-#else
-	#define IF_SERIAL_DEBUG(x)
-#endif
   
 
 // Progmem is Arduino-specific

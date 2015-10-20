@@ -95,7 +95,7 @@ typedef enum {
    * @endcode
    * @return True if there is a payload available, false if none is
    */
-  int RF24_availableAny(void);
+  int RF24_rxAvailableAny(void);
 
   /**
    * Read the available payload
@@ -119,7 +119,7 @@ typedef enum {
    * @endcode
    * @return No return value. Use available().
    */
-  uint8_t RF24_read_payload( void* buf, uint8_t len );
+  uint8_t RF24_read_payload( void* buf, uint8_t len);
 
   /**
    * Be sure to call openWritingPipe() first to set the destination
@@ -144,7 +144,7 @@ typedef enum {
    * @endcode
    * @return True if the payload was delivered successfully false if not
    */
-  uint8_t RF24_write_payload( const void* buf, uint8_t len );
+  uint8_t RF24_write_payload( const void* buf, uint8_t len);
 
   /**
    * New: Open a pipe for writing via byte array. Old addressing format retained
@@ -200,7 +200,7 @@ s   *
    * @param pipe_number Which pipe# to open, 0-5.
    * @param address The 24, 32 or 40 bit address of the pipe to open.
    */
-  void RF24_openReadingPipe(uint8_t pipe_number, uint8_t *address);
+  void RF24_openReadingPipe(uint8_t pipe_number, uint8_t *address, uint8_t payload_size);
 
    /**@}*/
   /**
@@ -321,20 +321,8 @@ s   *
    * @param len Number of bytes to be sent
    * @return True if the payload was delivered successfully false if not
    */
-  int RF24_writeFast( const void* buf, uint8_t len );
+  int RF24_write( const void* buf, uint8_t len );
 
-  /**
-  * WriteFast for single NOACK writes. Disables acknowledgements/autoretries for a single write.
-  *
-  * @note enableDynamicAck() must be called to enable this feature
-  * @see enableDynamicAck()
-  * @see setAutoAck()
-  *
-  * @param buf Pointer to the data to be sent
-  * @param len Number of bytes to be sent
-  * @param multicast Request ACK (0) or NOACK (1)
-  */
-  int RF24_writeFastAck( const void* buf, uint8_t len, const int multicast );
 
   /**
    * This function extends the auto-retry mechanism to any specified duration.
@@ -362,7 +350,7 @@ s   *
    * @param timeout User defined timeout in milliseconds.
    * @return True if the payload was loaded into the buffer successfully false if not
    */
-  int RF24_writeBlocking( const void* buf, uint8_t len, uint32_t timeout );
+  int RF24_writeAndWait(const void* buf, uint8_t len, uint32_t timeout);
 
   /**
    * This function should be called as soon as transmission is finished to
@@ -408,7 +396,7 @@ s   *
    * @return True if transmission is successful
    *
    */
-   int RF24_txStandByAndWait(uint32_t timeout, int startTx);
+   int RF24_txStandByAndWait(uint32_t timeout);
 
   /**
    * Write an ack payload for the specified pipe
@@ -476,29 +464,7 @@ s   *
    * @param multicast Request ACK (0) or NOACK (1)
    * @return True if the payload was delivered successfully false if not
    */
-  void RF24_startFastWriteAck( const void* buf, uint8_t len, const int multicast, int startTx);
-
-  /**
-   * Non-blocking write to the open writing pipe
-   *
-   * Just like write(), but it returns immediately. To find out what happened
-   * to the send, catch the IRQ and then call whatHappened().
-   *
-   * @see write()
-   * @see writeFast()
-   * @see startFastWrite()
-   * @see whatHappened()
-   *
-   * For single noAck writes see:
-   * @see enableDynamicAck()
-   * @see setAutoAck()
-   *
-   * @param buf Pointer to the data to be sent
-   * @param len Number of bytes to be sent
-   * @param multicast Request ACK (0) or NOACK (1)
-   *
-   */
-  void RF24_startWriteAck( void* buf, uint8_t len, int multicast );
+  void RF24_startWrite( const void* buf, uint8_t len, const int multicast);
   
   /**
    * This function is mainly used internally to take advantage of the auto payload
@@ -534,26 +500,6 @@ s   *
    * @return true if was carrier, false if not
    */
   int RF24_testCarrier(void);
-
-  /**
-   * Test whether a signal (carrier or otherwise) greater than
-   * or equal to -64dBm is present on the channel. Valid only
-   * on nRF24L01P (+) hardware. On nRF24L01, use testCarrier().
-   *
-   * Useful to check for interference on the current channel and
-   * channel hopping strategies.
-   *
-   * @code
-   * int goodSignal = radio.testRPD();
-   * if(radio.available()){
-   *    Serial.println(goodSignal ? "Strong signal > 64dBm" : "Weak signal < 64dBm" );
-   *    radio.read(0,0);
-   * }
-   * @endcode
-   * @return true if signal => -64dBm, false if not
-   */
-  int RF24_testRPD(void) ;
-
  
    /**
    * Close a pipe after it has been previously opened.
@@ -680,7 +626,7 @@ s   *
    * @note Ack payloads are dynamic payloads. This only works on pipes 0&1 by default. Call 
    * enableDynamicPayloads() to enable on all pipes.
    */
-  void RF24_enableAckPayload(void);
+  void RF24_setAckPayload(int enable);
 
   /**
    * Enable dynamically-sized payloads
@@ -689,21 +635,8 @@ s   *
    * once in a while.  This enables dynamic payloads on ALL pipes.
    *
    */
-  void RF24_enableDynamicPayloads(void);
+  void RF24_setDynamicPayloads(int enable);
   
-  /**
-   * Enable dynamic ACKs (single write multicast or unicast) for chosen messages
-   *
-   * @note To enable full multicast or per-pipe multicast, use setAutoAck()
-   *
-   * @warning This MUST be called prior to attempting single write NOACK calls
-   * @code
-   * radio.enableDynamicAck();
-   * radio.write(&data,32,1);  // Sends a payload with no acknowledgement requested
-   * radio.write(&data,32,0);  // Sends a payload using auto-retry/autoACK
-   * @endcode
-   */
-  void RF24_enableDynamicAck(void);
   
   /**
    * Determine whether the hardware is an nRF24L01+ or not.
@@ -721,7 +654,7 @@ s   *
    *
    * @param enable Whether to enable (true) or disable (false) auto-acks
    */
-  void RF24_setAutoAck(int enable);
+  void RF24_setAutoAckAll(int enable);
 
   /**
    * Enable or disable auto-acknowlede packets on a per pipeline basis.
@@ -732,7 +665,7 @@ s   *
    * @param pipe Which pipeline to modify
    * @param enable Whether to enable (true) or disable (false) auto-acks
    */
-  void RF24_setAutoAckPipe( uint8_t pipe, int enable ) ;
+  void RF24_setAutoAck( uint8_t pipe, int enable ) ;
 
   /**
    * Set Power Amplifier (PA) level to one of four levels:
@@ -791,13 +724,6 @@ s   *
   rf24_crclength_e RF24_getCRCLength(void);
 
   /**
-   * Disable CRC validation
-   *
-   * @warning CRC cannot be disabled if auto-ack/ESB is enabled.
-   */
-  void RF24_disableCRC( void ) ;
-
-  /**
   * The radio will generate interrupt signals when a transmission is complete,
   * a transmission fails, or a payload is received. This allows users to mask
   * those interrupts to prevent them from generating a signal on the interrupt
@@ -823,7 +749,7 @@ s   *
    * @param len How many bytes of data to transfer
    * @return Current value of status register
    */
-  uint8_t RF24_read_register_block(uint8_t reg, uint8_t* buf, uint8_t len);
+  uint8_t RF24_read_register_bytes(uint8_t reg, uint8_t* buf, uint8_t len);
 
   /**
    * Read single byte from a register
@@ -841,7 +767,7 @@ s   *
    * @param len How many bytes of data to transfer
    * @return Current value of status register
    */
-  uint8_t write_register_block(uint8_t reg, const uint8_t* buf, uint8_t len);
+  uint8_t write_register_bytes(uint8_t reg, const uint8_t* buf, uint8_t len);
 
   /**
    * Write a single byte to a register
@@ -861,7 +787,18 @@ s   *
    * @param len Number of bytes to be sent
    * @return Current value of status register
    */
-  uint8_t RF24_write_payload_type(const void* buf, uint8_t len, uint8_t writeType);
+  uint8_t RF24_write_payload(const void* buf, uint8_t len);
+
+  /**
+   * Write the transmit payload and no ACK is required
+   *
+   * The size of data written is the fixed payload size, see getPayloadSize()
+   *
+   * @param buf Where to get the data
+   * @param len Number of bytes to be sent
+   * @return Current value of status register
+   */
+  uint8_t RF24_write_payload_no_ack(const void* buf, uint8_t len);
 
   /**
    * Read the receive payload
@@ -887,6 +824,15 @@ s   *
    * @return Current value of status register
    */
   uint8_t RF24_getStatus(void);
+  
+  /**
+   * Turn on or off the special features of the chip
+   *
+   * The chip has certain 'features' which are only available when the 'features'
+   * are enabled.  See the datasheet for details.
+   */
+  void RF24_toggle_features(void);
+  
 
   #if !defined (MINIMAL)
   /**
@@ -933,13 +879,6 @@ s   *
    */
   void RF24_print_address_register(const char* name, uint8_t reg, uint8_t qty);
 #endif
-  /**
-   * Turn on or off the special features of the chip
-   *
-   * The chip has certain 'features' which are only available when the 'features'
-   * are enabled.  See the datasheet for details.
-   */
-  void RF24_toggle_features(void);
 
 #endif // __NRF24L01FUNC_H__
 

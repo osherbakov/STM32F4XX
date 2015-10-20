@@ -42,12 +42,14 @@
 TIM_HandleTypeDef htim10;
 static volatile int timerExpired = 0;
 
-void delayMicroseconds(uint32_t delay_us)
+void delay_us(uint32_t delay_value)
 {
+	//  Adjust delay  (experimentally)
+	delay_value -= 3;
   htim10.Instance = TIM10;
-  htim10.Init.Prescaler = 0;
+  htim10.Init.Prescaler = delay_value >> 16;
   htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = (delay_us - 3) * (SystemCoreClock/1000000);
+  htim10.Init.Period = (delay_value & 0x0000FFFF) * (SystemCoreClock/1000000);
   htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   HAL_TIM_Base_Init(&htim10);
   timerExpired = 0;	

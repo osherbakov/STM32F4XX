@@ -9,7 +9,7 @@ uint8_t		NRF24L01_Write(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesTo
 uint8_t		NRF24L01_Read(uint8_t ReadReg, uint8_t *pBuffer,  uint32_t NumBytesToRead);
 uint8_t		NRF24L01_WriteByte(uint8_t WriteReg, uint8_t DataByte);
 uint8_t		NRF24L01_ReadByte(uint8_t ReadReg);
-uint8_t		NRF24L01_TouchByte(uint8_t TouchReg);
+uint8_t		NRF24L01_CmdByte(uint8_t Cmd);
 void 		NRF24L01_CE(uint32_t newState);
 
 /* Basic Radio functions for nRF24L01+ radio module   */

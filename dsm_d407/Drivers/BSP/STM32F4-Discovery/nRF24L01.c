@@ -122,7 +122,7 @@ uint8_t		NRF24L01_ReadByte(uint8_t ReadReg)
 	return rxBuffer[1];	// Byte 1 will have the requested value
 }
 
-uint8_t		NRF24L01_TouchByte(uint8_t TouchReg)
+uint8_t		NRF24L01_CmdByte(uint8_t TouchReg)
 {
 	/* Wait until previous transaction is finished    */
 	while(SPI_inprogress) {}; 
