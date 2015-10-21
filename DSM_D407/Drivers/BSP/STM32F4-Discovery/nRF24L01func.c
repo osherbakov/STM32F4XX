@@ -123,7 +123,7 @@ void RF24_print_status(uint8_t status)
 	(status & _BV(RX_DR))?1:0,
 	(status & _BV(TX_DS))?1:0,
 	(status & _BV(MAX_RT))?1:0,
-	((status >> RX_P_NO) & 0b111),
+	((status >> RX_P_NO) & 0x07),
 	(status & _BV(TX_FULL))?1:0
 	);
 }
@@ -134,8 +134,8 @@ void RF24_print_observe_tx(uint8_t value)
 {
   printf_P(PSTR("OBSERVE_TX=%02x: POLS_CNT=%x ARC_CNT=%x\r\n"),
 	value,
-	(value >> PLOS_CNT) & 0b1111,
-	(value >> ARC_CNT) & 0b1111
+	(value >> PLOS_CNT) & 0x0F,
+	(value >> ARC_CNT) & 0x0F
 	);
 }
 
@@ -260,7 +260,7 @@ void RF24_Init()
   delay( 5 ) ;
 
   // Reset CONFIG and enable 16-bit CRC.
-  RF24_write_register( CONFIG, 0b00001100 ) ;
+  RF24_write_register( CONFIG, 0x0C ) ;
 
   // Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
   // WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
@@ -538,7 +538,7 @@ int RF24_rxAvailable(uint8_t *pipe)
 {
   if (!( RF24_read_register(FIFO_STATUS) & _BV(RX_EMPTY) )){
     // If the caller wants the pipe number, include that
-	int  pipe_num = ( RF24_getStatus() >> RX_P_NO ) & 0b111;
+	int  pipe_num = ( RF24_getStatus() >> RX_P_NO ) & 0x07;
     if ( pipe ){
       *pipe = pipe_num; 
   	}
@@ -642,7 +642,7 @@ void RF24_toggle_features(void)
 
 /****************************************************************************/
 
-void RF24_setDynamicPayloads(int enable)
+void RF24_setDynamicPayload(int enable)
 {
   // Enable/disable dynamic payload throughout the system
   if(enable)  
@@ -699,7 +699,7 @@ void RF24_setDynamicAck(int enable){
 void RF24_writeAckPayload(uint8_t pipe, void *buf, uint8_t len)
 {
 	if(ack_payload_enabled)
-		NRF24L01_Write(W_ACK_PAYLOAD | ( pipe & 0b111 ), buf, len);
+		NRF24L01_Write(W_ACK_PAYLOAD | ( pipe & 0x07 ), buf, len);
 }
 
 /****************************************************************************/
@@ -720,7 +720,7 @@ int RF24_isPVariant(void)
 
 void RF24_setAutoAckAll(int enable)
 {
-  RF24_write_register(EN_AA,  enable ? 0b111111 : 0);
+  RF24_write_register(EN_AA,  enable ? 0x3F : 0);
 }
 
 /****************************************************************************/
@@ -747,7 +747,7 @@ int RF24RF24_testCarrier(void)
 
 void RF24_setPALevel(uint8_t level)
 {
-  uint8_t setup = RF24_read_register(RF_SETUP) & 0b11111000;
+  uint8_t setup = RF24_read_register(RF_SETUP) & 0xF8;
 
   if(level > 3){  						// If invalid level, go to max PA
 	  level = (RF24_PA_MAX << 1) + 1;		// +1 to support the SI24R1 chip extra bit

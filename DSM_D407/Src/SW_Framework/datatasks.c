@@ -106,7 +106,7 @@ BSP_LED_On(LED6);
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
 BSP_LED_Off(LED6);
-		RF24_setChannel(TxChannel++);
+//		RF24_setChannel(TxChannel++);
 		RF24_write(SPI_Tx, 16);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
