@@ -35,6 +35,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
+#include "nRF24L01func.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -82,11 +83,17 @@ void SysTick_Handler(void)
 void EXTI3_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI3_IRQn 0 */
+	int  	txOK;
+	int  	txFail;
+	int  	rxReady;
 
   /* USER CODE END EXTI3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
-  /* USER CODE BEGIN EXTI3_IRQn 1 */
 
+	/* USER CODE BEGIN EXTI3_IRQn 1 */
+  RF24_whatHappened(&txOK, &txFail, &rxReady);
+  if(txOK)  RF24_TxDone_CallBack();
+  if(rxReady)  RF24_RxReady_CallBack();
   /* USER CODE END EXTI3_IRQn 1 */
 }
 

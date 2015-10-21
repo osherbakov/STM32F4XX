@@ -635,7 +635,7 @@ s   *
    * once in a while.  This enables dynamic payloads on ALL pipes.
    *
    */
-  void RF24_setDynamicPayloads(int enable);
+  void RF24_setDynamicPayload(int enable);
   
   
   /**
@@ -833,6 +833,18 @@ s   *
    */
   void RF24_toggle_features(void);
   
+  /**
+   *  Callback when the packet is transmitted
+   *  We may add another packed into the Tx queue
+   */   
+  void RF24_TxDone_CallBack(void);
+
+  /**
+   *  Callback when the payload packet is received
+   *  We may add another packed into the Tx queue
+   */   
+  void RF24_RxReady_CallBack(void);
+
 
   #if !defined (MINIMAL)
   /**
@@ -879,6 +891,7 @@ s   *
    */
   void RF24_print_address_register(const char* name, uint8_t reg, uint8_t qty);
 #endif
+
 
 #endif // __NRF24L01FUNC_H__
 

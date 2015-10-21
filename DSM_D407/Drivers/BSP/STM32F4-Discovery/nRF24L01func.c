@@ -556,7 +556,7 @@ void RF24_read( void* buf, uint8_t len ){
   // Fetch the payload
   RF24_read_payload( buf, len );
   //Clear the two possible interrupt flags with one command
-  RF24_write_register(NRF_STATUS,_BV(RX_DR) | _BV(MAX_RT) | _BV(TX_DS) );
+  // RF24_write_register(NRF_STATUS,_BV(RX_DR) | _BV(MAX_RT) | _BV(TX_DS) );
 
 }
 
@@ -866,4 +866,16 @@ rf24_crclength_e RF24_getCRCLength(void)
 void RF24_setRetries(uint8_t delay, uint8_t count)
 {
 	RF24_write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
+}
+
+/*****************************************************************************/
+/*              Interrupt callbacks for nRF24L01                             */
+
+__weak void RF24_TxDone_CallBack(void)
+{
+	
+}
+__weak void RF24_RxReady_CallBack(void)
+{
+	
 }
