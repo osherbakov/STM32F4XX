@@ -169,6 +169,9 @@ uint8_t		NRF24L01_CmdByte(uint8_t TouchReg)
 	return rxBuffer[0];	// Byte 0 will have the status value
 }
 
+/*
+ *  Callback when Payload DMA transfer thru SPI is done - activate CE pulse
+ */
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi == pSpiHandle) {
@@ -182,17 +185,9 @@ BSP_LED_Off(LED6);
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if(htim == &htim10)
-	{
-BSP_LED_On(LED3);
-		HAL_TIM_Base_Stop_IT(&htim10);
-		__HAL_TIM_SET_COUNTER(&htim10, 0);			
-		NRF24L01_CE(LOW);		
-BSP_LED_Off(LED3);		
-	}
-}
+/*
+ *  Callback when regular multibyte (f.e. address) transfer is done
+ */
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
@@ -201,6 +196,21 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 		SPI_inprogress = 0;
 	}
 }
+
+/*
+ * Callback when 10 usec timer expires - time to drop CE pin
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim == &htim10)
+	{
+		HAL_TIM_Base_Stop_IT(&htim10);
+		__HAL_TIM_SET_COUNTER(&htim10, 0);			
+		NRF24L01_CE(LOW);		
+	}
+}
+
+
 
 /*****************************************************************************/
 /*              Interrupt callbacks for nRF24L01                             */
