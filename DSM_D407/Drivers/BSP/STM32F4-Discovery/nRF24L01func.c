@@ -79,12 +79,12 @@ uint8_t RF24_write_register(uint8_t reg, uint8_t value)
 /****************************************************************************/
 uint8_t RF24_write_payload(const void* buf, uint8_t data_len)
 {
-  return NRF24L01_Write(W_TX_PAYLOAD, (uint8_t *)buf, data_len);
+  return NRF24L01_WritePayload(W_TX_PAYLOAD, (uint8_t *)buf, data_len);
 }
 
 uint8_t RF24_write_payload_no_ack(const void* buf, uint8_t data_len)
 {
-  return NRF24L01_Write(W_TX_PAYLOAD_NO_ACK, (uint8_t *)buf, data_len);
+  return NRF24L01_WritePayload(W_TX_PAYLOAD_NO_ACK, (uint8_t *)buf, data_len);
 }
 /****************************************************************************/
 
@@ -125,17 +125,6 @@ void RF24_print_status(uint8_t status)
 	(status & _BV(MAX_RT))?1:0,
 	((status >> RX_P_NO) & 0x07),
 	(status & _BV(TX_FULL))?1:0
-	);
-}
-
-/****************************************************************************/
-
-void RF24_print_observe_tx(uint8_t value)
-{
-  printf_P(PSTR("OBSERVE_TX=%02x: POLS_CNT=%x ARC_CNT=%x\r\n"),
-	value,
-	(value >> PLOS_CNT) & 0x0F,
-	(value >> ARC_CNT) & 0x0F
 	);
 }
 
@@ -248,6 +237,9 @@ void RF24_Init()
   addr_width = 5;
   dynamic_payload_enabled = 0;
   ack_payload_enabled = 0;
+  pipe0_enabled = 0;
+  pipe0_payload_size = 16;
+  memset(pipe0_reading_address, 0x0F, addr_width);
 	
  
   // Must allow the radio time to settle else configuration bits will not necessarily stick.
@@ -257,11 +249,13 @@ void RF24_Init()
   // Technically we require 4.5ms + 14us as a worst case. We'll just call it 5ms for good measure.
   // WARNING: Delay is based on P-variant whereby non-P *may* require different timing.
 
+  RF24_ce(LOW);
   delay( 5 ) ;
 
-  // Reset CONFIG and enable 16-bit CRC.
+  // Reset CONFIG - Power Down, enable 16-bit CRC.
   RF24_write_register( CONFIG, 0x0C ) ;
-
+  RF24_write_register( CONFIG, 0x0C ) ;  // We need to send command second time in case the clock was not correct
+  
   // Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
   // WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
   // sizes must never be used. See documentation for a more complete explanation.
@@ -292,6 +286,7 @@ void RF24_Init()
   RF24_write_register(FEATURE,0 );
   RF24_write_register(DYNPD,0);
   RF24_write_register(EN_AA,0);
+  RF24_write_register(EN_RXADDR, 0);
 
   // Set up default configuration.  Callers can always change it later.
   // This channel should be universally safe and not bleed over into adjacent
@@ -300,18 +295,17 @@ void RF24_Init()
   
   // Reset current status
   // Notice reset and flush is the last thing we do
-  RF24_write_register(NRF_STATUS,_BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
+  RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
 
   // Flush buffers
   RF24_flushRx();
   RF24_flushTx();
 
   RF24_powerUp(); //Power up 
-
-  // Enable PTX, do not write CE high so radio will remain in standby I mode 
+  
+  // Enable RTX so radio will remain in standby I mode 
   //  ( 130us max to transition to RX or TX instead of 1500us from powerUp )
-  // PTX should use only 22uA of power
-  RF24_write_register(CONFIG, ( RF24_read_register(CONFIG) ) & ~_BV(PRIM_RX) );
+  // PRX should use only 22uA of power
 }
 
 /****************************************************************************/
@@ -345,7 +339,6 @@ void RF24_startListening()
   // Flush buffers
   RF24_flushRx();
   if(ack_payload_enabled){
-    delay_us(txRxDelay); 
 	RF24_flushTx();
   }  
   RF24_ce(HIGH);
@@ -355,12 +348,10 @@ void RF24_stopListening(void)
 {  
   RF24_ce(LOW);
   if(ack_payload_enabled){
-    delay_us(txRxDelay); 
 	RF24_flushTx();
   }
   RF24_flushRx();
-  RF24_write_register(CONFIG, ( RF24_read_register(CONFIG) ) & ~_BV(PRIM_RX) );
-  RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );  
+  RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
 }
 
 /****************************************************************************/
@@ -380,24 +371,15 @@ void RF24_powerUp(void)
 
    // if not powered up then power up and wait for the radio to initialize
    if (!(config & _BV(PWR_UP))){
-      RF24_write_register(CONFIG, config | _BV(PWR_UP));
+      RF24_write_register(CONFIG, (config | _BV(PWR_UP)));
       // For nRF24L01+ to go from power down mode to TX or RX mode it must first pass through stand-by mode.
 	  // There must be a delay of Tpd2stby (see Table 16.) after the nRF24L01+ leaves power down mode before
-	  // the CEis set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
+	  // the CE is set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
       delay(5);
    }
 }
 
 /******************************************************************/
-
-/****************************************************************************/
-
-void RF24_reUseTX(){
-	RF24_write_register(NRF_STATUS, _BV(MAX_RT) );		//Clear max retry flag
-	NRF24L01_CmdByte( REUSE_TX_PL );
-	RF24_ce(LOW);										//Re-Transfer packet
-	RF24_ce(HIGH);
-}
 
 /****************************************************************************/
 
@@ -410,15 +392,12 @@ int RF24_WaitAndWrite( const void* buf, uint8_t len, uint32_t timeout )
 	//This way the FIFO will fill up and allow blocking until packets go through
 	//The radio will auto-clear everything in the FIFO as long as CE remains high
 	uint32_t timer = millis();							  	//Get the time that the payload transmission started
-	while( ( status = RF24_getStatus() )  & _BV(TX_FULL) ) {			//Blocking only if FIFO is full. This will loop and block until TX is successful or timeout
-		if( status & _BV(MAX_RT)){							//If MAX Retries have been reached
-			if(millis() - timer > timeout){ return 0; }		//If this payload has exceeded the user-defined timeout, exit and return 0
-			RF24_reUseTX();									//Set re-transmit and clear the MAX_RT interrupt flag
-		}
+	while( ( status = RF24_getStatus() ) & _BV(TX_FULL) ) {	//Blocking only if FIFO is full. This will loop and block until TX is successful or timeout
+		if( (status & _BV(MAX_RT)) ||    					//If MAX Retries have been reached
+		     (((millis() - timer) > timeout))) return 0;		//If this payload has exceeded the user-defined timeout, exit and return 0
   	}
   	//Start Writing
 	RF24_write_payload(buf, len);							//Write the payload if a buffer is clear
-	RF24_ce(HIGH);	
 	return 1;												//Return 1 to indicate successful transmission
 }
 
@@ -426,21 +405,16 @@ int RF24_WaitAndWrite( const void* buf, uint8_t len, uint32_t timeout )
 
 int RF24_writeAck( const void* buf, uint8_t len, const int multicast )
 {
-	uint8_t status;
-	//Block until the FIFO is NOT full.
-	//Keep track of the MAX retries and set auto-retry if seeing failures
-	//Return 0 so the user can control the retries and set a timer or failure counter if required
-	//The radio will auto-clear everything in the FIFO as long as CE remains high
-	
-	while( ( (status = RF24_getStatus())  & _BV(TX_FULL ))) {			  //Blocking only if FIFO is full. This will loop and block until TX is successful or fail
-		if( status & _BV(MAX_RT)) {
-			RF24_write_register(NRF_STATUS,_BV(MAX_RT) );	  //Clear max retry flag
-			return 0;										  //Return 0. The previous payload has been retransmitted
-		}
-  	}
-	//Start Writing
-	RF24_startWrite(buf,len,multicast);
-	RF24_ce(HIGH);		
+	//Send ONLY when Tx FIFO is empty - we need this to keep predictable timing.
+	if( !(RF24_read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
+	  if( RF24_getStatus() & _BV(MAX_RT)) {
+	    RF24_flushTx();		  
+		RF24_write_register(NRF_STATUS,_BV(MAX_RT) );	  //Clear max retry flag
+	  }
+	  return 0;										  //Return error  	
+	}
+	//Start Writing	
+	RF24_startWrite(buf,len,multicast);	
 	return 1;
 }
 
@@ -474,12 +448,10 @@ int RF24_txStandBy(){
 	while( !(RF24_read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
 		if( RF24_getStatus() & _BV(MAX_RT)){
 			RF24_write_register(NRF_STATUS,_BV(MAX_RT) );
-			RF24_ce(LOW);
 			RF24_flushTx();    //Non blocking, flush the data
 			return 0;
 		}
 	}
-	RF24_ce(LOW);			   //Set STANDBY-I mode
 	return 1;
 }
 
@@ -491,17 +463,13 @@ int RF24_txStandByAndWait(uint32_t timeout){
 
 	while( ! (RF24_read_register(FIFO_STATUS) & _BV(TX_EMPTY)) ){
 		if( RF24_getStatus() & _BV(MAX_RT)){
-			RF24_write_register(NRF_STATUS,_BV(MAX_RT) );
-			RF24_ce(LOW);										  //Set re-transmit
+			RF24_write_register(NRF_STATUS,_BV(MAX_RT) );										  //Set re-transmit
 			if(millis() - start >= timeout){
-				RF24_ce(LOW); 
 				RF24_flushTx(); 
 				return 0;
 			}
-			RF24_ce(HIGH);
 		}
 	}	
-	RF24_ce(LOW);				   //Set STANDBY-I mode
 	return 1;
 }
 
@@ -509,7 +477,9 @@ int RF24_txStandByAndWait(uint32_t timeout){
 
 void RF24_maskIRQ(int tx, int fail, int rx){
 
-	RF24_write_register(CONFIG, ( RF24_read_register(CONFIG) ) | fail << MASK_MAX_RT | tx << MASK_TX_DS | rx << MASK_RX_DR  );
+	RF24_write_register(CONFIG, ( RF24_read_register(CONFIG)  & 
+		~(1 << MASK_MAX_RT | 1 << MASK_TX_DS | 1 << MASK_RX_DR)) | 
+			(fail << MASK_MAX_RT | tx << MASK_TX_DS | rx << MASK_RX_DR)  );
 }
 
 /****************************************************************************/
@@ -866,16 +836,4 @@ rf24_crclength_e RF24_getCRCLength(void)
 void RF24_setRetries(uint8_t delay, uint8_t count)
 {
 	RF24_write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
-}
-
-/*****************************************************************************/
-/*              Interrupt callbacks for nRF24L01                             */
-
-__weak void RF24_TxDone_CallBack(void)
-{
-	
-}
-__weak void RF24_RxReady_CallBack(void)
-{
-	
 }

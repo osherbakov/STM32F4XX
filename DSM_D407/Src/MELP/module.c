@@ -122,7 +122,7 @@ void ds_48_8_init(void *pHandle)
 uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nGenerated = 0;
-BSP_LED_On(LED3);
+//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
@@ -131,7 +131,7 @@ BSP_LED_On(LED3);
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
-BSP_LED_Off(LED3);
+//BSP_LED_Off(LED3);
 	return nGenerated;
 }
 
@@ -164,7 +164,7 @@ void us_8_48_init(void *pHandle)
 uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nGenerated = 0;
-BSP_LED_On(LED3);
+//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -173,7 +173,7 @@ BSP_LED_On(LED3);
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
-BSP_LED_Off(LED3);
+//BSP_LED_Off(LED3);
 	return nGenerated;
 }
 

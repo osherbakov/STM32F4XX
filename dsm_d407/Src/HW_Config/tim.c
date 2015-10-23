@@ -40,22 +40,6 @@
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim10;
-static volatile int timerExpired = 0;
-
-void delay_us(uint32_t delay_value)
-{
-	//  Adjust delay  (experimentally)
-	delay_value -= 3;
-  htim10.Instance = TIM10;
-  htim10.Init.Prescaler = delay_value >> 16;
-  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = (delay_value & 0x0000FFFF) * (SystemCoreClock/1000000);
-  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  HAL_TIM_Base_Init(&htim10);
-  timerExpired = 0;	
-  HAL_TIM_Base_Start_IT(&htim10);
-  while(0 == timerExpired) {__WFI; }
-}
 
 /**
 * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
@@ -67,7 +51,7 @@ void TIM1_UP_TIM10_IRQHandler(void)
   /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
   HAL_TIM_IRQHandler(&htim10);
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
-  timerExpired = 1;
+
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
 
@@ -75,12 +59,14 @@ void TIM1_UP_TIM10_IRQHandler(void)
 void MX_TIM10_Init(void)
 {
   htim10.Instance = TIM10;
-  htim10.Init.Prescaler = 0;
+  htim10.Init.Prescaler = (SystemCoreClock/1000000) - 1;
   htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim10.Init.Period = 0;
+  htim10.Init.Period = 10;
   htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   HAL_TIM_Base_Init(&htim10);
-  timerExpired = 0;
+  HAL_TIM_Base_Start_IT(&htim10);
+  HAL_TIM_Base_Stop_IT(&htim10);
+  __HAL_TIM_SET_COUNTER(&htim10, 0);		
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
@@ -95,7 +81,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     __TIM10_CLK_ENABLE();
 
     /* Peripheral interrupt init*/
-    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
   /* USER CODE BEGIN TIM10_MspInit 1 */
 

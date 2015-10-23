@@ -467,23 +467,6 @@ s   *
   void RF24_startWrite( const void* buf, uint8_t len, const int multicast);
   
   /**
-   * This function is mainly used internally to take advantage of the auto payload
-   * re-use functionality of the chip, but can be beneficial to users as well.
-   *
-   * The function will instruct the radio to re-use the data in the FIFO buffers,
-   * and instructs the radio to re-send once the timeout limit has been reached.
-   * Used by writeFast and writeBlocking to initiate retries when a TX failure
-   * occurs. Retries are automatically initiated except with the standard write().
-   * This way, data is not flushed from the buffer until switching between modes.
-   *
-   * @note This is to be used AFTER auto-retry fails if wanting to resend
-   * using the built-in payload reuse features.
-   * After issuing reUseTX(), it will keep reending the same payload forever or until
-   * a payload is written to the FIFO, or a flush_tx command is given.
-   */
-   void RF24_reUseTX(void);
-
-  /**
    * Empty the transmit buffer. This is generally not required in standard operation.
    * May be required in specific cases after stopListening() , if operating at 250KBPS data rate.
    *
@@ -833,17 +816,6 @@ s   *
    */
   void RF24_toggle_features(void);
   
-  /**
-   *  Callback when the packet is transmitted
-   *  We may add another packed into the Tx queue
-   */   
-  void RF24_TxDone_CallBack(void);
-
-  /**
-   *  Callback when the payload packet is received
-   *  We may add another packed into the Tx queue
-   */   
-  void RF24_RxReady_CallBack(void);
 
 
   #if !defined (MINIMAL)
@@ -855,15 +827,6 @@ s   *
    * @warning Does nothing if stdout is not defined.  See fdevopen in stdio.h
    */
   void RF24_print_status(uint8_t status);
-
-  /**
-   * Decode and print the given 'observe_tx' value to stdout
-   *
-   * @param value The observe_tx value to print
-   *
-   * @warning Does nothing if stdout is not defined.  See fdevopen in stdio.h
-   */
-  void RF24_print_observe_tx(uint8_t value);
 
   /**
    * Print the name and value of an 8-bit register to stdout

@@ -66,8 +66,8 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 //  Task to handle incoming PDM data (Mono) and convert it to PCM samples (Stereo)
 //
 
-uint8_t	 SPI_Tx[16] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0xAA};
-uint8_t	 SPI_Rx[16];
+uint8_t	 SPI_Tx[32] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0xAA};
+uint8_t	 SPI_Rx[32];
 uint8_t	 TxAddress[] = "1Node";
 uint8_t	 TxChannel = 0;
 
@@ -93,6 +93,7 @@ void StartDataInPDMTask(void const * argument)
 	RF24_setDynamicPayload(0);
 	RF24_setAckPayload(0);
 	RF24_setAutoAckAll(0);
+	RF24_setDataRate(RF24_2MBPS);
 	RF24_openWritingPipe(TxAddress);
 		
 	while(1)
@@ -102,12 +103,10 @@ void StartDataInPDMTask(void const * argument)
 		{
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES * event.value.v];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
-BSP_LED_On(LED6);
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
-BSP_LED_Off(LED6);
-//		RF24_setChannel(TxChannel++);
-		RF24_write(SPI_Tx, 16);
+		RF24_setChannel(TxChannel++);
+		RF24_write(SPI_Tx, 32);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}
