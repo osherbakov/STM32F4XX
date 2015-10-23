@@ -48,6 +48,7 @@ extern void 	delay_us(uint32_t delay_microsecs);
   
   uint8_t addr_width; 			/**< The address width to use - 3,4 or 5 bytes. */
   uint32_t txRxDelay; 			/**< Var for adjusting delays depending on datarate */
+  uint8_t config;
 
 /****************************************************************************/
 uint8_t RF24_read_register_bytes(uint8_t reg, uint8_t* buf, uint8_t len)
@@ -338,20 +339,31 @@ void RF24_startListening()
   }	
   // Flush buffers
   RF24_flushRx();
-  if(ack_payload_enabled){
-	RF24_flushTx();
-  }  
+  RF24_flushTx();
+  RF24_ce(HIGH);
+}
+
+void RF24_startListeningFast()
+{
+  RF24_write_register(CONFIG, RF24_read_register(CONFIG) | _BV(PRIM_RX));
+  RF24_flushRx();
   RF24_ce(HIGH);
 }
 
 void RF24_stopListening(void)
 {  
   RF24_ce(LOW);
-  if(ack_payload_enabled){
-	RF24_flushTx();
-  }
+  RF24_flushTx();
   RF24_flushRx();
-  RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
+  RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );	
+  RF24_write_register(CONFIG, RF24_read_register(CONFIG) & ~_BV(PRIM_RX));	
+}
+
+void RF24_stopListeningFast(void)
+{  
+  RF24_ce(LOW);
+  RF24_flushTx();
+  RF24_write_register(CONFIG, RF24_read_register(CONFIG) & ~_BV(PRIM_RX));	
 }
 
 /****************************************************************************/

@@ -74,7 +74,7 @@ typedef enum {
    * @endcode
    */
   void RF24_startListening(void);
-
+  void RF24_startListeningFast(void);
   /**
    * Stop listening for incoming messages, and switch to transmit mode.
    *
@@ -85,7 +85,7 @@ typedef enum {
    * @endcode
    */
   void RF24_stopListening(void);
-
+  void RF24_stopListeningFast(void);
   /**
    * Check whether there are any bytes available to be read
    * @code
