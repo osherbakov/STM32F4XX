@@ -95,11 +95,14 @@ void StartDataInPDMTask(void const * argument)
 	RF24_setAckPayload(0);
 	RF24_setAutoAckAll(0);
 	RF24_setDataRate(RF24_1MBPS);
-	RF24_openReadingPipe(0, TxAddress, 8);	
-	RF24_openWritingPipe(TxAddress);
-	
-	RF24_startListening();
-		
+	RF24_openReadingPipe(0, TxAddress, 16);	
+	RF24_openWritingPipe(TxAddress);		
+
+	if (RxMode) 
+		RF24_startListening();
+	else 
+		RF24_stopListening();		
+			
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
 		event = osMessageGet(osParams.dataInPDMMsg, osWaitForever);
@@ -110,13 +113,14 @@ void StartDataInPDMTask(void const * argument)
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
 		if(RxMode == 0){
-			RF24_stopListeningFast();		
+//			RF24_stopListeningFast();		
 	// RF24_setChannel(TxChannel++);
 			RF24_write(_Tx, 16);
-			RxMode = 1;
+//			RxMode = 1;
 		}else{
-			RF24_startListeningFast();
-			RxMode = 0;
+BSP_LED_Off(LED6);			
+//			RF24_startListeningFast();
+//			RxMode = 0;
 		}	
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);

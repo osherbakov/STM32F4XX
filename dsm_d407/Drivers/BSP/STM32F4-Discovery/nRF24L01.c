@@ -175,13 +175,13 @@ uint8_t		NRF24L01_CmdByte(uint8_t TouchReg)
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi == pSpiHandle) {
-BSP_LED_On(LED6);
+//BSP_LED_On(LED6);
 		NRF24L01_CS(HIGH);
 		SPI_inprogress = 0;
 		// Generate 10-12 usec pulse on CE
 		HAL_TIM_Base_Start_IT(&htim10);	
 		NRF24L01_CE(HIGH);		
-BSP_LED_Off(LED6);
+//BSP_LED_Off(LED6);
 	}
 }
 
@@ -223,7 +223,14 @@ void NRF24L01_TxFail_CallBack(void)
 {
 	
 }
+
+extern void RF24_read_payload( void* buf, uint8_t len );
+extern void RF24_flushRx(void);
+static uint8_t DumpBuff[MAX_PAYLOAD_SIZE];
+
 void NRF24L01_RxReady_CallBack(void)
 {
-	
+BSP_LED_On(LED6);
+//	RF24_read_payload(DumpBuff, 16);
+	RF24_flushRx();	
 }

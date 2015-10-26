@@ -48,7 +48,7 @@ extern void 	delay_us(uint32_t delay_microsecs);
   
   uint8_t addr_width; 			/**< The address width to use - 3,4 or 5 bytes. */
   uint32_t txRxDelay; 			/**< Var for adjusting delays depending on datarate */
-  uint8_t config;
+  uint8_t RF24_config;
 
 /****************************************************************************/
 uint8_t RF24_read_register_bytes(uint8_t reg, uint8_t* buf, uint8_t len)
@@ -254,8 +254,11 @@ void RF24_Init()
   delay( 5 ) ;
 
   // Reset CONFIG - Power Down, enable 16-bit CRC.
-  RF24_write_register( CONFIG, 0x0C ) ;
-  RF24_write_register( CONFIG, 0x0C ) ;  // We need to send command second time in case the clock was not correct
+  RF24_config = 0x0C;
+  RF24_write_register( CONFIG, RF24_config ) ; 
+  RF24_write_register( CONFIG, RF24_config ) ;  // We need to send command second time in case the clock was not correct
+  while(RF24_read_register(CONFIG) != RF24_config)  
+	RF24_write_register( CONFIG, RF24_config ) ;
   
   // Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
   // WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
@@ -276,8 +279,6 @@ void RF24_Init()
   // hardware.
   RF24_setDataRate( RF24_1MBPS ) ;
 
-  // Initialize CRC and request 2-byte (16bit) CRC
-  RF24_setCRCLength( RF24_CRC_16 ) ;
   
   // Set address width to 5
   RF24_setAddressWidth(5);
@@ -295,7 +296,7 @@ void RF24_Init()
   RF24_setChannel(76);  
   
   // Reset current status
-  // Notice reset and flush is the last thing we do
+  // Notice: reset and flush is the last thing we do
   RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
 
   // Flush buffers
@@ -328,7 +329,8 @@ static const uint8_t child_payload_size[] PROGMEM =
 /****************************************************************************/
 void RF24_startListening()
 {
-  RF24_write_register(CONFIG, RF24_read_register(CONFIG) | _BV(PRIM_RX));
+  RF24_config |= _BV(PRIM_RX);
+  RF24_write_register(CONFIG, RF24_config );
   RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );
 
   // Restore the pipe0 adddress, and payload size, if enabled
@@ -345,7 +347,8 @@ void RF24_startListening()
 
 void RF24_startListeningFast()
 {
-  RF24_write_register(CONFIG, RF24_read_register(CONFIG) | _BV(PRIM_RX));
+  RF24_config |= _BV(PRIM_RX);	
+  RF24_write_register(CONFIG, RF24_config );
   RF24_flushRx();
   RF24_ce(HIGH);
 }
@@ -356,14 +359,16 @@ void RF24_stopListening(void)
   RF24_flushTx();
   RF24_flushRx();
   RF24_write_register(NRF_STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT) );	
-  RF24_write_register(CONFIG, RF24_read_register(CONFIG) & ~_BV(PRIM_RX));	
+  RF24_config &= ~_BV(PRIM_RX);
+  RF24_write_register(CONFIG, RF24_config );	
 }
 
 void RF24_stopListeningFast(void)
 {  
   RF24_ce(LOW);
-  RF24_flushTx();
-  RF24_write_register(CONFIG, RF24_read_register(CONFIG) & ~_BV(PRIM_RX));	
+  RF24_flushRx();
+  RF24_config &= ~_BV(PRIM_RX);
+  RF24_write_register(CONFIG, RF24_config );	
 }
 
 /****************************************************************************/
@@ -371,7 +376,8 @@ void RF24_stopListeningFast(void)
 void RF24_powerDown(void)
 {
   RF24_ce(LOW); // Guarantee CE is low on powerDown
-  RF24_write_register(CONFIG, RF24_read_register(CONFIG) & ~_BV(PWR_UP));
+  RF24_config &= ~_BV(PWR_UP);	
+  RF24_write_register(CONFIG, RF24_config );
 }
 
 /****************************************************************************/
@@ -379,11 +385,10 @@ void RF24_powerDown(void)
 //Power up now. Radio will not power down unless instructed by MCU for config changes etc.
 void RF24_powerUp(void)
 {
-   uint8_t config = RF24_read_register(CONFIG);
-
    // if not powered up then power up and wait for the radio to initialize
-   if (!(config & _BV(PWR_UP))){
-      RF24_write_register(CONFIG, (config | _BV(PWR_UP)));
+   if (!(RF24_config & _BV(PWR_UP))){
+	  RF24_config |=  _BV(PWR_UP);
+      RF24_write_register(CONFIG, RF24_config);
       // For nRF24L01+ to go from power down mode to TX or RX mode it must first pass through stand-by mode.
 	  // There must be a delay of Tpd2stby (see Table 16.) after the nRF24L01+ leaves power down mode before
 	  // the CE is set high. - Tpd2stby can be up to 5ms per the 1.0 datasheet
@@ -489,9 +494,10 @@ int RF24_txStandByAndWait(uint32_t timeout){
 
 void RF24_maskIRQ(int tx, int fail, int rx){
 
-	RF24_write_register(CONFIG, ( RF24_read_register(CONFIG)  & 
+	RF24_config =  ( RF24_config  & 
 		~(1 << MASK_MAX_RT | 1 << MASK_TX_DS | 1 << MASK_RX_DR)) | 
-			(fail << MASK_MAX_RT | tx << MASK_TX_DS | rx << MASK_RX_DR)  );
+			(fail << MASK_MAX_RT | tx << MASK_TX_DS | rx << MASK_RX_DR) ;
+	RF24_write_register(CONFIG, RF24_config);
 }
 
 /****************************************************************************/
@@ -538,8 +544,7 @@ void RF24_read( void* buf, uint8_t len ){
   // Fetch the payload
   RF24_read_payload( buf, len );
   //Clear the two possible interrupt flags with one command
-  // RF24_write_register(NRF_STATUS,_BV(RX_DR) | _BV(MAX_RT) | _BV(TX_DS) );
-
+  RF24_write_register(NRF_STATUS,_BV(RX_DR) | _BV(MAX_RT) | _BV(TX_DS) );
 }
 
 /****************************************************************************/
@@ -809,19 +814,19 @@ rf24_datarate_e RF24_getDataRate( void )
 
 void RF24_setCRCLength(rf24_crclength_e length)
 {
-  uint8_t config = RF24_read_register(CONFIG) & ~( _BV(CRCO) | _BV(EN_CRC)) ;
+  RF24_config = RF24_read_register(CONFIG) & ~( _BV(CRCO) | _BV(EN_CRC)) ;
 
   if ( length == RF24_CRC_DISABLED )
   {
     // Do nothing, we turned it off above.
   }else if ( length == RF24_CRC_8 )
   {
-    config |= _BV(EN_CRC);
+    RF24_config |= _BV(EN_CRC);
   }else{
-    config |= _BV(EN_CRC);
-    config |= _BV( CRCO );
+    RF24_config |= _BV(EN_CRC);
+    RF24_config |= _BV( CRCO );
   }
-  RF24_write_register( CONFIG, config) ;
+  RF24_write_register( CONFIG, RF24_config) ;
 }
 
 /****************************************************************************/
