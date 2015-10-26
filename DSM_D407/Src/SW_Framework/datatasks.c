@@ -94,7 +94,7 @@ void StartDataInPDMTask(void const * argument)
 	RF24_setDynamicPayload(0);
 	RF24_setAckPayload(0);
 	RF24_setAutoAckAll(0);
-	RF24_setDataRate(RF24_1MBPS);
+	RF24_setDataRate(RF24_250KBPS);
 	RF24_openReadingPipe(0, TxAddress, 16);	
 	RF24_openWritingPipe(TxAddress);		
 

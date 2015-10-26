@@ -11,6 +11,8 @@ static  SPI_HandleTypeDef    *pSpiHandle;
 static  volatile uint32_t	SPI_inprogress;
 static 	uint8_t txBuffer[MAX_PAYLOAD_SIZE + 1];
 static 	uint8_t rxBuffer[MAX_PAYLOAD_SIZE + 1];
+int     rxOK = 0;
+int		rxPass;
 
 #define		LOW  	(0)
 #define		HIGH	(1)
@@ -175,27 +177,14 @@ uint8_t		NRF24L01_CmdByte(uint8_t TouchReg)
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi == pSpiHandle) {
-//BSP_LED_On(LED6);
 		NRF24L01_CS(HIGH);
 		SPI_inprogress = 0;
 		// Generate 10-12 usec pulse on CE
 		HAL_TIM_Base_Start_IT(&htim10);	
 		NRF24L01_CE(HIGH);		
-//BSP_LED_Off(LED6);
 	}
 }
 
-/*
- *  Callback when regular multibyte (f.e. address) transfer is done
- */
-
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
-{
-	if(hspi == pSpiHandle) {
-		NRF24L01_CS(HIGH);
-		SPI_inprogress = 0;
-	}
-}
 
 /*
  * Callback when 10 usec timer expires - time to drop CE pin
@@ -209,8 +198,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		NRF24L01_CE(LOW);		
 	}
 }
-
-
 
 /*****************************************************************************/
 /*              Interrupt callbacks for nRF24L01                             */
@@ -226,11 +213,12 @@ void NRF24L01_TxFail_CallBack(void)
 
 extern void RF24_read_payload( void* buf, uint8_t len );
 extern void RF24_flushRx(void);
-static uint8_t DumpBuff[MAX_PAYLOAD_SIZE];
+static uint8_t RxBuffer[MAX_PAYLOAD_SIZE];
 
 void NRF24L01_RxReady_CallBack(void)
 {
 BSP_LED_On(LED6);
-//	RF24_read_payload(DumpBuff, 16);
+//	RF24_read_payload(RxBuffer, 16);
 	RF24_flushRx();	
+	rxOK++;
 }
