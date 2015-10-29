@@ -112,16 +112,16 @@ void StartDataInPDMTask(void const * argument)
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
-		if(RxMode == 0){
-//			RF24_stopListeningFast();		
-	// RF24_setChannel(TxChannel++);
+			if(RxMode == 0){
+			//			RF24_stopListeningFast();		
+			// RF24_setChannel(TxChannel++);
 			RF24_write(_Tx, 16);
-//			RxMode = 1;
-		}else{
+			//			RxMode = 1;
+			}else{
 BSP_LED_Off(LED6);			
-//			RF24_startListeningFast();
-//			RxMode = 0;
-		}	
+			//			RF24_startListeningFast();
+			//			RxMode = 0;
+			}	
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 		}

@@ -17,27 +17,11 @@ int		rxPass;
 #define		LOW  	(0)
 #define		HIGH	(1)
 
+#define  init_obj(a)		do{__disable_irq();(a) = 0;__enable_irq();}while(0)
+#define  lock_obj(a) 		do{__disable_irq();if((a) == 0){(a) = 1; break;}__enable_irq();}while(1)
+#define  release_obj(a) 	do{(a) = 0;__enable_irq();}while(0)
+#define  keep_obj(a) 		__enable_irq()
 
-static inline void  lock_spi(){
-	while(1){
-		__disable_irq();
-		if(SPI_inprogress == 0)
-		{
-			SPI_inprogress = 1;
-			return;
-		}
-		__enable_irq();
-	}
-}
-
-static inline void  release_spi(){
-	SPI_inprogress = 0;
-	__enable_irq();
-}
-
-static inline void  keep_spi(){
-	__enable_irq();
-}
 
 /******************************* SPI Routines *********************************/
 /* NRF24L01 Chip Select functions */
@@ -59,11 +43,12 @@ void NRF24L01_CE(uint32_t newState)
   */
 void NRF24L01_Init(void *pSPI)
 {
+	init_obj(SPI_inprogress);
 	pSpiHandle = (SPI_HandleTypeDef *)pSPI;
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	NRF24L01_CS(HIGH);
 	NRF24L01_CE(LOW);
-	release_spi();
+	release_obj(SPI_inprogress);
 }
 
 
@@ -79,7 +64,7 @@ uint8_t		NRF24L01_WritePayload(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t Num
 {
 	HAL_StatusTypeDef status;
 	/* Wait until previous transaction is finished    */
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	txBuffer[0] = WriteReg;
 	memcpy(&txBuffer[1], pBuffer, NumBytesToWrite);
 	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
@@ -87,10 +72,10 @@ uint8_t		NRF24L01_WritePayload(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t Num
 	if(status != HAL_OK)
 	{
 		NRF24L01_CS(HIGH);	// Set CSN pin to HIGH
-		release_spi();
+		release_obj(SPI_inprogress);
 	}else
 	{
-		keep_spi();
+		keep_obj(SPI_inprogress);
 	}
 	return status;
 }
@@ -100,13 +85,13 @@ uint8_t		NRF24L01_Write(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesTo
 {
 	HAL_StatusTypeDef status;
 	/* Wait until previous transaction is finished    */
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	txBuffer[0] = WriteReg;
 	memcpy(&txBuffer[1], pBuffer, NumBytesToWrite);
 	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	status = HAL_SPI_Transmit(pSpiHandle, txBuffer, NumBytesToWrite + 1, HAL_MAX_DELAY);
 	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
-	release_spi();
+	release_obj(SPI_inprogress);
 	return status;
 }
 
@@ -114,7 +99,7 @@ uint8_t		NRF24L01_Read(uint8_t ReadReg, uint8_t *pBuffer,  uint32_t NumBytesToRe
 {	
 	HAL_StatusTypeDef status;
 	/* Wait until previous transaction is finished    */
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	txBuffer[0] = ReadReg;
 	memset(&txBuffer[1], 0xFF, NumBytesToRead);
 
@@ -124,7 +109,7 @@ uint8_t		NRF24L01_Read(uint8_t ReadReg, uint8_t *pBuffer,  uint32_t NumBytesToRe
 		memcpy(pBuffer, &rxBuffer[1], NumBytesToRead);
 	}
 	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  	
-	release_spi();
+	release_obj(SPI_inprogress);
 	return status;
 }
 
@@ -132,14 +117,14 @@ uint8_t		NRF24L01_Read(uint8_t ReadReg, uint8_t *pBuffer,  uint32_t NumBytesToRe
 uint8_t		NRF24L01_WriteByte(uint8_t WriteReg, uint8_t DataByte)
 {
 	/* Wait until previous transaction is finished    */
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	txBuffer[0] = WriteReg;
 	txBuffer[1] = DataByte;
 
 	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	HAL_SPI_TransmitReceive(pSpiHandle, txBuffer, rxBuffer, 2, HAL_MAX_DELAY);
 	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
-	release_spi();
+	release_obj(SPI_inprogress);
 
 	return rxBuffer[0];	// Byte 0 will have a status
 }
@@ -148,26 +133,26 @@ uint8_t		NRF24L01_WriteByte(uint8_t WriteReg, uint8_t DataByte)
 uint8_t		NRF24L01_ReadByte(uint8_t ReadReg)
 {
 	/* Wait until previous transaction is finished    */
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	txBuffer[0] = ReadReg;
 	txBuffer[1] = 0xFF;
 
 	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	HAL_SPI_TransmitReceive(pSpiHandle, txBuffer, rxBuffer, 2, HAL_MAX_DELAY);
 	NRF24L01_CS(HIGH);	// Set CSN pin to HIGH	  
-	release_spi();
+	release_obj(SPI_inprogress);
 	return rxBuffer[1];	// Byte 1 will have the requested value
 }
 
 uint8_t		NRF24L01_CmdByte(uint8_t TouchReg)
 {
 	/* Wait until previous transaction is finished    */
-	lock_spi();
+	lock_obj(SPI_inprogress);
 	txBuffer[0] = TouchReg;
 	NRF24L01_CS(LOW);		// Drop CSN pin to LOW	
 	HAL_SPI_TransmitReceive(pSpiHandle, txBuffer, rxBuffer, 1, HAL_MAX_DELAY);
 	NRF24L01_CS(HIGH);		// Set CSN pin to HIGH	  
-	release_spi();
+	release_obj(SPI_inprogress);
 	return rxBuffer[0];	// Byte 0 will have the status value
 }
 
@@ -178,7 +163,7 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi == pSpiHandle) {
 		NRF24L01_CS(HIGH);
-		SPI_inprogress = 0;
+		release_obj(SPI_inprogress);
 		// Generate 10-12 usec pulse on CE
 		HAL_TIM_Base_Start_IT(&htim10);	
 		NRF24L01_CE(HIGH);		

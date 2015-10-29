@@ -1,3 +1,7 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef _MSC_VER
 #ifndef ARM_MATH_CM4
 #define ARM_MATH_CM4
@@ -10,10 +14,12 @@
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include "cvsd_f32.h"
-#include "cvsd_data_f32.h"
-#include "dataqueues.h"
+#include "datatasks.h"
 #include "stm32f4_discovery.h"
 
+#define PROGRAM_NAME			"CVSD 16000 bps speech coder"
+#define PROGRAM_VERSION			"Version 2.0"
+#define PROGRAM_DATE			"14 NOV 2014"
 
 #define v_equ(v1,v2,n) 			arm_copy_f32((float32_t *)v2, (float32_t *)v1, n)
 
@@ -31,18 +37,168 @@
 typedef int BOOL;
 #endif
 
+/* ========== Static Variables ========== */
+static char in_name[128], out_name[128];
+
+#define exit(a) do{}while(a)
+
+/* ========== Local Private Prototypes ========== */
+static void		parseCommandLine(int argc, char *argv[]);
+static void		printHelpMessage(char *argv[]);
+
+/****************************************************************************
+**
+** Function:        FileTest
+**
+** Description:     The test function of the speech coder
+**
+** Arguments:
+**
+**  int     argc    ---- number of command line parameters
+**  char    *argv[] ---- command line parameters
+**
+** Return value:    None
+**
+*****************************************************************************/
+int FileTest(int argc, char *argv[])
+{
+	int32_t		length;
+	int16_t		speech_in[CVSD_BLOCK_SIZE], speech_out[CVSD_BLOCK_SIZE];
+	float32_t	speech_in_f32[CVSD_BLOCK_SIZE], speech_out_f32[CVSD_BLOCK_SIZE];
+	uint8_t		bitstream[(CVSD_BLOCK_SIZE + 7)/8];
+
+	int		    eof_reached = FALSE;
+	FILE		*fp_in, *fp_out;
+	void		*enc, *dec;
+
+	/* ====== Get input parameters from command line ====== */
+	parseCommandLine(argc, argv);
+
+	/* ====== Open input, output, and parameter files ====== */
+	if ((fp_in = fopen(in_name, "rb")) == NULL){
+		fprintf(stderr, "  ERROR: cannot read file %s.\n", in_name);
+		exit(1);
+	}
+	if ((fp_out = fopen(out_name, "wb")) == NULL){
+		fprintf(stderr, "  ERROR: cannot write file %s.\n", out_name);
+		exit(1);
+	}
+
+	/* ====== Initialize CVSD analysis and synthesis ====== */
+	enc = malloc(cvsd_mem_req_f32());
+	dec = malloc(cvsd_mem_req_f32());
+	cvsd_init_f32(enc);
+	cvsd_init_f32(dec);
+
+	/* ====== Run CVSD coder on input signal ====== */
+
+	eof_reached = FALSE;
+	while (!eof_reached)
+	{
+
+		length = fread(speech_in, sizeof(int16_t), CVSD_BLOCK_SIZE, fp_in);
+
+        arm_q15_to_float(speech_in, speech_in_f32, length);
+		cvsd_encode_f32(enc, bitstream, speech_in_f32, length);
+		cvsd_decode_f32(dec, speech_out_f32, bitstream, length);
+        arm_float_to_q15(speech_out_f32, speech_out, length);
+
+		fwrite(speech_out, sizeof(int16_t), length, fp_out);
+		if (length < CVSD_BLOCK_SIZE)
+		{
+			eof_reached = TRUE;
+		}
+	}
+
+	fclose(fp_in);
+	fclose(fp_out);
+	fprintf(stderr, "\n\n");
+
+	return(0);
+}
+
+
+/****************************************************************************
+**
+** Function:        parseCommandLine
+**
+** Description:     Translate command line parameters
+**
+** Arguments:
+**
+**  int     argc    ---- number of command line parameters
+**  char    *argv[] ---- command line parameters
+**
+** Return value:    None
+**
+*****************************************************************************/
+static void		parseCommandLine(int argc, char *argv[])
+{
+	BOOL		error_flag = FALSE;
+
+	if (argc != 3)
+		error_flag = TRUE;
+
+	/* Setting default values. */
+	in_name[0] = '\0';
+	out_name[0] = '\0';
+
+	if( argc == 3 ){
+		strcpy(in_name, argv[1]);
+		strcpy(out_name, argv[2]);
+	}
+
+	if ((in_name[0] == '\0') || (out_name[0] == '\0'))
+		error_flag = TRUE;
+
+	if (error_flag){
+		printHelpMessage(argv);
+		exit(1);
+	}
+
+	fprintf(stderr, "\n\n\t%s %s, %s\n\n", PROGRAM_NAME, PROGRAM_VERSION,
+		PROGRAM_DATE);
+
+	fprintf(stderr, " ---- Analysis and Synthesis.\n");
+
+	fprintf(stderr, " ---- input from %s.\n", in_name);
+	fprintf(stderr, " ---- output to %s.\n", out_name);
+}
+
+
+/****************************************************************************
+**
+** Function:        printHelpMessage
+**
+** Description:     Print Command Line Usage
+**
+** Arguments:
+**
+** Return value:    None
+**
+*****************************************************************************/
+static void		printHelpMessage(char *argv[])
+{
+	fprintf(stderr, "\n\n\t%s %s, %s\n\n", PROGRAM_NAME, PROGRAM_VERSION,
+		PROGRAM_DATE);
+	fprintf(stdout, "Usage:\n");
+	fprintf(stdout, "\t%s infile outfile\n\n", argv[0]);
+}
+
+//
+// *****************************
+//
+
+
 void *cvsd_ana;
 void *cvsd_syn;
-
-static CVSD_STATE_F32_t ana;
-static CVSD_STATE_F32_t syn;
 
 static uint8_t dataBits[CVSD_BLOCK_SIZE] CCMRAM;
 
 void *cvsd_create(uint32_t Params)
 {
-	cvsd_ana = &ana;
-	cvsd_syn = &syn;
+	cvsd_ana = osAlloc(cvsd_mem_req_f32());
+	cvsd_syn = osAlloc(cvsd_mem_req_f32());
 	return 0;
 }
 
@@ -129,7 +285,7 @@ DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, 
 //
 //  Downsample 48KHz to 16 KHz and 16 KHZ to 48KHz upsample functionality modules
 //
-#define  DOWNSAMPLE_TAPS  		(24)
+#define  DOWNSAMPLE_TAPS  		(12)
 #define  UPSAMPLE_TAPS			(24)
 #define  UPDOWNSAMPLE_RATIO 	(48000/16000)
 #define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
@@ -137,16 +293,9 @@ DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, 
 
 static float DownSample48_16_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static float DownSample48_16_Coeff[DOWNSAMPLE_TAPS] RODATA = {
-//-0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
-//0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
-//0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003
-  -0.002015205388767,  -0.014256718305640, -0.018984229704331,  -0.025234247245753,
-  -0.024783278937429,  -0.014674724627645,  0.007238951137461,   0.040131597322940,
-   0.079972228665562,   0.120093117684145,   0.152725452217424,   0.171036493289764,
-   0.171036493289764,   0.152725452217424,   0.120093117684145,   0.079972228665562,
-   0.040131597322940,   0.007238951137461, -0.014674724627645,  -0.024783278937429,
-  -0.025234247245753,  -0.018984229704331,  -0.014256718305640,  -0.002015205388767
-	};
+-0.0318333953619003f, -0.0245810560882092f, 0.0154596352949739f, 0.0997937619686127f,
+0.200223222374916f, 0.268874526023865f, 0.268874526023865f, 0.200223222374916f,
+0.0997937619686127f, 0.0154596352949739f, -0.0245810560882092f, -0.0318333953619003};
 
 
 static float UpSample16_48_Buff[(DOWNSAMPLE_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
@@ -179,7 +328,7 @@ void ds_48_16_init(void *pHandle)
 uint32_t ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
+// BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
@@ -241,4 +390,5 @@ uint32_t us_16_48_typesize(void *pHandle, uint32_t *pType)
 }
 
 DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_typesize, us_16_48_process, us_16_48_close};
+
 

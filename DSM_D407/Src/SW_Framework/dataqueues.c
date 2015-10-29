@@ -4,9 +4,9 @@
 #include "dataqueues.h"
 #include "string.h"
 
-#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
-#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
-#define ABS(a)		 (((a) >   0) ? (a) : -(a))
+#define MIN(a, b)  	(((a) < (b)) ? (a) : (b))
+#define MAX(a, b)  	(((a) > (b)) ? (a) : (b))
+#define ABS(a)		(((a) >   0) ? (a) : -(a))
 
 
 //
@@ -17,8 +17,8 @@
 
 #define DATA_TYPE_ELEM_SIZE(a)  		(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
 
-#define  Q31_F						((float)(1U<<31))
-#define	 Q31_INV_F				(1.0F / Q31_F)
+#define  Q31_F				((float)(1U<<31))
+#define	 Q31_INV_F			(1.0F / Q31_F)
 
 #define  FLOAT_TO_Q31(a) 	( (int)(((float) (a)) * Q31_F))
 #define  Q31_TO_FLOAT(a) 	( ((float) (a)) * Q31_INV_F)
@@ -125,7 +125,7 @@ uint32_t Queue_PushData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	n_bytes -= n_copy;
 	if(n_bytes > 0)
 	{
-		memcpy(pQueue->pBuffer, pData + n_copy, n_bytes);
+		memcpy(pQueue->pBuffer, (void *)((uint32_t)pData + n_copy), n_bytes);
 	}
 	// Adjust the iPut pointer - if full, it must point exactly nSize from iGet
 	if(ret == space) {iPut = (iGet >= nSize) ? (iGet - nSize) : (iGet + nSize);}
@@ -160,7 +160,7 @@ uint32_t Queue_PopData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	n_bytes -= n_copy;
 	if(n_bytes > 0)
 	{
-		memcpy(pData + n_copy, pQueue->pBuffer, n_bytes);
+		memcpy((void *)((uint32_t)pData + n_copy), pQueue->pBuffer, n_bytes);
 	}
 	
 	// Adjust the get pointer .... and save it

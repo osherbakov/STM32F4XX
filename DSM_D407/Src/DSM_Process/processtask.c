@@ -15,6 +15,8 @@ extern DataProcessBlock_t  MELP;
 extern DataProcessBlock_t  MELPE;
 extern DataProcessBlock_t  CVSD;
 extern DataProcessBlock_t  CODEC;
+extern DataProcessBlock_t  ALAW;
+extern DataProcessBlock_t  ULAW;
 
 extern DataProcessBlock_t  BYPASS;
 
@@ -22,15 +24,16 @@ extern DataProcessBlock_t  US_16_48;
 extern DataProcessBlock_t  DS_48_16;
 extern DataProcessBlock_t  US_8_48;
 extern DataProcessBlock_t  DS_48_8;
-
+extern DataProcessBlock_t  US_8_48_Q15;
+extern DataProcessBlock_t  DS_48_8_Q15;
 
 //
 //  Task to handle all incoming data
 //
 
 DataProcessBlock_t  *pProcModule = 	&CODEC;
-DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pIntModule = 	&US_8_48;
+DataProcessBlock_t  *pDecModule = 	&DS_48_8_Q15;
+DataProcessBlock_t  *pIntModule = 	&US_8_48_Q15;
 
 void StartDataProcessTask(void const * argument)
 {
