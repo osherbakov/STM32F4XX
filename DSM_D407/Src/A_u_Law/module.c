@@ -175,10 +175,10 @@ DataProcessBlock_t  ULAW_DEC = {aulaw_create, aulaw_init, aulaw_decode_typesize,
 
 static q15_t DownSample48_8_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static q15_t DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
--9, 406, 428, 235, -325, -1020,
--1342, -738, 1034, 3658, 6300, 7958,
- 7958, 6300, 3658, 1034, -738, -1342,
--1020, -325, 235, 428, 406, -9
+-18, 812, 856, 470, -650, -2040,
+-2684, -1476, 2068, 7316, 12600, 15916,
+ 15916, 12600, 7316, 2068, -1476, -2684,
+-2040, -650, 470, 856, 812, -18
 };
 
 static q15_t UpSample8_48_Buff[(DOWNSAMPLE_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;

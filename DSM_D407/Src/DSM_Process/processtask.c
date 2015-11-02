@@ -31,9 +31,9 @@ extern DataProcessBlock_t  DS_48_8_Q15;
 //  Task to handle all incoming data
 //
 
-DataProcessBlock_t  *pProcModule = 	&CODEC;
-DataProcessBlock_t  *pDecModule = 	&DS_48_8_Q15;
-DataProcessBlock_t  *pIntModule = 	&US_8_48_Q15;
+DataProcessBlock_t  *pProcModule = 	&ALAW;
+DataProcessBlock_t  *pDecModule = 	&DS_48_8;
+DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 void StartDataProcessTask(void const * argument)
 {
