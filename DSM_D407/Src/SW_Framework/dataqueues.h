@@ -27,20 +27,20 @@ typedef enum DataType
 
 typedef enum DataChannels
 {
-		DATA_NUM_CH_NONE 	= 0x0000,
-		DATA_NUM_CH_1 		= 0x0000,
-		DATA_NUM_CH_2 		= 0x1000,
-		DATA_NUM_CH_3 		= 0x2000,
-		DATA_NUM_CH_4 		= 0x3000,
-		DATA_NUM_CH_5 		= 0x4000,
-		DATA_NUM_CH_6 		= 0x5000,
-		DATA_NUM_CH_7 		= 0x6000,
-		DATA_NUM_CH_8 		= 0x7000,
-	  DATA_ALT 					= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating
-	  DATA_SEQ					= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another
-		DATA_NUM_CH_MASK	= 0x7000,
-		DATA_SEQ_MASK 		= 0x8000,
-		DATA_NUM_CH_SHIFT = 12
+	DATA_NUM_CH_NONE 	= 0x0000,
+	DATA_NUM_CH_1 		= 0x0000,
+	DATA_NUM_CH_2 		= 0x1000,
+	DATA_NUM_CH_3 		= 0x2000,
+	DATA_NUM_CH_4 		= 0x3000,
+	DATA_NUM_CH_5 		= 0x4000,
+	DATA_NUM_CH_6 		= 0x5000,
+	DATA_NUM_CH_7 		= 0x6000,
+	DATA_NUM_CH_8 		= 0x7000,
+	DATA_ALT 			= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating
+	DATA_SEQ			= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another
+	DATA_NUM_CH_MASK	= 0x7000,
+	DATA_SEQ_MASK 		= 0x8000,
+	DATA_NUM_CH_SHIFT = 12
 } DataChannels_t;
 
 #define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_NUM_CH_MASK) >> DATA_NUM_CH_SHIFT) + 1)
