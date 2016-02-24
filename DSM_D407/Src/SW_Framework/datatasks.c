@@ -72,23 +72,8 @@ static uint8_t	 TxAddress[] = "1Node";
 static uint8_t	 TxChannel = 0;
 static int		 RxMode = 0;
 
-void StartDataInPDMTask(void const * argument)
+static void StartRF24(void)
 {
-	osEvent		event;
-	uint8_t		*pPCM;
-	uint8_t		*pInputBuffer;
-	
-	// Allocate the storage for PDM data (double-buffered) and resulting storage for PCM
-	osParams.pPDM_In  = (uint8_t *)osAlloc(NUM_PDM_BYTES * 2);
-	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
-
-	// Allocate Temporary buffer
-	pPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
-	
-	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
-	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, (NUM_PDM_BYTES * 2));
-	
-	
 	RF24_Init();
 	RF24_setAddressWidth(5);
 	RF24_setDynamicPayload(0);
@@ -103,6 +88,39 @@ void StartDataInPDMTask(void const * argument)
 	else 
 		RF24_stopListening();		
 			
+}
+
+void ProcessRF24(void)
+{
+	if(RxMode == 0){
+		//			RF24_stopListeningFast();		
+		// RF24_setChannel(TxChannel++);
+		RF24_writeFast(_Tx, 16);
+		//			RxMode = 1;
+	}else{
+		//			RF24_startListeningFast();
+		//			RxMode = 0;
+	}		
+}
+
+void StartDataInPDMTask(void const * argument)
+{
+	osEvent		event;
+	uint8_t		*pPCM;
+	uint8_t		*pInputBuffer;
+	
+	// Allocate the storage for PDM data (double-buffered) and resulting storage for PCM
+	osParams.pPDM_In  = (uint8_t *)osAlloc(NUM_PDM_BYTES * 2);
+	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
+	// Allocate Temporary buffer
+	pPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
+	
+	StartRF24();
+	
+	
+	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
+	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, (NUM_PDM_BYTES * 2));
+		
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
 		event = osMessageGet(osParams.dataInPDMMsg, osWaitForever);
@@ -112,18 +130,10 @@ void StartDataInPDMTask(void const * argument)
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
-			if(RxMode == 0){
-			//			RF24_stopListeningFast();		
-			// RF24_setChannel(TxChannel++);
-			RF24_write(_Tx, 16);
-			//			RxMode = 1;
-			}else{
-BSP_LED_Off(LED6);			
-			//			RF24_startListeningFast();
-			//			RxMode = 0;
-			}	
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
+			
+			ProcessRF24();
 		}
 	}
 }

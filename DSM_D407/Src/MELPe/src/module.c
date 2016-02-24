@@ -76,7 +76,7 @@ typedef enum DataChannelMask
 typedef void *Data_Create_t(uint32_t Params);
 typedef void Data_Init_t(void *pHandle);
 typedef uint32_t Data_TypeSize_t(void *pHandle, uint32_t *pDataType);
-typedef uint32_t Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements);
+typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
 typedef void Data_Close_t(void *pHandle);
 
 typedef struct DataProcessBlock {
@@ -117,7 +117,7 @@ void melpe_init(void *pHandle)
 	melp_syn_init_q(melp_parameters);
 }
 
-uint32_t melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	uint32_t	nFrameSize = melp_parameters->frameSize;
@@ -146,7 +146,7 @@ BSP_LED_Off(LED5);
 		*pInSamples -= nFrameSize;
 		nGenerated += nFrameSize;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t melpe_data_typesize(void *pHandle, uint32_t *pType)

@@ -34,8 +34,8 @@ typedef int BOOL;
 void *cvsd_ana;
 void *cvsd_syn;
 
-static CVSD_STATE_F32_t ana;
-static CVSD_STATE_F32_t syn;
+static CVSD_STATE_F32_t ana CCMRAM;
+static CVSD_STATE_F32_t syn CCMRAM;
 
 static uint8_t dataBits[CVSD_BLOCK_SIZE] CCMRAM;
 
@@ -58,7 +58,7 @@ void cvsd_init(void *pHandle)
 }
 
 
-uint32_t cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= CVSD_BLOCK_SIZE)
@@ -76,7 +76,7 @@ BSP_LED_Off(LED5);
 		*pInSamples -= CVSD_BLOCK_SIZE;
 		nGenerated += CVSD_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
@@ -107,14 +107,14 @@ void bypass_init(void *pHandle)
 {
 }
 
-uint32_t bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t nGenerated = *pInSamples;
 BSP_LED_On(LED5);
 	v_equ(pDataOut, pDataIn, *pInSamples );
 BSP_LED_Off(LED5);
 	*pInSamples = 0;
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)
@@ -176,10 +176,9 @@ void ds_48_16_init(void *pHandle)
 			DownSample48_16_Coeff, DownSample48_16_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-uint32_t ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
@@ -188,8 +187,7 @@ uint32_t ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
-//BSP_LED_Off(LED3);
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t ds_48_16_typesize(void *pHandle, uint32_t *pType)
@@ -218,10 +216,9 @@ void us_16_48_init(void *pHandle)
 			UpSample16_48_Coeff, UpSample16_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-uint32_t us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -230,8 +227,7 @@ uint32_t us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
-//BSP_LED_Off(LED3);
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t us_16_48_typesize(void *pHandle, uint32_t *pType)

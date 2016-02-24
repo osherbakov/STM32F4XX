@@ -81,7 +81,7 @@ void StartDataProcessTask(void const * argument)
 				// Convert data from the Queue-provided type to the Processing-Module-required type
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nSamplesModuleNeeds);
 				//   Call data processing
-				nSamplesModuleGenerated = pDecModule->Process(pDecState, pAudioIn, pAudioOut, &nSamplesModuleNeeds);
+				pDecModule->Process(pDecState, pAudioIn, pAudioOut, &nSamplesModuleNeeds, &nSamplesModuleGenerated);
 				// Convert data from the Processing-Module-provided type to the HW Queue type
 				DataConvert(pAudio, osParams.DownSample_data->Type, DATA_CHANNEL_1 , pAudioOut, Type, DATA_CHANNEL_1, nSamplesModuleGenerated);
 				// Place the processed data into the queue for the next module to process
@@ -100,7 +100,7 @@ void StartDataProcessTask(void const * argument)
 				// Convert data from the Queue-provided type to the Processing-Module-required type
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_1, pAudio, osParams.DownSample_data->Type, DATA_CHANNEL_1, nSamplesModuleNeeds);
 				//   Call data processing
-				nSamplesModuleGenerated = pProcModule->Process(pProcModuleState, pAudioIn, pAudioOut, &nSamplesModuleNeeds);
+				 pProcModule->Process(pProcModuleState, pAudioIn, pAudioOut, &nSamplesModuleNeeds, &nSamplesModuleGenerated);
 				// Convert data from the Processing-Module-provided type to the HW Queue type
 				DataConvert(pAudio, osParams.UpSample_data->Type, DATA_CHANNEL_1 , pAudioOut, Type, DATA_CHANNEL_1, nSamplesModuleGenerated);
 				// Place the processed data into the queue for the next module to process
@@ -119,7 +119,7 @@ void StartDataProcessTask(void const * argument)
 				// Convert data from the Queue-provided type to the Processing-Module-required type
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_1, pAudio, osParams.UpSample_data->Type, DATA_CHANNEL_1, nSamplesModuleNeeds);
 				//   Call data processing
-				nSamplesModuleGenerated = pIntModule->Process(pIntState, pAudioIn, pAudioOut, &nSamplesModuleNeeds);
+				pIntModule->Process(pIntState, pAudioIn, pAudioOut, &nSamplesModuleNeeds, &nSamplesModuleGenerated);
 				// Convert data from the Processing-Module-provided type to the HW Queue type
 				DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL , pAudioOut, Type, DATA_CHANNEL_ANY, nSamplesModuleGenerated);
 				//   Distribute output data to all output data sinks (USB, I2S, etc)
