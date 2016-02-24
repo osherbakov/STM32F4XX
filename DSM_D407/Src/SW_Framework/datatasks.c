@@ -70,7 +70,7 @@ static uint8_t	 _Tx[32] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0x
 static uint8_t	 _Rx[32];
 static uint8_t	 TxAddress[] = "1Node";
 static uint8_t	 TxChannel = 0;
-static int		 RxMode = 0;
+static int		 RxMode = 1;
 
 static void StartRF24(void)
 {
