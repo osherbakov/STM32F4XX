@@ -17,10 +17,11 @@ typedef enum DataType
 	DATA_TYPE_Q31   	= 0x0D00,		// Q31 signed, range (-1.0 + 1.0)
 	DATA_TYPE_F32_32K	= 0x0E00,		// 32-bit Floating point, range (-32768.0  +32767.0)
 	DATA_TYPE_F32		= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
+// Variuos masks to extract needed info from the type	
 	DATA_TYPE_MASK		= 0x0F00,
 	DATA_RANGE_MASK		= 0x0100,		// Range is limited to (-1.0 +1.0)
 	DATA_FP_MASK		= 0x0200,		// Floating Point representation
-	DATA_TYPE_SHIFT   = 10
+	DATA_TYPE_SHIFT   	= 10			// Shift amount to extract data type
 }DataType_t;
 
 #define DATA_TYPE_SIZE(a)  					((((a) & DATA_TYPE_MASK) >> DATA_TYPE_SHIFT) + 1)
@@ -36,14 +37,19 @@ typedef enum DataChannels
 	DATA_NUM_CH_6 		= 0x5000,
 	DATA_NUM_CH_7 		= 0x6000,
 	DATA_NUM_CH_8 		= 0x7000,
-	DATA_ALT 			= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating
-	DATA_SEQ			= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another
-	DATA_NUM_CH_MASK	= 0x7000,
+
+//  The data organization when  there are more than 1 channel specified
+	DATA_ALT 			= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating  ABCDABCDABCD in memory
+	DATA_SEQ			= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another AAABBBBBBDDD in memory
+//	The masks to extract the information from the channels data	
+	DATA_CH_MASK		= 0x7000,
 	DATA_SEQ_MASK 		= 0x8000,
-	DATA_NUM_CH_SHIFT = 12
+	DATA_CH_SHIFT 		= 12			// Shift amount to extract number of channels
 } DataChannels_t;
 
-#define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_NUM_CH_MASK) >> DATA_NUM_CH_SHIFT) + 1)
+#define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_CH_MASK) >> DATA_CH_SHIFT) + 1)
+
+#define ELEM_SIZE(a)			((a) & 0x00FF)
 
 typedef enum DataChannelMask
 {
@@ -59,21 +65,29 @@ typedef enum DataChannelMask
 	DATA_CHANNEL_ALL	= 0x00FF
 } DataChannelMask_t;
 
-
-typedef struct DQueue
-{
-	uint8_t		*pBuffer;
+typedef struct DataTypeSize {
 	union {
 		uint16_t	Type;
 		struct {
 			uint8_t		ElemSize;		// Size of the element in bytes
-			uint8_t		ElemType;		// Type of the element in queue
+			uint8_t		ElemType;		// Type of the element in the buffer
 		};
 	};
-	uint16_t	nSize;
+	uint16_t	Size;					// Total size of the needed/allocated  buffer/queue (must be a multiple of ElemSize)
+} DataTypeSize_t;
+
+typedef struct DQueue
+{
+	uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
+	DataTypeSize_t	Data;
 	uint16_t	iGet;
 	uint16_t	iPut;
 } DQueue_t;
+
+typedef struct DataPort {
+	uint32_t		ID;
+	DataTypeSize_t	Data;
+} DataPort_t;
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
 extern void Queue_Init(DQueue_t *pQueue, uint32_t type);
@@ -87,6 +101,7 @@ extern uint32_t Queue_PopData(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes)
 
 extern void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcElements);
 
+typedef void Data_Info_t(DataPort_t *pDataInfo);
 typedef void *Data_Create_t(uint32_t Params);
 typedef void Data_Init_t(void *pHandle);
 typedef uint32_t Data_TypeSize_t(void *pHandle, uint32_t *pDataType);

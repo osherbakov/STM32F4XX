@@ -29,29 +29,29 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 	if(nBytes == 0) return 0;
 	DQueue_t *pQ = osAlloc(sizeof(DQueue_t));	if(pQ == 0) return 0;
 	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
-	pQ->nSize = nBytes;
-	if((Type & (DATA_TYPE_MASK | DATA_NUM_CH_MASK )) == 0){
-		pQ->Type = Type;
+	pQ->Data.Size = nBytes;
+	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
+		pQ->Data.Type = Type;
 	}else{
-		pQ->ElemType = Type >> 8;
-		pQ->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
+		pQ->Data.ElemType = Type >> 8;
+		pQ->Data.ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
 	// The final sanity check - Element size cannot be 0!!!
-	if(pQ->ElemSize == 0) pQ->Type = 1;
+	if(pQ->Data.ElemSize == 0) pQ->Data.Type = 1;
 	Queue_Clear(pQ);
 	return pQ;
 }
 
 void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 {
-	if((Type & (DATA_TYPE_MASK | DATA_NUM_CH_MASK )) == 0){
-		pQueue->Type = Type;
+	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
+		pQueue->Data.Type = Type;
 	}else{
-		pQueue->ElemType = Type >> 8;
-		pQueue->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
+		pQueue->Data.ElemType = Type >> 8;
+		pQueue->Data.ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
 	// The final sanity check - Element size cannot be 0!!!
-	if(pQueue->ElemSize == 0) pQueue->Type = 1;
+	if(pQueue->Data.ElemSize == 0) pQueue->Data.Type = 1;
 	Queue_Clear(pQueue);
 }
 
@@ -59,7 +59,7 @@ uint32_t Queue_Count_Bytes(DQueue_t *pQueue)
 {
 	int Count;
 	uint32_t iPut, iGet, nSize;
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->nSize;
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size;
 	Count =  iPut - iGet;
 	if (Count < 0) { Count += nSize; if(Count <= 0) Count += nSize;}
 	else if(Count > nSize) {Count -= nSize;}
@@ -70,7 +70,7 @@ uint32_t Queue_Count_Elems(DQueue_t *pQueue)
 	uint32_t Count, ElemSize;
 	
 	Count = Queue_Count_Bytes(pQueue);
-	ElemSize = pQueue->ElemSize;
+	ElemSize = pQueue->Data.ElemSize;
 	return Count/ElemSize;
 }
 
@@ -79,7 +79,7 @@ uint32_t Queue_Space_Bytes(DQueue_t *pQueue)
 {
 	int Space;
 	uint32_t iPut, iGet, nSize;
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->nSize;
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size;
 	Space =  iGet - iPut;
 	if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}	
 	else if(Space > nSize) {Space -= nSize;}
@@ -91,7 +91,7 @@ uint32_t Queue_Space_Elems(DQueue_t *pQueue)
 	uint32_t Space, ElemSize;
 	
 	Space = Queue_Space_Bytes(pQueue);
-	ElemSize = pQueue->ElemSize;
+	ElemSize = pQueue->Data.ElemSize;
 	return Space/ElemSize;
 }
 
@@ -107,7 +107,7 @@ uint32_t Queue_PushData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	uint32_t n_bytes, n_copy, ret;
 	
 	// Prefetch all parameters to avoid race conditions */
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->nSize; 
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size; 
 	space = iGet - iPut; 
 	// Check if the buffer is already full - return 0 as number of bytes consumed */
 	if((ABS(space) == nSize) || (nBytes == 0)) return 0;
@@ -141,7 +141,7 @@ uint32_t Queue_PopData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	uint32_t n_bytes, n_copy, ret;
 	
 	// Prefetch all parameters to avoid race conditions */
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->nSize; 
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size; 
 
 	// Check if the buffer is empty - return 0 as number of bytes produced */
 	count =  iPut - iGet;
