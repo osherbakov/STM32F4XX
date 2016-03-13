@@ -1055,7 +1055,7 @@ void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, float speech[])
  
     /* frame 3: - voicing ---------------------------------------------*/
 
-	analyse_one_frame(c2, &c2->models[0], &speech[2*FRAME_SIZE]);
+		analyse_one_frame(c2, &c2->models[0], &speech[2*FRAME_SIZE]);
     pack(bits, &nbit, c2->models[0].voiced, 1);
 
     /* frame 4: - voicing, joint Wo & E, scalar LSPs ------------------*/
@@ -1069,7 +1069,7 @@ void codec2_encode_1200(struct CODEC2 *c2, unsigned char * bits, float speech[])
  
     encode_lsps_vq(lsp_indexes, lsps, lsps_, LPC_ORD);
     for(i=0; i<LSP_PRED_VQ_INDEXES; i++) {
-		pack(bits, &nbit, lsp_indexes[i], lsp_pred_vq_bits(i));
+			pack(bits, &nbit, lsp_indexes[i], lsp_pred_vq_bits(i));
     }
     pack(bits, &nbit, spare, 1);
 
@@ -1184,9 +1184,8 @@ void codec2_decode_1200(struct CODEC2 *c2, float speech[], const unsigned char *
 
 \*---------------------------------------------------------------------------*/
 
-void codec2_encode_700(struct CODEC2 *c2, unsigned char * bits, short speech[])
+void codec2_encode_700(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
-    MODEL   model;
     float   lsps[LPC_ORD_LOW];
     float   mel[LPC_ORD_LOW];
     float   ak[LPC_ORD_LOW+1];
@@ -1194,41 +1193,40 @@ void codec2_encode_700(struct CODEC2 *c2, unsigned char * bits, short speech[])
     int     indexes[LPC_ORD_LOW];
     int     Wo_index, e_index, i;
     unsigned int nbit = 0;
-    float   bpf_out[4*N];
-    short   bpf_speech[4*N];
+//    float   bpf_out[4*N];
+//    short   bpf_speech[4*N];
     int     spare = 0;
 
-    assert(c2 != NULL);
 
     memset(bits, '\0',  ((codec2_bits_per_frame(c2) + 7) / 8));
 
     /* band pass filter */
-
-    for(i=0; i<BPF_N; i++)
-        c2->bpf_buf[i] = c2->bpf_buf[4*N+i];
-    for(i=0; i<4*N; i++)
-        c2->bpf_buf[BPF_N+i] = speech[i];
-    inverse_filter(&c2->bpf_buf[BPF_N], bpf, 4*N, bpf_out, BPF_N);
-    for(i=0; i<4*N; i++)
-        bpf_speech[i] = bpf_out[i];
+//
+//    for(i=0; i<BPF_N; i++)
+//        c2->bpf_buf[i] = c2->bpf_buf[4*N+i];
+//    for(i=0; i<4*N; i++)
+//        c2->bpf_buf[BPF_N+i] = speech[i];
+//    inverse_filter(&c2->bpf_buf[BPF_N], bpf, 4*N, bpf_out, BPF_N);
+//    for(i=0; i<4*N; i++)
+//        bpf_speech[i] = bpf_out[i];
 
     /* frame 1 --------------------------------------------------------*/
 
-    analyse_one_frame(c2, &model, bpf_speech);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 0]);
 
     /* frame 2 --------------------------------------------------------*/
 
-    analyse_one_frame(c2, &model, &bpf_speech[N]);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 1]);
 
     /* frame 3 --------------------------------------------------------*/
 
-    analyse_one_frame(c2, &model, &bpf_speech[2*N]);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 2]);
 
     /* frame 4: - voicing, scalar Wo & E, scalar LSPs -----------------*/
 
-    analyse_one_frame(c2, &model, &bpf_speech[3*N]);
-    pack(bits, &nbit, model.voiced, 1);
-    Wo_index = encode_log_Wo(model.Wo, 5);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 3]);
+    pack(bits, &nbit, c2->models[0].voiced, 1);
+    Wo_index = encode_log_Wo(c2->models[0].Wo, 5);
     pack_natural_or_gray(bits, &nbit, Wo_index, 5, c2->gray);
 
     e = speech_to_uq_lsps(lsps, ak, c2->Sn, c2->w, LPC_ORD_LOW);
@@ -1236,8 +1234,8 @@ void codec2_encode_700(struct CODEC2 *c2, unsigned char * bits, short speech[])
     pack_natural_or_gray(bits, &nbit, e_index, 3, c2->gray);
 
     for(i=0; i<LPC_ORD_LOW; i++) {
-        f = (4000.0/PI)*lsps[i];
-        mel[i] = floor(2595.0*log10(1.0 + f/700.0) + 0.5);
+        f = (4000.0f/PI)*lsps[i];
+        mel[i] = floor(2595.0f*log10f(1.0f + f/700.0f) + 0.5f);
     }
     encode_mels_scalar(indexes, mel, LPC_ORD_LOW);
 
@@ -1246,8 +1244,6 @@ void codec2_encode_700(struct CODEC2 *c2, unsigned char * bits, short speech[])
     }
 
     pack_natural_or_gray(bits, &nbit, spare, 2, c2->gray);
-
-    assert(nbit == (unsigned)codec2_bits_per_frame(c2));
 }
 
 
@@ -1278,7 +1274,7 @@ void codec2_decode_700(struct CODEC2 *c2, float speech[], const unsigned char * 
 
     for(i=0; i<4; i++)
 		for(j=1; j<=MAX_AMP; j++)
-			c2->models[i].A[j] = 0.0;
+			c2->models[i].A[j] = 0.0f;
 
     /* unpack bits from channel ------------------------------------*/
 
@@ -1298,8 +1294,8 @@ void codec2_decode_700(struct CODEC2 *c2, float speech[], const unsigned char * 
 
     decode_mels_scalar(mel, indexes, LPC_ORD_LOW);
     for(i=0; i<LPC_ORD_LOW; i++) {
-        f_ = 700.0*( pow(10.0, (float)mel[i]/2595.0) - 1.0);
-        lsps[3][i] = f_*(PI/4000.0);
+        f_ = 700.0f*( powf(10.0f, (float)mel[i]/2595.0f) - 1.0f);
+        lsps[3][i] = f_*(PI/4000.0f);
     }
 
     check_lsp_order(&lsps[3][0], LPC_ORD_LOW);
@@ -1310,14 +1306,14 @@ void codec2_decode_700(struct CODEC2 *c2, float speech[], const unsigned char * 
     /* LSPs, Wo, and energy are sampled every 40ms so we interpolate
        the 3 frames in between, then recover spectral amplitudes */
 
-    for(i=0, weight=0.25; i<3; i++, weight += 0.25) {
+    for(i=0, weight=0.25f; i<3; i++, weight += 0.25f) {
 		interpolate_lsp_ver2(&lsps[i][0], c2->prev_lsps_dec, &lsps[3][0], weight, LPC_ORD_LOW);
         interp_Wo2(&c2->models[i], &c2->prev_model_dec, &c2->models[3], weight);
         e[i] = interp_energy2(c2->prev_e_dec, e[3],weight);
     }
     for(i=0; i<4; i++) {
 		lsp_to_lpc(&lsps[i][0], &ak[i][0], LPC_ORD_LOW);
-		aks_to_M2(c2->fft_fwd_cfg, &ak[i][0], LPC_ORD_LOW, &c2->models[i], e[i], &snr, 0, 0,
+		aks_to_M2(&ak[i][0], LPC_ORD_LOW, &c2->models[i], e[i], &snr, 0, 0,
                   c2->lpc_pf, c2->bass_boost, c2->beta, c2->gamma, tmp.Aw);
 		apply_lpc_correction(&c2->models[i]);
 		synthesise_one_frame(c2, &speech[FRAME_SIZE*i], &c2->models[i], tmp.Aw);
@@ -1368,7 +1364,6 @@ void codec2_decode_700(struct CODEC2 *c2, float speech[], const unsigned char * 
 
 void codec2_encode_700b(struct CODEC2 *c2, unsigned char * bits, float speech[])
 {
-    MODEL   model;
     float   lsps[LPC_ORD_LOW];
     float   mel[LPC_ORD_LOW];
     float   mel_[LPC_ORD_LOW];
@@ -1377,41 +1372,39 @@ void codec2_encode_700b(struct CODEC2 *c2, unsigned char * bits, float speech[])
     int     indexes[3];
     int     Wo_index, e_index, i;
     unsigned int nbit = 0;
-    float   bpf_out[4*N];
-    short   bpf_speech[4*N];
+//    float   bpf_out[4*N];
+//    short   bpf_speech[4*N];
     int     spare = 0;
-
-    assert(c2 != NULL);
 
     memset(bits, '\0',  ((codec2_bits_per_frame(c2) + 7) / 8));
 
     /* band pass filter */
 
-    for(i=0; i<BPF_N; i++)
-        c2->bpf_buf[i] = c2->bpf_buf[4*N+i];
-    for(i=0; i<4*N; i++)
-        c2->bpf_buf[BPF_N+i] = speech[i];
-    inverse_filter(&c2->bpf_buf[BPF_N], bpfb, 4*N, bpf_out, BPF_N);
-    for(i=0; i<4*N; i++)
-        bpf_speech[i] = bpf_out[i];
+//    for(i=0; i<BPF_N; i++)
+//        c2->bpf_buf[i] = c2->bpf_buf[4*N+i];
+//    for(i=0; i<4*N; i++)
+//        c2->bpf_buf[BPF_N+i] = speech[i];
+//    inverse_filter(&c2->bpf_buf[BPF_N], bpfb, 4*N, bpf_out, BPF_N);
+//    for(i=0; i<4*N; i++)
+//        bpf_speech[i] = bpf_out[i];
 
     /* frame 1 --------------------------------------------------------*/
 
-    analyse_one_frame(c2, &model, bpf_speech);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 0]);
 
     /* frame 2 --------------------------------------------------------*/
 
-    analyse_one_frame(c2, &model, &bpf_speech[N]);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 1]);
 
     /* frame 3 --------------------------------------------------------*/
 
-    analyse_one_frame(c2, &model, &bpf_speech[2*N]);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 2]);
 
     /* frame 4: - voicing, scalar Wo & E, VQ mel LSPs -----------------*/
 
-    analyse_one_frame(c2, &model, &bpf_speech[3*N]);
-    pack(bits, &nbit, model.voiced, 1);
-    Wo_index = encode_log_Wo(model.Wo, 5);
+    analyse_one_frame(c2, &c2->models[0], &speech[FRAME_SIZE * 3]);
+    pack(bits, &nbit, c2->models[0].voiced, 1);
+    Wo_index = encode_log_Wo(c2->models[0].Wo, 5);
     pack_natural_or_gray(bits, &nbit, Wo_index, 5, c2->gray);
 
     e = speech_to_uq_lsps(lsps, ak, c2->Sn, c2->w, LPC_ORD_LOW);
@@ -1419,8 +1412,8 @@ void codec2_encode_700b(struct CODEC2 *c2, unsigned char * bits, float speech[])
     pack_natural_or_gray(bits, &nbit, e_index, 3, c2->gray);
 
     for(i=0; i<LPC_ORD_LOW; i++) {
-        f = (4000.0/PI)*lsps[i];
-        mel[i] = floor(2595.0*log10(1.0 + f/700.0) + 0.5);
+        f = (4000.0f/PI)*lsps[i];
+        mel[i] = floor(2595.0f*log10f(1.0f + f/700.0f) + 0.5f);
     }
     lspmelvq_mbest_encode(indexes, mel, mel_, LPC_ORD_LOW, 5);
 
@@ -1430,7 +1423,6 @@ void codec2_encode_700b(struct CODEC2 *c2, unsigned char * bits, float speech[])
 
     pack_natural_or_gray(bits, &nbit, spare, 1, c2->gray);
 
-    assert(nbit == (unsigned)codec2_bits_per_frame(c2));
 }
 
 
@@ -1446,7 +1438,6 @@ void codec2_encode_700b(struct CODEC2 *c2, unsigned char * bits, float speech[])
 
 void codec2_decode_700b(struct CODEC2 *c2, float speech[], const unsigned char * bits)
 {
-    MODEL   model[4];
     int     indexes[3];
     float   mel[LPC_ORD_LOW];
     float   lsps[4][LPC_ORD_LOW];
@@ -1457,22 +1448,21 @@ void codec2_decode_700b(struct CODEC2 *c2, float speech[], const unsigned char *
     int     i,j;
     unsigned int nbit = 0;
     float   weight;
-    COMP    Aw[FFT_ENC];
 
     /* only need to zero these out due to (unused) snr calculation */
 
     for(i=0; i<4; i++)
-	for(j=1; j<=MAX_AMP; j++)
-	    model[i].A[j] = 0.0;
+			for(j=1; j<=MAX_AMP; j++)
+				c2->models[i].A[j] = 0.0;
 
     /* unpack bits from channel ------------------------------------*/
 
-    model[3].voiced = unpack(bits, &nbit, 1);
-    model[0].voiced = model[1].voiced = model[2].voiced = model[3].voiced;
+    c2->models[3].voiced = unpack(bits, &nbit, 1);
+    c2->models[0].voiced = c2->models[1].voiced = c2->models[2].voiced = c2->models[3].voiced;
 
     Wo_index = unpack_natural_or_gray(bits, &nbit, 5, c2->gray);
-    model[3].Wo = decode_log_Wo(Wo_index, 5);
-    model[3].L  = PI/model[3].Wo;
+    c2->models[3].Wo = decode_log_Wo(Wo_index, 5);
+    c2->models[3].L  = PI/c2->models[3].Wo;
 
     e_index = unpack_natural_or_gray(bits, &nbit, 3, c2->gray);
     e[3] = decode_energy(e_index, 3);
@@ -1493,8 +1483,8 @@ void codec2_decode_700b(struct CODEC2 *c2, float speech[], const unsigned char *
     }
 
     for(i=0; i<LPC_ORD_LOW; i++) {
-        f_ = 700.0*( pow(10.0, (float)mel[i]/2595.0) - 1.0);
-        lsps[3][i] = f_*(PI/4000.0);
+        f_ = 700.0f*( powf(10.0f, (float)mel[i]/2595.0f) - 1.0f);
+        lsps[3][i] = f_*(PI/4000.0f);
         //printf("lsps[3][%d]  %f\n", i, lsps[3][i]);
     }
 
@@ -1503,33 +1493,26 @@ void codec2_decode_700b(struct CODEC2 *c2, float speech[], const unsigned char *
     /* LSPs, Wo, and energy are sampled every 40ms so we interpolate
        the 3 frames in between, then recover spectral amplitudes */
 
-    for(i=0, weight=0.25; i<3; i++, weight += 0.25) {
-	interpolate_lsp_ver2(&lsps[i][0], c2->prev_lsps_dec, &lsps[3][0], weight, LPC_ORD_LOW);
-        interp_Wo2(&model[i], &c2->prev_model_dec, &model[3], weight);
-        e[i] = interp_energy2(c2->prev_e_dec, e[3],weight);
+    for(i=0, weight=0.25f; i<3; i++, weight += 0.25f) {
+			interpolate_lsp_ver2(&lsps[i][0], c2->prev_lsps_dec, &lsps[3][0], weight, LPC_ORD_LOW);
+      interp_Wo2(&c2->models[i], &c2->prev_model_dec, &c2->models[3], weight);
+      e[i] = interp_energy2(c2->prev_e_dec, e[3],weight);
     }
     for(i=0; i<4; i++) {
-	lsp_to_lpc(&lsps[i][0], &ak[i][0], LPC_ORD_LOW);
-	aks_to_M2(c2->fft_fwd_cfg, &ak[i][0], LPC_ORD_LOW, &model[i], e[i], &snr, 0, 0,
-                  c2->lpc_pf, c2->bass_boost, c2->beta, c2->gamma, Aw);
-	apply_lpc_correction(&model[i]);
-	synthesise_one_frame(c2, &speech[N*i], &model[i], Aw);
+			lsp_to_lpc(&lsps[i][0], &ak[i][0], LPC_ORD_LOW);
+			aks_to_M2(&ak[i][0], LPC_ORD_LOW, &c2->models[i], e[i], &snr, 0, 0,
+                  c2->lpc_pf, c2->bass_boost, c2->beta, c2->gamma, tmp.Aw);
+			apply_lpc_correction(&c2->models[i]);
+			synthesise_one_frame(c2, &speech[FRAME_SIZE * i], &c2->models[i], tmp.Aw);
     }
 
-    #ifdef DUMP
-    dump_lsp_(&lsps[3][0]);
-    dump_ak_(&ak[3][0], LPC_ORD_LOW);
-    dump_model(&model[3]);
-    if (c2->softdec)
-        dump_softdec(c2->softdec, nbit);
-    #endif
 
     /* update memories for next frame ----------------------------*/
 
-    c2->prev_model_dec = model[3];
+    c2->prev_model_dec = c2->models[3];
     c2->prev_e_dec = e[3];
     for(i=0; i<LPC_ORD_LOW; i++)
-	c2->prev_lsps_dec[i] = lsps[3][i];
+			c2->prev_lsps_dec[i] = lsps[3][i];
 }
 
 /*---------------------------------------------------------------------------*\

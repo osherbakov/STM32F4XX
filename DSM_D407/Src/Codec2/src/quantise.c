@@ -63,6 +63,10 @@ int mel_bits(int i) {
     return mel_cb[i].log2m;
 }
 
+int lspmelvq_cb_bits(int i) {
+    return lspmelvq_cb[i].log2m;
+}
+
 int lsp_pred_vq_bits(int i) {
     return lsp_cbjvm[i].log2m;
 }
@@ -300,6 +304,239 @@ void lspjvm_quantise(float *x, float *xq, int order)
     xq[2*i+1] += codebook3[order*n3/2+i];
   }
 }
+
+
+/* simple (non mbest) 6th order LSP MEL VQ quantiser.  Returns MSE of result */
+
+float lspmelvq_quantise(float *x, float *xq, int order)
+{
+  int i, n1, n2, n3;
+  float err[order];
+  const float *codebook1 = lspmelvq_cb[0].cb;
+  const float *codebook2 = lspmelvq_cb[1].cb;
+  const float *codebook3 = lspmelvq_cb[2].cb;
+  float tmp[order];
+  float mse;
+
+
+  n1 = find_nearest(codebook1, lspmelvq_cb[0].m, x, order);
+
+  for (i=0; i<order; i++) {
+    tmp[i] = codebook1[order*n1+i];
+    err[i] = x[i] - tmp[i];
+  }
+
+  n2 = find_nearest(codebook2, lspmelvq_cb[1].m, err, order);
+
+  for (i=0; i<order; i++) {
+    tmp[i] += codebook2[order*n2+i];
+    err[i] = x[i] - tmp[i];
+  }
+
+  n3 = find_nearest(codebook3, lspmelvq_cb[2].m, err, order);
+
+  mse = 0.0;
+  for (i=0; i<order; i++) {
+    tmp[i] += codebook3[order*n3+i];
+    err[i] = x[i] - tmp[i];
+    mse += err[i]*err[i];
+  }
+
+  for (i=0; i<order; i++) {
+      xq[i] = tmp[i];
+  }
+
+  return mse;
+}
+
+#define MBEST_STAGES 	4
+#define MBEST_ENTRIES 5
+
+struct MBEST_LIST {
+    int   index[MBEST_STAGES];    /* index of each stage that lead us to this error */
+    float error;
+};
+
+struct MBEST {
+    int                entries;   /* number of entries in mbest list   */
+    struct MBEST_LIST *list;
+};
+
+static struct MBEST mbest;
+static struct MBEST_LIST mbest_list[MBEST_ENTRIES];
+
+
+static struct MBEST *mbest_create(int entries) {
+    int           i,j;
+    struct MBEST *p_mbest;
+
+    p_mbest = &mbest;
+
+    p_mbest->entries = MBEST_ENTRIES;
+    p_mbest->list = &mbest_list[0];
+
+    for(i=0; i<p_mbest->entries; i++) {
+			for(j=0; j<MBEST_STAGES; j++)
+				p_mbest->list[i].index[j] = 0;
+			p_mbest->list[i].error = 1E32;
+    }
+
+    return p_mbest;
+}
+
+
+static void mbest_destroy(struct MBEST *mbest) {
+
+}
+
+
+/*---------------------------------------------------------------------------*\
+
+  mbest_insert
+
+  Insert the results of a vector to codebook entry comparison. The
+  list is ordered in order or error, so those entries with the
+  smallest error will be first on the list.
+
+\*---------------------------------------------------------------------------*/
+
+static void mbest_insert(struct MBEST *mbest, int index[], float error) {
+    int                i, j, found;
+    struct MBEST_LIST *list    = mbest->list;
+    int                entries = mbest->entries;
+
+    found = 0;
+    for(i=0; i<entries && !found; i++)
+	if (error < list[i].error) {
+	    found = 1;
+	    for(j=entries-1; j>i; j--)
+		list[j] = list[j-1];
+	    for(j=0; j<MBEST_STAGES; j++)
+		list[i].index[j] = index[j];
+	    list[i].error = error;
+	}
+}
+
+
+
+/*---------------------------------------------------------------------------*\
+
+  mbest_search
+
+  Searches vec[] to a codebbook of vectors, and maintains a list of the mbest
+  closest matches.
+
+\*---------------------------------------------------------------------------*/
+
+static void mbest_search(
+		  const float  *cb,     /* VQ codebook to search         */
+		  float         vec[],  /* target vector                 */
+		  float         w[],    /* weighting vector              */
+		  int           k,      /* dimension of vector           */
+		  int           m,      /* number on entries in codebook */
+		  struct MBEST *mbest,  /* list of closest matches       */
+		  int           index[] /* indexes that lead us here     */
+)
+{
+   float   e;
+   int     i,j;
+   float   diff;
+
+   for(j=0; j<m; j++) {
+	e = 0.0;
+	for(i=0; i<k; i++) {
+	    diff = cb[j*k+i]-vec[i];
+	    e += powf(diff*w[i],2.0);
+	}
+	index[0] = j;
+	mbest_insert(mbest, index, e);
+   }
+}
+
+
+/* 3 stage VQ LSP quantiser useing mbest search.  Design and guidance kindly submitted by Anssi, OH3GDD */
+
+float lspmelvq_mbest_encode(int *indexes, float *x, float *xq, int ndim, int mbest_entries)
+{
+  int i, j, n1, n2, n3;
+  const float *codebook1 = lspmelvq_cb[0].cb;
+  const float *codebook2 = lspmelvq_cb[1].cb;
+  const float *codebook3 = lspmelvq_cb[2].cb;
+  struct MBEST *mbest_stage1, *mbest_stage2, *mbest_stage3;
+  float target[ndim];
+  float w[ndim];
+  int   index[MBEST_STAGES];
+  float mse, tmp;
+
+  for(i=0; i<ndim; i++)
+      w[i] = 1.0;
+
+  mbest_stage1 = mbest_create(mbest_entries);
+  mbest_stage2 = mbest_create(mbest_entries);
+  mbest_stage3 = mbest_create(mbest_entries);
+  for(i=0; i<MBEST_STAGES; i++)
+      index[i] = 0;
+
+  /* Stage 1 */
+
+  mbest_search(codebook1, x, w, ndim, lspmelvq_cb[0].m, mbest_stage1, index);
+  //mbest_print("Stage 1:", mbest_stage1);
+
+  /* Stage 2 */
+
+  for (j=0; j<mbest_entries; j++) {
+      index[1] = n1 = mbest_stage1->list[j].index[0];
+      for(i=0; i<ndim; i++)
+	  target[i] = x[i] - codebook1[ndim*n1+i];
+      mbest_search(codebook2, target, w, ndim, lspmelvq_cb[1].m, mbest_stage2, index);
+  }
+  //mbest_print("Stage 2:", mbest_stage2);
+
+  /* Stage 3 */
+
+  for (j=0; j<mbest_entries; j++) {
+      index[2] = n1 = mbest_stage2->list[j].index[1];
+      index[1] = n2 = mbest_stage2->list[j].index[0];
+      for(i=0; i<ndim; i++)
+	  target[i] = x[i] - codebook1[ndim*n1+i] - codebook2[ndim*n2+i];
+      mbest_search(codebook3, target, w, ndim, lspmelvq_cb[2].m, mbest_stage3, index);
+  }
+  //mbest_print("Stage 3:", mbest_stage3);
+
+  n1 = mbest_stage3->list[0].index[2];
+  n2 = mbest_stage3->list[0].index[1];
+  n3 = mbest_stage3->list[0].index[0];
+  mse = 0.0;
+  for (i=0;i<ndim;i++) {
+      tmp = codebook1[ndim*n1+i] + codebook2[ndim*n2+i] + codebook3[ndim*n3+i];
+      mse += (x[i]-tmp)*(x[i]-tmp);
+      xq[i] = tmp;
+  }
+
+  mbest_destroy(mbest_stage1);
+  mbest_destroy(mbest_stage2);
+  mbest_destroy(mbest_stage3);
+
+  indexes[0] = n1; indexes[1] = n2; indexes[2] = n3;
+
+  return mse;
+}
+
+
+void lspmelvq_decode(int *indexes, float *xq, int ndim)
+{
+  int i, n1, n2, n3;
+  const float *codebook1 = lspmelvq_cb[0].cb;
+  const float *codebook2 = lspmelvq_cb[1].cb;
+  const float *codebook3 = lspmelvq_cb[2].cb;
+
+  n1 = indexes[0]; n2 = indexes[1]; n3 = indexes[2];
+  for (i=0;i<ndim;i++) {
+      xq[i] = codebook1[ndim*n1+i] + codebook2[ndim*n2+i] + codebook3[ndim*n3+i];
+  }
+}
+
+
 
 
 int check_lsp_order(float lsp[], int order)
@@ -807,6 +1044,74 @@ void decode_lsps_scalar(float lsp[], int indexes[], int order)
     for(i=0; i<order; i++)
 		lsp[i] = (PI/4000.0f)*lsp_hz[i];
 }
+
+/*---------------------------------------------------------------------------*\
+
+  FUNCTION....: encode_mels_scalar()
+  AUTHOR......: David Rowe
+  DATE CREATED: April 2015
+
+  Low bit rate mel coeff encoder.
+
+\*---------------------------------------------------------------------------*/
+
+void encode_mels_scalar(int indexes[], float mels[], int order)
+{
+    int    i,m;
+    float  wt[1];
+    const float * cb;
+    float se, mel_, dmel;
+
+    /* scalar quantisers */
+
+    wt[0] = 1.0;
+    for(i=0; i<order; i++) {
+	m = mel_cb[i].m;
+	cb = mel_cb[i].cb;
+        if (i%2) {
+            /* on odd mels quantise difference */
+            mel_ = mel_cb[i-1].cb[indexes[i-1]];
+            dmel = mels[i] - mel_;
+            indexes[i] = quantise(cb, &dmel, wt, 1, m, &se);
+            //printf("%d mel: %f mel_: %f dmel: %f index: %d\n", i, mels[i], mel_, dmel, indexes[i]);
+        }
+        else {
+            indexes[i] = quantise(cb, &mels[i], wt, 1, m, &se);
+            //printf("%d mel: %f dmel: %f index: %d\n", i, mels[i], 0.0, indexes[i]);
+        }
+
+    }
+}
+
+
+/*---------------------------------------------------------------------------*\
+
+  FUNCTION....: decode_mels_scalar()
+  AUTHOR......: David Rowe
+  DATE CREATED: April 2015
+
+  From a vector of quantised mel indexes, returns the quantised
+  (floating point) mels.
+
+\*---------------------------------------------------------------------------*/
+
+void decode_mels_scalar(float mels[], int indexes[], int order)
+{
+    int    i;
+    const float * cb;
+
+    for(i=0; i<order; i++) {
+	cb = mel_cb[i].cb;
+        if (i%2) {
+            /* on odd mels quantise difference */
+            mels[i] = mels[i-1] + cb[indexes[i]];
+        }
+        else
+            mels[i] = cb[indexes[i]];
+    }
+
+}
+
 
 
 /*---------------------------------------------------------------------------*\
