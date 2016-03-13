@@ -60,7 +60,7 @@ void NRF24L01_Init(void *pSPI)
   * @retval The status
   */
 
-uint8_t		NRF24L01_WritePayload(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesToWrite)
+uint8_t		NRF24L01_StartWrite(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesToWrite)
 {
 	HAL_StatusTypeDef status;
 	/* Wait until previous transaction is finished    */
@@ -202,7 +202,6 @@ static uint8_t RxBuffer[MAX_PAYLOAD_SIZE];
 
 void NRF24L01_RxReady_CallBack(void)
 {
-BSP_LED_On(LED6);
 //	RF24_read_payload(RxBuffer, 16);
 	RF24_flushRx();	
 	rxOK++;

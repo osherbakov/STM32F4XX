@@ -10,7 +10,7 @@
       <TargetName>DSM_407_Debug</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
+      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F407VG</Device>
@@ -789,7 +789,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/MELP</GroupName>
+          <GroupName>Codecs/MELP</GroupName>
           <Files>
             <File>
               <FileName>coeff.c</FileName>
@@ -916,7 +916,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/CVSD</GroupName>
+          <GroupName>Codecs/CVSD</GroupName>
           <Files>
             <File>
               <FileName>cvsd_f32.c</FileName>
@@ -983,7 +983,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/CODEC2</GroupName>
+          <GroupName>Codecs/CODEC2</GroupName>
           <Files>
             <File>
               <FileName>codebook.c</FileName>
@@ -1145,7 +1145,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/MELPe</GroupName>
+          <GroupName>Codecs/MELPe</GroupName>
           <Files>
             <File>
               <FileName>classify.c</FileName>
@@ -1270,7 +1270,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/A_u_law</GroupName>
+          <GroupName>Codecs/A_u_law</GroupName>
           <Files>
             <File>
               <FileName>aulaw_q15.c</FileName>
@@ -1281,6 +1281,53 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\A_u_Law\main.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>2</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>0</vShortEn>
+                    <vShortWch>0</vShortWch>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
             <File>
               <FileName>module.c</FileName>
@@ -1662,7 +1709,7 @@
               <MiscControls>--C99 --gnu</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Inc;..\..\Src\SW_Framework;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\Middlewares\ST\STM32_Audio\Addons\PDM;..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc;..\..\Middlewares\Third_Party\FreeRTOS\Source\include;..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\Drivers\BSP\STM32F4-Discovery;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Src\Codec2\src\CMSIS</IncludePath>
+              <IncludePath>..\..\Inc;..\..\Src\SW_Framework;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\Middlewares\ST\STM32_Audio\Addons\PDM;..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc;..\..\Middlewares\Third_Party\FreeRTOS\Source\include;..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\Drivers\BSP\STM32F4-Discovery;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Src\Codec2\src\CMSIS;..\..\Src\MELPe\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2078,7 +2125,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/MELP</GroupName>
+          <GroupName>Codecs/MELP</GroupName>
           <Files>
             <File>
               <FileName>coeff.c</FileName>
@@ -2205,7 +2252,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/CVSD</GroupName>
+          <GroupName>Codecs/CVSD</GroupName>
           <Files>
             <File>
               <FileName>cvsd_f32.c</FileName>
@@ -2272,7 +2319,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/CODEC2</GroupName>
+          <GroupName>Codecs/CODEC2</GroupName>
           <Files>
             <File>
               <FileName>codebook.c</FileName>
@@ -2434,71 +2481,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/MELPe</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>2</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>2</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <useXO>2</useXO>
-                <v6Lang>0</v6Lang>
-                <v6LangP>0</v6LangP>
-                <vShortEn>0</vShortEn>
-                <vShortWch>0</vShortWch>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define>STM32F407xx</Define>
-                  <Undefine></Undefine>
-                  <IncludePath>..\..\Src\MELPe\inc</IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
+          <GroupName>Codecs/MELPe</GroupName>
           <Files>
             <File>
               <FileName>classify.c</FileName>
@@ -2623,7 +2606,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/A_u_law</GroupName>
+          <GroupName>Codecs/A_u_law</GroupName>
           <Files>
             <File>
               <FileName>aulaw_q15.c</FileName>

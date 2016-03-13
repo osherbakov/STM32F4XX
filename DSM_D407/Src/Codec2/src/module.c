@@ -47,7 +47,7 @@ void codec2_initialize(void *pHandle)
 	frame_size = codec2_samples_per_frame(p_codec); 
 }
 
-uint32_t codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= frame_size)
@@ -66,7 +66,7 @@ BSP_LED_Off(LED5);
 		*pInSamples -= frame_size;
 		nGenerated += frame_size;		
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)

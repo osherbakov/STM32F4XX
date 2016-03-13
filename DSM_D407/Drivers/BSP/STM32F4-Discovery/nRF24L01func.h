@@ -210,21 +210,6 @@ s   *
    */
   /**@{*/
 
-  /**
-   * Print a giant block of debugging information to stdout
-   *
-   * @warning Does nothing if stdout is not defined.  See fdevopen in stdio.h
-   * The printf.h file is included with the library for Arduino.
-   * @code
-   * #include <printf.h>
-   * setup(){
-   *  Serial.begin(115200);
-   *  printf_begin();
-   *  ...
-   * }
-   * @endcode
-   */
-  void RF24_printDetails(void);
 
   /**
    * Test whether there are bytes available to be read in the
@@ -291,7 +276,7 @@ s   *
   * @param len Number of bytes to be sent
   * @param multicast Request ACK (0), NOACK (1)
   */
-  int RF24_writeAck( const void* buf, uint8_t len, const int multicast );
+  int RF24_writeAck( const void* buf, uint8_t len);
 
   /**
    * This will not block until the 3 FIFO buffers are filled with data.
@@ -321,36 +306,7 @@ s   *
    * @param len Number of bytes to be sent
    * @return True if the payload was delivered successfully false if not
    */
-  int RF24_write( const void* buf, uint8_t len );
-
-
-  /**
-   * This function extends the auto-retry mechanism to any specified duration.
-   * It will not block until the 3 FIFO buffers are filled with data.
-   * If so the library will auto retry until a new payload is written
-   * or the user specified timeout period is reached.
-   * @warning It is important to never keep the nRF24L01 in TX mode and FIFO full for more than 4ms at a time. If the auto
-   * retransmit is enabled, the nRF24L01 is never in TX mode long enough to disobey this rule. Allow the FIFO
-   * to clear by issuing txStandBy() or ensure appropriate time between transmissions.
-   *
-   * @code
-   * Example (Full blocking):
-   *
-   *			radio.writeBlocking(&buf,32,1000); //Wait up to 1 second to write 1 payload to the buffers
-   *			txStandBy(1000);     			   //Wait up to 1 second for the payload to send. Return 1 if ok, 0 if failed.
-   *					  				   		   //Blocks only until user timeout or success. Data flushed on fail.
-   * @endcode
-   * @note If used from within an interrupt, the interrupt should be disabled until completion, and sei(); called to enable millis().
-   * @see txStandBy()
-   * @see write()
-   * @see writeFast()
-   *
-   * @param buf Pointer to the data to be sent
-   * @param len Number of bytes to be sent
-   * @param timeout User defined timeout in milliseconds.
-   * @return True if the payload was loaded into the buffer successfully false if not
-   */
-  int RF24_writeAndWait(const void* buf, uint8_t len, uint32_t timeout);
+  int RF24_writeNoAck( const void* buf, uint8_t len );
 
   /**
    * This function should be called as soon as transmission is finished to
@@ -396,7 +352,7 @@ s   *
    * @return True if transmission is successful
    *
    */
-   int RF24_txStandByAndWait(uint32_t timeout);
+   int RF24_txWait(uint32_t timeout);
 
   /**
    * Write an ack payload for the specified pipe
@@ -461,10 +417,8 @@ s   *
    *
    * @param buf Pointer to the data to be sent
    * @param len Number of bytes to be sent
-   * @param multicast Request ACK (0) or NOACK (1)
-   * @return True if the payload was delivered successfully false if not
    */
-  void RF24_startWrite( const void* buf, uint8_t len, const int multicast);
+  void RF24_writeFast( const void* buf, uint8_t len);
   
   /**
    * Empty the transmit buffer. This is generally not required in standard operation.
@@ -732,7 +686,7 @@ s   *
    * @param len How many bytes of data to transfer
    * @return Current value of status register
    */
-  uint8_t RF24_read_register_bytes(uint8_t reg, uint8_t* buf, uint8_t len);
+  uint8_t RF24_read(uint8_t reg, uint8_t* buf, uint8_t len);
 
   /**
    * Read single byte from a register
@@ -750,7 +704,7 @@ s   *
    * @param len How many bytes of data to transfer
    * @return Current value of status register
    */
-  uint8_t write_register_bytes(uint8_t reg, const uint8_t* buf, uint8_t len);
+  uint8_t RF24_write(uint8_t reg, uint8_t* buf, uint8_t len);
 
   /**
    * Write a single byte to a register
@@ -816,46 +770,6 @@ s   *
    */
   void RF24_toggle_features(void);
   
-
-
-  #if !defined (MINIMAL)
-  /**
-   * Decode and print the given status to stdout
-   *
-   * @param status Status value to print
-   *
-   * @warning Does nothing if stdout is not defined.  See fdevopen in stdio.h
-   */
-  void RF24_print_status(uint8_t status);
-
-  /**
-   * Print the name and value of an 8-bit register to stdout
-   *
-   * Optionally it can print some quantity of successive
-   * registers on the same line.  This is useful for printing a group
-   * of related registers on one line.
-   *
-   * @param name Name of the register
-   * @param reg Which register. Use constants from nRF24L01.h
-   * @param qty How many successive registers to print
-   */
-  void RF24_print_byte_register(const char* name, uint8_t reg, uint8_t qty);
-
-  /**
-   * Print the name and value of a 40-bit address register to stdout
-   *
-   * Optionally it can print some quantity of successive
-   * registers on the same line.  This is useful for printing a group
-   * of related registers on one line.
-   *
-   * @param name Name of the register
-   * @param reg Which register. Use constants from nRF24L01.h
-   * @param qty How many successive registers to print
-   */
-  void RF24_print_address_register(const char* name, uint8_t reg, uint8_t qty);
-#endif
-
-
 #endif // __NRF24L01FUNC_H__
 
 

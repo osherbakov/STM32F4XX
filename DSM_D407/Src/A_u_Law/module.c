@@ -34,7 +34,7 @@ void aulaw_init(void *pHandle)
 {
 }
 
-uint32_t alaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void alaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
@@ -50,10 +50,10 @@ BSP_LED_Off(LED5);
 		*pInSamples -= AU_LAW_BLOCK_SIZE;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
-uint32_t alaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void alaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
@@ -66,10 +66,10 @@ BSP_LED_Off(LED4);
 		*pInSamples -= AU_LAW_BLOCK_SIZE;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
-uint32_t alaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void alaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
@@ -82,10 +82,10 @@ BSP_LED_Off(LED5);
 		*pInSamples -= AU_LAW_BLOCK_SIZE;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
-uint32_t ulaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void ulaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
@@ -101,10 +101,10 @@ BSP_LED_Off(LED5);
 		*pInSamples -= AU_LAW_BLOCK_SIZE;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
-uint32_t ulaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void ulaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
@@ -117,10 +117,10 @@ BSP_LED_Off(LED4);
 		*pInSamples -= AU_LAW_BLOCK_SIZE;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
-uint32_t ulaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void ulaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
@@ -133,7 +133,7 @@ BSP_LED_Off(LED5);
 		*pInSamples -= AU_LAW_BLOCK_SIZE;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 
@@ -209,10 +209,9 @@ static void ds_48_8_init(void *pHandle)
 			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-static uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_q15(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
@@ -221,8 +220,7 @@ static uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, ui
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
-//BSP_LED_Off(LED3);
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 static uint32_t ds_48_8_typesize(void *pHandle, uint32_t *pType)
@@ -251,10 +249,9 @@ static void us_8_48_init(void *pHandle)
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-static uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_q15(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -263,8 +260,7 @@ static uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, ui
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
-//BSP_LED_Off(LED3);
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 static uint32_t us_8_48_typesize(void *pHandle, uint32_t *pType)

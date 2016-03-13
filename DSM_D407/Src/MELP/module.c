@@ -40,7 +40,7 @@ void melp_init(void *pHandle)
 }
 
 
-uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
 	
@@ -60,7 +60,7 @@ BSP_LED_Off(LED5);
 		*pInSamples -= MELP_FRAME_SIZE;
 		nGenerated += MELP_FRAME_SIZE;
 	}
-	return nGenerated;
+	*pOutSamples =  nGenerated;
 }
 
 uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
@@ -119,10 +119,9 @@ void ds_48_8_init(void *pHandle)
 			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
@@ -131,8 +130,7 @@ uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
-//BSP_LED_Off(LED3);
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t ds_48_8_typesize(void *pHandle, uint32_t *pType)
@@ -161,10 +159,9 @@ void us_8_48_init(void *pHandle)
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 	uint32_t	nGenerated = 0;
-//BSP_LED_On(LED3);
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -173,8 +170,7 @@ uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
-//BSP_LED_Off(LED3);
-	return nGenerated;
+	*pOutSamples = nGenerated;
 }
 
 uint32_t us_8_48_typesize(void *pHandle, uint32_t *pType)
