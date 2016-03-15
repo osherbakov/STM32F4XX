@@ -67,26 +67,40 @@ typedef enum DataChannelMask
 
 typedef struct DataTypeSize {
 	union {
-		uint16_t	Type;
 		struct {
-			uint8_t		ElemSize;		// Size of the element in bytes
-			uint8_t		ElemType;		// Type of the element in the buffer
+			union {
+				uint16_t	Type;
+				struct {
+					uint8_t		ElemSize;		// Size of the element in bytes
+					uint8_t		ElemType;		// Type of the element in the buffer
+				};
+			};
+			uint16_t	Size;					// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 		};
 	};
-	uint16_t	Size;					// Total size of the needed/allocated  buffer/queue (must be a multiple of ElemSize)
+	uint32_t	TypeSize;
 } DataTypeSize_t;
 
-typedef struct DQueue
-{
-	uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
-	DataTypeSize_t	Data;
-	uint16_t	iGet;
-	uint16_t	iPut;
+typedef struct DBuffer {
+	DataTypeSize_t	Data;	// 
+	uint8_t		*pBuffer;	// Pointer to the actual data storage for the Buffer
+} DBuffer_t;
+
+typedef struct DQueue {
+	union {
+		struct {
+			DataTypeSize_t	Data;	// All info about data in the queue - Type, Element Size, Total Size
+			uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
+		};
+		DBuffer_t	Buffer;
+	};
+	uint16_t	iGet;		// Get Index
+	uint16_t	iPut;		// Put Index
 } DQueue_t;
 
 typedef struct DataPort {
-	uint32_t		ID;
 	DataTypeSize_t	Data;
+	uint32_t		ID;
 } DataPort_t;
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
