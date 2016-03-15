@@ -1031,6 +1031,11 @@
               <FilePath>..\..\Src\Codec2\src\codebookvqanssi.c</FilePath>
             </File>
             <File>
+              <FileName>codebooklspmelvq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\Codec2\src\codebooklspmelvq.c</FilePath>
+            </File>
+            <File>
               <FileName>codec2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\Codec2\src\codec2.c</FilePath>
@@ -2365,6 +2370,11 @@
               <FileName>codebookvqanssi.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\Codec2\src\codebookvqanssi.c</FilePath>
+            </File>
+            <File>
+              <FileName>codebooklspmelvq.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\Codec2\src\codebooklspmelvq.c</FilePath>
             </File>
             <File>
               <FileName>codec2.c</FileName>

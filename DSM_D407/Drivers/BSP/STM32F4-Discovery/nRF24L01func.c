@@ -46,7 +46,6 @@ static  uint8_t pipe0_payload_size;
 static  uint8_t pipe0_enabled;
   
 static  uint8_t addr_width; 			/**< The address width to use - 3,4 or 5 bytes. */
-static  uint32_t txRxDelay; 			/**< Var for adjusting delays depending on datarate */
 static  uint8_t RF24_config;
 
 /****************************************************************************/
@@ -616,20 +615,19 @@ int RF24_setDataRate(rf24_datarate_e speed)
 
   // HIGH and LOW '00' is 1Mbs - our default
   setup &= ~(_BV(RF_DR_LOW) | _BV(RF_DR_HIGH)) ;
-  txRxDelay=250;
+
   if( speed == RF24_250KBPS )
   {
     // Must set the RF_DR_LOW to 1; RF_DR_HIGH (used to be RF_DR) is already 0
     // Making it '10'.
     setup |= _BV( RF_DR_LOW ) ;
-    txRxDelay=450;
+
   } else {
     // Set 2Mbs, RF_DR (RF_DR_HIGH) is set 1
     // Making it '01'
     if ( speed == RF24_2MBPS )
     {
       setup |= _BV(RF_DR_HIGH);
-      txRxDelay=190;
     }
   }
   RF24_write_register(RF_SETUP,setup);

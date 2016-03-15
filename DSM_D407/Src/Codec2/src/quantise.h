@@ -60,6 +60,7 @@ extern const struct lsp_codebook lsp_cbjvm[];
 extern const struct lsp_codebook lsp_cbvqanssi[];
 extern const struct lsp_codebook mel_cb[];
 extern const struct lsp_codebook ge_cb[];
+extern const struct lsp_codebook lspmelvq_cb[];
 
 void quantise_init(void);
 float lpc_model_amplitudes(float Sn[], float w[], MODEL *model, int order,
@@ -89,6 +90,10 @@ void decode_lsps_diff_time(float lsp_[],
 			   float lsp__prev[],
 			   int order);
 
+void encode_mels_scalar(int indexes[], float mels[], int order);
+void decode_mels_scalar(float mels[], int indexes[], int order);
+
+	 
 void encode_lsps_vq(int *indexes, float *x, float *xq, int order);
 void decode_lsps_vq(int *indexes, float *xq, int order, int stages);
 
@@ -116,6 +121,7 @@ int lspd_bits(int i);
 int lspdt_bits(int i);
 int lsp_pred_vq_bits(int i);
 int mel_bits(int i);
+int lspmelvq_cb_bits(int i);
 
 void apply_lpc_correction(MODEL *model);
 float speech_to_uq_lsps(float lsp[],
