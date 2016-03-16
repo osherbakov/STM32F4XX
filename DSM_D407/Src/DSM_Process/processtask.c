@@ -55,6 +55,8 @@ void StartDataProcessTask(void const * argument)
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
+	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
+
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
 	pDecState = pDecModule->Create(0);
@@ -100,7 +102,7 @@ void StartDataProcessTask(void const * argument)
 				// Convert data from the Queue-provided type to the Processing-Module-required type
 				DataConvert(pAudioIn, Type, DATA_CHANNEL_1, pAudio, osParams.DownSample_data->Data.Type, DATA_CHANNEL_1, nSamplesModuleNeeds);
 				//   Call data processing
-				 pProcModule->Process(pProcModuleState, pAudioIn, pAudioOut, &nSamplesModuleNeeds, &nSamplesModuleGenerated);
+				pProcModule->Process(pProcModuleState, pAudioIn, pAudioOut, &nSamplesModuleNeeds, &nSamplesModuleGenerated);
 				// Convert data from the Processing-Module-provided type to the HW Queue type
 				DataConvert(pAudio, osParams.UpSample_data->Data.Type, DATA_CHANNEL_1 , pAudioOut, Type, DATA_CHANNEL_1, nSamplesModuleGenerated);
 				// Place the processed data into the queue for the next module to process

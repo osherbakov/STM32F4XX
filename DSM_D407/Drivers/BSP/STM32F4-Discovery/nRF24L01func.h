@@ -770,6 +770,9 @@ s   *
    */
   void RF24_toggle_features(void);
   
+void StartRF24(void);
+void ProcessRF24(void);
+
 #endif // __NRF24L01FUNC_H__
 
 

@@ -463,8 +463,8 @@ float lspmelvq_mbest_encode(int *indexes, float *x, float *xq, int ndim, int mbe
   const float *codebook2 = lspmelvq_cb[1].cb;
   const float *codebook3 = lspmelvq_cb[2].cb;
   struct MBEST *mbest_stage1, *mbest_stage2, *mbest_stage3;
-  float target[ndim];
-  float w[ndim];
+  float target[LPC_ORD_LOW];
+  float w[LPC_ORD_LOW];
   int   index[MBEST_STAGES];
   float mse, tmp;
 

@@ -61,7 +61,7 @@ typedef struct
 
 
 		osMessageQId dataInPDMMsg;			// Message queue to indicate that PDM data is ready
-		osMessageQId dataReadyMsg;			// Message queue to indicate that any data for routing is ready
+		osMessageQId dataReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready
 	
 		uint8_t		*pPDM_In;						// Pointer to DMA Buffer for PDM In
 		uint8_t		*pPCM_Out;						// Pointer to DMA Buffer for PCM Out

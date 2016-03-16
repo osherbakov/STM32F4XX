@@ -708,3 +708,40 @@ void RF24_setRetries(uint8_t delay, uint8_t count)
 {
 	RF24_write_register(SETUP_RETR,(delay&0xf)<<ARD | (count&0xf)<<ARC);
 }
+
+static uint8_t	 _Tx[32] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0xAA};
+static uint8_t	 _Rx[32];
+static uint8_t	 TxAddress[] = "1Node";
+static uint8_t	 TxChannel = 0;
+static int		 RxMode = 1;
+
+void StartRF24(void)
+{
+	RF24_Init();
+	RF24_setAddressWidth(5);
+	RF24_setDynamicPayload(0);
+	RF24_setAckPayload(0);
+	RF24_setAutoAckAll(0);
+	RF24_setDataRate(RF24_250KBPS);
+	RF24_openReadingPipe(0, TxAddress, 16);	
+	RF24_openWritingPipe(TxAddress);		
+
+	if (RxMode) 
+		RF24_startListening();
+	else 
+		RF24_stopListening();		
+			
+}
+
+void ProcessRF24(void)
+{
+	if(RxMode == 0){
+		//			RF24_stopListeningFast();		
+		// RF24_setChannel(TxChannel++);
+		RF24_writeFast(_Tx, 16);
+		//			RxMode = 1;
+	}else{
+		//			RF24_startListeningFast();
+		//			RxMode = 0;
+	}		
+}

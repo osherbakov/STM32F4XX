@@ -93,6 +93,9 @@ void decode_lsps_diff_time(float lsp_[],
 void encode_mels_scalar(int indexes[], float mels[], int order);
 void decode_mels_scalar(float mels[], int indexes[], int order);
 
+float lspmelvq_mbest_encode(int *indexes, float *x, float *xq, int ndim, int mbest_entries);
+void lspmelvq_decode(int *indexes, float *xq, int ndim);
+				 
 	 
 void encode_lsps_vq(int *indexes, float *x, float *xq, int order);
 void decode_lsps_vq(int *indexes, float *xq, int order, int stages);
