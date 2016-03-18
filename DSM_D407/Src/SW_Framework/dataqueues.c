@@ -29,7 +29,7 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 	if(nBytes == 0) return 0;
 	DQueue_t *pQ = osAlloc(sizeof(DQueue_t));	if(pQ == 0) return 0;
 	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
-	pQ->Data.Size = nBytes;
+	pQ->Size = nBytes;
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
 		pQ->Data.Type = Type;
 	}else{
@@ -59,7 +59,7 @@ uint32_t Queue_Count_Bytes(DQueue_t *pQueue)
 {
 	int Count;
 	uint32_t iPut, iGet, nSize;
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size;
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size;
 	Count =  iPut - iGet;
 	if (Count < 0) { Count += nSize; if(Count <= 0) Count += nSize;}
 	else if(Count > nSize) {Count -= nSize;}
@@ -79,7 +79,7 @@ uint32_t Queue_Space_Bytes(DQueue_t *pQueue)
 {
 	int Space;
 	uint32_t iPut, iGet, nSize;
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size;
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size;
 	Space =  iGet - iPut;
 	if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}	
 	else if(Space > nSize) {Space -= nSize;}
@@ -107,7 +107,7 @@ uint32_t Queue_PushData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	uint32_t n_bytes, n_copy, ret;
 	
 	// Prefetch all parameters to avoid race conditions */
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size; 
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size; 
 	space = iGet - iPut; 
 	// Check if the buffer is already full - return 0 as number of bytes consumed */
 	if((ABS(space) == nSize) || (nBytes == 0)) return 0;
@@ -141,7 +141,7 @@ uint32_t Queue_PopData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	uint32_t n_bytes, n_copy, ret;
 	
 	// Prefetch all parameters to avoid race conditions */
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Data.Size; 
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size; 
 
 	// Check if the buffer is empty - return 0 as number of bytes produced */
 	count =  iPut - iGet;

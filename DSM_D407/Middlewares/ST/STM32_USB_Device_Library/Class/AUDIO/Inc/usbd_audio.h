@@ -106,7 +106,10 @@
 
 // The ISO packets are sent every 1ms (or every 125us in HS). In that packet there are 
 //  USBD_AUDIO_FREQ/1000 samples, each sample has 2 bytes (16-bits), and 2 (STEREO) channels
-#define AUDIO_PACKET_SIZE                              (uint32_t)(((USBD_AUDIO_FREQ * 2 * 2) /1000))
+#define AUDIO_SAMPLE_SIZE																(2)
+#define AUDIO_NUM_CHAN																  (2)
+
+#define AUDIO_PACKET_SIZE                              (uint32_t)(((USBD_AUDIO_FREQ * AUDIO_SAMPLE_SIZE * AUDIO_NUM_CHAN) /1000))
 
 /* Number of sub-packets in the audio transfer buffer. You can modify this value but always make sure
   that it is an even number and higher than 3 */

@@ -72,6 +72,11 @@ static int8_t AUDIO_DeInit()
   return (USBD_OK);
 }
 
+uint32_t USB_InCount = 0;
+uint32_t USB_OutCount = 0;
+uint32_t USB_InSize = 0;
+uint32_t USB_OutSize = 0;
+
 /**
   * @brief  AUDIO_AudioCmd
   *         Handles AUDIO command.
@@ -84,14 +89,35 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
   switch(cmd)
   {
 		case AUDIO_DATA_IN:		// Callback that USBD stack calls to get data INTO the Host
+			// Very simple rate adjustment mechanism - if number of available samlpes is less than 1/2,
+			//  then take one sample less, if more than half - take one more
+			USB_InCount = Queue_Count_Bytes(osParams.USB_In_data);
+			USB_InSize = osParams.USB_In_data->Size;
+			if(USB_InCount < USB_InSize/2)	{	
+				Queue_PopData(osParams.USB_In_data,  (void *)(((uint32_t)pBuff)+AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE), nbytes-AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE);
+				memcpy(pBuff, (void *)(((uint32_t)pBuff)+AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE), AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE);	// Duplicate first sample block (L + R)
+			}else if(USB_InCount > USB_InSize/2)	{
+				Queue_PopData(osParams.USB_In_data,  pBuff, AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE);
 				Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
+			}else	{
+				Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
+			}
 			break;
 
 		case AUDIO_DATA_OUT:	// Callback called by USBD stack when it receives OUTPUT data from the Host
 			if(osParams.audioinMode == AUDIO_MODE_IN_USB)
 			{
 				// Place data into the queue and report to the main data processing task that data had arrived
-				Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
+				USB_OutCount = Queue_Count_Bytes(osParams.USB_Out_data);
+				USB_OutSize = osParams.USB_Out_data->Size;
+				if(USB_OutCount < (USB_OutSize/2 - AUDIO_PACKET_SIZE))	{
+					Queue_PushData(osParams.USB_Out_data,  pBuff, AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE);
+					Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
+				}else if(USB_OutCount > (USB_OutSize/2 + AUDIO_PACKET_SIZE))	{
+					Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes-AUDIO_NUM_CHAN*AUDIO_SAMPLE_SIZE);
+				}else	{
+					Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
+				}
 				osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
 			}
 			break;
