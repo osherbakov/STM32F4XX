@@ -13,6 +13,13 @@
 #include "spi.h"
 #include "NRF24L01func.h"
 
+static uint32_t	I2S_InPrev;
+static uint32_t	I2S_OutPrev;
+static uint32_t	CYCCNT;
+	
+uint32_t	I2S_InPeriod;
+uint32_t	I2S_OutPeriod;
+
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -21,12 +28,18 @@
 //   First half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
+	CYCCNT = DWT->CYCCNT;
+	I2S_InPeriod = (CYCCNT - I2S_InPrev);
+	I2S_InPrev = CYCCNT;
 	osMessagePut(osParams.dataInPDMMsg, DONE_FIRST, 0);
 }
 
 //   Second half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
+	CYCCNT = DWT->CYCCNT;
+	I2S_InPeriod = (CYCCNT - I2S_InPrev);
+	I2S_InPrev = CYCCNT;
 	osMessagePut(osParams.dataInPDMMsg, DONE_SECOND, 0);
 }
 
@@ -40,6 +53,9 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 	if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
 	{
+		CYCCNT = DWT->CYCCNT;
+		I2S_OutPeriod = (CYCCNT - I2S_OutPrev);
+		I2S_OutPrev = CYCCNT;
 		Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
 	}
 }
@@ -52,6 +68,9 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 	if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)	// We are in PCM output mode
 	{
+		CYCCNT = DWT->CYCCNT;
+		I2S_OutPeriod = (CYCCNT - I2S_OutPrev);
+		I2S_OutPrev = CYCCNT;
 		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
 		Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 	}

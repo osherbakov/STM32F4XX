@@ -786,6 +786,8 @@ static uint8_t  USBD_AUDIO_EP0_TxReady (USBD_HandleTypeDef *pdev)
   */
 static uint8_t  USBD_AUDIO_SOF (USBD_HandleTypeDef *pdev)
 {
+	// Call user code informing 1 ms heartbeat packet from the host was received
+	((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(0,0, AUDIO_1MS_SYNC);
   return USBD_OK;
 }
 

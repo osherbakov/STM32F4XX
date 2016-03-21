@@ -122,6 +122,7 @@ typedef enum
 {
   AUDIO_DATA_OUT,
   AUDIO_DATA_IN,
+	AUDIO_1MS_SYNC
 }AUDIO_CMD_TypeDef;
 
 /**

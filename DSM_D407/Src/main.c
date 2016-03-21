@@ -133,9 +133,17 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PLLI2S.PLLI2SR = 4;
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
+	//--------------------------------------------------------------------
+	// To enable USB and I2S clock synch we have to enable Cycles Counter
+	//--------------------------------------------------------------------
+	// Enable TRC
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	// Reset the counter
+	DWT->CYCCNT = 0;
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
-extern int     	rxOK;
+extern int    rxOK;
 extern int		rxPass;
 
 void StartDefaultTask(void const * argument)
@@ -148,8 +156,8 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
     osDelay(100);
-	rxPass = rxOK;
-	rxOK = 0;
+		rxPass = rxOK;
+		rxOK = 0;
 
 		// Check the USER button and switch to the next mode if pressed
 		if( BSP_PB_GetState(BUTTON_KEY) != buttonState )
