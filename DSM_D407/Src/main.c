@@ -129,8 +129,8 @@ void SystemClock_Config(void)
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
 
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
-  PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
-  PeriphClkInitStruct.PLLI2S.PLLI2SR = 4;
+  PeriphClkInitStruct.PLLI2S.PLLI2SN = 258;
+  PeriphClkInitStruct.PLLI2S.PLLI2SR = 3;
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
 	//--------------------------------------------------------------------

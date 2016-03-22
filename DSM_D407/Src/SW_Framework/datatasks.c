@@ -17,8 +17,10 @@ static uint32_t	I2S_InPrev;
 static uint32_t	I2S_OutPrev;
 static uint32_t	CYCCNT;
 	
-uint32_t	I2S_InPeriod;
-uint32_t	I2S_OutPeriod;
+static uint32_t	I2S_InPeriod;
+static uint32_t	I2S_OutPeriod;
+
+float						I2S_Period;
 
 
 //
@@ -32,6 +34,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 	I2S_InPeriod = (CYCCNT - I2S_InPrev);
 	I2S_InPrev = CYCCNT;
 	osMessagePut(osParams.dataInPDMMsg, DONE_FIRST, 0);
+	I2S_Period = I2S_Period * 0.99f + I2S_InPeriod * 0.01f;
 }
 
 //   Second half of PDM input buffer was filled - ask the task to convert PDM -> PCM
@@ -41,6 +44,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 	I2S_InPeriod = (CYCCNT - I2S_InPrev);
 	I2S_InPrev = CYCCNT;
 	osMessagePut(osParams.dataInPDMMsg, DONE_SECOND, 0);
+	I2S_Period = I2S_Period * 0.99f + I2S_InPeriod * 0.01f;
 }
 
 //
@@ -57,6 +61,7 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 		I2S_OutPeriod = (CYCCNT - I2S_OutPrev);
 		I2S_OutPrev = CYCCNT;
 		Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
+		I2S_Period = I2S_Period * 0.99f + I2S_OutPeriod * 0.01f;
 	}
 }
 
@@ -73,6 +78,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 		I2S_OutPrev = CYCCNT;
 		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
 		Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
+		I2S_Period = I2S_Period * 0.99f + I2S_OutPeriod * 0.01f;
 	}
 }
 
