@@ -131,10 +131,9 @@ void StartDataProcessTask(void const * argument)
 				nSamplesModuleNeeds = pIntModule->TypeSize(pIntState, &Type);
 			}
 			// Check if we have to start playing audio thru external codec
-			if(osParams.bStartPlay  && ( Queue_Count_Bytes(osParams.PCM_Out_data) >= (osParams.PCM_Out_data->Size /2) ))
+			if(osParams.bStartPlay)
 			{
-				Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, NUM_PCM_BYTES);
-				BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES);
+				BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 				osParams.bStartPlay = 0;
 			}
 		}

@@ -40,16 +40,11 @@ static int8_t  AUDIO_GetState     (void);
 
 static uint32_t	USB_Prev;
 static uint32_t	CYCCNT;
-
-static int32_t USB_BlockTime;
 	
-int32_t		USB_InError;
-int32_t		USB_OutError;
-float			USB_Period;
+float						USB_Period;
 
-extern float		I2S_Period;
-
-uint32_t	USB_SampleSlips;
+static int32_t	USB_OutReady;	
+static int32_t	USB_InReady;	
 
 USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS = 
 {
@@ -71,9 +66,8 @@ USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS =
   */
 static int8_t AUDIO_Init(uint32_t  AudioFreq)
 {
-	USB_BlockTime = (SystemCoreClock/USBD_AUDIO_FREQ);
-	I2S_Period = USB_Period = SystemCoreClock/1000.0f;
-	USB_InError = USB_OutError = USB_SampleSlips = 0;
+	USB_Period = SystemCoreClock/1000.0f;
+	USB_OutReady = USB_InReady = 0;
   return (USBD_OK);
 }
 
@@ -97,10 +91,7 @@ static int8_t AUDIO_DeInit()
   */
 static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
 {
-	float			USB_SampleError;
 
-	
-	USB_SampleError = USB_Period - I2S_Period;	
   switch(cmd)
   {
 		case AUDIO_1MS_SYNC:
@@ -109,40 +100,29 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
 			USB_Prev = CYCCNT;
 		break;
 		
-		case AUDIO_DATA_IN:		// Callback that USBD stack calls to get data INTO the Host
-				//USB_InError += (int32_t) USB_SampleError;
-				if(USB_InError > USB_BlockTime){	// Device->Host (IN). USB is lagging(has longer period)
-					USB_SampleSlips++;
-					USB_InError -= USB_BlockTime;
-					Queue_PopData(osParams.USB_In_data,  pBuff, 4);
+		case AUDIO_DATA_IN:		// Callback that USBD stack calls to get INPUT data INTO the Host
+				if(Queue_Count_Bytes(osParams.USB_In_data) < nbytes)
+					USB_InReady = 0;
+				if(USB_InReady) {
 					Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
-				}else if(USB_InError < -USB_BlockTime){
-					USB_SampleSlips++;
-					USB_InError += USB_BlockTime;
-					Queue_PopData(osParams.USB_In_data,  pBuff, nbytes-4);
 				}else{
-					Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
+					memset(pBuff, 0, nbytes);
+					if(Queue_Count_Bytes(osParams.USB_In_data) >= osParams.USB_In_data->Size/2)
+						USB_InReady = 1;
 				}
 			break;
 
 		case AUDIO_DATA_OUT:	// Callback called by USBD stack when it receives OUTPUT data from the Host
 			if(osParams.audioinMode == AUDIO_MODE_IN_USB)
 			{
-				//USB_OutError += (int32_t) USB_SampleError;
-				if(USB_OutError > USB_BlockTime){
-					USB_SampleSlips++;
-					USB_OutError -= USB_BlockTime;
-					Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
-					Queue_PushData(osParams.USB_Out_data,  &pBuff[nbytes - 4], 4);
-				}else if(USB_OutError < -USB_BlockTime){
-					USB_SampleSlips++;
-					USB_OutError += USB_BlockTime;
-					Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes - 4);
-				}else{
-					Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
-				}	
 				// Place data into the queue and report to the main data processing task that data had arrived
-				osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
+				Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
+				if(USB_OutReady) {
+					osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
+				}else	{
+					if(Queue_Count_Bytes(osParams.USB_Out_data) >= osParams.USB_Out_data->Size/2)
+						USB_OutReady = 1;
+				}
 			}
 			break;
   }
