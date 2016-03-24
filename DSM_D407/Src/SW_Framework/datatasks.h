@@ -22,7 +22,7 @@ typedef enum
 {
 	AUDIO_MODE_IN_MIC = 0,			// Source of the audio is I2S PDM microphone
 	AUDIO_MODE_IN_USB = 1,			// Source of the audio is USB
-	AUDIO_MODE_IN_I2S = 2,			// Source of the audio is I2S #2 (External)
+	AUDIO_MODE_IN_I2SX = 2,			// Source of the audio is I2S #2 (External)
 } AUDIO_ModeInTypeDef;
 
 typedef enum
@@ -58,7 +58,6 @@ typedef struct
 		AUDIO_ModeInTypeDef  audioinMode;		// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
 		AUDIO_ModeOutTypeDef  audiooutMode;		// Global Audio OUT mode  - To USB, I2S Codec, or External I2S
 		int bStartPlay;						  		// Sync the start of playing with the next block of PDM data
-
 
 		osMessageQId dataInPDMMsg;			// Message queue to indicate that PDM data is ready
 		osMessageQId dataReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready

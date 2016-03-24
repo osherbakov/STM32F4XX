@@ -25,6 +25,9 @@ float						I2S_Period;
 static int32_t	I2S_OutReady;
 static int32_t	I2S_InReady;
 
+extern uint32_t	InBlockCounter;						// How many CPU clocks passed on input samples
+extern uint32_t	OutBlockCounter;					// How many CPU clocks passed on output samples
+
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -37,7 +40,6 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 	I2S_InPeriod = (CYCCNT - I2S_InPrev);
 	I2S_InPrev = CYCCNT;
 	I2S_Period = I2S_Period * 0.99f + I2S_InPeriod * 0.01f;
-
 	osMessagePut(osParams.dataInPDMMsg, DONE_FIRST, 0);
 }
 
@@ -69,6 +71,7 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 		I2S_OutPrev = CYCCNT;
 		I2S_Period = I2S_Period * 0.99f + I2S_OutPeriod * 0.01f;		
 
+		OutBlockCounter++;
 		if(I2S_OutReady) {
 			if(nBytes < NUM_PCM_BYTES){
 				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
@@ -98,6 +101,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 
 		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
 
+		OutBlockCounter++;
 		if(I2S_OutReady) {
 			if(nBytes < NUM_PCM_BYTES){
 				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
@@ -142,6 +146,7 @@ void StartDataInPDMTask(void const * argument)
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
 			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
+			InBlockCounter++;
 			if(I2S_InReady) {
 				// Report converted samples to the main data processing task
 				osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);

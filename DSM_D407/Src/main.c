@@ -165,7 +165,7 @@ void StartDefaultTask(void const * argument)
 			buttonState = BSP_PB_GetState(BUTTON_KEY);
 			if(buttonState == 0)
 			{
-				if(++osParams.audioinMode > AUDIO_MODE_IN_I2S)
+				if(++osParams.audioinMode > AUDIO_MODE_IN_I2SX)
 				{
 					osParams.audioinMode = AUDIO_MODE_IN_MIC;
 
