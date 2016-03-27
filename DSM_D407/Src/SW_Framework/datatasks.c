@@ -17,17 +17,13 @@ static uint32_t	I2S_InPrev;
 static uint32_t	I2S_OutPrev;
 static uint32_t	CYCCNT;
 	
-static uint32_t	I2S_InPeriod;
-static uint32_t	I2S_OutPeriod;
-
 float						I2S_Period;
 
 static int32_t	I2S_OutReady;
 static int32_t	I2S_InReady;
 
-extern uint32_t	InBlockCounter;						// How many CPU clocks passed on input samples
-extern uint32_t	OutBlockCounter;					// How many CPU clocks passed on output samples
-
+uint32_t	I2S_Underruns;
+uint32_t	I2S_Overruns;
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -37,9 +33,8 @@ extern uint32_t	OutBlockCounter;					// How many CPU clocks passed on output sam
 void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
 	CYCCNT = DWT->CYCCNT;
-	I2S_InPeriod = (CYCCNT - I2S_InPrev);
+	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
 	I2S_InPrev = CYCCNT;
-	I2S_Period = I2S_Period * 0.99f + I2S_InPeriod * 0.01f;
 	osMessagePut(osParams.dataInPDMMsg, DONE_FIRST, 0);
 }
 
@@ -47,10 +42,8 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
 	CYCCNT = DWT->CYCCNT;
-	I2S_InPeriod = (CYCCNT - I2S_InPrev);
+	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
 	I2S_InPrev = CYCCNT;
-	I2S_Period = I2S_Period * 0.99f + I2S_InPeriod * 0.01f;
-
 	osMessagePut(osParams.dataInPDMMsg, DONE_SECOND, 0);
 }
 
@@ -62,26 +55,23 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 //  populate the first half of the PCM_Out_data
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
-	if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)
-	{
 		uint32_t	nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		
 		CYCCNT = DWT->CYCCNT;
-		I2S_OutPeriod = (CYCCNT - I2S_OutPrev);
+		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;		
 		I2S_OutPrev = CYCCNT;
-		I2S_Period = I2S_Period * 0.99f + I2S_OutPeriod * 0.01f;		
 
-		OutBlockCounter++;
 		if(I2S_OutReady) {
 			if(nBytes < NUM_PCM_BYTES){
 				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 				I2S_OutReady = 0;
+				I2S_Underruns++;
 			}else {
 				Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
 			}
-		}else if( nBytes >= osParams.PCM_Out_data->Size/2)
+		}else if( nBytes >= osParams.PCM_Out_data->Size/2) {
 			I2S_OutReady = 1;
-	}
+		}
 }
 
 
@@ -90,28 +80,25 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 //   and populate the second half of the buffer
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
-	if (osParams.audiooutMode & AUDIO_MODE_OUT_I2S)	// We are in PCM output mode
-	{
 		uint32_t	nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 
 		CYCCNT = DWT->CYCCNT;
-		I2S_OutPeriod = (CYCCNT - I2S_OutPrev);
+		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;
 		I2S_OutPrev = CYCCNT;
-		I2S_Period = I2S_Period * 0.99f + I2S_OutPeriod * 0.01f;
 
-		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, NUM_PCM_BYTES * 2);
+		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 
-		OutBlockCounter++;
 		if(I2S_OutReady) {
 			if(nBytes < NUM_PCM_BYTES){
 				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 				I2S_OutReady = 0;
+				I2S_Underruns++;
 			}else {
 				Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 			}
-		}else if( nBytes >= osParams.PCM_Out_data->Size/2)
+		}else if( nBytes >= osParams.PCM_Out_data->Size/2) {
 			I2S_OutReady = 1;
-	}
+		}
 }
 
 
@@ -130,7 +117,7 @@ void StartDataInPDMTask(void const * argument)
 	osParams.pPDM_In  = (uint8_t *)osAlloc(NUM_PDM_BYTES * 2);
 	pPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 
-	I2S_InReady = I2S_OutReady = 0;
+	I2S_InReady = I2S_OutReady = I2S_Underruns = I2S_Overruns = 0;
 	
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, (NUM_PDM_BYTES * 2));
@@ -145,13 +132,16 @@ void StartDataInPDMTask(void const * argument)
 			pInputBuffer = &osParams.pPDM_In[numBytes];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
-			Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
-			InBlockCounter++;
+			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
+				I2S_InReady = 0;
+				I2S_Overruns++;
+			}else {
+				Queue_PushData(osParams.PCM_In_data, pPCM, NUM_PCM_BYTES);
+			}
 			if(I2S_InReady) {
 				// Report converted samples to the main data processing task
 				osMessagePut(osParams.dataReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
-			}else
-			{
+			}else	{
 				if(Queue_Count_Bytes(osParams.PCM_In_data) >= osParams.PCM_In_data->Size/2)
 					I2S_InReady = 1;
 			}

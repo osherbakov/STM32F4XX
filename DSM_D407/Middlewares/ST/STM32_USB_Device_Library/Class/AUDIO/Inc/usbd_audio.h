@@ -113,7 +113,7 @@
 
 /* Number of sub-packets in the audio transfer buffer. You can modify this value but always make sure
   that it is an even number and higher than 3 */
-#define AUDIO_PACKET_NUM                          			10
+#define AUDIO_PACKET_NUM                          			2
 /* Total size of the audio transfer buffer */
 #define AUDIO_TOTAL_BUF_SIZE                          ((uint32_t)(AUDIO_PACKET_SIZE * AUDIO_PACKET_NUM))
 

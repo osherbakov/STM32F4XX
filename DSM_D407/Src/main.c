@@ -64,8 +64,6 @@ int main(void)
 
 	osParams.bStartPlay = 1;
 	osParams.audioinMode =  AUDIO_MODE_IN_MIC;
-	osParams.audiooutMode =  AUDIO_MODE_OUT_I2S;
-
 
 	/* Call init function for freertos objects (in freertos.c) */
 	MX_FREERTOS_Init();
@@ -74,18 +72,18 @@ int main(void)
 	/* Technically, we can do that at the beginning of the task, but the safest way is to allocate them now, before any task is run */
 
 	// Queues to pass data to/from USB
-	osParams.USB_Out_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 5, DATA_TYPE_Q15 | DATA_NUM_CH_2);
-	osParams.USB_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 5, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.USB_Out_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.USB_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to get the data from PDM microphone or I2S PCM data source
-	osParams.PCM_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 5, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.PCM_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to pass data to the output DAC
-	osParams.PCM_Out_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 5, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.PCM_Out_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queues for Upsample and Downsample
-	osParams.DownSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 5, DATA_TYPE_F32 | DATA_NUM_CH_1);
-	osParams.UpSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 5, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.DownSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.UpSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_F32 | DATA_NUM_CH_1);
 
 	/* Start scheduler */
 	osKernelStart();
@@ -134,7 +132,7 @@ void SystemClock_Config(void)
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
 	//--------------------------------------------------------------------
-	// To enable USB and I2S clock synch we have to enable Cycles Counter
+	// To enable USB and I2S clock sync we have to enable Cycles Counter
 	//--------------------------------------------------------------------
 	// Enable TRC
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -165,19 +163,8 @@ void StartDefaultTask(void const * argument)
 			buttonState = BSP_PB_GetState(BUTTON_KEY);
 			if(buttonState == 0)
 			{
-				if(++osParams.audioinMode > AUDIO_MODE_IN_I2SX)
-				{
+				if(++osParams.audioinMode > AUDIO_MODE_IN_I2SX)				{
 					osParams.audioinMode = AUDIO_MODE_IN_MIC;
-
-					// Add next mode for output
-					if((osParams.audiooutMode & AUDIO_MODE_OUT_I2S) == 0)
-						osParams.audiooutMode |= AUDIO_MODE_OUT_I2S;
-					else if((osParams.audiooutMode & AUDIO_MODE_OUT_USB) == 0)
-						osParams.audiooutMode |= AUDIO_MODE_OUT_USB;
-					else if((osParams.audiooutMode & AUDIO_MODE_OUT_I2SX) == 0)
-						osParams.audiooutMode |= AUDIO_MODE_OUT_I2SX;
-					else
-						osParams.audiooutMode  = AUDIO_MODE_OUT_NONE;
 				}
 				// If new mode is selected - restart audio output to be in sync with PDM or USB data
 				osParams.bStartPlay = 1;

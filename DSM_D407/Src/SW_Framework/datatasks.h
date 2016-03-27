@@ -26,14 +26,6 @@ typedef enum
 } AUDIO_ModeInTypeDef;
 
 typedef enum
-{
-	AUDIO_MODE_OUT_NONE	= 0x00,	// No destination 
-	AUDIO_MODE_OUT_I2S	= 0x01,	// Destination is I2S bus #1(Codec)
-	AUDIO_MODE_OUT_USB	= 0x02,	// Destination is USB 
-	AUDIO_MODE_OUT_I2SX	= 0x04,	// Destination is I2S bus #2(External)
-} AUDIO_ModeOutTypeDef;
-
-typedef enum
 { 
 	ACTIVE_FIRST = 1,
 	ACTIVE_SECOND = 0,
@@ -56,7 +48,6 @@ void StartDataProcessTask(void const * argument);
 typedef struct 
 {
 		AUDIO_ModeInTypeDef  audioinMode;		// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
-		AUDIO_ModeOutTypeDef  audiooutMode;		// Global Audio OUT mode  - To USB, I2S Codec, or External I2S
 		int bStartPlay;						  		// Sync the start of playing with the next block of PDM data
 
 		osMessageQId dataInPDMMsg;			// Message queue to indicate that PDM data is ready
