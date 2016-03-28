@@ -234,6 +234,26 @@
           <WinNumber>1</WinNumber>
           <ItemText>PROC_Underruns</ItemText>
         </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>I2S_OutCnt</ItemText>
+        </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>I2S_InCnt</ItemText>
+        </Ww>
+        <Ww>
+          <count>10</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>USB_InCnt</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>USB_OutCnt</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -245,6 +265,11 @@
           <count>1</count>
           <WinNumber>2</WinNumber>
           <ItemText>speech_out</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>USB_OutReadyCnt</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

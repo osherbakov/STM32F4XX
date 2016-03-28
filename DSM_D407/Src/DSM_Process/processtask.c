@@ -44,12 +44,13 @@ void StartDataProcessTask(void const * argument)
 	DQueue_t 	*pDataQ;
 
 	uint8_t 	*pAudio;
-	float		*pAudioIn;
-	float		*pAudioOut;
-	void		*pProcModuleState;
-	void		*pDecState;
-	void		*pIntState;
+	float			*pAudioIn;
+	float			*pAudioOut;
+	void			*pProcModuleState;
+	void			*pDecState;
+	void			*pIntState;
 
+	int32_t		DoProcessing;
 	uint32_t	Type;
 	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated;
 
@@ -79,6 +80,7 @@ void StartDataProcessTask(void const * argument)
 			pDataQ = (DQueue_t *) event.value.p;
 
 			do {
+				DoProcessing = 0;
 				// First, downsample, if neccessary, the received signal
 				nSamplesInQueue = Queue_Count_Elems(pDataQ);
 				nSamplesModuleNeeds = pDecModule->TypeSize(pDecState, &Type);
@@ -96,11 +98,8 @@ void StartDataProcessTask(void const * argument)
 						PROC_Overruns++;
 					}else {
 						Queue_PushData(osParams.DownSample_data, pAudio, nSamplesModuleGenerated * osParams.DownSample_data->Data.ElemSize);
+						DoProcessing = 1;
 					}
-					nSamplesInQueue = Queue_Count_Elems(pDataQ);
-					nSamplesModuleNeeds = pDecModule->TypeSize(pDecState, &Type);
-				}else {
-					PROC_Underruns++;
 				}
 
 				// Second, do the data processing
@@ -121,12 +120,8 @@ void StartDataProcessTask(void const * argument)
 						PROC_Overruns++;
 					}else {
 						Queue_PushData(osParams.UpSample_data, pAudio, nSamplesModuleGenerated * osParams.UpSample_data->Data.ElemSize);
+						DoProcessing = 1;
 					}
-
-					nSamplesInQueue = Queue_Count_Elems(osParams.DownSample_data);
-					nSamplesModuleNeeds = pProcModule->TypeSize(pProcModuleState, &Type);
-				}else {
-					PROC_Underruns++;
 				}
 
 				// Third, upsample and distribute to the output channels
@@ -147,18 +142,16 @@ void StartDataProcessTask(void const * argument)
 						PROC_Overruns++;
 					}else {
 						Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
+						DoProcessing = 1;
 					}
 					if(Queue_Space_Bytes(osParams.USB_In_data) < nSamplesModuleGenerated * osParams.USB_In_data->Data.ElemSize)  {
-						PROC_Overruns++;
+//						PROC_Overruns++;
 					} else {
 						Queue_PushData(osParams.USB_In_data, pAudio, nSamplesModuleGenerated * osParams.USB_In_data->Data.ElemSize);
+						DoProcessing = 1;
 					}
-					nSamplesInQueue = Queue_Count_Elems(osParams.UpSample_data);
-					nSamplesModuleNeeds = pIntModule->TypeSize(pIntState, &Type);
-				}else {
-					PROC_Underruns++;
 				}
-			}while(0);
+			}while(DoProcessing);
 
 			// Check if we have to start playing audio thru external codec
 			if(osParams.bStartPlay)
