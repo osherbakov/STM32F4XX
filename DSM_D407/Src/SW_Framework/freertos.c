@@ -56,6 +56,6 @@ void MX_FREERTOS_Init() {
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
 	osParams.dataInPDMMsg = osMessageCreate(osMessageQ(PDMINDATA), 0);
-	osParams.dataReadyMsg = osMessageCreate(osMessageQ(DATAREADY), 0);
+	osParams.dataInReadyMsg = osMessageCreate(osMessageQ(DATAREADY), 0);
   /* USER CODE END RTOS_QUEUES */
 }

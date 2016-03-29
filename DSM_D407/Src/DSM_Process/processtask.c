@@ -74,7 +74,7 @@ void StartDataProcessTask(void const * argument)
 	PROC_Underruns = PROC_Overruns = 0;
 	while(1)
 	{
-		event = osMessageGet(osParams.dataReadyMsg, osWaitForever);
+		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
 			pDataQ = (DQueue_t *) event.value.p;

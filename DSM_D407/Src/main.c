@@ -63,7 +63,7 @@ int main(void)
 	BSP_RF24_Init(&hspi1);
 
 	osParams.bStartPlay = 1;
-	osParams.audioinMode =  AUDIO_MODE_IN_MIC;
+	osParams.audioInMode =  AUDIO_MODE_IN_MIC;
 
 	/* Call init function for freertos objects (in freertos.c) */
 	MX_FREERTOS_Init();
@@ -163,8 +163,8 @@ void StartDefaultTask(void const * argument)
 			buttonState = BSP_PB_GetState(BUTTON_KEY);
 			if(buttonState == 0)
 			{
-				if(++osParams.audioinMode > AUDIO_MODE_IN_I2SX)				{
-					osParams.audioinMode = AUDIO_MODE_IN_MIC;
+				if(++osParams.audioInMode > AUDIO_MODE_IN_I2SX)				{
+					osParams.audioInMode = AUDIO_MODE_IN_MIC;
 				}
 				// If new mode is selected - restart audio output to be in sync with PDM or USB data
 				osParams.bStartPlay = 1;

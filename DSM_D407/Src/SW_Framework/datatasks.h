@@ -33,7 +33,6 @@ typedef enum
 	DONE_SECOND = ACTIVE_FIRST,
 } ACTIVE_BUFFER;
 
-
 #define AUDIO_MONO_Q15_SIZE	sizeof(int16_t)
 #define AUDIO_STEREO_Q15_SIZE	(2 * sizeof(int16_t))
 
@@ -47,13 +46,13 @@ void StartDataProcessTask(void const * argument);
 
 typedef struct 
 {
-		AUDIO_ModeInTypeDef  audioinMode;		// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
-		int bStartPlay;						  		// Sync the start of playing with the next block of PDM data
+		AUDIO_ModeInTypeDef  audioInMode;	// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
+		int bStartPlay;						  			// Sync the start of playing with the next block of PDM data
 
-		osMessageQId dataInPDMMsg;			// Message queue to indicate that PDM data is ready
-		osMessageQId dataReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready
+		osMessageQId dataInPDMMsg;				// Message queue to indicate that PDM data is ready
+		osMessageQId dataInReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready
 	
-		uint8_t		*pPDM_In;						// Pointer to DMA Buffer for PDM In
+		uint8_t		*pPDM_In;							// Pointer to DMA Buffer for PDM In
 		uint8_t		*pPCM_Out;						// Pointer to DMA Buffer for PCM Out
 	
 		DQueue_t	*PCM_In_data;					// Data Queue for PCM In (Periph -> CPU) (Converted PDM)  data
