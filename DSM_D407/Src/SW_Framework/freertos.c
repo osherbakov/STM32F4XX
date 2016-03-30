@@ -23,7 +23,6 @@ void MX_FREERTOS_Init() {
 	osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
 	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
 
-	osMessageQDef(PDMINDATA, 32, uint32_t);
 	osMessageQDef(DATAREADY, 32, uint32_t);
 
   /* USER CODE END Init */
@@ -55,7 +54,6 @@ void MX_FREERTOS_Init() {
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
-	osParams.dataInPDMMsg = osMessageCreate(osMessageQ(PDMINDATA), 0);
 	osParams.dataInReadyMsg = osMessageCreate(osMessageQ(DATAREADY), 0);
   /* USER CODE END RTOS_QUEUES */
 }

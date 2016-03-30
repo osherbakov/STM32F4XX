@@ -49,7 +49,6 @@ typedef struct
 		AUDIO_ModeInTypeDef  audioInMode;	// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
 		int bStartPlay;						  			// Sync the start of playing with the next block of PDM data
 
-		osMessageQId dataInPDMMsg;				// Message queue to indicate that PDM data is ready
 		osMessageQId dataInReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready
 	
 		uint8_t		*pPDM_In;							// Pointer to DMA Buffer for PDM In

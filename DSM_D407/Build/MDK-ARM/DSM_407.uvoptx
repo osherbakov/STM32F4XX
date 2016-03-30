@@ -237,12 +237,17 @@
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>USB_InCnt</ItemText>
+          <ItemText>nBytesIn</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>USB_OutCnt</ItemText>
+          <ItemText>nBytesOut</ItemText>
+        </Ww>
+        <Ww>
+          <count>10</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>nBytes</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -286,7 +291,7 @@
         <periodic>1</periodic>
         <aLwin>1</aLwin>
         <aCover>0</aCover>
-        <aSer1>0</aSer1>
+        <aSer1>1</aSer1>
         <aSer2>0</aSer2>
         <aPa>0</aPa>
         <viewmode>1</viewmode>
@@ -313,6 +318,18 @@
       <Lin2Executable></Lin2Executable>
       <Lin2ConfigFile></Lin2ConfigFile>
       <bLin2Auto>0</bLin2Auto>
+      <LogicAnalyzers>
+        <Wi>
+          <IntNumber>0</IntNumber>
+          <FirstString>\\DSM_407\../../Src/DSM_Process/processtask.c\nBytesIn</FirstString>
+          <SecondString>FF0000000000000000006840000000000000A340000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F44534D5F50726F636573732F70726F636573737461736B2E635C6E4279746573496E00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004900000001000000000000000000E03F1C00000000000000000000000000000000000000FE770108</SecondString>
+        </Wi>
+        <Wi>
+          <IntNumber>1</IntNumber>
+          <FirstString>\\DSM_407\../../Src/DSM_Process/processtask.c\nBytesOut</FirstString>
+          <SecondString>0080000000000000000000000000000000008A40000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F44534D5F50726F636573732F70726F636573737461736B2E635C6E42797465734F7574000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004900000002000000000000000000E03F1C00000000000000000000000000000000000000FE770108</SecondString>
+        </Wi>
+      </LogicAnalyzers>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>
@@ -1296,7 +1313,7 @@
 
   <Group>
     <GroupName>Application/Lib</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1328,7 +1345,7 @@
 
   <Group>
     <GroupName>Application/HWConfig</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

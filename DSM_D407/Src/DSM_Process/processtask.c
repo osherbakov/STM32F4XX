@@ -37,6 +37,8 @@ DataProcessBlock_t  *pIntModule = 	&BYPASS;
 
 uint32_t	PROC_Underruns;
 uint32_t	PROC_Overruns;
+uint32_t 	nBytesIn, nBytesOut, nBytes;
+
 
 void StartDataProcessTask(void const * argument)
 {
@@ -79,6 +81,19 @@ void StartDataProcessTask(void const * argument)
 		{
 			pDataQ = (DQueue_t *) event.value.p;
 
+			nBytesIn = Queue_Count_Bytes(pDataQ);
+			nBytesOut = Queue_Space_Bytes(osParams.PCM_Out_data);
+			nBytes = MIN(nBytesIn, nBytesOut);
+
+			if(nBytesOut <  nBytesIn) {
+					PROC_Overruns++;
+			}
+			if(nBytes) {
+				Queue_PopData(pDataQ, pAudio, nBytes);
+				Queue_PushData(osParams.PCM_Out_data, pAudio, nBytes);
+			}
+			
+#if 0
 			do {
 				DoProcessing = 0;
 				// First, downsample, if neccessary, the received signal
@@ -145,14 +160,14 @@ void StartDataProcessTask(void const * argument)
 						DoProcessing = 1;
 					}
 					if(Queue_Space_Bytes(osParams.USB_In_data) < nSamplesModuleGenerated * osParams.USB_In_data->Data.ElemSize)  {
-//						PROC_Overruns++;
+						PROC_Overruns++;
 					} else {
 						Queue_PushData(osParams.USB_In_data, pAudio, nSamplesModuleGenerated * osParams.USB_In_data->Data.ElemSize);
 						DoProcessing = 1;
 					}
 				}
-			}while(DoProcessing);
-
+			}while(0);
+#endif
 			// Check if we have to start playing audio thru external codec
 			if(osParams.bStartPlay)
 			{
