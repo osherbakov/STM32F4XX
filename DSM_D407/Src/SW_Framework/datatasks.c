@@ -41,6 +41,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 			pInputBuffer = &osParams.pPDM_In[0];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
+		
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
 				I2S_Overruns++;
 			}else {
@@ -62,6 +63,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
+
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
 				I2S_Overruns++;
 			}else {

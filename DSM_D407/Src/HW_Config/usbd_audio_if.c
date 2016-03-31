@@ -42,9 +42,8 @@ static uint32_t	USB_Prev;
 static uint32_t	CYCCNT;
 	
 float						USB_Period;
-
-uint32_t	USB_Underruns;
-uint32_t	USB_Overruns;
+uint32_t				USB_Underruns;
+uint32_t				USB_Overruns;
 
 
 USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS = 

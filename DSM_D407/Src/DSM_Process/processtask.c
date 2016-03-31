@@ -37,7 +37,11 @@ DataProcessBlock_t  *pIntModule = 	&BYPASS;
 
 uint32_t	PROC_Underruns;
 uint32_t	PROC_Overruns;
-uint32_t 	nBytesIn, nBytesOut, nBytes;
+
+uint32_t 	nBytesIn = 0;
+uint32_t 	nBytesOut = 0;
+uint32_t 	nBytesMin = 0;
+uint32_t 	nBytesAll = 0;
 
 
 void StartDataProcessTask(void const * argument)
@@ -56,6 +60,7 @@ void StartDataProcessTask(void const * argument)
 	uint32_t	Type;
 	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated;
 
+	
 	// Allocate static data buffers
 	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
@@ -74,6 +79,7 @@ void StartDataProcessTask(void const * argument)
 	pIntModule->Init(pIntState);
 
 	PROC_Underruns = PROC_Overruns = 0;
+	
 	while(1)
 	{
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
@@ -83,16 +89,18 @@ void StartDataProcessTask(void const * argument)
 
 			nBytesIn = Queue_Count_Bytes(pDataQ);
 			nBytesOut = Queue_Space_Bytes(osParams.PCM_Out_data);
-			nBytes = MIN(nBytesIn, nBytesOut);
-
+			nBytesMin = MIN(nBytesIn, nBytesOut);
+			nBytesAll = nBytesIn + Queue_Count_Bytes(osParams.PCM_Out_data);
+			
 			if(nBytesOut <  nBytesIn) {
 					PROC_Overruns++;
 			}
-			if(nBytes) {
-				Queue_PopData(pDataQ, pAudio, nBytes);
-				Queue_PushData(osParams.PCM_Out_data, pAudio, nBytes);
+			if(nBytesMin > 0) {
+				Queue_PopData(pDataQ, pAudio, nBytesMin);
+				Queue_PushData(osParams.PCM_Out_data, pAudio, nBytesMin);
+			}else {
+				PROC_Underruns++;
 			}
-			
 #if 0
 			do {
 				DoProcessing = 0;
