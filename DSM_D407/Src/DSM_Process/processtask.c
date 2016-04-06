@@ -30,6 +30,8 @@ extern DataProcessBlock_t  DS_48_8;
 extern DataProcessBlock_t  US_8_48_Q15;
 extern DataProcessBlock_t  DS_48_8_Q15;
 
+uint32_t	PROC_Underruns;
+uint32_t	PROC_Overruns;
 
 
 //
@@ -62,34 +64,50 @@ void ratesync_close(void *pHandle)
 
 void ratesync_init(void *pHandle)
 {
-	rs.SampleDiff = 168000/48;
-	rs.DataOutDiff = rs.DataInDiff = rs.BlockDiff = 168000;
-	rs.Diff = rs.DataInPrev = rs.DataOutPrev = 0;
+		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
+		pRS->SampleDiff = SystemCoreClock/SAMPLE_FREQ;
+		pRS->BlockDiff = SystemCoreClock/1000;
+		pRS->Diff = 0;
+		pRS->DataInPrev = pRS->DataOutPrev = 0;
 }
 
 void InBlock() {
-	if(rs.DataInPrev) {
-	}
+	uint32_t	currTick = DWT->CYCCNT;					// Get the current timestamp
+	rs.DataInDiff = currTick - rs.DataInPrev;	// What is the difference between this one and the previous one
+	rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
+	rs.Diff = MIN(rs.Diff, rs.BlockDiff);
+	rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+	rs.DataInPrev = currTick;
+}
+
+void OutBlock() {
+	uint32_t	currTick = DWT->CYCCNT;						// Get the current timestamp
+	rs.DataOutDiff = currTick - rs.DataOutPrev;	// What is the difference between this one and the previous one
+	rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
+	rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+	rs.DataOutPrev = currTick;
 }
 
 void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-	
-		if(pRS->Diff >= pRS->SampleDiff ) {				// More data samples that we need - remove one
-				memcpy(pDataOut, pDataIn, (*pInSamples - 1)* 4);
-				*pOutSamples = *pInSamples - 1;
+		int32_t		Diff = pRS->Diff;
+		uint32_t	nInSamples = *pInSamples;
+
+		memcpy(pDataOut, pDataIn, nInSamples * 4);
+		// If Diff is positive, then the time difference between IN samples in bigger than between OUT samples.
+		//  That means that IN samples are coming LESS often, i.e. we will be missing samples....
+		if (Diff >= pRS->SampleDiff) {	// We are missing samples - add extra one 
+				nInSamples++;
 				pRS->Diff -= pRS->SampleDiff;
-		}else if (pRS->Diff <= -pRS->SampleDiff) {	// We are lacking samples - add extra one
-				memcpy(pDataOut, pDataIn, *pInSamples * 4);
-				memcpy(pDataOut + *pInSamples * 4, pDataIn + (*pInSamples -1) * 4, 4);
-				*pOutSamples = *pInSamples + 1;
+				PROC_Underruns++;
+		} else if(Diff <= -pRS->SampleDiff ) {				// More data samples that we need - remove one
+				nInSamples--;
 				pRS->Diff += pRS->SampleDiff;
-		}else	{
-				memcpy(pDataOut, pDataIn, *pInSamples * 4);
-				*pOutSamples = *pInSamples;
+				PROC_Overruns++;
 		}
-		*pInSamples = 0;
+		*pOutSamples = nInSamples;
+		*pInSamples -= RATESYNC_BLOCK_SIZE;
 }
 
 uint32_t ratesync_data_typesize(void *pHandle, uint32_t *pType)
@@ -109,9 +127,6 @@ DataProcessBlock_t  *pProcModule = 	&BYPASS;
 DataProcessBlock_t  *pDecModule = 	&BYPASS;
 DataProcessBlock_t  *pIntModule = 	&BYPASS;
 DataProcessBlock_t  *pSyncModule = 	&RATESYNC;
-
-uint32_t	PROC_Underruns;
-uint32_t	PROC_Overruns;
 
 
 void StartDataProcessTask(void const * argument)

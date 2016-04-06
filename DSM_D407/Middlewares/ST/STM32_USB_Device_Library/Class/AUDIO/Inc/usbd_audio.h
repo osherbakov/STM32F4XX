@@ -120,10 +120,10 @@
 /* Audio Commands enumeration */
 typedef enum
 {
-  AUDIO_DATA_OUT,
-  AUDIO_DATA_IN,
-	AUDIO_1MS_SYNC
-}AUDIO_CMD_TypeDef;
+  USB_AUDIO_OUT,
+  USB_AUDIO_IN,
+	USB_1MS_SYNC
+}USB_AUDIO_CMD_TypeDef;
 
 /**
   * @}

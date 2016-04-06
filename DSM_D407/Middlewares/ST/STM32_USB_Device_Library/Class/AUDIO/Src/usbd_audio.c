@@ -787,7 +787,7 @@ static uint8_t  USBD_AUDIO_EP0_TxReady (USBD_HandleTypeDef *pdev)
 static uint8_t  USBD_AUDIO_SOF (USBD_HandleTypeDef *pdev)
 {
 	// Call user code informing 1 ms heartbeat packet from the host was received
-	((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(0,0, AUDIO_1MS_SYNC);
+	((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(0,0, USB_1MS_SYNC);
   return USBD_OK;
 }
 
@@ -845,7 +845,7 @@ static uint8_t  USBD_AUDIO_DataIn (USBD_HandleTypeDef *pdev,
 		// Call user code informing that he should fill up the next buffer
 		((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(&haudio->in_buffer[haudio->in_idx],
 																									 AUDIO_PACKET_SIZE,
-																									 AUDIO_DATA_IN);
+																									 USB_AUDIO_IN);
 	}
   return USBD_OK;
 }
@@ -882,7 +882,7 @@ static uint8_t  USBD_AUDIO_DataOut (USBD_HandleTypeDef *pdev,
 		// Call user code informing that he should consume the next buffer
 		((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(&haudio->out_buffer[rdy_idx],
 																									 AUDIO_PACKET_SIZE,
-																									 AUDIO_DATA_OUT);
+																									 USB_AUDIO_OUT);
   }
   return USBD_OK;
 }

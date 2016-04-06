@@ -17,7 +17,7 @@ static uint32_t	I2S_InPrev;
 static uint32_t	I2S_OutPrev;
 static uint32_t	CYCCNT;
 	
-float						I2S_Period;
+float			I2S_Period;
 
 uint32_t	I2S_Underruns;
 uint32_t	I2S_Overruns;
@@ -29,6 +29,10 @@ uint8_t		*pInputBuffer;
 uint32_t	I2S_IN;
 uint32_t	I2S_OUT;
 
+
+extern void InBlock(void);
+extern void OutBlock(void);
+
 //
 // Input data Interrupts / Interrupt Service Routines
 //
@@ -36,7 +40,7 @@ uint32_t	I2S_OUT;
 //   First half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
-	I2S_IN = 1;
+I2S_IN = 1;
 	CYCCNT = DWT->CYCCNT;
 	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
 	I2S_InPrev = CYCCNT;
@@ -46,6 +50,8 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
 		
+InBlock();
+		
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
 				I2S_Overruns++;
 			}else {
@@ -54,13 +60,13 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 			}
 	}
-	I2S_IN = 0;
+I2S_IN = 0;
 }
 
 //   Second half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
-	I2S_IN = 1;
+I2S_IN = 1;
 	CYCCNT = DWT->CYCCNT;
 	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
 	I2S_InPrev = CYCCNT;
@@ -69,7 +75,9 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
-
+		
+InBlock();
+		
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
 				I2S_Overruns++;
 			}else {
@@ -78,7 +86,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 			}
 	}
-	I2S_IN = 0;
+I2S_IN = 0;
 }
 
 //
@@ -95,6 +103,8 @@ I2S_OUT = 1;
 		CYCCNT = DWT->CYCCNT;
 		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;		
 		I2S_OutPrev = CYCCNT;
+
+OutBlock();
 
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
@@ -118,8 +128,8 @@ I2S_OUT = 1;
 		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;
 		I2S_OutPrev = CYCCNT;
 
-//		BSP_AUDIO_OUT_ChangeBuffer((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-
+OutBlock();
+	
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
 				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
