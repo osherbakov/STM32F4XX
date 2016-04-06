@@ -45,6 +45,9 @@ float						USB_Period;
 uint32_t				USB_Underruns;
 uint32_t				USB_Overruns;
 
+uint32_t				USB_IN;
+uint32_t				USB_OUT;
+
 
 USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS = 
 {
@@ -67,7 +70,7 @@ USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS =
 static int8_t AUDIO_Init(uint32_t  AudioFreq)
 {
 	USB_Period = SystemCoreClock/1000.0f;
-	USB_Underruns = USB_Overruns = 0;
+	USB_IN = USB_OUT = USB_Underruns = USB_Overruns = 0;
   return (USBD_OK);
 }
 
@@ -102,13 +105,16 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
 		break;
 		
 		case AUDIO_DATA_IN:		// Callback called by USBD stack to get INPUT data INTO the Host
+				USB_IN = 1;
 				if(Queue_Count_Bytes(osParams.USB_In_data) < nbytes) {
 					USB_Underruns++;
 				}
 				Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
+				USB_IN = 0;
 			break;
 
 		case AUDIO_DATA_OUT:	// Callback called by USBD stack when it receives OUTPUT data from the Host
+			USB_OUT = 1;
 			if(osParams.audioInMode == AUDIO_MODE_IN_USB)
 			{
 				// Place data into the queue and report to the main data processing task that data had arrived
@@ -120,6 +126,7 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
 					osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
 				}
 			}
+			USB_OUT = 0;
 			break;
   }
   return (USBD_OK);

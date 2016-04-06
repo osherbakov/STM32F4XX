@@ -62,7 +62,6 @@ int main(void)
 	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
 	BSP_RF24_Init(&hspi1);
 
-	osParams.bStartPlay = 1;
 	osParams.audioInMode =  AUDIO_MODE_IN_MIC;
 
 	/* Call init function for freertos objects (in freertos.c) */
@@ -150,6 +149,8 @@ void StartDefaultTask(void const * argument)
 
 	buttonState = BSP_PB_GetState(BUTTON_KEY);
 
+	osParams.bStartPlay = 1;
+
 	/* Infinite loop */
   for(;;)
   {
@@ -163,14 +164,17 @@ void StartDefaultTask(void const * argument)
 			buttonState = BSP_PB_GetState(BUTTON_KEY);
 			if(buttonState == 0)
 			{
-				if(++osParams.audioInMode > AUDIO_MODE_IN_I2SX)				{
+				osParams.audioInMode++;
+				if(osParams.audioInMode > AUDIO_MODE_IN_I2SX)	{
 					osParams.audioInMode = AUDIO_MODE_IN_MIC;
 				}
 				// If new mode is selected - restart audio output to be in sync with PDM or USB data
-				osParams.bStartPlay = 1;
+				BSP_AUDIO_OUT_Stop(CODEC_PDWN_SW);
 				Queue_Clear(osParams.PCM_Out_data);
 				Queue_Clear(osParams.USB_Out_data);
 				Queue_Clear(osParams.USB_In_data);
+				osParams.bStartPlay = 1;
+				
 				BSP_LED_Off(LED3);
 				BSP_LED_Off(LED4);
 				BSP_LED_Off(LED5);
@@ -180,21 +184,4 @@ void StartDefaultTask(void const * argument)
   }
 }
 
-
-/**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
-void assert_failed(uint8_t* file, uint32_t line)
-{
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-//   printf("Wrong parameters value: file %s on line %d\r\n", file, line);
-  /* USER CODE END 6 */
-
-}
 

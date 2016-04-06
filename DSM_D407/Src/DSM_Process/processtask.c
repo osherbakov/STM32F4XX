@@ -11,6 +11,8 @@
 #include "stm32f4_discovery_audio.h"
 
 
+
+
 extern DataProcessBlock_t  MELP;
 extern DataProcessBlock_t  MELPE;
 extern DataProcessBlock_t  CVSD;
@@ -19,6 +21,7 @@ extern DataProcessBlock_t  ALAW;
 extern DataProcessBlock_t  ULAW;
 
 extern DataProcessBlock_t  BYPASS;
+extern DataProcessBlock_t  RATESYNC;
 
 extern DataProcessBlock_t  US_16_48;
 extern DataProcessBlock_t  DS_48_16;
@@ -27,6 +30,77 @@ extern DataProcessBlock_t  DS_48_8;
 extern DataProcessBlock_t  US_8_48_Q15;
 extern DataProcessBlock_t  DS_48_8_Q15;
 
+
+
+//
+//  RATE_SYNC functionality module
+//
+#define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (4))
+#define  RATESYNC_BLOCK_SIZE  	(SAMPLE_FREQ_KHZ)
+
+typedef struct RateSyncData {
+		uint32_t 	DataInPrev;
+		uint32_t 	DataOutPrev;
+		uint32_t 	DataInDiff;
+		uint32_t 	DataOutDiff;
+		int32_t		Diff;
+		int32_t		SampleDiff;
+		int32_t		BlockDiff;
+}RateSyncData_t;
+
+RateSyncData_t	rs;
+
+void *ratesync_create(uint32_t Params)
+{
+	return &rs;
+}
+
+void ratesync_close(void *pHandle)
+{
+	return;
+}
+
+void ratesync_init(void *pHandle)
+{
+	rs.SampleDiff = 168000/48;
+	rs.DataOutDiff = rs.DataInDiff = rs.BlockDiff = 168000;
+	rs.Diff = rs.DataInPrev = rs.DataOutPrev = 0;
+}
+
+void InBlock() {
+	if(rs.DataInPrev) {
+	}
+}
+
+void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+{
+		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
+	
+		if(pRS->Diff >= pRS->SampleDiff ) {				// More data samples that we need - remove one
+				memcpy(pDataOut, pDataIn, (*pInSamples - 1)* 4);
+				*pOutSamples = *pInSamples - 1;
+				pRS->Diff -= pRS->SampleDiff;
+		}else if (pRS->Diff <= -pRS->SampleDiff) {	// We are lacking samples - add extra one
+				memcpy(pDataOut, pDataIn, *pInSamples * 4);
+				memcpy(pDataOut + *pInSamples * 4, pDataIn + (*pInSamples -1) * 4, 4);
+				*pOutSamples = *pInSamples + 1;
+				pRS->Diff += pRS->SampleDiff;
+		}else	{
+				memcpy(pDataOut, pDataIn, *pInSamples * 4);
+				*pOutSamples = *pInSamples;
+		}
+		*pInSamples = 0;
+}
+
+uint32_t ratesync_data_typesize(void *pHandle, uint32_t *pType)
+{
+	 *pType = RATESYNC_DATA_TYPE;
+	 return RATESYNC_BLOCK_SIZE;
+}
+
+DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_init, ratesync_data_typesize, ratesync_process, ratesync_close};
+
+
 //
 //  Task to handle all incoming data
 //
@@ -34,14 +108,10 @@ extern DataProcessBlock_t  DS_48_8_Q15;
 DataProcessBlock_t  *pProcModule = 	&BYPASS;
 DataProcessBlock_t  *pDecModule = 	&BYPASS;
 DataProcessBlock_t  *pIntModule = 	&BYPASS;
+DataProcessBlock_t  *pSyncModule = 	&RATESYNC;
 
 uint32_t	PROC_Underruns;
 uint32_t	PROC_Overruns;
-
-uint32_t 	nBytesIn = 0;
-uint32_t 	nBytesOut = 0;
-uint32_t 	nBytesMin = 0;
-uint32_t 	nBytesAll = 0;
 
 
 void StartDataProcessTask(void const * argument)
@@ -55,10 +125,12 @@ void StartDataProcessTask(void const * argument)
 	void			*pProcModuleState;
 	void			*pDecState;
 	void			*pIntState;
+	void			*pSyncState;
 
 	int32_t		DoProcessing;
 	uint32_t	Type;
 	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated;
+	uint32_t	nBytes, nBytesIn, nBytesOut;
 
 	
 	// Allocate static data buffers
@@ -72,35 +144,48 @@ void StartDataProcessTask(void const * argument)
 	pProcModuleState = pProcModule->Create(0);
 	pDecState = pDecModule->Create(0);
 	pIntState = pIntModule->Create(0);
+	pSyncState = pSyncModule->Create(0);
 
 	// Initialize processing modules
 	pProcModule->Init(pProcModuleState);
 	pDecModule->Init(pDecState);
 	pIntModule->Init(pIntState);
+	pSyncModule->Init(pSyncState);
 
 	PROC_Underruns = PROC_Overruns = 0;
-	
+
 	while(1)
 	{
+		// Check if we have to start playing audio thru external codec
+		if(osParams.bStartPlay)
+		{
+			BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+			osParams.bStartPlay = 0;
+		}
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
 			pDataQ = (DQueue_t *) event.value.p;
 
-			nBytesIn = Queue_Count_Bytes(pDataQ);
-			nBytesOut = Queue_Space_Bytes(osParams.PCM_Out_data);
-			nBytesMin = MIN(nBytesIn, nBytesOut);
-			nBytesAll = nBytesIn + Queue_Count_Bytes(osParams.PCM_Out_data);
-			
-			if(nBytesOut <  nBytesIn) {
-					PROC_Overruns++;
-			}
-			if(nBytesMin > 0) {
-				Queue_PopData(pDataQ, pAudio, nBytesMin);
-				Queue_PushData(osParams.PCM_Out_data, pAudio, nBytesMin);
+			nBytes = Queue_Count_Bytes(pDataQ);
+			nBytesIn = pSyncModule->TypeSize(pSyncState, &Type);
+			if(nBytes >= nBytesIn) {
+				while(nBytes >= nBytesIn) {
+					Queue_PopData(pDataQ, pAudio, nBytesIn);
+					pSyncModule->Process(pSyncState, pAudio, pAudio, &nBytesIn, &nBytesOut);
+				
+					if( Queue_Space_Bytes(osParams.PCM_Out_data) >= nBytesOut) {
+						Queue_PushData(osParams.PCM_Out_data, pAudio, nBytesOut);
+					} else {
+						PROC_Overruns++;
+					}
+					nBytes = Queue_Count_Bytes(pDataQ);
+					nBytesIn = pSyncModule->TypeSize(pSyncState, &Type);
+				}
 			}else {
-				PROC_Underruns++;
+					PROC_Underruns++;
 			}
+
 #if 0
 			do {
 				DoProcessing = 0;
@@ -176,12 +261,6 @@ void StartDataProcessTask(void const * argument)
 				}
 			}while(0);
 #endif
-			// Check if we have to start playing audio thru external codec
-			if(osParams.bStartPlay)
-			{
-				BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-				osParams.bStartPlay = 0;
-			}
 		}
 	}
 }
