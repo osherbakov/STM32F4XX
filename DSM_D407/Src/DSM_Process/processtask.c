@@ -37,7 +37,8 @@ uint32_t	PROC_Overruns;
 //
 //  RATE_SYNC functionality module
 //
-#define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (4))
+#define	 RATESYNC_ELEM_SIZE			(4)
+#define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (RATESYNC_ELEM_SIZE))
 #define  RATESYNC_BLOCK_SIZE  	(SAMPLE_FREQ_KHZ)
 
 typedef struct RateSyncData {
@@ -65,8 +66,8 @@ void ratesync_close(void *pHandle)
 void ratesync_init(void *pHandle)
 {
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-		pRS->SampleDiff = SystemCoreClock/SAMPLE_FREQ;
-		pRS->BlockDiff = SystemCoreClock/1000;
+		pRS->SampleDiff = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 sample
+		pRS->BlockDiff = SystemCoreClock/1000;						// How many clock ticks in 1 ms (48 samples)
 		pRS->Diff = 0;
 		pRS->DataInPrev = pRS->DataOutPrev = 0;
 }
@@ -83,8 +84,9 @@ void InBlock() {
 void OutBlock() {
 	uint32_t	currTick = DWT->CYCCNT;						// Get the current timestamp
 	rs.DataOutDiff = currTick - rs.DataOutPrev;	// What is the difference between this one and the previous one
-	rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
-	rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+//	rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
+//	rs.Diff = MIN(rs.Diff, rs.BlockDiff);
+//	rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
 	rs.DataOutPrev = currTick;
 }
 
@@ -94,18 +96,21 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 		int32_t		Diff = pRS->Diff;
 		uint32_t	nInSamples = *pInSamples;
 
-		memcpy(pDataOut, pDataIn, nInSamples * 4);
+		memcpy(pDataOut, pDataIn, nInSamples * RATESYNC_ELEM_SIZE);
 		// If Diff is positive, then the time difference between IN samples in bigger than between OUT samples.
 		//  That means that IN samples are coming LESS often, i.e. we will be missing samples....
-		if (Diff >= pRS->SampleDiff) {	// We are missing samples - add extra one 
+		if (Diff > pRS->SampleDiff) {	// We are missing samples - add extra one 
+				memcpy(pDataOut + nInSamples * RATESYNC_ELEM_SIZE, pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE, RATESYNC_ELEM_SIZE);
 				nInSamples++;
-				pRS->Diff -= pRS->SampleDiff;
+				Diff -= pRS->SampleDiff;
 				PROC_Underruns++;
-		} else if(Diff <= -pRS->SampleDiff ) {				// More data samples that we need - remove one
+		} else if(Diff < -pRS->SampleDiff ) {				// More data samples that we need - remove one
 				nInSamples--;
-				pRS->Diff += pRS->SampleDiff;
+				Diff += pRS->SampleDiff;
 				PROC_Overruns++;
 		}
+		pRS->Diff = Diff;
+
 		*pOutSamples = nInSamples;
 		*pInSamples -= RATESYNC_BLOCK_SIZE;
 }
@@ -182,25 +187,15 @@ void StartDataProcessTask(void const * argument)
 		{
 			pDataQ = (DQueue_t *) event.value.p;
 
-			nBytes = Queue_Count_Bytes(pDataQ);
-			nBytesIn = pSyncModule->TypeSize(pSyncState, &Type);
-			if(nBytes >= nBytesIn) {
-				while(nBytes >= nBytesIn) {
-					Queue_PopData(pDataQ, pAudio, nBytesIn);
-					pSyncModule->Process(pSyncState, pAudio, pAudio, &nBytesIn, &nBytesOut);
-				
-					if( Queue_Space_Bytes(osParams.PCM_Out_data) >= nBytesOut) {
-						Queue_PushData(osParams.PCM_Out_data, pAudio, nBytesOut);
-					} else {
-						PROC_Overruns++;
-					}
-					nBytes = Queue_Count_Bytes(pDataQ);
-					nBytesIn = pSyncModule->TypeSize(pSyncState, &Type);
-				}
-			}else {
-					PROC_Underruns++;
+			nSamplesInQueue = Queue_Count_Elems(pDataQ);
+			nSamplesModuleNeeds = pSyncModule->TypeSize(pSyncState, &Type);
+			while(nSamplesInQueue >= nSamplesModuleNeeds) {
+				Queue_PopData(pDataQ, pAudio, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
+				pSyncModule->Process(pSyncState, pAudio, pAudio, &nSamplesInQueue, &nSamplesModuleGenerated);
+				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
+				nBytes = Queue_Count_Bytes(pDataQ);
+				nBytesIn = pSyncModule->TypeSize(pSyncState, &Type);
 			}
-
 #if 0
 			do {
 				DoProcessing = 0;

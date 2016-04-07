@@ -19,16 +19,9 @@ static uint32_t	CYCCNT;
 	
 float			I2S_Period;
 
-uint32_t	I2S_Underruns;
-uint32_t	I2S_Overruns;
-
 uint8_t		*pPCM0;
 uint8_t		*pPCM1;
 uint8_t		*pInputBuffer;
-
-uint32_t	I2S_IN;
-uint32_t	I2S_OUT;
-
 
 extern void InBlock(void);
 extern void OutBlock(void);
@@ -40,7 +33,6 @@ extern void OutBlock(void);
 //   First half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
-I2S_IN = 1;
 	CYCCNT = DWT->CYCCNT;
 	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
 	I2S_InPrev = CYCCNT;
@@ -52,21 +44,15 @@ I2S_IN = 1;
 		
 InBlock();
 		
-			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
-				I2S_Overruns++;
-			}else {
-				Queue_PushData(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
-				// Report converted samples to the main data processing task
-				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
-			}
+			Queue_PushData(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
+			// Report converted samples to the main data processing task
+			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 	}
-I2S_IN = 0;
 }
 
 //   Second half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
-I2S_IN = 1;
 	CYCCNT = DWT->CYCCNT;
 	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
 	I2S_InPrev = CYCCNT;
@@ -78,15 +64,10 @@ I2S_IN = 1;
 		
 InBlock();
 		
-			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
-				I2S_Overruns++;
-			}else {
-				Queue_PushData(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
-				// Report converted samples to the main data processing task
-				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
-			}
+			Queue_PushData(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
+			// Report converted samples to the main data processing task
+			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 	}
-I2S_IN = 0;
 }
 
 //
@@ -99,7 +80,6 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		uint32_t	nBytes; 
 
-I2S_OUT = 1;
 		CYCCNT = DWT->CYCCNT;
 		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;		
 		I2S_OutPrev = CYCCNT;
@@ -109,11 +89,9 @@ OutBlock();
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
 			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
-			I2S_Underruns++;
 		}else {
 			Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
 		}
-I2S_OUT = 0;
 }
 
 
@@ -123,7 +101,6 @@ I2S_OUT = 0;
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 		uint32_t	nBytes;
-I2S_OUT = 1;
 		CYCCNT = DWT->CYCCNT;
 		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;
 		I2S_OutPrev = CYCCNT;
@@ -133,11 +110,9 @@ OutBlock();
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
 				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
-				I2S_Underruns++;
 		}else {
 			Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 		}
-I2S_OUT = 0;
 }
 
 
@@ -152,8 +127,6 @@ void StartDataInPDMTask(void const * argument)
 	pPCM0 = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 	pPCM1 = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 
-	I2S_IN = I2S_OUT = I2S_Underruns = I2S_Overruns = 0;
-	
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, 2 * NUM_PDM_BYTES);
 	BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
