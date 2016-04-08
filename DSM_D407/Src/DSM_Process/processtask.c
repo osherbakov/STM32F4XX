@@ -40,8 +40,13 @@ uint32_t	PROC_Overruns;
 #define	 RATESYNC_ELEM_SIZE			(4)
 #define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (RATESYNC_ELEM_SIZE))
 #define  RATESYNC_BLOCK_SIZE  	(SAMPLE_FREQ_KHZ)
+typedef enum RateSyncType {
+	RATESYNC_INPUT = 0,
+	RATESYNC_OUTPUT = 1
+} RateSyncType_t;
 
 typedef struct RateSyncData {
+		RateSyncType_t	Type;
 		uint32_t 	DataInPrev;
 		uint32_t 	DataOutPrev;
 		uint32_t 	DataInDiff;
@@ -70,23 +75,28 @@ void ratesync_init(void *pHandle)
 		pRS->BlockDiff = SystemCoreClock/1000;						// How many clock ticks in 1 ms (48 samples)
 		pRS->Diff = 0;
 		pRS->DataInPrev = pRS->DataOutPrev = 0;
+		pRS->Type = RATESYNC_INPUT;
 }
 
 void InBlock() {
 	uint32_t	currTick = DWT->CYCCNT;					// Get the current timestamp
 	rs.DataInDiff = currTick - rs.DataInPrev;	// What is the difference between this one and the previous one
-	rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
-	rs.Diff = MIN(rs.Diff, rs.BlockDiff);
-	rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+	if(rs.Type == RATESYNC_INPUT) {
+		rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
+		rs.Diff = MIN(rs.Diff, rs.BlockDiff);
+		rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+	}
 	rs.DataInPrev = currTick;
 }
 
 void OutBlock() {
 	uint32_t	currTick = DWT->CYCCNT;						// Get the current timestamp
 	rs.DataOutDiff = currTick - rs.DataOutPrev;	// What is the difference between this one and the previous one
-//	rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
-//	rs.Diff = MIN(rs.Diff, rs.BlockDiff);
-//	rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+	if(rs.Type == RATESYNC_OUTPUT) {
+		rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
+		rs.Diff = MIN(rs.Diff, rs.BlockDiff);
+		rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+	}
 	rs.DataOutPrev = currTick;
 }
 

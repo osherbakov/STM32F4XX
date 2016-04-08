@@ -38,11 +38,6 @@ static int8_t  AUDIO_MuteCtl      (uint8_t cmd);
 static int8_t  AUDIO_PeriodicTC   (uint8_t cmd);
 static int8_t  AUDIO_GetState     (void);
 
-static uint32_t	USB_Prev;
-static uint32_t	CYCCNT;
-	
-float						USB_Period;
-
 extern void InBlock(void);
 
 
@@ -66,7 +61,6 @@ USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS =
   */
 static int8_t AUDIO_Init(uint32_t  AudioFreq)
 {
-	USB_Period = SystemCoreClock/1000.0f;
   return (USBD_OK);
 }
 
@@ -94,9 +88,6 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
   switch(cmd)
   {
 		case USB_1MS_SYNC:
-			CYCCNT = DWT->CYCCNT;
-			USB_Period = 0.99f * USB_Period + 0.01f * (CYCCNT - USB_Prev);
-			USB_Prev = CYCCNT;
 			if(osParams.audioInMode == AUDIO_MODE_IN_USB) {
 InBlock();
 			}

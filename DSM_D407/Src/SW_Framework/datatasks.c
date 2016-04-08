@@ -13,12 +13,6 @@
 #include "spi.h"
 #include "NRF24L01func.h"
 
-static uint32_t	I2S_InPrev;
-static uint32_t	I2S_OutPrev;
-static uint32_t	CYCCNT;
-	
-float			I2S_Period;
-
 uint8_t		*pPCM0;
 uint8_t		*pPCM1;
 uint8_t		*pInputBuffer;
@@ -33,10 +27,6 @@ extern void OutBlock(void);
 //   First half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
-	CYCCNT = DWT->CYCCNT;
-	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
-	I2S_InPrev = CYCCNT;
-
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
 			pInputBuffer = &osParams.pPDM_In[0];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
@@ -53,10 +43,6 @@ InBlock();
 //   Second half of PDM input buffer was filled - ask the task to convert PDM -> PCM
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
-	CYCCNT = DWT->CYCCNT;
-	I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_InPrev) * 0.01f;
-	I2S_InPrev = CYCCNT;
-
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES];
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
@@ -80,10 +66,6 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		uint32_t	nBytes; 
 
-		CYCCNT = DWT->CYCCNT;
-		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;		
-		I2S_OutPrev = CYCCNT;
-
 OutBlock();
 
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
@@ -101,9 +83,6 @@ OutBlock();
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 		uint32_t	nBytes;
-		CYCCNT = DWT->CYCCNT;
-		I2S_Period = I2S_Period * 0.99f + (CYCCNT - I2S_OutPrev) * 0.01f;
-		I2S_OutPrev = CYCCNT;
 
 OutBlock();
 	
