@@ -84,6 +84,7 @@ int main(void)
 	osParams.DownSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
 	osParams.UpSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
 
+	
 	/* Start scheduler */
 	osKernelStart();
 

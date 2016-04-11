@@ -40,31 +40,29 @@ uint32_t	PROC_Overruns;
 #define	 RATESYNC_ELEM_SIZE			(4)
 #define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (RATESYNC_ELEM_SIZE))
 #define  RATESYNC_BLOCK_SIZE  	(SAMPLE_FREQ_KHZ)
+
 typedef enum RateSyncType {
-	RATESYNC_INPUT = 0,
-	RATESYNC_OUTPUT = 1
+	RATESYNC_INPUT = 	(1 << 0),
+	RATESYNC_OUTPUT = (1 << 1),
+	RATESYNC_INOUT = RATESYNC_INPUT | RATESYNC_OUTPUT
 } RateSyncType_t;
 
 typedef struct RateSyncData {
-		RateSyncType_t	Type;
 		uint32_t 	DataInPrev;
 		uint32_t 	DataOutPrev;
-		uint32_t 	DataInDiff;
-		uint32_t 	DataOutDiff;
 		int32_t		Diff;
 		int32_t		SampleDiff;
-		int32_t		BlockDiff;
+		int32_t		AddRemove;
 }RateSyncData_t;
-
-RateSyncData_t	rs;
 
 void *ratesync_create(uint32_t Params)
 {
-	return &rs;
+	return osAlloc(sizeof(RateSyncData_t));
 }
 
 void ratesync_close(void *pHandle)
 {
+	osFree(pHandle);
 	return;
 }
 
@@ -72,57 +70,94 @@ void ratesync_init(void *pHandle)
 {
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 		pRS->SampleDiff = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 sample
-		pRS->BlockDiff = SystemCoreClock/1000;						// How many clock ticks in 1 ms (48 samples)
-		pRS->Diff = 0;
+		pRS->AddRemove = pRS->Diff = 0;
 		pRS->DataInPrev = pRS->DataOutPrev = 0;
-		pRS->Type = RATESYNC_INPUT;
 }
 
-void InBlock() {
-	uint32_t	currTick = DWT->CYCCNT;					// Get the current timestamp
-	rs.DataInDiff = currTick - rs.DataInPrev;	// What is the difference between this one and the previous one
-	if(rs.Type == RATESYNC_INPUT) {
-		rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
-		rs.Diff = MIN(rs.Diff, rs.BlockDiff);
-		rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+
+void InBlock(void *pHandle, uint32_t nSamples) {
+	uint32_t		currTick;
+	uint32_t 		DataDiff;
+	int32_t			BlockDiff;
+	int32_t 		ActualDiff;
+	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
+	
+	currTick = DWT->CYCCNT;								// Get the current timestamp
+	DataDiff = currTick - pRS->DataInPrev;	// What is the difference between this one and the previous one
+	BlockDiff = nSamples * pRS->SampleDiff;	// What is the 'ideal' difference should be 
+	
+	ActualDiff = (DataDiff - (int32_t)BlockDiff);	
+	__disable_irq();
+	pRS->Diff += ActualDiff;
+	if( (pRS->Diff > BlockDiff) || (pRS->Diff < -BlockDiff)) {
+		pRS->AddRemove = pRS->Diff = 0;
+	}else	if (pRS->Diff > pRS->SampleDiff) {	// We are missing samples - add extra one 
+		pRS->AddRemove++;
+		pRS->Diff -= pRS->SampleDiff;
+	}else if (pRS->Diff < -pRS->SampleDiff) {
+		pRS->AddRemove--;
+		pRS->Diff += pRS->SampleDiff;
 	}
-	rs.DataInPrev = currTick;
+	__enable_irq();
+
+	pRS->DataInPrev = currTick;
 }
 
-void OutBlock() {
-	uint32_t	currTick = DWT->CYCCNT;						// Get the current timestamp
-	rs.DataOutDiff = currTick - rs.DataOutPrev;	// What is the difference between this one and the previous one
-	if(rs.Type == RATESYNC_OUTPUT) {
-		rs.Diff += ((int32_t)rs.DataInDiff - (int32_t)rs.DataOutDiff);	// IN Block is counted as positive, OUT Block is counted as negative
-		rs.Diff = MIN(rs.Diff, rs.BlockDiff);
-		rs.Diff = MAX(rs.Diff, -rs.BlockDiff);
+void OutBlock(void *pHandle, uint32_t nSamples) {
+	uint32_t		currTick;
+	uint32_t 		DataDiff;
+	int32_t			BlockDiff;
+	int32_t 		ActualDiff;
+	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
+
+	currTick = DWT->CYCCNT;								// Get the current timestamp
+	DataDiff = currTick - pRS->DataOutPrev;	// What is the difference between this one and the previous one
+	BlockDiff = nSamples * pRS->SampleDiff;	// What is the 'ideal' difference should be 
+	
+	ActualDiff = ((int32_t)DataDiff - BlockDiff);	
+	__disable_irq();
+	pRS->Diff += ActualDiff;
+	if( (pRS->Diff > BlockDiff) || (pRS->Diff < -BlockDiff)) {
+		pRS->AddRemove = pRS->Diff = 0;
+	}else if (pRS->Diff > pRS->SampleDiff) {	// We have extra samples - remove one 
+		pRS->AddRemove--;
+		pRS->Diff -= pRS->SampleDiff;
+	}else if (pRS->Diff < -pRS->SampleDiff) {
+		pRS->AddRemove++;
+		pRS->Diff += pRS->SampleDiff;
 	}
-	rs.DataOutPrev = currTick;
+	__enable_irq();
+
+	pRS->DataOutPrev = currTick;
 }
 
 void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
+		int32_t		AddRemove;
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-		int32_t		Diff = pRS->Diff;
 		uint32_t	nInSamples = *pInSamples;
+		uint32_t	nOutSamples = nInSamples;
 
 		memcpy(pDataOut, pDataIn, nInSamples * RATESYNC_ELEM_SIZE);
 		// If Diff is positive, then the time difference between IN samples in bigger than between OUT samples.
 		//  That means that IN samples are coming LESS often, i.e. we will be missing samples....
-		if (Diff > pRS->SampleDiff) {	// We are missing samples - add extra one 
+		__disable_irq();
+		AddRemove = pRS->AddRemove;
+		if (AddRemove > 0) {	// We are missing samples - add extra one 
 				memcpy(pDataOut + nInSamples * RATESYNC_ELEM_SIZE, pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE, RATESYNC_ELEM_SIZE);
-				nInSamples++;
-				Diff -= pRS->SampleDiff;
+				nOutSamples++;
+				AddRemove--;
 				PROC_Underruns++;
-		} else if(Diff < -pRS->SampleDiff ) {				// More data samples that we need - remove one
-				nInSamples--;
-				Diff += pRS->SampleDiff;
+		} else if(AddRemove < 0 ) {				// More data samples that we need - remove one
+				nOutSamples--;
+				AddRemove++;
 				PROC_Overruns++;
 		}
-		pRS->Diff = Diff;
+		__enable_irq();
 
-		*pOutSamples = nInSamples;
-		*pInSamples -= RATESYNC_BLOCK_SIZE;
+		pRS->AddRemove = AddRemove;
+		*pOutSamples = nOutSamples;
+		*pInSamples -= nInSamples;
 }
 
 uint32_t ratesync_data_typesize(void *pHandle, uint32_t *pType)
@@ -155,11 +190,10 @@ void StartDataProcessTask(void const * argument)
 	void			*pProcModuleState;
 	void			*pDecState;
 	void			*pIntState;
-	void			*pSyncState;
 
 	int32_t		DoProcessing;
 	uint32_t	Type;
-	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated;
+	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated, nSamplesModuleGenerated1;
 	uint32_t	nBytes, nBytesIn, nBytesOut;
 
 	
@@ -168,19 +202,23 @@ void StartDataProcessTask(void const * argument)
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
+
+	osParams.pRSIn = pSyncModule->Create(0);
+	osParams.pRSOut = pSyncModule->Create(0);
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
+		
 
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
 	pDecState = pDecModule->Create(0);
 	pIntState = pIntModule->Create(0);
-	pSyncState = pSyncModule->Create(0);
 
 	// Initialize processing modules
 	pProcModule->Init(pProcModuleState);
 	pDecModule->Init(pDecState);
 	pIntModule->Init(pIntState);
-	pSyncModule->Init(pSyncState);
+	pSyncModule->Init(osParams.pRSIn);
+	pSyncModule->Init(osParams.pRSOut);
 
 	PROC_Underruns = PROC_Overruns = 0;
 
@@ -198,13 +236,14 @@ void StartDataProcessTask(void const * argument)
 			pDataQ = (DQueue_t *) event.value.p;
 
 			nSamplesInQueue = Queue_Count_Elems(pDataQ);
-			nSamplesModuleNeeds = pSyncModule->TypeSize(pSyncState, &Type);
+			nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
 			while(nSamplesInQueue >= nSamplesModuleNeeds) {
 				Queue_PopData(pDataQ, pAudio, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
-				pSyncModule->Process(pSyncState, pAudio, pAudio, &nSamplesInQueue, &nSamplesModuleGenerated);
-				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
+				pSyncModule->Process(osParams.pRSIn, pAudio, pAudio, &nSamplesInQueue, &nSamplesModuleGenerated);
+				pSyncModule->Process(osParams.pRSOut, pAudio, pAudio, &nSamplesModuleGenerated, &nSamplesModuleGenerated1);
+				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated1 * osParams.PCM_Out_data->Data.ElemSize);
 				nBytes = Queue_Count_Bytes(pDataQ);
-				nBytesIn = pSyncModule->TypeSize(pSyncState, &Type);
+				nBytesIn = pSyncModule->TypeSize(osParams.pRSIn, &Type);
 			}
 #if 0
 			do {

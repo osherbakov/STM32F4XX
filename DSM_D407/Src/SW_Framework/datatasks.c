@@ -17,8 +17,8 @@ uint8_t		*pPCM0;
 uint8_t		*pPCM1;
 uint8_t		*pInputBuffer;
 
-extern void InBlock(void);
-extern void OutBlock(void);
+extern void InBlock(void *pHandle, uint32_t nSamples);
+extern void OutBlock(void *pHandle, uint32_t nSamples);
 
 //
 // Input data Interrupts / Interrupt Service Routines
@@ -32,7 +32,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
 		
-InBlock();
+InBlock(osParams.pRSIn, NUM_PCM_SAMPLES);
 		
 			Queue_PushData(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
@@ -48,7 +48,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
 		
-InBlock();
+InBlock(osParams.pRSIn, NUM_PCM_SAMPLES);
 		
 			Queue_PushData(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
@@ -66,7 +66,7 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		uint32_t	nBytes; 
 
-OutBlock();
+OutBlock(osParams.pRSOut, NUM_PCM_SAMPLES);
 
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
@@ -84,7 +84,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 		uint32_t	nBytes;
 
-OutBlock();
+OutBlock(osParams.pRSOut, NUM_PCM_SAMPLES);
 	
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
