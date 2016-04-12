@@ -11,7 +11,7 @@
 #include "stm32f4_discovery_audio.h"
 
 
-
+#define ABS(a)			(((a) >  0) ? (a) : -(a))
 
 extern DataProcessBlock_t  MELP;
 extern DataProcessBlock_t  MELPE;
@@ -21,7 +21,6 @@ extern DataProcessBlock_t  ALAW;
 extern DataProcessBlock_t  ULAW;
 
 extern DataProcessBlock_t  BYPASS;
-extern DataProcessBlock_t  RATESYNC;
 
 extern DataProcessBlock_t  US_16_48;
 extern DataProcessBlock_t  DS_48_16;
@@ -30,9 +29,9 @@ extern DataProcessBlock_t  DS_48_8;
 extern DataProcessBlock_t  US_8_48_Q15;
 extern DataProcessBlock_t  DS_48_8_Q15;
 
-uint32_t	PROC_Underruns;
-uint32_t	PROC_Overruns;
-
+uint32_t	PROC_In;
+uint32_t	PROC_Out;
+int32_t	PROC_Diff;
 
 //
 //  RATE_SYNC functionality module
@@ -89,7 +88,7 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 	ActualDiff = (DataDiff - (int32_t)BlockDiff);	
 	__disable_irq();
 	pRS->Diff += ActualDiff;
-	if( (pRS->Diff > BlockDiff) || (pRS->Diff < -BlockDiff)) {
+	if( ABS(pRS->Diff) > BlockDiff) {
 		pRS->AddRemove = pRS->Diff = 0;
 	}else	if (pRS->Diff > pRS->SampleDiff) {	// We are missing samples - add extra one 
 		pRS->AddRemove++;
@@ -98,8 +97,10 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 		pRS->AddRemove--;
 		pRS->Diff += pRS->SampleDiff;
 	}
+	PROC_In += nSamples;
+	PROC_Diff = PROC_Out - PROC_In;
 	__enable_irq();
-
+	
 	pRS->DataInPrev = currTick;
 }
 
@@ -116,8 +117,9 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 	
 	ActualDiff = ((int32_t)DataDiff - BlockDiff);	
 	__disable_irq();
+	// Make sure that the difference value is reasonable
 	pRS->Diff += ActualDiff;
-	if( (pRS->Diff > BlockDiff) || (pRS->Diff < -BlockDiff)) {
+	if( ABS(pRS->Diff) > BlockDiff) {
 		pRS->AddRemove = pRS->Diff = 0;
 	}else if (pRS->Diff > pRS->SampleDiff) {	// We have extra samples - remove one 
 		pRS->AddRemove--;
@@ -126,6 +128,8 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 		pRS->AddRemove++;
 		pRS->Diff += pRS->SampleDiff;
 	}
+	PROC_Out += nSamples;
+	PROC_Diff = PROC_Out - PROC_In;
 	__enable_irq();
 
 	pRS->DataOutPrev = currTick;
@@ -143,15 +147,14 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 		//  That means that IN samples are coming LESS often, i.e. we will be missing samples....
 		__disable_irq();
 		AddRemove = pRS->AddRemove;
+		AddRemove = 0;
 		if (AddRemove > 0) {	// We are missing samples - add extra one 
-				memcpy(pDataOut + nInSamples * RATESYNC_ELEM_SIZE, pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE, RATESYNC_ELEM_SIZE);
-				nOutSamples++;
+//				memcpy(pDataOut + nInSamples * RATESYNC_ELEM_SIZE, pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE, RATESYNC_ELEM_SIZE);
+//				nOutSamples++;
 				AddRemove--;
-				PROC_Underruns++;
 		} else if(AddRemove < 0 ) {				// More data samples that we need - remove one
-				nOutSamples--;
+//				nOutSamples--;
 				AddRemove++;
-				PROC_Overruns++;
 		}
 		__enable_irq();
 
@@ -168,6 +171,7 @@ uint32_t ratesync_data_typesize(void *pHandle, uint32_t *pType)
 
 DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_init, ratesync_data_typesize, ratesync_process, ratesync_close};
 
+RateSyncData_t	RS_In, RS_Out;
 
 //
 //  Task to handle all incoming data
@@ -203,8 +207,8 @@ void StartDataProcessTask(void const * argument)
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
 
-	osParams.pRSIn = pSyncModule->Create(0);
-	osParams.pRSOut = pSyncModule->Create(0);
+	osParams.pRSIn = &RS_In;
+	osParams.pRSOut = &RS_Out;
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
 		
 
@@ -220,8 +224,8 @@ void StartDataProcessTask(void const * argument)
 	pSyncModule->Init(osParams.pRSIn);
 	pSyncModule->Init(osParams.pRSOut);
 
-	PROC_Underruns = PROC_Overruns = 0;
-
+	PROC_In = PROC_Out = PROC_Diff = 0;
+	
 	while(1)
 	{
 		// Check if we have to start playing audio thru external codec

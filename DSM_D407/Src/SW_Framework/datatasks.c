@@ -108,8 +108,7 @@ void StartDataInPDMTask(void const * argument)
 
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, 2 * NUM_PDM_BYTES);
-	BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-		
+	
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
     osDelay(1000);
