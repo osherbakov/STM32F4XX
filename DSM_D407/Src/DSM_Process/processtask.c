@@ -79,6 +79,7 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 	uint32_t 		DataDiff;
 	int32_t			BlockDiff;
 	int32_t 		ActualDiff;
+	int32_t			IRQ_state;
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 	
 	currTick = DWT->CYCCNT;								// Get the current timestamp
@@ -86,6 +87,7 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 	BlockDiff = nSamples * pRS->SampleDiff;	// What is the 'ideal' difference should be 
 	
 	ActualDiff = (DataDiff - (int32_t)BlockDiff);	
+	IRQ_state = __get_PRIMASK();
 	__disable_irq();
 	pRS->Diff += ActualDiff;
 	if( ABS(pRS->Diff) > BlockDiff) {
@@ -99,7 +101,7 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 	}
 	PROC_In += nSamples;
 	PROC_Diff = PROC_Out - PROC_In;
-	__enable_irq();
+	__set_PRIMASK(IRQ_state);
 	
 	pRS->DataInPrev = currTick;
 }
@@ -109,6 +111,7 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 	uint32_t 		DataDiff;
 	int32_t			BlockDiff;
 	int32_t 		ActualDiff;
+	int32_t			IRQ_state;
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	currTick = DWT->CYCCNT;								// Get the current timestamp
@@ -116,6 +119,7 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 	BlockDiff = nSamples * pRS->SampleDiff;	// What is the 'ideal' difference should be 
 	
 	ActualDiff = ((int32_t)DataDiff - BlockDiff);	
+	IRQ_state = __get_PRIMASK();
 	__disable_irq();
 	// Make sure that the difference value is reasonable
 	pRS->Diff += ActualDiff;
@@ -130,7 +134,7 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 	}
 	PROC_Out += nSamples;
 	PROC_Diff = PROC_Out - PROC_In;
-	__enable_irq();
+	__set_PRIMASK(IRQ_state);
 
 	pRS->DataOutPrev = currTick;
 }
@@ -138,6 +142,7 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
 		int32_t		AddRemove;
+		int32_t			IRQ_state;
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 		uint32_t	nInSamples = *pInSamples;
 		uint32_t	nOutSamples = nInSamples;
@@ -145,6 +150,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 		memcpy(pDataOut, pDataIn, nInSamples * RATESYNC_ELEM_SIZE);
 		// If Diff is positive, then the time difference between IN samples in bigger than between OUT samples.
 		//  That means that IN samples are coming LESS often, i.e. we will be missing samples....
+		IRQ_state = __get_PRIMASK();
 		__disable_irq();
 		AddRemove = pRS->AddRemove;
 		AddRemove = 0;
@@ -156,7 +162,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 //				nOutSamples--;
 				AddRemove++;
 		}
-		__enable_irq();
+	__set_PRIMASK(IRQ_state);
 
 		pRS->AddRemove = AddRemove;
 		*pOutSamples = nOutSamples;
