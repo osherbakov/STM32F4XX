@@ -94,13 +94,13 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 		pRS->AddRemove = pRS->Diff = 0;
 	}else	if (pRS->Diff > pRS->SampleDiff) {	// We are missing samples - add extra one 
 		pRS->AddRemove++;
-		pRS->Diff -= pRS->SampleDiff;
+		pRS->Diff = 0;
 	}else if (pRS->Diff < -pRS->SampleDiff) {
 		pRS->AddRemove--;
-		pRS->Diff += pRS->SampleDiff;
+		pRS->Diff = 0;
 	}
 	PROC_In += nSamples;
-	PROC_Diff = PROC_Out - PROC_In;
+	PROC_Diff = PROC_In - PROC_Out;
 	__set_PRIMASK(IRQ_state);
 	
 	pRS->DataInPrev = currTick;
@@ -127,13 +127,13 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 		pRS->AddRemove = pRS->Diff = 0;
 	}else if (pRS->Diff > pRS->SampleDiff) {	// We have extra samples - remove one 
 		pRS->AddRemove--;
-		pRS->Diff -= pRS->SampleDiff;
+		pRS->Diff = 0;
 	}else if (pRS->Diff < -pRS->SampleDiff) {
 		pRS->AddRemove++;
-		pRS->Diff += pRS->SampleDiff;
+		pRS->Diff = 0;
 	}
 	PROC_Out += nSamples;
-	PROC_Diff = PROC_Out - PROC_In;
+	PROC_Diff = PROC_In - PROC_Out;
 	__set_PRIMASK(IRQ_state);
 
 	pRS->DataOutPrev = currTick;
@@ -153,18 +153,19 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 		IRQ_state = __get_PRIMASK();
 		__disable_irq();
 		AddRemove = pRS->AddRemove;
-		AddRemove = 0;
+//		AddRemove = 0;
 		if (AddRemove > 0) {	// We are missing samples - add extra one 
-//				memcpy(pDataOut + nInSamples * RATESYNC_ELEM_SIZE, pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE, RATESYNC_ELEM_SIZE);
-//				nOutSamples++;
+				memcpy((void *)((int32_t)pDataOut + nInSamples * RATESYNC_ELEM_SIZE), 
+						(void *)((int32_t)pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE), RATESYNC_ELEM_SIZE);
+				nOutSamples++;
 				AddRemove--;
 		} else if(AddRemove < 0 ) {				// More data samples that we need - remove one
-//				nOutSamples--;
+				nOutSamples--;
 				AddRemove++;
 		}
+		pRS->AddRemove = AddRemove;
 	__set_PRIMASK(IRQ_state);
 
-		pRS->AddRemove = AddRemove;
 		*pOutSamples = nOutSamples;
 		*pInSamples -= nInSamples;
 }
@@ -208,7 +209,7 @@ void StartDataProcessTask(void const * argument)
 
 	
 	// Allocate static data buffers
-	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
+	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES + RATESYNC_ELEM_SIZE);
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
@@ -252,8 +253,8 @@ void StartDataProcessTask(void const * argument)
 				pSyncModule->Process(osParams.pRSIn, pAudio, pAudio, &nSamplesInQueue, &nSamplesModuleGenerated);
 				pSyncModule->Process(osParams.pRSOut, pAudio, pAudio, &nSamplesModuleGenerated, &nSamplesModuleGenerated1);
 				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated1 * osParams.PCM_Out_data->Data.ElemSize);
-				nBytes = Queue_Count_Bytes(pDataQ);
-				nBytesIn = pSyncModule->TypeSize(osParams.pRSIn, &Type);
+				nSamplesInQueue = Queue_Count_Elems(pDataQ);
+				nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
 			}
 #if 0
 			do {
