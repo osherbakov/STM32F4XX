@@ -29,11 +29,9 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
 			pInputBuffer = &osParams.pPDM_In[0];
+InBlock(osParams.pRSIn, NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
-		
-InBlock(osParams.pRSIn, NUM_PCM_SAMPLES);
-		
 			Queue_PushData(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
@@ -45,11 +43,9 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES];
+InBlock(osParams.pRSIn, NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
-		
-InBlock(osParams.pRSIn, NUM_PCM_SAMPLES);
-		
 			Queue_PushData(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);

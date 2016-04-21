@@ -123,7 +123,7 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* hi2s)
     hdma_spi2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_spi2_rx.Init.Mode = DMA_CIRCULAR;
     hdma_spi2_rx.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_spi2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    hdma_spi2_rx.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
     HAL_DMA_Init(&hdma_spi2_rx);
 
     __HAL_LINKDMA(hi2s,hdmarx,hdma_spi2_rx);

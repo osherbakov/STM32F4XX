@@ -439,6 +439,7 @@ void BSP_AUDIO_OUT_SetFrequency(uint32_t AudioFreq)
     if(I2SFreq[index] == AudioFreq)
     {
       freqindex = index;
+			break;
     }
   }
 

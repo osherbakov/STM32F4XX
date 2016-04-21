@@ -29,9 +29,9 @@ extern DataProcessBlock_t  DS_48_8;
 extern DataProcessBlock_t  US_8_48_Q15;
 extern DataProcessBlock_t  DS_48_8_Q15;
 
-uint32_t	PROC_In;
-uint32_t	PROC_Out;
-int32_t	PROC_Diff;
+
+int32_t	DATA_In, DATA_Out, DATA_InOut;
+
 
 //
 //  RATE_SYNC functionality module
@@ -92,15 +92,15 @@ void InBlock(void *pHandle, uint32_t nSamples) {
 	pRS->Diff += ActualDiff;
 	if( ABS(pRS->Diff) > BlockDiff) {
 		pRS->AddRemove = pRS->Diff = 0;
-	}else	if (pRS->Diff > pRS->SampleDiff) {	// We are missing samples - add extra one 
+	}else	if (pRS->Diff >= pRS->SampleDiff) {	// We are missing samples - add extra one 
 		pRS->AddRemove++;
-		pRS->Diff = 0;
-	}else if (pRS->Diff < -pRS->SampleDiff) {
+		pRS->Diff -= pRS->SampleDiff;
+	}else if (pRS->Diff <= -pRS->SampleDiff) {
 		pRS->AddRemove--;
-		pRS->Diff = 0;
+		pRS->Diff += pRS->SampleDiff;
 	}
-	PROC_In += nSamples;
-	PROC_Diff = PROC_In - PROC_Out;
+	DATA_In += nSamples;
+	DATA_InOut = DATA_In - DATA_Out;
 	__set_PRIMASK(IRQ_state);
 	
 	pRS->DataInPrev = currTick;
@@ -125,15 +125,15 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 	pRS->Diff += ActualDiff;
 	if( ABS(pRS->Diff) > BlockDiff) {
 		pRS->AddRemove = pRS->Diff = 0;
-	}else if (pRS->Diff > pRS->SampleDiff) {	// We have extra samples - remove one 
+	}else if (pRS->Diff >= pRS->SampleDiff) {	// We have extra samples - remove one 
 		pRS->AddRemove--;
-		pRS->Diff = 0;
-	}else if (pRS->Diff < -pRS->SampleDiff) {
+		pRS->Diff -= pRS->SampleDiff;
+	}else if (pRS->Diff <= -pRS->SampleDiff) {
 		pRS->AddRemove++;
-		pRS->Diff = 0;
+		pRS->Diff += pRS->SampleDiff;
 	}
-	PROC_Out += nSamples;
-	PROC_Diff = PROC_In - PROC_Out;
+	DATA_Out += nSamples;
+	DATA_InOut = DATA_In - DATA_Out;
 	__set_PRIMASK(IRQ_state);
 
 	pRS->DataOutPrev = currTick;
@@ -153,13 +153,37 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 		IRQ_state = __get_PRIMASK();
 		__disable_irq();
 		AddRemove = pRS->AddRemove;
-//		AddRemove = 0;
 		if (AddRemove > 0) {	// We are missing samples - add extra one 
-				memcpy((void *)((int32_t)pDataOut + nInSamples * RATESYNC_ELEM_SIZE), 
-						(void *)((int32_t)pDataOut + (nInSamples - 1) * RATESYNC_ELEM_SIZE), RATESYNC_ELEM_SIZE);
+			// Here is the logic:  for last 2 samples a b  =>  a (a+b)/2 b
+				int16_t *pa, *pb, *pc;
+				pa = (int16_t *)((int32_t)pDataOut + (nInSamples-2) * RATESYNC_ELEM_SIZE);
+				pb = (int16_t *)((int32_t)pDataOut + (nInSamples-1) * RATESYNC_ELEM_SIZE);
+				pc = (int16_t *)((int32_t)pDataOut + (nInSamples+0) * RATESYNC_ELEM_SIZE);
+				// Do the math for Left channel
+				*(pc) = *pb;
+				*(pb) = (*pa+*pb)/2;
+				// Do the math for Right channel
+				pa++; pb++;pc++;
+				*(pc) = *pb;
+				*(pb) = (*pa+*pb)/2;
+			
 				nOutSamples++;
 				AddRemove--;
 		} else if(AddRemove < 0 ) {				// More data samples that we need - remove one
+			// Here is the logic:  for last 4 samples a b c d =>  a (a+b+c+d)/4 d
+				int16_t *pa, *pb, *pc, *pd;
+				pa = (int16_t *)((int32_t)pDataOut + (nInSamples-4) * RATESYNC_ELEM_SIZE);
+				pb = (int16_t *)((int32_t)pDataOut + (nInSamples-3) * RATESYNC_ELEM_SIZE);
+				pc = (int16_t *)((int32_t)pDataOut + (nInSamples-2) * RATESYNC_ELEM_SIZE);
+				pd = (int16_t *)((int32_t)pDataOut + (nInSamples-1) * RATESYNC_ELEM_SIZE);
+				// Do the math for Left channel
+				*pb = (*pa + *pb + *pc + *pd) /4;
+				*pc = *pd;
+				// Do the math for Right channel
+				pa++; pb++; pc++; pd++;
+				*pb = (*pa + *pb + *pc + *pd) /4;
+				*pc = *pd;
+			
 				nOutSamples--;
 				AddRemove++;
 		}
@@ -218,7 +242,8 @@ void StartDataProcessTask(void const * argument)
 	osParams.pRSOut = &RS_Out;
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
 		
-
+	DATA_InOut = DATA_In = DATA_Out = 0;
+	
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
 	pDecState = pDecModule->Create(0);
@@ -231,12 +256,11 @@ void StartDataProcessTask(void const * argument)
 	pSyncModule->Init(osParams.pRSIn);
 	pSyncModule->Init(osParams.pRSOut);
 
-	PROC_In = PROC_Out = PROC_Diff = 0;
-	
 	while(1)
 	{
 		// Check if we have to start playing audio thru external codec
-		if(osParams.bStartPlay)
+		if(osParams.bStartPlay &&
+			(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2))
 		{
 			BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 			osParams.bStartPlay = 0;
