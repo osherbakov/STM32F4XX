@@ -30,7 +30,7 @@ extern DataProcessBlock_t  US_8_48_Q15;
 extern DataProcessBlock_t  DS_48_8_Q15;
 
 
-int32_t	DATA_In, DATA_Out, DATA_InOut;
+int32_t	DATA_In, DATA_Out, DATA_InOut, DATA_Total;
 
 
 //
@@ -133,7 +133,7 @@ void OutBlock(void *pHandle, uint32_t nSamples) {
 		pRS->Diff += pRS->SampleDiff;
 	}
 	DATA_Out += nSamples;
-	DATA_InOut = DATA_In - DATA_Out;
+	DATA_InOut = DATA_In - DATA_Out ;
 	__set_PRIMASK(IRQ_state);
 
 	pRS->DataOutPrev = currTick;
@@ -153,6 +153,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 		IRQ_state = __get_PRIMASK();
 		__disable_irq();
 		AddRemove = pRS->AddRemove;
+		
 		if (AddRemove > 0) {	// We are missing samples - add extra one 
 			// Here is the logic:  for last 2 samples a b  =>  a (a+b)/2 b
 				int16_t *pa, *pb, *pc;
@@ -242,7 +243,7 @@ void StartDataProcessTask(void const * argument)
 	osParams.pRSOut = &RS_Out;
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
 		
-	DATA_InOut = DATA_In = DATA_Out = 0;
+	DATA_Total = DATA_InOut = DATA_In = DATA_Out = 0;
 	
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
@@ -262,6 +263,7 @@ void StartDataProcessTask(void const * argument)
 		if(osParams.bStartPlay &&
 			(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2))
 		{
+			Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 			BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 			osParams.bStartPlay = 0;
 		}
@@ -279,6 +281,7 @@ void StartDataProcessTask(void const * argument)
 				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated1 * osParams.PCM_Out_data->Data.ElemSize);
 				nSamplesInQueue = Queue_Count_Elems(pDataQ);
 				nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
+				DATA_Total = Queue_Count_Bytes(osParams.PCM_Out_data) + Queue_Count_Bytes(pDataQ);
 			}
 #if 0
 			do {
