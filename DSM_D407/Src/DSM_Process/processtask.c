@@ -210,11 +210,9 @@ DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_init, ratesync_data_ty
 //
 typedef struct RateSyncInData {
 		uint32_t 	InClockPrev;		// Keeps the previous Timestamp
-		uint32_t 	InBlockDiff;		// The number of clocks between NumSamples block
-		int32_t		DeltaOut;			// The calculated output difference between samples (CPU-tied)
+		int32_t		DeltaIn;			// The calculated Input difference between samples (CPU-tied)
+		int32_t		DeltaOut;			// The calculated Output difference between samples (CPU-tied)
 		uint32_t	Delay;				// The delay amount (how output samples are delayed relative to inputs)
-		uint32_t	NumSamples;			// Number of samples that came with the timestamp
-		float		Coeffs[4];			// 
 		int16_t		States[3];			// States memory
 }RateSyncInData_t;
 
@@ -242,73 +240,88 @@ void InClock(void *pHandle, uint32_t nSamples) {
 	uint32_t		inDiff;
 	RateSyncInData_t	*pRS = (RateSyncInData_t	*) pHandle;
 
-	currTick = DWT->CYCCNT;									// Get the current timestamp
-	pRS->InBlockDiff =	currTick - pRS->InClockPrev;
-	pRS->NumSamples = nSamples;
-
+	currTick = DWT->CYCCNT;		// Get the current timestamp
+	pRS->DeltaIn =	(currTick - pRS->InClockPrev) / nSamples;
 	pRS->InClockPrev = currTick;
+}
+
+void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
+{
+	int32_t	n, k, diff;
+	float		result;
+	for(n = 0; n < nCoeff; n++)
+	{
+		result = 1.0f;
+		for(k=0; k < nCoeff; k++)
+		{
+			if(k != n){
+				diff = (n - k);
+				result = result * (Delay - k)/diff; 
+			}
+		}
+		pOutput[n] = result;
+	}
 }
 
 void ratesyncin_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
-		uint32_t	nInSamples = *pInSamples;
-		uint32_t	nOutSamples = nInSamples;
-		RateSyncInData_t	*pRS = (RateSyncInData_t	*) pHandle;
-		uint32_t	DelayOutIn = pRS->Delay;
-		uint32_t	DeltaOut = pRS->DeltaOut;
-		uint32_t 	TimeIn, TimeInN, TimeInPrev, DeltaIn, TimeOut, NewDelay;
-		uint32_t 	nCross;
-		uint32_t	idxIn, idxOut;
-		float		D, accum;
-	
-		DeltaIn = ((pRS->InBlockDiff + pRS->NumSamples/2)/pRS->NumSamples); // Delta for IN samples
+	RateSyncInData_t	*pRS = (RateSyncInData_t	*) pHandle;
+	uint32_t	nInSamples = *pInSamples;
+	uint32_t	Delay;				// Delay of output sample relative to input
+	uint32_t 	TimeIn, DeltaIn; 
+	uint32_t 	TimeOut, DeltaOut;	// Time delta for output samples
+	uint32_t	idxIn, idxOut;
+	float		Coeffs[4];
+	float		D, accum;
 
-		TimeInN = pRS->InBlockDiff;		// The absolute timestamp for Nth Input sample
-		TimeOut =  DelayOutIn;			// The absolute timestamp of the previous Out Sample
-		idxIn =  idxOut = 0;
-		do{
-			// Do the Delayed value calculation based on previous delay
-			{	// calculate the FIR Filter coefficients
-			 D =  DelayOutIn /(1.0f * DeltaIn);		// D is the fraction of the IN Samples time
-			 pRS->Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
-			 pRS->Coeffs[1] = D*(D-2)*(D-3)/2.0f;
-			 pRS->Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
-			 pRS->Coeffs[3] = D*(D-1)*(D-2)/6.0f;
+	DeltaIn = pRS->DeltaIn; 
+	DeltaOut = pRS->DeltaOut;	
+	Delay = pRS->Delay;
+
+	// Initial settings for time:
+	TimeIn = 0 + DeltaIn;				// First IN Sample
+	TimeOut =  0 - Delay + DeltaOut;	// First OUT Sample
+
+	idxIn =  idxOut = 0;
+	do{
+		while(TimeOut <= TimeIn )
+		{
+			Delay = TimeIn - TimeOut;
+			// Calculate the FIR Filter coefficients
+			{	
+				D =  Delay /(1.0f * DeltaIn);		// D is the fraction of the IN Samples time
+				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
+				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
+				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
+				//Coeffs[3] = D*(D-1)*(D-2)/6.0f;
+				calc_coeff(Coeffs, D, 4);
 			}
-			// Do the explicit FIR Filtering
-			accum = ((uint16_t *)pDataIn)[idxIn] * pRS->Coeffs[0];
-			accum += pRS->States[0] * pRS->Coeffs[1];
-			accum += pRS->States[1] * pRS->Coeffs[2];
-			accum += pRS->States[2] * pRS->Coeffs[3];
-			
-			TimeOut += pRS->DeltaOut;
-		}while (TimeOut <=  TimeInN);
-		
-		pRS->Delay = (TimeOut - TimeInN);
-			
-		TimeInPrev = TimeIn - DeltaIn;	// The Timestamp of the (N-1)th Input sample
-		TimeOut = pRS->DeltaOut * pRS->NumSamples - Delay;	// The timestamp of the Nth Output sample
-		if(TimeOut > TimeIn) 	{		// Our Nth Output sample is PAST the Input - skip some Input samples
-			//  Find where exactly this crossing happened
-			nCross = Delay / (DeltaOut - DeltaIn);	// That is the logic - Output samples are delayed by "Delay"
-													// Every sample we creep by (DeltaOut - DeltaIn).
-													// So after Delay/(Dout-Din) samples we will reach the crossing point
-			
-			
-		}else if(TimeOut < TimeInPrev)	{		// Our timestamp for output N Samples is BEFORE previous - add
-		}else	{								// Our output timestamp is just between Prev and Current
-			 NewDelay = TimeIn - TimeOut;
-			 D =  NewDelay /(1.0f * DeltaIn);		// D is the fraction of the IN Samples time
-			 pRS->Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
-			 pRS->Coeffs[1] = D*(D-2)*(D-3)/2.0f;
-			 pRS->Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
-			 pRS->Coeffs[3] = D*(D-1)*(D-2)/6.0f;
-			// Do FIR Filtering
+			// Calculate Output value using data in[idxIn]
+			{
+				accum = ((int16_t *)pDataIn)[idxIn] * Coeffs[0];
+				accum += pRS->States[0] * Coeffs[1];
+				accum += pRS->States[1] * Coeffs[2];
+				accum += pRS->States[2] * Coeffs[3];
+			}
+			// Save data out[idxOut]
+			((int16_t *)pDataOut)[idxOut] = (int16_t) (accum + 0.5f);
+			idxOut++;
+			TimeOut += DeltaOut;
 		}
-		
-		*pOutSamples = nOutSamples;
-		*pInSamples -= nInSamples;
+		// Shift and Save State from datain[idxIn++]
+		pRS->States[2] = pRS->States[1];
+		pRS->States[1] = pRS->States[0];
+		pRS->States[0] = ((int16_t *)pDataIn)[idxIn];
+		idxIn++;			
+		TimeIn += DeltaIn;
+	}while(idxIn < nInSamples);
+	// Save the delay value for future calculations
+	pRS->Delay = Delay;
+
+	*pOutSamples = idxOut;
+	*pInSamples -= nInSamples;
 }
+
 
 uint32_t ratesyncin_data_typesize(void *pHandle, uint32_t *pType)
 {
