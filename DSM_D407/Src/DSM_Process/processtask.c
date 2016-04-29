@@ -32,26 +32,25 @@ extern DataProcessBlock_t  DS_48_8_Q15;
 
 int32_t	DATA_In, DATA_Out, DATA_InOut, DATA_Total;
 
-
 //
 //  RATE_SYNC functionality module
 //
 #define	 RATESYNC_ELEM_SIZE			(4)
 #define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (RATESYNC_ELEM_SIZE))
-#define  RATESYNC_BLOCK_SIZE  	(SAMPLE_FREQ_KHZ)
+#define  RATESYNC_BLOCK_SIZE  		(SAMPLE_FREQ_KHZ)
 
-typedef enum RateSyncType {
-	RATESYNC_INPUT = 	(1 << 0),
-	RATESYNC_OUTPUT = (1 << 1),
-	RATESYNC_INOUT = RATESYNC_INPUT | RATESYNC_OUTPUT
-} RateSyncType_t;
 
+//
+// Input data resync module. The input sampling rate is reported by calling InClock.
+//  The output data rate is hard linked to the CPU clock and is equal to SAMPLE_FREQ
+//
 typedef struct RateSyncData {
-		uint32_t 	DataInPrev;
-		uint32_t 	DataOutPrev;
-		int32_t		Diff;
-		int32_t		SampleDiff;
-		int32_t		AddRemove;
+		uint32_t 	InClockPrev;		// Keeps the previous Timestamp for Inputs
+		uint32_t 	OutClockPrev;		// Keeps the previous Timestamp for Outputs
+		int32_t		DeltaIn;			// The calculated Input difference between samples (CPU-tied)
+		int32_t		DeltaOut;			// The calculated Output difference between samples (CPU-tied)
+		uint32_t	Delay;				// The delay amount (how Output samples are delayed relative to Inputs)
+		int16_t		States[3];			// States memory
 }RateSyncData_t;
 
 void *ratesync_create(uint32_t Params)
@@ -68,181 +67,43 @@ void ratesync_close(void *pHandle)
 void ratesync_init(void *pHandle)
 {
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-		pRS->SampleDiff = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 sample
-		pRS->AddRemove = pRS->Diff = 0;
-		pRS->DataInPrev = pRS->DataOutPrev = 0;
-}
-
-
-void InBlock(void *pHandle, uint32_t nSamples) {
-	uint32_t		currTick;
-	uint32_t 		DataDiff;
-	int32_t			BlockDiff;
-	int32_t 		ActualDiff;
-	int32_t			IRQ_state;
-	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-	
-	currTick = DWT->CYCCNT;								// Get the current timestamp
-	DataDiff = currTick - pRS->DataInPrev;	// What is the difference between this one and the previous one
-	BlockDiff = nSamples * pRS->SampleDiff;	// What is the 'ideal' difference should be 
-	
-	ActualDiff = (DataDiff - (int32_t)BlockDiff);	
-	IRQ_state = __get_PRIMASK();
-	__disable_irq();
-	pRS->Diff += ActualDiff;
-	if( ABS(pRS->Diff) > BlockDiff) {
-		pRS->AddRemove = pRS->Diff = 0;
-	}else	if (pRS->Diff >= pRS->SampleDiff) {	// We are missing samples - add extra one 
-		pRS->AddRemove++;
-		pRS->Diff -= pRS->SampleDiff;
-	}else if (pRS->Diff <= -pRS->SampleDiff) {
-		pRS->AddRemove--;
-		pRS->Diff += pRS->SampleDiff;
-	}
-	DATA_In += nSamples;
-	DATA_InOut = DATA_In - DATA_Out;
-	__set_PRIMASK(IRQ_state);
-	
-	pRS->DataInPrev = currTick;
-}
-
-void OutBlock(void *pHandle, uint32_t nSamples) {
-	uint32_t		currTick;
-	uint32_t 		DataDiff;
-	int32_t			BlockDiff;
-	int32_t 		ActualDiff;
-	int32_t			IRQ_state;
-	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-
-	currTick = DWT->CYCCNT;								// Get the current timestamp
-	DataDiff = currTick - pRS->DataOutPrev;	// What is the difference between this one and the previous one
-	BlockDiff = nSamples * pRS->SampleDiff;	// What is the 'ideal' difference should be 
-	
-	ActualDiff = ((int32_t)DataDiff - BlockDiff);	
-	IRQ_state = __get_PRIMASK();
-	__disable_irq();
-	// Make sure that the difference value is reasonable
-	pRS->Diff += ActualDiff;
-	if( ABS(pRS->Diff) > BlockDiff) {
-		pRS->AddRemove = pRS->Diff = 0;
-	}else if (pRS->Diff >= pRS->SampleDiff) {	// We have extra samples - remove one 
-		pRS->AddRemove--;
-		pRS->Diff -= pRS->SampleDiff;
-	}else if (pRS->Diff <= -pRS->SampleDiff) {
-		pRS->AddRemove++;
-		pRS->Diff += pRS->SampleDiff;
-	}
-	DATA_Out += nSamples;
-	DATA_InOut = DATA_In - DATA_Out ;
-	__set_PRIMASK(IRQ_state);
-
-	pRS->DataOutPrev = currTick;
-}
-
-void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
-{
-		int32_t		AddRemove;
-		int32_t			IRQ_state;
-		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-		uint32_t	nInSamples = *pInSamples;
-		uint32_t	nOutSamples = nInSamples;
-
-		memcpy(pDataOut, pDataIn, nInSamples * RATESYNC_ELEM_SIZE);
-		// If Diff is positive, then the time difference between IN samples in bigger than between OUT samples.
-		//  That means that IN samples are coming LESS often, i.e. we will be missing samples....
-		IRQ_state = __get_PRIMASK();
-		__disable_irq();
-		AddRemove = pRS->AddRemove;
-		
-		if (AddRemove > 0) {	// We are missing samples - add extra one 
-			// Here is the logic:  for last 2 samples a b  =>  a (a+b)/2 b
-				int16_t *pa, *pb, *pc;
-				pa = (int16_t *)((int32_t)pDataOut + (nInSamples-2) * RATESYNC_ELEM_SIZE);
-				pb = (int16_t *)((int32_t)pDataOut + (nInSamples-1) * RATESYNC_ELEM_SIZE);
-				pc = (int16_t *)((int32_t)pDataOut + (nInSamples+0) * RATESYNC_ELEM_SIZE);
-				// Do the math for Left channel
-				*(pc) = *pb;
-				*(pb) = (*pa+*pb)/2;
-				// Do the math for Right channel
-				pa++; pb++;pc++;
-				*(pc) = *pb;
-				*(pb) = (*pa+*pb)/2;
-			
-				nOutSamples++;
-				AddRemove--;
-		} else if(AddRemove < 0 ) {				// More data samples that we need - remove one
-			// Here is the logic:  for last 4 samples a b c d =>  a (a+b+c+d)/4 d
-				int16_t *pa, *pb, *pc, *pd;
-				pa = (int16_t *)((int32_t)pDataOut + (nInSamples-4) * RATESYNC_ELEM_SIZE);
-				pb = (int16_t *)((int32_t)pDataOut + (nInSamples-3) * RATESYNC_ELEM_SIZE);
-				pc = (int16_t *)((int32_t)pDataOut + (nInSamples-2) * RATESYNC_ELEM_SIZE);
-				pd = (int16_t *)((int32_t)pDataOut + (nInSamples-1) * RATESYNC_ELEM_SIZE);
-				// Do the math for Left channel
-				*pb = (*pa + *pb + *pc + *pd) /4;
-				*pc = *pd;
-				// Do the math for Right channel
-				pa++; pb++; pc++; pd++;
-				*pb = (*pa + *pb + *pc + *pd) /4;
-				*pc = *pd;
-			
-				nOutSamples--;
-				AddRemove++;
-		}
-		pRS->AddRemove = AddRemove;
-	__set_PRIMASK(IRQ_state);
-
-		*pOutSamples = nOutSamples;
-		*pInSamples -= nInSamples;
-}
-
-uint32_t ratesync_data_typesize(void *pHandle, uint32_t *pType)
-{
-	 *pType = RATESYNC_DATA_TYPE;
-	 return RATESYNC_BLOCK_SIZE;
-}
-
-DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_init, ratesync_data_typesize, ratesync_process, ratesync_close};
-
-
-//
-// Input data resync module. The input sampling rate is reported by calling InClock.
-//  The output data rate is hard linked to the CPU clock and is equal to SAMPLE_FREQ
-//
-typedef struct RateSyncInData {
-		uint32_t 	InClockPrev;		// Keeps the previous Timestamp
-		int32_t		DeltaIn;			// The calculated Input difference between samples (CPU-tied)
-		int32_t		DeltaOut;			// The calculated Output difference between samples (CPU-tied)
-		uint32_t	Delay;				// The delay amount (how output samples are delayed relative to inputs)
-		int16_t		States[3];			// States memory
-}RateSyncInData_t;
-
-void *ratesyncin_create(uint32_t Params)
-{
-	return osAlloc(sizeof(RateSyncInData_t));
-}
-
-void ratesyncin_close(void *pHandle)
-{
-	osFree(pHandle);
-	return;
-}
-
-void ratesyncin_init(void *pHandle)
-{
-		RateSyncInData_t	*pRS = (RateSyncInData_t	*) pHandle;
+		pRS->DeltaIn = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 Input sample
 		pRS->DeltaOut = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 OUTPUT sample
 		pRS->InClockPrev = 0;
+		pRS->OutClockPrev = 0;
+}
+
+void InData(void *pHandle, uint32_t nSamples) {
+	uint32_t		currTick;
+	uint32_t		inDiff;
+	uint32_t		NewDelta;
+	uint32_t		OldDelta;
+	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
+
+	currTick = DWT->CYCCNT;		// Get the current timestamp
+	OldDelta = pRS->DeltaIn;
+	NewDelta =	(currTick - pRS->InClockPrev) / nSamples;
+	if( (NewDelta < (2 * OldDelta)) && ((NewDelta * 2) > OldDelta))  {
+		pRS->DeltaIn =	NewDelta / nSamples;
+	}
+	pRS->InClockPrev = currTick;
 }
 
 
-void InClock(void *pHandle, uint32_t nSamples) {
+void OutData(void *pHandle, uint32_t nSamples) {
 	uint32_t		currTick;
 	uint32_t		inDiff;
-	RateSyncInData_t	*pRS = (RateSyncInData_t	*) pHandle;
+	uint32_t		NewDelta;
+	uint32_t		OldDelta;
+	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	currTick = DWT->CYCCNT;		// Get the current timestamp
-	pRS->DeltaIn =	(currTick - pRS->InClockPrev) / nSamples;
-	pRS->InClockPrev = currTick;
+	OldDelta = pRS->DeltaOut;
+	NewDelta =	(currTick - pRS->OutClockPrev) / nSamples;
+	if( (NewDelta < (2 * OldDelta)) && ((NewDelta * 2) > OldDelta))  {
+		pRS->DeltaOut =	NewDelta / nSamples;
+	}
+	pRS->OutClockPrev = currTick;
 }
 
 void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
@@ -263,16 +124,17 @@ void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
 	}
 }
 
-void ratesyncin_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
 {
-	RateSyncInData_t	*pRS = (RateSyncInData_t	*) pHandle;
+	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 	uint32_t	nInSamples = *pInSamples;
 	uint32_t	Delay;				// Delay of output sample relative to input
 	uint32_t 	TimeIn, DeltaIn; 
 	uint32_t 	TimeOut, DeltaOut;	// Time delta for output samples
 	uint32_t	idxIn, idxOut;
-	float		Coeffs[4];
-	float		D, accum;
+	float		C0, C1, C2, C3;
+	float		D0, D1, D2, D3, accum;
+	int16_t		NextInSample;
 
 	DeltaIn = pRS->DeltaIn; 
 	DeltaOut = pRS->DeltaOut;	
@@ -284,35 +146,44 @@ void ratesyncin_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *
 
 	idxIn =  idxOut = 0;
 	do{
+		NextInSample = ((int16_t *)pDataIn)[idxIn];
 		while(TimeOut <= TimeIn )
 		{
 			Delay = TimeIn - TimeOut;
 			// Calculate the FIR Filter coefficients
 			{	
-				D =  Delay /(1.0f * DeltaIn);		// D is the fraction of the IN Samples time
+				D0 =  Delay /(1.0f * DeltaIn);		// D is the fraction of the IN Samples time
+				D1 = (D0-1); D2 = (D0-2); D3 = (D0-3);
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
 				//Coeffs[3] = D*(D-1)*(D-2)/6.0f;
-				calc_coeff(Coeffs, D, 4);
+				//calc_coeff(Coeffs, D, 4);
+				C0 = -D1*D2*D3/6.0f;
+				C1 = D0*D2*D3/2.0f;
+				C2 = -D0*D1*D3/2.0f;
+				C3 = D0*D1*D2/6.0f;
+
 			}
 			// Calculate Output value using data in[idxIn]
 			{
-				accum = ((int16_t *)pDataIn)[idxIn] * Coeffs[0];
-				accum += pRS->States[0] * Coeffs[1];
-				accum += pRS->States[1] * Coeffs[2];
-				accum += pRS->States[2] * Coeffs[3];
+				accum = 0.5f;
+				accum += NextInSample * C0;
+				accum += pRS->States[0] * C1;
+				accum += pRS->States[1] * C2;
+				accum += pRS->States[2] * C3;
 			}
 			// Save data out[idxOut]
-			((int16_t *)pDataOut)[idxOut] = (int16_t) (accum + 0.5f);
-			idxOut++;
+			((int16_t *)pDataOut)[idxOut + 0] = (int16_t) accum;
+			((int16_t *)pDataOut)[idxOut + 1] = (int16_t) accum;
+			idxOut += 2;
 			TimeOut += DeltaOut;
 		}
 		// Shift and Save State from datain[idxIn++]
 		pRS->States[2] = pRS->States[1];
 		pRS->States[1] = pRS->States[0];
-		pRS->States[0] = ((int16_t *)pDataIn)[idxIn];
-		idxIn++;			
+		pRS->States[0] = NextInSample;
+		idxIn += 2;			
 		TimeIn += DeltaIn;
 	}while(idxIn < nInSamples);
 	// Save the delay value for future calculations
@@ -323,13 +194,13 @@ void ratesyncin_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *
 }
 
 
-uint32_t ratesyncin_data_typesize(void *pHandle, uint32_t *pType)
+uint32_t ratesync_data_typesize(void *pHandle, uint32_t *pType)
 {
 	 *pType = RATESYNC_DATA_TYPE;
 	 return RATESYNC_BLOCK_SIZE;
 }
 
-DataProcessBlock_t  RATESYNCIN = {ratesyncin_create, ratesyncin_init, ratesyncin_data_typesize, ratesyncin_process, ratesyncin_close};
+DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_init, ratesync_data_typesize, ratesync_process, ratesync_close};
 
 
 

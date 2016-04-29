@@ -38,8 +38,8 @@ static int8_t  AUDIO_MuteCtl      (uint8_t cmd);
 static int8_t  AUDIO_PeriodicTC   (uint8_t cmd);
 static int8_t  AUDIO_GetState     (void);
 
-extern void InBlock(void *pHandle, uint32_t nSamples);
-extern void OutBlock(void *pHandle, uint32_t nSamples);
+extern void InData(void *pHandle, uint32_t nSamples);
+extern void OutData(void *pHandle, uint32_t nSamples);
 
 
 USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS = 
@@ -90,7 +90,7 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
   {
 		case USB_1MS_SYNC:
 			if(osParams.audioInMode == AUDIO_MODE_IN_USB) {
-InBlock(osParams.pRSIn, USBD_AUDIO_FREQ/1000);
+InData(osParams.pRSIn, USBD_AUDIO_FREQ/1000);
 			}
 		break;
 		
