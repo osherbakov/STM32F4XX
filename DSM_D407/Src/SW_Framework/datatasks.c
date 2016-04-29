@@ -20,6 +20,7 @@ uint8_t		*pInputBuffer;
 extern void InData(void *pHandle, uint32_t nSamples);
 extern void OutData(void *pHandle, uint32_t nSamples);
 
+uint32_t	AudioInOverrun, AudioOutUnderrun;
 //
 // Input data Interrupts / Interrupt Service Routines
 //
@@ -32,6 +33,9 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 InData(osParams.pRSIn, NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
+			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
+				AudioInOverrun++;
+			}
 			Queue_PushData(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
@@ -46,6 +50,9 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 InData(osParams.pRSIn, NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
+			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
+				AudioInOverrun++;
+			}
 			Queue_PushData(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
@@ -61,11 +68,10 @@ InData(osParams.pRSIn, NUM_PCM_SAMPLES);
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		uint32_t	nBytes; 
-
 OutData(osParams.pRSOut, NUM_PCM_SAMPLES);
-
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
+			AudioOutUnderrun++;
 			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 		}else {
 			Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
@@ -79,12 +85,11 @@ OutData(osParams.pRSOut, NUM_PCM_SAMPLES);
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 		uint32_t	nBytes;
-
 OutData(osParams.pRSOut, NUM_PCM_SAMPLES);
-	
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
-				memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
+			AudioOutUnderrun++;
+			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 		}else {
 			Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 		}
@@ -103,11 +108,12 @@ void StartDataInPDMTask(void const * argument)
 	pPCM1 = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
+	AudioOutUnderrun = AudioInOverrun = 0;
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, 2 * NUM_PDM_BYTES);
 	
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
-    osDelay(1000);
+		osDelay(1000);
 	}
 }
 

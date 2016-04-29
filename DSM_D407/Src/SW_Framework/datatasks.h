@@ -46,25 +46,26 @@ void StartDataProcessTask(void const * argument);
 
 typedef struct 
 {
-		AUDIO_ModeInTypeDef  audioInMode;	// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
-		int bStartPlay;						  			// Sync the start of playing with the next block of PDM data
+		AUDIO_ModeInTypeDef  audioInMode;		// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
+		int bStartPlay;						  	// Sync the start of playing with the next block of PDM data
+		int bStartProcess;						// Start processing Data only when half buffer is filled flag
 
 		osMessageQId dataInReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready
 	
-		uint8_t		*pPDM_In;							// Pointer to DMA Buffer for PDM In
-		uint8_t		*pPCM_Out;						// Pointer to DMA Buffer for PCM Out
+		uint8_t		*pPDM_In;					// Pointer to DMA Buffer for PDM In
+		uint8_t		*pPCM_Out;					// Pointer to DMA Buffer for PCM Out
 	
-		void 		*pRSIn;							// Pointer to the rate sync IN module
-		void 		*pRSOut;						// Pointer to the rate sync OUT module
+		void 		*pRSIn;						// Pointer to the rate sync IN module
+		void 		*pRSOut;					// Pointer to the rate sync OUT module
 
-		DQueue_t	*PCM_In_data;					// Data Queue for PCM In (Periph -> CPU) (Converted PDM)  data
-		DQueue_t	*PCM_Out_data;					// Data Queue for PCM OUT (CPU -> Periph) CODEC data
+		DQueue_t	*PCM_In_data;				// Data Queue for PCM In (Periph -> CPU) (Converted PDM)  data
+		DQueue_t	*PCM_Out_data;				// Data Queue for PCM OUT (CPU -> Periph) CODEC data
 
-		DQueue_t	*DownSample_data;				// Data Queue for Downsampled  data
-		DQueue_t	*UpSample_data;					// Data Queue for Upsampled data
+		DQueue_t	*DownSample_data;			// Data Queue for Downsampled  data
+		DQueue_t	*UpSample_data;				// Data Queue for Upsampled data
 	
-		DQueue_t	*USB_Out_data;					// Data Queue for USB OUT (Host -> Device) SPEAKER data 
-		DQueue_t	*USB_In_data;					// Data Queue for USB IN (Device -> Host) MIC data 
+		DQueue_t	*USB_Out_data;				// Data Queue for USB OUT (Host -> Device) SPEAKER data 
+		DQueue_t	*USB_In_data;				// Data Queue for USB IN (Device -> Host) MIC data 
 	
 }osObjects_t;
 

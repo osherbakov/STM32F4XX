@@ -32,6 +32,10 @@ extern DataProcessBlock_t  DS_48_8_Q15;
 
 int32_t	DATA_In, DATA_Out, DATA_InOut, DATA_Total;
 
+uint32_t	ProcUnderrun, ProcOverrun;
+uint32_t	RSInAddedSamples, RSInRemovedSamples;
+uint32_t	RSOutAddedSamples, RSOutRemovedSamples;
+
 //
 //  RATE_SYNC functionality module
 //
@@ -84,8 +88,10 @@ void InData(void *pHandle, uint32_t nSamples) {
 	OldDelta = pRS->DeltaIn;
 	NewDelta =	(currTick - pRS->InClockPrev) / nSamples;
 	if( (NewDelta < (2 * OldDelta)) && ((NewDelta * 2) > OldDelta))  {
-		pRS->DeltaIn =	NewDelta / nSamples;
+//		pRS->DeltaIn =	NewDelta;
 	}
+	DATA_In += nSamples;
+	DATA_InOut = DATA_In - DATA_Out;
 	pRS->InClockPrev = currTick;
 }
 
@@ -101,8 +107,10 @@ void OutData(void *pHandle, uint32_t nSamples) {
 	OldDelta = pRS->DeltaOut;
 	NewDelta =	(currTick - pRS->OutClockPrev) / nSamples;
 	if( (NewDelta < (2 * OldDelta)) && ((NewDelta * 2) > OldDelta))  {
-		pRS->DeltaOut =	NewDelta / nSamples;
+//		pRS->DeltaOut =	NewDelta;
 	}
+	DATA_Out += nSamples;
+	DATA_InOut = DATA_In - DATA_Out;
 	pRS->OutClockPrev = currTick;
 }
 
@@ -162,7 +170,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 			Delay = TimeIn - TimeOut;
 			// Calculate the FIR Filter coefficients
 			{	
-				D0 =  Delay /(1.0f * DeltaIn);		// D0 is the fraction of the IN Samples time
+				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
 				D1 = (D0-1); D2 = (D0-2); D3 = (D0-3);
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
@@ -233,7 +241,7 @@ void StartDataProcessTask(void const * argument)
 	osEvent		event;
 	DQueue_t 	*pDataQ;
 
-	uint8_t 	*pAudio;
+	uint8_t 		*pAudio;
 	float			*pAudioIn;
 	float			*pAudioOut;
 	void			*pProcModuleState;
@@ -242,12 +250,12 @@ void StartDataProcessTask(void const * argument)
 
 	int32_t		DoProcessing;
 	uint32_t	Type;
-	uint32_t 	nSamplesInQueue, nSamplesModuleNeeds, nSamplesModuleGenerated, nSamplesModuleGenerated1;
+	uint32_t 	nSamplesIn, nSamplesModuleNeeds, nSamplesModuleGenerated;
 	uint32_t	nBytes, nBytesIn, nBytesOut;
 
 	
 	// Allocate static data buffers
-	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES + RATESYNC_ELEM_SIZE);
+	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
@@ -257,6 +265,9 @@ void StartDataProcessTask(void const * argument)
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
 		
 	DATA_Total = DATA_InOut = DATA_In = DATA_Out = 0;
+	ProcUnderrun =  ProcOverrun = 0;
+	RSInAddedSamples =  RSInRemovedSamples = 0;
+	RSOutAddedSamples = RSOutRemovedSamples = 0;
 	
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
@@ -272,29 +283,46 @@ void StartDataProcessTask(void const * argument)
 
 	while(1)
 	{
-		// Check if we have to start playing audio thru external codec
-		if(osParams.bStartPlay &&
-			(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2))
-		{
-			Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-			BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-			osParams.bStartPlay = 0;
-		}
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
 			pDataQ = (DQueue_t *) event.value.p;
-
-			nSamplesInQueue = Queue_Count_Elems(pDataQ);
-			nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
-			while(nSamplesInQueue >= nSamplesModuleNeeds) {
-				Queue_PopData(pDataQ, pAudio, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
-				pSyncModule->Process(osParams.pRSIn, pAudio, pAudio, &nSamplesInQueue, &nSamplesModuleGenerated);
-				pSyncModule->Process(osParams.pRSOut, pAudio, pAudio, &nSamplesModuleGenerated, &nSamplesModuleGenerated1);
-				Queue_PushData(osParams.PCM_Out_data, pAudio, nSamplesModuleGenerated1 * osParams.PCM_Out_data->Data.ElemSize);
-				nSamplesInQueue = Queue_Count_Elems(pDataQ);
+			if(osParams.bStartProcess)
+			{
+				if (Queue_Count_Bytes(pDataQ) >= pDataQ->Size/2)
+					osParams.bStartProcess = 0;
+			}else {
+				nSamplesIn = Queue_Count_Elems(pDataQ);
 				nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
-				DATA_Total = Queue_Count_Bytes(osParams.PCM_Out_data) + Queue_Count_Bytes(pDataQ);
+				while(nSamplesIn >= nSamplesModuleNeeds) 
+				{
+					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
+					nSamplesIn = nSamplesModuleNeeds;
+					pSyncModule->Process(osParams.pRSIn, pAudioIn, pAudioOut, &nSamplesIn, &nSamplesModuleGenerated);
+					if( nSamplesModuleGenerated > nSamplesModuleNeeds) RSInAddedSamples++;
+					if( nSamplesModuleGenerated < nSamplesModuleNeeds) RSInRemovedSamples++;
+
+					nSamplesModuleNeeds = nSamplesIn = nSamplesModuleGenerated;
+					pSyncModule->Process(osParams.pRSOut, pAudioOut, pAudioIn, &nSamplesIn, &nSamplesModuleGenerated);
+					if( nSamplesModuleGenerated > nSamplesModuleNeeds) RSOutAddedSamples++;
+					if( nSamplesModuleGenerated < nSamplesModuleNeeds) RSOutRemovedSamples++;
+					
+					if(Queue_Space_Bytes(osParams.PCM_Out_data) < nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize) {
+						ProcOverrun++;
+					}
+					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
+					nSamplesIn = Queue_Count_Elems(pDataQ);
+					nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
+					DATA_Total = Queue_Count_Bytes(osParams.PCM_Out_data) + Queue_Count_Bytes(pDataQ);
+				}
+			}
+			// Check if we have to start playing audio thru external codec
+			if(osParams.bStartPlay &&
+				(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2))
+			{
+				Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+				BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+				osParams.bStartPlay = 0;
 			}
 #if 0
 			do {

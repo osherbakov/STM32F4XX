@@ -151,7 +151,8 @@ void StartDefaultTask(void const * argument)
 	buttonState = BSP_PB_GetState(BUTTON_KEY);
 
 	osParams.bStartPlay = 1;
-
+	osParams.bStartProcess = 1;
+	
 	/* Infinite loop */
   for(;;)
   {
@@ -173,8 +174,11 @@ void StartDefaultTask(void const * argument)
 				BSP_AUDIO_OUT_Stop(CODEC_PDWN_SW);
 				Queue_Clear(osParams.PCM_Out_data);
 				Queue_Clear(osParams.USB_Out_data);
+				Queue_Clear(osParams.PCM_In_data);
 				Queue_Clear(osParams.USB_In_data);
 				osParams.bStartPlay = 1;
+				osParams.bStartProcess = 1;
+
 				
 				BSP_LED_Off(LED3);
 				BSP_LED_Off(LED4);

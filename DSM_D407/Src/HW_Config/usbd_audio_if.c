@@ -76,6 +76,9 @@ static int8_t AUDIO_DeInit()
   return (USBD_OK);
 }
 
+
+extern uint32_t	AudioInOverrun, AudioOutUnderrun;
+
 /**
   * @brief  AUDIO_AudioCmd
   *         Handles AUDIO command.
@@ -95,12 +98,18 @@ InData(osParams.pRSIn, USBD_AUDIO_FREQ/1000);
 		break;
 		
 		case USB_AUDIO_IN:		// Callback called by USBD stack to get INPUT data INTO the Host
+				if(Queue_Count_Bytes(osParams.USB_In_data) < nbytes) {
+					AudioOutUnderrun++;
+				}
 				Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
 			break;
 
 		case USB_AUDIO_OUT:	// Callback called by USBD stack when it receives OUTPUT data from the Host
 			if(osParams.audioInMode == AUDIO_MODE_IN_USB)			{
 				// Place data into the queue and report to the main data processing task that data had arrived
+				if(Queue_Space_Bytes(osParams.USB_Out_data) < nbytes) {
+					AudioInOverrun++;
+				}
 				Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
 				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
 			}
