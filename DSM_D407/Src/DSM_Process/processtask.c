@@ -33,8 +33,6 @@ extern DataProcessBlock_t  DS_48_8_Q15;
 int32_t	DATA_In, DATA_Out, DATA_InOut, DATA_Total;
 
 uint32_t	ProcUnderrun, ProcOverrun;
-uint32_t	RSInAddedSamples, RSInRemovedSamples;
-uint32_t	RSOutAddedSamples, RSOutRemovedSamples;
 
 //
 //  RATE_SYNC functionality module
@@ -49,12 +47,11 @@ uint32_t	RSOutAddedSamples, RSOutRemovedSamples;
 //  The output data rate is hard linked to the CPU clock and is equal to SAMPLE_FREQ
 //
 typedef struct RateSyncData {
-		uint32_t 	InClockPrev;		// Keeps the previous Timestamp for Inputs
-		uint32_t 	OutClockPrev;		// Keeps the previous Timestamp for Outputs
 		int32_t		DeltaIn;			// The calculated Input difference between samples (CPU-tied)
 		int32_t		DeltaOut;			// The calculated Output difference between samples (CPU-tied)
-		uint32_t	Delay;				// The delay amount (how Output samples are delayed relative to Inputs)
-		int32_t		States[3];			// States memory
+		uint32_t	Delay;				// The delay amount (how Output samples are delayed relative to Input)
+		int32_t		AddRemoveCnt;	// The counter of Added (positive) or Removed (negative) samples 
+		int32_t		States[3];		// States memory
 }RateSyncData_t;
 
 void *ratesync_create(uint32_t Params)
@@ -71,47 +68,20 @@ void ratesync_close(void *pHandle)
 void ratesync_init(void *pHandle)
 {
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-		pRS->DeltaIn = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 Input sample
-		pRS->DeltaOut = SystemCoreClock/SAMPLE_FREQ;		// How many clock ticks in 1 OUTPUT sample
-		pRS->InClockPrev = 0;
-		pRS->OutClockPrev = 0;
+		pRS->DeltaIn = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Input samples
+		pRS->DeltaOut = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Output samples
+		pRS->AddRemoveCnt = 0;
 }
 
-void InData(void *pHandle, uint32_t nSamples) {
-	uint32_t		currTick;
-	uint32_t		inDiff;
-	uint32_t		NewDelta;
-	uint32_t		OldDelta;
-	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-
-	currTick = DWT->CYCCNT;		// Get the current timestamp
-	OldDelta = pRS->DeltaIn;
-	NewDelta =	(currTick - pRS->InClockPrev) / nSamples;
-	if( (NewDelta < (2 * OldDelta)) && ((NewDelta * 2) > OldDelta))  {
-//		pRS->DeltaIn =	NewDelta;
-	}
+void InData(uint32_t nSamples) {
 	DATA_In += nSamples;
 	DATA_InOut = DATA_In - DATA_Out;
-	pRS->InClockPrev = currTick;
 }
 
 
-void OutData(void *pHandle, uint32_t nSamples) {
-	uint32_t		currTick;
-	uint32_t		inDiff;
-	uint32_t		NewDelta;
-	uint32_t		OldDelta;
-	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-
-	currTick = DWT->CYCCNT;		// Get the current timestamp
-	OldDelta = pRS->DeltaOut;
-	NewDelta =	(currTick - pRS->OutClockPrev) / nSamples;
-	if( (NewDelta < (2 * OldDelta)) && ((NewDelta * 2) > OldDelta))  {
-//		pRS->DeltaOut =	NewDelta;
-	}
+void OutData(uint32_t nSamples) {
 	DATA_Out += nSamples;
 	DATA_InOut = DATA_In - DATA_Out;
-	pRS->OutClockPrev = currTick;
 }
 
 void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
@@ -209,6 +179,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 	pRS->States[0] = S1;
 	pRS->States[1] = S2;
 	pRS->States[2] = S3;
+	pRS->AddRemoveCnt += (nOutSamples - *pInSamples);
 	*pOutSamples = nOutSamples;
 	*pInSamples = nInSamples;
 }
@@ -266,9 +237,7 @@ void StartDataProcessTask(void const * argument)
 		
 	DATA_Total = DATA_InOut = DATA_In = DATA_Out = 0;
 	ProcUnderrun =  ProcOverrun = 0;
-	RSInAddedSamples =  RSInRemovedSamples = 0;
-	RSOutAddedSamples = RSOutRemovedSamples = 0;
-	
+
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
 	pDecState = pDecModule->Create(0);
@@ -283,10 +252,13 @@ void StartDataProcessTask(void const * argument)
 
 	while(1)
 	{
+		// Wait for the next IN Audio data packet to arrive (either from I2S MIC, or from te USB)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
 			pDataQ = (DQueue_t *) event.value.p;
+			
+			// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
 			if(osParams.bStartProcess)
 			{
 				if (Queue_Count_Bytes(pDataQ) >= pDataQ->Size/2)
@@ -299,13 +271,9 @@ void StartDataProcessTask(void const * argument)
 					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
 					nSamplesIn = nSamplesModuleNeeds;
 					pSyncModule->Process(osParams.pRSIn, pAudioIn, pAudioOut, &nSamplesIn, &nSamplesModuleGenerated);
-					if( nSamplesModuleGenerated > nSamplesModuleNeeds) RSInAddedSamples++;
-					if( nSamplesModuleGenerated < nSamplesModuleNeeds) RSInRemovedSamples++;
 
 					nSamplesModuleNeeds = nSamplesIn = nSamplesModuleGenerated;
 					pSyncModule->Process(osParams.pRSOut, pAudioOut, pAudioIn, &nSamplesIn, &nSamplesModuleGenerated);
-					if( nSamplesModuleGenerated > nSamplesModuleNeeds) RSOutAddedSamples++;
-					if( nSamplesModuleGenerated < nSamplesModuleNeeds) RSOutRemovedSamples++;
 					
 					if(Queue_Space_Bytes(osParams.PCM_Out_data) < nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize) {
 						ProcOverrun++;
@@ -316,13 +284,15 @@ void StartDataProcessTask(void const * argument)
 					DATA_Total = Queue_Count_Bytes(osParams.PCM_Out_data) + Queue_Count_Bytes(pDataQ);
 				}
 			}
-			// Check if we have to start playing audio thru external codec
-			if(osParams.bStartPlay &&
-				(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2))
+			// Check if we have to start playing audio thru external codec when we accumulate more than 1/2 of the buffer
+			if(osParams.bStartPlay)
 			{
-				Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-				BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-				osParams.bStartPlay = 0;
+				if(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2)
+				{
+					Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+					BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+					osParams.bStartPlay = 0;
+				}
 			}
 #if 0
 			do {

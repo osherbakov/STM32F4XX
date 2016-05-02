@@ -38,8 +38,8 @@ static int8_t  AUDIO_MuteCtl      (uint8_t cmd);
 static int8_t  AUDIO_PeriodicTC   (uint8_t cmd);
 static int8_t  AUDIO_GetState     (void);
 
-extern void InData(void *pHandle, uint32_t nSamples);
-extern void OutData(void *pHandle, uint32_t nSamples);
+extern void InData(uint32_t nSamples);
+extern void OutData(uint32_t nSamples);
 
 
 USBD_AUDIO_ItfTypeDef USBD_AUDIO_fops_FS = 
@@ -92,12 +92,10 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
   switch(cmd)
   {
 		case USB_1MS_SYNC:
-			if(osParams.audioInMode == AUDIO_MODE_IN_USB) {
-InData(osParams.pRSIn, USBD_AUDIO_FREQ/1000);
-			}
 		break;
 		
 		case USB_AUDIO_IN:		// Callback called by USBD stack to get INPUT data INTO the Host
+OutData(USBD_AUDIO_FREQ/1000);
 				if(Queue_Count_Bytes(osParams.USB_In_data) < nbytes) {
 					AudioOutUnderrun++;
 				}
@@ -110,6 +108,7 @@ InData(osParams.pRSIn, USBD_AUDIO_FREQ/1000);
 				if(Queue_Space_Bytes(osParams.USB_Out_data) < nbytes) {
 					AudioInOverrun++;
 				}
+InData(USBD_AUDIO_FREQ/1000);
 				Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
 				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
 			}

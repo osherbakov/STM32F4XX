@@ -17,8 +17,8 @@ uint8_t		*pPCM0;
 uint8_t		*pPCM1;
 uint8_t		*pInputBuffer;
 
-extern void InData(void *pHandle, uint32_t nSamples);
-extern void OutData(void *pHandle, uint32_t nSamples);
+extern void InData(uint32_t nSamples);
+extern void OutData(uint32_t nSamples);
 
 uint32_t	AudioInOverrun, AudioOutUnderrun;
 //
@@ -30,7 +30,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
 			pInputBuffer = &osParams.pPDM_In[0];
-InData(osParams.pRSIn, NUM_PCM_SAMPLES);
+InData(NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
@@ -47,7 +47,7 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES];
-InData(osParams.pRSIn, NUM_PCM_SAMPLES);
+InData(NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
@@ -68,7 +68,7 @@ InData(osParams.pRSIn, NUM_PCM_SAMPLES);
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		uint32_t	nBytes; 
-OutData(osParams.pRSOut, NUM_PCM_SAMPLES);
+OutData(NUM_PCM_SAMPLES);
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
 			AudioOutUnderrun++;
@@ -85,7 +85,7 @@ OutData(osParams.pRSOut, NUM_PCM_SAMPLES);
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 		uint32_t	nBytes;
-OutData(osParams.pRSOut, NUM_PCM_SAMPLES);
+OutData(NUM_PCM_SAMPLES);
 		nBytes = Queue_Count_Bytes(osParams.PCM_Out_data);
 		if(nBytes < NUM_PCM_BYTES){
 			AudioOutUnderrun++;
