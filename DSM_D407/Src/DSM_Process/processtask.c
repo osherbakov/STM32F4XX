@@ -38,6 +38,7 @@ uint32_t	ProcUnderrun, ProcOverrun;
 //  RATE_SYNC functionality module
 //
 #define	 RATESYNC_ELEM_SIZE			(4)
+#define	 RATESYNC_ELEM_STRIDE		(2)
 #define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (RATESYNC_ELEM_SIZE))
 #define  RATESYNC_BLOCK_SIZE  		(SAMPLE_FREQ_KHZ)
 
@@ -51,7 +52,7 @@ typedef struct RateSyncData {
 		int32_t		DeltaOut;			// The calculated Output difference between samples (CPU-tied)
 		uint32_t	Delay;				// The delay amount (how Output samples are delayed relative to Input)
 		int32_t		AddRemoveCnt;	// The counter of Added (positive) or Removed (negative) samples 
-		int32_t		States[3];		// States memory
+		float		States[3];		// States memory
 }RateSyncData_t;
 
 void *ratesync_create(uint32_t Params)
@@ -113,8 +114,8 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 	uint32_t	idxIn, idxOut;
 	float		C0, C1, C2, C3;
 	float		D0, D1, D2, D3, accum;
-	int32_t		S1, S2, S3;
-	int32_t		NextInSample;
+	float		S1, S2, S3;
+	float		NextInSample;
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	DeltaIn = pRS->DeltaIn; 
@@ -134,7 +135,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 
 	while(nInSamples > 0)
 	{
-		NextInSample = ((int16_t *)pDataIn)[idxIn];
+		NextInSample = (float)((int16_t *)pDataIn)[idxIn];
 		while(TimeOut <= TimeIn )
 		{
 			Delay = TimeIn - TimeOut;
@@ -163,14 +164,16 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 			}
 			// Save data out[idxOut]
 			((int16_t *)pDataOut)[idxOut + 0] = (int16_t) accum;
+#if (RATESYNC_ELEM_STRIDE == 2)
 			((int16_t *)pDataOut)[idxOut + 1] = (int16_t) accum;
-			idxOut += 2;
+#endif
+			idxOut += RATESYNC_ELEM_STRIDE;
 			TimeOut += DeltaOut;
 			nOutSamples++;
 		}
 		// Shift and Save State from datain[idxIn++]
 		S3 = S2; S2 = S1; S1 = NextInSample;
-		idxIn += 2;			
+		idxIn += RATESYNC_ELEM_STRIDE;			
 		TimeIn += DeltaIn;
 		nInSamples--;
 	}
@@ -266,7 +269,7 @@ void StartDataProcessTask(void const * argument)
 			}else {
 				nSamplesIn = Queue_Count_Elems(pDataQ);
 				nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
-				while(nSamplesIn >= nSamplesModuleNeeds) 
+				if(nSamplesIn >= nSamplesModuleNeeds) 
 				{
 					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
 					nSamplesIn = nSamplesModuleNeeds;
@@ -279,9 +282,9 @@ void StartDataProcessTask(void const * argument)
 						ProcOverrun++;
 					}
 					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
-					nSamplesIn = Queue_Count_Elems(pDataQ);
-					nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
-					DATA_Total = Queue_Count_Bytes(osParams.PCM_Out_data) + Queue_Count_Bytes(pDataQ);
+//					nSamplesIn = Queue_Count_Elems(pDataQ);
+//					nSamplesModuleNeeds = pSyncModule->TypeSize(osParams.pRSIn, &Type);
+					DATA_Total = Queue_Count_Elems(osParams.PCM_Out_data) + Queue_Count_Elems(pDataQ);
 				}
 			}
 			// Check if we have to start playing audio thru external codec when we accumulate more than 1/2 of the buffer
