@@ -48,20 +48,27 @@ void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSam
 		melp_ana(speech, &melp_ana_par);
 		melp_syn(&melp_syn_par, speech);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
-		pDataIn += MELP_FRAME_SIZE * 4;
-		pDataOut += MELP_FRAME_SIZE * 4;
+		pDataIn = (void *)( (uint32_t)pDataIn + MELP_FRAME_SIZE * 4);
+		pDataOut = (void *)((uint32_t)pDataOut + MELP_FRAME_SIZE * 4);
 		*pInSamples -= MELP_FRAME_SIZE;
 		nGenerated += MELP_FRAME_SIZE;
 	}
 	*pOutSamples =  nGenerated;
 }
 
-uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
+void melp_data_ready(void *pHandle, uint32_t *pNumElems)
 {
-	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	 return MELP_FRAME_SIZE;
+	 *pNumElems = MELP_FRAME_SIZE;
 }
 
+void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Size = MELP_FRAME_SIZE;
+	
+	pOut->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Size = MELP_FRAME_SIZE;
+}
 
-DataProcessBlock_t  MELP = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
+DataProcessBlock_t  MELP = {melp_create, melp_init, melp_info, melp_data_ready, melp_process, melp_close};
 

@@ -16,16 +16,8 @@
 #include "npp.h"
 #endif
 
-typedef void *Data_Create_t(uint32_t Params);
-typedef void Data_Init_t(void *pHandle);
-typedef uint32_t Data_TypeSize_t(void *pHandle, uint32_t *pDataType);
-typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
-typedef void Data_Close_t(void *pHandle);
 
 /* ====== External memory ====== */
-
-typedef unsigned short uint16_t;
-typedef signed short int16_t;
 
 /* ========== Static Variables ========== */
 static int16_t	speech[BLOCK] CCMRAM;
@@ -79,11 +71,19 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSa
 	*pOutSamples = nGenerated;
 }
 
-uint32_t melpe_data_typesize(void *pHandle, uint32_t *pType)
+void melpe_data_ready(void *pHandle, uint32_t *pNumElems)
 {
-	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	 return melp_parameters->frameSize;
+	 *pNumElems = melp_parameters->frameSize;
+}
+
+void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Size = melp_parameters->frameSize;
+	
+	pOut->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Size = melp_parameters->frameSize;
 }
 
 
-DataProcessBlock_t  MELPE = {melpe_create, melpe_init, melpe_data_typesize, melpe_process, melpe_close};
+DataProcessBlock_t  MELPE = {melpe_create, melpe_init, melpe_info, melpe_data_ready, melpe_process, melpe_close};

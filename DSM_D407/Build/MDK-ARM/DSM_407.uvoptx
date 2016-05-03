@@ -227,12 +227,12 @@
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>RS_In</ItemText>
+          <ItemText>*((RateSyncData_t *)pRSIn)</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>RS_Out</ItemText>
+          <ItemText>*((RateSyncData_t *)pRSOut)</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -244,7 +244,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>\\DSM_407\../../Src/DSM_Process/processtask.c\nBytesIn</ItemText>
+          <ItemText>*((RateSyncData_t *)pRSIn)</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -295,7 +295,7 @@
         <Wi>
           <IntNumber>0</IntNumber>
           <FirstString>\\DSM_407\../../Src/DSM_Process/processtask.c\DATA_Total</FirstString>
-          <SecondString>FF0000000000000000000000000000100C249041000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F44534D5F50726F636573732F70726F636573737461736B2E635C444154415F546F74616C0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004900000001000000000000000000F03F1900000000000000000000000000000000000000AC770108</SecondString>
+          <SecondString>FF00000000000000000078400000000000008B40000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F44534D5F50726F636573732F70726F636573737461736B2E635C444154415F546F74616C0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004900000001000000000000000000F03F1900000000000000000000000000000000000000AC770108</SecondString>
         </Wi>
       </LogicAnalyzers>
       <DebugDescription>
@@ -485,6 +485,16 @@
           <WinNumber>1</WinNumber>
           <ItemText>DATA_InOut</ItemText>
         </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pRSIn</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pRSOut</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -525,7 +535,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>1</aSer1>
         <aSer2>0</aSer2>
@@ -1429,7 +1439,7 @@
 
   <Group>
     <GroupName>Codecs/MELP</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

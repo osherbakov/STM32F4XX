@@ -37,6 +37,7 @@ void *codec2_create(uint32_t Params)
 void codec2_deinit(void *pHandle)
 {
 	codec2_close(p_codec);
+	osFree(p_codec);
 	return;
 }
 
@@ -55,19 +56,28 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInS
 		codec2_encode(p_codec, bits, speech);
 		codec2_decode(p_codec, speech, bits);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, frame_size);
-		pDataIn += frame_size * 4;
-		pDataOut += frame_size * 4;
+		pDataIn = (void *)((uint32_t)pDataIn + frame_size * 4);
+		pDataOut =  (void *)((uint32_t)pDataOut + frame_size * 4);
 		*pInSamples -= frame_size;
 		nGenerated += frame_size;		
 	}
 	*pOutSamples = nGenerated;
 }
 
-uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
+void codec2_data_ready(void *pHandle, uint32_t *pNumElems)
 {
-	 *pType = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	 return frame_size;
+	 *pNumElems = frame_size;
 }
 
-DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};
+void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Size = frame_size;
+	
+	pOut->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Size = frame_size;
+}
+
+
+DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_info, codec2_data_ready, codec2_process, codec2_deinit};
 

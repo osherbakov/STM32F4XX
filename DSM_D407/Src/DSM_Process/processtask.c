@@ -55,6 +55,9 @@ DataProcessBlock_t  *pDecModule = 	&BYPASS;
 DataProcessBlock_t  *pIntModule = 	&BYPASS;
 DataProcessBlock_t  *pSyncModule = 	&RATESYNC;
 
+void			*pRSIn;
+void			*pRSOut;
+
 void StartDataProcessTask(void const * argument)
 {
 	osEvent		event;
@@ -66,8 +69,6 @@ void StartDataProcessTask(void const * argument)
 	void			*pProcModuleState;
 	void			*pDecState;
 	void			*pIntState;
-	void			*pRSIn;
-	void			*pRSOut;
 
 	int32_t		DoProcessing;
 	uint32_t	Type;
@@ -106,16 +107,26 @@ void StartDataProcessTask(void const * argument)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		if( event.status == osEventMessage  ) // Message came that some valid Input Data is present
 		{
-			pDataQ = (DQueue_t *) event.value.p;
+			// Check if we have to start playing audio thru external codec when we accumulate more than 1/2 of the buffer
+			if(osParams.bStartPlay)
+			{
+				if(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2)
+				{
+					Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+					BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+					osParams.bStartPlay = 0;
+				}
+			}
 			
 			// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
+			pDataQ = (DQueue_t *) event.value.p;
 			if(osParams.bStartProcess)
 			{
 				if (Queue_Count_Bytes(pDataQ) >= pDataQ->Size/2)
 					osParams.bStartProcess = 0;
 			}else {
 				nSamplesIn = Queue_Count_Elems(pDataQ);
-				nSamplesModuleNeeds = pSyncModule->TypeSize(pRSIn, &Type);
+				pSyncModule->Ready(pRSIn, &nSamplesModuleNeeds);
 				if(nSamplesIn >= nSamplesModuleNeeds) 
 				{
 					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
@@ -130,16 +141,6 @@ void StartDataProcessTask(void const * argument)
 					}
 					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
 					DATA_Total = Queue_Count_Elems(osParams.PCM_Out_data) + Queue_Count_Elems(pDataQ);
-				}
-			}
-			// Check if we have to start playing audio thru external codec when we accumulate more than 1/2 of the buffer
-			if(osParams.bStartPlay)
-			{
-				if(Queue_Count_Bytes(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2)
-				{
-					Queue_PopData(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-					BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
-					osParams.bStartPlay = 0;
 				}
 			}
 #if 0

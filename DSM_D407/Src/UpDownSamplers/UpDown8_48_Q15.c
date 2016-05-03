@@ -71,21 +71,30 @@ static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_q15(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
-		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
-		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
+		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF));
+		pDataOut = (void *)((uint32_t)pDataOut + (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO);
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
 	*pOutSamples = nGenerated;
 }
 
-static uint32_t ds_48_8_typesize(void *pHandle, uint32_t *pType)
+static void ds_48_8_data_ready(void *pHandle, uint32_t *pNumElems)
 {
-	 *pType = DOWNSAMPLE_DATA_TYPE;
-	 return DOWNSAMPLE_BLOCK_SIZE;
+	 *pNumElems = DOWNSAMPLE_BLOCK_SIZE;
 }
 
-DataProcessBlock_t  DS_48_8_Q15 = {ds_48_8_create, ds_48_8_init, ds_48_8_typesize, ds_48_8_process, ds_48_8_close};
+static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pIn->Size = DOWNSAMPLE_BLOCK_SIZE;
+	
+	pOut->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pOut->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+}
+
+
+DataProcessBlock_t  DS_48_8_Q15 = {ds_48_8_create, ds_48_8_init, ds_48_8_info, ds_48_8_data_ready, ds_48_8_process, ds_48_8_close};
 
 static arm_fir_interpolate_instance_q15 CCMRAM Int;
 
@@ -111,19 +120,28 @@ static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_q15(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
-		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
-		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
+		pDataIn = (void *)((uint32_t)pDataIn + (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO);
+		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF));
 		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
 	*pOutSamples = nGenerated;
 }
 
-static uint32_t us_8_48_typesize(void *pHandle, uint32_t *pType)
+static void us_8_48_data_ready(void *pHandle, uint32_t *pNumElems)
 {
-	 *pType = DOWNSAMPLE_DATA_TYPE;
-	 return DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+	 *pNumElems = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  US_8_48_Q15 = {us_8_48_create, us_8_48_init, us_8_48_typesize, us_8_48_process, us_8_48_close};
+static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pIn->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+	
+	pOut->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pOut->Size = DOWNSAMPLE_BLOCK_SIZE;
+}
+
+
+DataProcessBlock_t  US_8_48_Q15 = {us_8_48_create, us_8_48_init, us_8_48_info, us_8_48_data_ready, us_8_48_process, us_8_48_close};
 

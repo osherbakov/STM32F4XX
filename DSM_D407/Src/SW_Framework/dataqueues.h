@@ -77,16 +77,16 @@ typedef struct DataTypeSize {
 
 typedef struct DBuffer {
 	DataTypeSize_t	Data;		//  The type of data in the buffer
-	uint16_t	Size;					// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
-	uint8_t		*pBuffer;			// Pointer to the actual data storage for the Buffer
+	uint16_t	Size;			// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
+	uint8_t		*pBuffer;		// Pointer to the actual data storage for the Buffer
 } DBuffer_t;
 
 typedef struct DQueue {
 	union {
 		struct {
 			DataTypeSize_t	Data;	// All info about data in the queue - Type, Element Size, Total Size
-			uint16_t	Size;				// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
-			uint8_t		*pBuffer;		// Pointer to the actual data storage for the queue
+			uint16_t	Size;		// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
+			uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
 		};
 		DBuffer_t	Buffer;
 	};
@@ -94,10 +94,11 @@ typedef struct DQueue {
 	uint16_t	iPut;		// Put Index
 } DQueue_t;
 
+// The structure that specifies the information about In/Out Data Port
+// It may be used to allocate queues connecting different modules
 typedef struct DataPort {
 	DataTypeSize_t	Data;
 	uint16_t		Size;				// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
-	uint32_t		ID;
 } DataPort_t;
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
@@ -112,17 +113,18 @@ extern uint32_t Queue_PopData(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes)
 
 extern void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcElements);
 
-typedef void Data_Info_t(DataPort_t *pDataInfo);
+typedef void Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
 typedef void *Data_Create_t(uint32_t Params);
 typedef void Data_Init_t(void *pHandle);
-typedef uint32_t Data_TypeSize_t(void *pHandle, uint32_t *pDataType);
+typedef void Data_Ready_t(void *pHandle, uint32_t *pNumInElems);
 typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
 typedef void Data_Close_t(void *pHandle);
 
 typedef struct DataProcessBlock {
 	Data_Create_t		*Create;
 	Data_Init_t			*Init;
-	Data_TypeSize_t		*TypeSize;
+	Data_Info_t			*Info;
+	Data_Ready_t		*Ready;
 	Data_Process_t  	*Process;
 	Data_Close_t		*Close;
 } DataProcessBlock_t;
