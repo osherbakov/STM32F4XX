@@ -15,13 +15,10 @@
 #include "arm_const_structs.h"
 #include "cvsd_f32.h"
 #include "datatasks.h"
-#include "stm32f4_discovery.h"
 
 #define PROGRAM_NAME			"CVSD 16000 bps speech coder"
 #define PROGRAM_VERSION			"Version 2.0"
 #define PROGRAM_DATE			"14 NOV 2014"
-
-#define v_equ(v1,v2,n) 			arm_copy_f32((float32_t *)v2, (float32_t *)v1, n)
 
 #define CVSD_BLOCK_SIZE   		(180)
 

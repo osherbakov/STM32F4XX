@@ -1302,6 +1302,31 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Codecs/Converters</GroupName>
+          <Files>
+            <File>
+              <FileName>UpDown8_48_Q15.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\UpDown8_48_Q15.c</FilePath>
+            </File>
+            <File>
+              <FileName>UpDown8_48_F32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\UpDown8_48_F32.c</FilePath>
+            </File>
+            <File>
+              <FileName>UpDown16_48_F32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\UpDown16_48_F32.c</FilePath>
+            </File>
+            <File>
+              <FileName>RateSync.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\RateSync.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -2598,6 +2623,31 @@
               <FileName>module.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\A_u_Law\module.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Codecs/Converters</GroupName>
+          <Files>
+            <File>
+              <FileName>UpDown8_48_Q15.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\UpDown8_48_Q15.c</FilePath>
+            </File>
+            <File>
+              <FileName>UpDown8_48_F32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\UpDown8_48_F32.c</FilePath>
+            </File>
+            <File>
+              <FileName>UpDown16_48_F32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\UpDown16_48_F32.c</FilePath>
+            </File>
+            <File>
+              <FileName>RateSync.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\UpDownSamplers\RateSync.c</FilePath>
             </File>
           </Files>
         </Group>
