@@ -25,14 +25,6 @@ typedef enum
 	AUDIO_MODE_IN_I2SX = 2,			// Source of the audio is I2S #2 (External)
 } AUDIO_ModeInTypeDef;
 
-typedef enum
-{ 
-	ACTIVE_FIRST = 1,
-	ACTIVE_SECOND = 0,
-	DONE_FIRST = ACTIVE_SECOND,
-	DONE_SECOND = ACTIVE_FIRST,
-} ACTIVE_BUFFER;
-
 #define AUDIO_MONO_Q15_SIZE	sizeof(int16_t)
 #define AUDIO_STEREO_Q15_SIZE	(2 * sizeof(int16_t))
 
@@ -55,9 +47,6 @@ typedef struct
 		uint8_t		*pPDM_In;					// Pointer to DMA Buffer for PDM In
 		uint8_t		*pPCM_Out;					// Pointer to DMA Buffer for PCM Out
 	
-		void 		*pRSIn;						// Pointer to the rate sync IN module
-		void 		*pRSOut;					// Pointer to the rate sync OUT module
-
 		DQueue_t	*PCM_In_data;				// Data Queue for PCM In (Periph -> CPU) (Converted PDM)  data
 		DQueue_t	*PCM_Out_data;				// Data Queue for PCM OUT (CPU -> Periph) CODEC data
 

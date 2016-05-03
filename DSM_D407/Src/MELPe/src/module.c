@@ -10,7 +10,6 @@
 #include "math_lib.h"
 #include "math.h"
 
-#include "stm32f4_discovery.h"
 #include "dataqueues.h"
 
 #if NPP
@@ -60,7 +59,6 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSa
 	
 	while(*pInSamples >= nFrameSize)
 	{
-BSP_LED_On(LED4);
 		arm_float_to_q15(pDataIn, speech, nFrameSize);
 #if NPP
 		if (melp_parameters->rate == RATE1200){
@@ -71,12 +69,8 @@ BSP_LED_On(LED4);
 			npp(melp_parameters, speech, speech);
 #endif
 		analysis_q(speech, melp_parameters);
-BSP_LED_Off(LED4);
-BSP_LED_On(LED5);
 		synthesis_q(melp_parameters, speech);
 		arm_q15_to_float(speech, pDataOut, nFrameSize);		
-BSP_LED_Off(LED5);
-//		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
 		pDataIn = (void *) ((int32_t)pDataIn + nFrameSize * 4);
 		pDataOut = (void *)((int32_t)pDataOut + nFrameSize * 4);
 		*pInSamples -= nFrameSize;
