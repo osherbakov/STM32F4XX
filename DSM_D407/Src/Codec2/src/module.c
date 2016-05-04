@@ -64,17 +64,18 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInS
 	*pOutSamples = nGenerated;
 }
 
-void codec2_data_ready(void *pHandle, uint32_t *pNumElems)
+void codec2_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = frame_size;
+	pInData->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pInData->Size = frame_size;
 }
 
 void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
 	pIn->Size = frame_size;
 	
-	pOut->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
 	pOut->Size = frame_size;
 }
 

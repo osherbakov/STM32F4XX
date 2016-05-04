@@ -71,17 +71,18 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSa
 	*pOutSamples = nGenerated;
 }
 
-void melpe_data_ready(void *pHandle, uint32_t *pNumElems)
+void melpe_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = melp_parameters->frameSize;
+	pInData->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pInData->Size = melp_parameters->frameSize;
 }
 
 void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
 	pIn->Size = melp_parameters->frameSize;
 	
-	pOut->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
 	pOut->Size = melp_parameters->frameSize;
 }
 

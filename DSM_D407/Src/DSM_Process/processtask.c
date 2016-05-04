@@ -63,21 +63,20 @@ void StartDataProcessTask(void const * argument)
 	osEvent		event;
 	DQueue_t 	*pDataQ;
 
-	uint8_t 		*pAudio;
+//	uint8_t 		*pAudio;
 	float			*pAudioIn;
 	float			*pAudioOut;
 	void			*pProcModuleState;
 	void			*pDecState;
 	void			*pIntState;
+	DataPort_t		DataIn;
 
-	int32_t		DoProcessing;
-	uint32_t	Type;
+//	int32_t		DoProcessing;
 	uint32_t 	nSamplesIn, nSamplesModuleNeeds, nSamplesModuleGenerated;
-	uint32_t	nBytes, nBytesIn, nBytesOut;
 
 	
 	// Allocate static data buffers
-	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
+//	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
 	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
@@ -126,20 +125,21 @@ void StartDataProcessTask(void const * argument)
 					osParams.bStartProcess = 0;
 			}else {
 				nSamplesIn = Queue_Count_Elems(pDataQ);
-				pSyncModule->Ready(pRSIn, &nSamplesModuleNeeds);
+				pSyncModule->Ready(pRSIn, &DataIn);
+				nSamplesModuleNeeds = DataIn.Size/DataIn.ElemSize;
 				if(nSamplesIn >= nSamplesModuleNeeds) 
 				{
-					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->Data.ElemSize);
+					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->ElemSize);
 					nSamplesIn = nSamplesModuleNeeds;
 					pSyncModule->Process(pRSIn, pAudioIn, pAudioOut, &nSamplesIn, &nSamplesModuleGenerated);
 
 					nSamplesModuleNeeds = nSamplesIn = nSamplesModuleGenerated;
 					pSyncModule->Process(pRSOut, pAudioOut, pAudioIn, &nSamplesIn, &nSamplesModuleGenerated);
 					
-					if(Queue_Space_Bytes(osParams.PCM_Out_data) < nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize) {
+					if(Queue_Space_Bytes(osParams.PCM_Out_data) < nSamplesModuleGenerated * osParams.PCM_Out_data->ElemSize) {
 						ProcOverrun++;
 					}
-					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nSamplesModuleGenerated * osParams.PCM_Out_data->Data.ElemSize);
+					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nSamplesModuleGenerated * osParams.PCM_Out_data->ElemSize);
 					DATA_Total = Queue_Count_Elems(osParams.PCM_Out_data) + Queue_Count_Elems(pDataQ);
 				}
 			}

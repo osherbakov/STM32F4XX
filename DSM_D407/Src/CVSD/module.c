@@ -13,6 +13,7 @@
 #include "cvsd_data_f32.h"
 #include "dataqueues.h"
 
+#define	CVSD_DATA_TYPE			(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define CVSD_BLOCK_SIZE   		(180)
 
 #ifndef TRUE
@@ -71,17 +72,18 @@ void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSam
 	*pOutSamples = nGenerated;
 }
 
-void cvsd_data_ready(void *pHandle, uint32_t *pNumElems)
+void cvsd_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = CVSD_BLOCK_SIZE;
+	pInData->Size = CVSD_BLOCK_SIZE;
+	pInData->Type = CVSD_DATA_TYPE;
 }
 
 void cvsd_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Type = CVSD_DATA_TYPE;
 	pIn->Size = CVSD_BLOCK_SIZE;
 	
-	pOut->Data.Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Type = CVSD_DATA_TYPE;
 	pOut->Size = CVSD_BLOCK_SIZE;
 }
 

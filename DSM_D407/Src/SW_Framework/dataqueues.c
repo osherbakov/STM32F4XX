@@ -31,13 +31,13 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
 	pQ->Size = nBytes;
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
-		pQ->Data.Type = Type;
+		pQ->Type = Type;
 	}else{
-		pQ->Data.ElemType = Type >> 8;
-		pQ->Data.ElemSize = DATA_TYPE_ELEM_SIZE(Type);
+		pQ->ElemType = Type >> 8;
+		pQ->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
 	// The final sanity check - Element size cannot be 0!!!
-	if(pQ->Data.ElemSize == 0) pQ->Data.Type = 1;
+	if(pQ->ElemSize == 0) pQ->Type = 1;
 	Queue_Clear(pQ);
 	return pQ;
 }
@@ -45,13 +45,13 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 {
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
-		pQueue->Data.Type = Type;
+		pQueue->Type = Type;
 	}else{
-		pQueue->Data.ElemType = Type >> 8;
-		pQueue->Data.ElemSize = DATA_TYPE_ELEM_SIZE(Type);
+		pQueue->ElemType = Type >> 8;
+		pQueue->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
 	// The final sanity check - Element size cannot be 0!!!
-	if(pQueue->Data.ElemSize == 0) pQueue->Data.Type = 1;
+	if(pQueue->ElemSize == 0) pQueue->Type = 1;
 	Queue_Clear(pQueue);
 }
 
@@ -70,7 +70,7 @@ uint32_t Queue_Count_Elems(DQueue_t *pQueue)
 	uint32_t Count, ElemSize;
 	
 	Count = Queue_Count_Bytes(pQueue);
-	ElemSize = pQueue->Data.ElemSize;
+	ElemSize = pQueue->ElemSize;
 	return Count/ElemSize;
 }
 
@@ -91,7 +91,7 @@ uint32_t Queue_Space_Elems(DQueue_t *pQueue)
 	uint32_t Space, ElemSize;
 	
 	Space = Queue_Space_Bytes(pQueue);
-	ElemSize = pQueue->Data.ElemSize;
+	ElemSize = pQueue->ElemSize;
 	return Space/ElemSize;
 }
 

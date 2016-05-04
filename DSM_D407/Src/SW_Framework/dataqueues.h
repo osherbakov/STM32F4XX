@@ -65,31 +65,28 @@ typedef enum DataChannelMask
 	DATA_CHANNEL_ALL	= 0x00FF
 } DataChannelMask_t;
 
-typedef struct DataTypeSize {
-	union {
-			uint16_t	Type;
-			struct {
-				uint8_t		ElemSize;		// Size of the element in bytes
-				uint8_t		ElemType;		// Type of the element in the buffer
-			};
-	};
-} DataTypeSize_t;
-
 typedef struct DBuffer {
-	DataTypeSize_t	Data;		//  The type of data in the buffer
+	union {
+		uint16_t		Type;
+		struct {
+			uint8_t		ElemSize;		// Size of the element in bytes
+			uint8_t		ElemType;		// Type of the element in the buffer
+		};
+	};						
 	uint16_t	Size;			// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 	uint8_t		*pBuffer;		// Pointer to the actual data storage for the Buffer
 } DBuffer_t;
 
 typedef struct DQueue {
 	union {
+		uint16_t		Type;
 		struct {
-			DataTypeSize_t	Data;	// All info about data in the queue - Type, Element Size, Total Size
-			uint16_t	Size;		// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
-			uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
+			uint8_t		ElemSize;		// Size of the element in bytes
+			uint8_t		ElemType;		// Type of the element in the buffer
 		};
-		DBuffer_t	Buffer;
-	};
+	};						// All info about data in the queue - Type, Element Size
+	uint16_t	Size;		// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
+	uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
 	uint16_t	iGet;		// Get Index
 	uint16_t	iPut;		// Put Index
 } DQueue_t;
@@ -97,8 +94,14 @@ typedef struct DQueue {
 // The structure that specifies the information about In/Out Data Port
 // It may be used to allocate queues connecting different modules
 typedef struct DataPort {
-	DataTypeSize_t	Data;
-	uint16_t		Size;				// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
+	union {
+		uint16_t		Type;
+		struct {
+			uint8_t		ElemSize;		// Size of the element in bytes
+			uint8_t		ElemType;		// Type of the element in the buffer
+		};
+	};						// All info about data in the queue - Type, Element Size
+	uint16_t		Size;	// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 } DataPort_t;
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
@@ -116,7 +119,7 @@ extern void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *
 typedef void Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
 typedef void *Data_Create_t(uint32_t Params);
 typedef void Data_Init_t(void *pHandle);
-typedef void Data_Ready_t(void *pHandle, uint32_t *pNumInElems);
+typedef void Data_Ready_t(void *pHandle, DataPort_t *pNumInElems);
 typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
 typedef void Data_Close_t(void *pHandle);
 

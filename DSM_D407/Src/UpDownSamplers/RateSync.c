@@ -164,18 +164,19 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 }
 
 
-void ratesync_data_ready(void *pHandle, uint32_t *pNumElems)
+void ratesync_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = RATESYNC_BLOCK_SIZE;
+	pInData->Size = RATESYNC_BLOCK_SIZE;
+	pInData->Type = RATESYNC_DATA_TYPE;
 }
 
 
 void ratesync_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = RATESYNC_DATA_TYPE;
+	pIn->Type = RATESYNC_DATA_TYPE;
 	pIn->Size = RATESYNC_BLOCK_SIZE;
 	
-	pOut->Data.Type = RATESYNC_DATA_TYPE;
+	pOut->Type = RATESYNC_DATA_TYPE;
 	pOut->Size = RATESYNC_BLOCK_SIZE * 2;
 }
 

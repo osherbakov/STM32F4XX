@@ -710,9 +710,9 @@ void RF24_setRetries(uint8_t delay, uint8_t count)
 }
 
 static uint8_t	 _Tx[32] = {1,2,3,4,5,6,7,8,9,10,0x55, 0xF9, 0xAF, 0x12, 0x55, 0xAA};
-static uint8_t	 _Rx[32];
+//static uint8_t	 _Rx[32];
 static uint8_t	 TxAddress[] = "1Node";
-static uint8_t	 TxChannel = 0;
+//static uint8_t	 TxChannel = 0;
 static int		 RxMode = 1;
 
 void StartRF24(void)

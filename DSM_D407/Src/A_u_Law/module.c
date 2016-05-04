@@ -120,35 +120,36 @@ void ulaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 }
 
 
-void aulaw_data_ready(void *pHandle, uint32_t *pNumElems)
+void aulaw_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = AU_LAW_BLOCK_SIZE;
+	pInData->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
+	pInData->Size = AU_LAW_BLOCK_SIZE;
 }
 
 void aulaw_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
+	pIn->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
 	pIn->Size = AU_LAW_BLOCK_SIZE;
 	
-	pOut->Data.Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
+	pOut->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
 	pOut->Size = AU_LAW_BLOCK_SIZE;
 }
 
 void aulaw_encode_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
+	pIn->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
 	pIn->Size = AU_LAW_BLOCK_SIZE;
 	
-	pOut->Data.Type = DATA_TYPE_BITS | DATA_NUM_CH_1 | (1);
+	pOut->Type = DATA_TYPE_BITS | DATA_NUM_CH_1 | (1);
 	pOut->Size = AU_LAW_BLOCK_SIZE;
 }
 
 void aulaw_decode_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DATA_TYPE_BITS | DATA_NUM_CH_1 | (1);
+	pIn->Type = DATA_TYPE_BITS | DATA_NUM_CH_1 | (1);
 	pIn->Size = AU_LAW_BLOCK_SIZE;
 	
-	pOut->Data.Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
+	pOut->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
 	pOut->Size = AU_LAW_BLOCK_SIZE;
 }
 

@@ -48,17 +48,18 @@ static void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	*pOutSamples = nGenerated;
 }
 
-static void bypass_data_ready(void *pHandle, uint32_t *pNumElems)
+static void bypass_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = BYPASS_BLOCK_SIZE;
+	pInData->Type = BYPASS_DATA_TYPE;
+	pInData->Size = BYPASS_BLOCK_SIZE;
 }
 
 static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = BYPASS_DATA_TYPE;
+	pIn->Type = BYPASS_DATA_TYPE;
 	pIn->Size = BYPASS_BLOCK_SIZE;
 	
-	pOut->Data.Type = BYPASS_DATA_TYPE;
+	pOut->Type = BYPASS_DATA_TYPE;
 	pOut->Size = BYPASS_BLOCK_SIZE;
 }
 
@@ -130,17 +131,18 @@ static void ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	*pOutSamples = nGenerated;
 }
 
-static void ds_48_16_data_ready(void *pHandle, uint32_t *pNumElems)
+static void ds_48_16_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = DOWNSAMPLE_BLOCK_SIZE;
+	pInData->Type = DOWNSAMPLE_DATA_TYPE;
+	pInData->Size = DOWNSAMPLE_BLOCK_SIZE;
 }
 
 static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_SIZE;
 	
-	pOut->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
@@ -178,17 +180,18 @@ static void us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	*pOutSamples = nGenerated;
 }
 
-static void us_16_48_data_ready(void *pHandle, uint32_t *pNumElems)
+static void us_16_48_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+	pInData->Type = DOWNSAMPLE_DATA_TYPE;
+	pInData->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
 static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	
-	pOut->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_SIZE;
 }
 

@@ -198,7 +198,7 @@ void NRF24L01_TxFail_CallBack(void)
 
 extern void RF24_read_payload( void* buf, uint8_t len );
 extern void RF24_flushRx(void);
-static uint8_t RxBuffer[MAX_PAYLOAD_SIZE];
+// static uint8_t RxBuffer[MAX_PAYLOAD_SIZE];
 
 void NRF24L01_RxReady_CallBack(void)
 {

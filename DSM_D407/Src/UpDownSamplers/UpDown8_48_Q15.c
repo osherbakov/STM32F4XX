@@ -79,17 +79,18 @@ static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 	*pOutSamples = nGenerated;
 }
 
-static void ds_48_8_data_ready(void *pHandle, uint32_t *pNumElems)
+static void ds_48_8_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = DOWNSAMPLE_BLOCK_SIZE;
+	pInData->Type = DOWNSAMPLE_DATA_TYPE;
+	pInData->Size = DOWNSAMPLE_BLOCK_SIZE;
 }
 
 static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_SIZE;
 	
-	pOut->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
@@ -128,17 +129,18 @@ static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 	*pOutSamples = nGenerated;
 }
 
-static void us_8_48_data_ready(void *pHandle, uint32_t *pNumElems)
+static void us_8_48_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	 *pNumElems = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+	pInData->Type = DOWNSAMPLE_DATA_TYPE;
+	pInData->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
 static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	
-	pOut->Data.Type = DOWNSAMPLE_DATA_TYPE;
+	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_SIZE;
 }
 
