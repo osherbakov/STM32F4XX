@@ -104,6 +104,9 @@ typedef struct DataPort {
 	uint16_t		Size;	// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 } DataPort_t;
 
+#define NUM_ELEMS(a)	(a.Size/a.ElemSize)
+#define ELEMS_SIZE(a)	(a.Size*a.ElemSize)
+
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
 extern void Queue_Init(DQueue_t *pQueue, uint32_t type);
 extern uint32_t Queue_Count_Bytes(DQueue_t *pQueue);
@@ -119,7 +122,7 @@ extern void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *
 typedef void Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
 typedef void *Data_Create_t(uint32_t Params);
 typedef void Data_Init_t(void *pHandle);
-typedef void Data_Ready_t(void *pHandle, DataPort_t *pNumInElems);
+typedef void Data_Ready_t(void *pHandle, DataPort_t *pInData);
 typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
 typedef void Data_Close_t(void *pHandle);
 

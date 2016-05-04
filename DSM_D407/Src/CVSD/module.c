@@ -74,17 +74,17 @@ void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSam
 
 void cvsd_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	pInData->Size = CVSD_BLOCK_SIZE;
 	pInData->Type = CVSD_DATA_TYPE;
+	pInData->Size = CVSD_BLOCK_SIZE * 4;
 }
 
 void cvsd_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = CVSD_DATA_TYPE;
-	pIn->Size = CVSD_BLOCK_SIZE;
+	pIn->Size = CVSD_BLOCK_SIZE * 4;
 	
 	pOut->Type = CVSD_DATA_TYPE;
-	pOut->Size = CVSD_BLOCK_SIZE;
+	pOut->Size = CVSD_BLOCK_SIZE * 4;
 }
 
 

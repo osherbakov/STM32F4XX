@@ -58,6 +58,14 @@ DataProcessBlock_t  *pSyncModule = 	&RATESYNC;
 void			*pRSIn;
 void			*pRSOut;
 
+typedef struct RateSyncData {
+		int32_t		DeltaIn;			// The calculated Input difference between samples (CPU-tied)
+		int32_t		DeltaOut;			// The calculated Output difference between samples (CPU-tied)
+		uint32_t	Delay;				// The delay amount (how Output samples are delayed relative to Input)
+		int32_t		AddRemoveCnt;	// The counter of Added (positive) or Removed (negative) samples 
+		float		States[3];		// States memory
+}RateSyncData_t;
+
 void StartDataProcessTask(void const * argument)
 {
 	osEvent		event;
@@ -99,6 +107,11 @@ void StartDataProcessTask(void const * argument)
 	pIntModule->Init(pIntState);
 	pSyncModule->Init(pRSIn);
 	pSyncModule->Init(pRSOut);
+	
+	((RateSyncData_t *)pRSIn)->DeltaIn = 1;
+	((RateSyncData_t *)pRSIn)->DeltaOut = 1;
+	((RateSyncData_t *)pRSOut)->DeltaIn = 1;
+	((RateSyncData_t *)pRSOut)->DeltaOut = 1;
 
 	while(1)
 	{
