@@ -25,6 +25,7 @@
 //
 #define  BYPASS_DATA_TYPE		(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define  BYPASS_BLOCK_SIZE  	(60)
+#define  BYPASS_BLOCK_BYTES  	(BYPASS_BLOCK_SIZE * 4)
 
 static void *bypass_create(uint32_t Params)
 {
@@ -40,27 +41,27 @@ static void bypass_init(void *pHandle)
 {
 }
 
-static void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+static void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
-	uint32_t nGenerated = *pInSamples;
+	uint32_t nGenerated = *pInBytes;
 	memcpy(pDataOut, pDataIn, nGenerated * 4 );
-	*pInSamples = 0;
-	*pOutSamples = nGenerated;
+	*pInBytes = 0;
+	*pOutBytes = nGenerated;
 }
 
 static void bypass_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = BYPASS_DATA_TYPE;
-	pInData->Size = BYPASS_BLOCK_SIZE;
+	pInData->Size = BYPASS_BLOCK_BYTES;
 }
 
 static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = BYPASS_DATA_TYPE;
-	pIn->Size = BYPASS_BLOCK_SIZE * 4;
+	pIn->Size = BYPASS_BLOCK_BYTES;
 	
 	pOut->Type = BYPASS_DATA_TYPE;
-	pOut->Size = BYPASS_BLOCK_SIZE * 4;
+	pOut->Size = BYPASS_BLOCK_BYTES;
 }
 
 
@@ -75,6 +76,7 @@ DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_info, bypass_da
 #define  UPDOWNSAMPLE_RATIO 	(48000/16000)
 #define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define  DOWNSAMPLE_BLOCK_SIZE  (60)	// Divisable by 2,3,4,5,6,10,12,15,20,30
+#define  DOWNSAMPLE_BLOCK_BYTES (DOWNSAMPLE_BLOCK_SIZE * 4)
 
 static float DownSample48_16_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static float DownSample48_16_Coeff[DOWNSAMPLE_TAPS] RODATA = {
@@ -117,33 +119,33 @@ static void ds_48_16_init(void *pHandle)
 			DownSample48_16_Coeff, DownSample48_16_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-static void ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+static void ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
+	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF));
-		pDataOut = (void *)((uint32_t)pDataOut + (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO);
-		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
-		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO);
+		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES;
+		nGenerated += DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 static void ds_48_16_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = DOWNSAMPLE_BLOCK_SIZE * 4;
+	pInData->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
 static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
-	pIn->Size = DOWNSAMPLE_BLOCK_SIZE * 4;
+	pIn->Size = DOWNSAMPLE_BLOCK_BYTES;
 	
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
-	pOut->Size = (DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO) * 4;
+	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
 DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_info, ds_48_16_data_ready, ds_48_16_process, ds_48_16_close};
@@ -166,33 +168,33 @@ static void us_16_48_init(void *pHandle)
 			UpSample16_48_Coeff, UpSample16_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-static void us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+static void us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
+	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
-		pDataIn = (void *)((uint32_t)pDataIn + (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO);
-		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF));
-		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
-		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
+		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO);
+		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_BYTES);
+		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
+		nGenerated += DOWNSAMPLE_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 static void us_16_48_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = (DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO) * 4;
+	pInData->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
 static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
-	pIn->Size = (DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO) * 4;
+	pIn->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 	
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
-	pOut->Size = DOWNSAMPLE_BLOCK_SIZE * 4;
+	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
 DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_info, us_16_48_data_ready, us_16_48_process, us_16_48_close};

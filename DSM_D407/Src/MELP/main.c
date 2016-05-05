@@ -194,11 +194,11 @@ void melp_init(void *pHandle)
 }
 
 
-uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+uint32_t melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes)
 {
 	uint32_t	nGenerated = 0;
 	
-	while(*pInSamples >= MELP_FRAME_SIZE)
+	while(*pInBytes >= MELP_FRAME_SIZE)
 	{
 BSP_LED_On(LED4);
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
@@ -211,7 +211,7 @@ BSP_LED_Off(LED5);
 //		v_equ(pDataOut, pDataIn, MELP_FRAME_SIZE);		
 		pDataIn += MELP_FRAME_SIZE * 4;
 		pDataOut += MELP_FRAME_SIZE * 4;
-		*pInSamples -= MELP_FRAME_SIZE;
+		*pInBytes -= MELP_FRAME_SIZE;
 		nGenerated += MELP_FRAME_SIZE;
 	}
 	return nGenerated;
@@ -273,15 +273,15 @@ void ds_48_8_init(void *pHandle)
 			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+uint32_t ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
+	while(*pInBytes >= DOWNSAMPLE_BLOCK_SIZE)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
 		pDataIn += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
 		pDataOut += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
-		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
+		*pInBytes -= DOWNSAMPLE_BLOCK_SIZE;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 	}
 	return nGenerated;
@@ -313,15 +313,15 @@ void us_8_48_init(void *pHandle)
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+uint32_t us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
+	while(*pInBytes >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 		pDataIn += (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO;
 		pDataOut += DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF);
-		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		*pInBytes -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
 	}
 	return nGenerated;

@@ -13,7 +13,8 @@ typedef signed short int16_t;
 int		mode;
 int		rate;
 
-#define MELP_FRAME_SIZE  (180)
+#define MELP_FRAME_SIZE  	(180)
+#define MELP_FRAME_BYTES  	(MELP_FRAME_SIZE * 4)
 
 /* ========== Static Variables ========== */
 static float		speech[MELP_FRAME_SIZE] CCMRAM;
@@ -38,37 +39,37 @@ void melp_init(void *pHandle)
 }
 
 
-void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
 	
-	while(*pInSamples >= MELP_FRAME_SIZE)
+	while(*pInBytes >= MELP_FRAME_BYTES )
 	{
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
 		melp_ana(speech, &melp_ana_par);
 		melp_syn(&melp_syn_par, speech);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
-		pDataIn = (void *)( (uint32_t)pDataIn + MELP_FRAME_SIZE * 4);
-		pDataOut = (void *)((uint32_t)pDataOut + MELP_FRAME_SIZE * 4);
-		*pInSamples -= MELP_FRAME_SIZE;
-		nGenerated += MELP_FRAME_SIZE;
+		pDataIn = (void *)( (uint32_t)pDataIn + MELP_FRAME_BYTES );
+		pDataOut = (void *)((uint32_t)pDataOut + MELP_FRAME_BYTES );
+		*pInBytes -= MELP_FRAME_BYTES ;
+		nGenerated += MELP_FRAME_BYTES ;
 	}
-	*pOutSamples =  nGenerated;
+	*pOutBytes =  nGenerated;
 }
 
 void melp_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pInData->Size = MELP_FRAME_SIZE * 4;
+	pInData->Size = MELP_FRAME_BYTES ;
 }
 
 void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pIn->Size = MELP_FRAME_SIZE * 4;
+	pIn->Size = MELP_FRAME_BYTES ;
 	
 	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pOut->Size = MELP_FRAME_SIZE * 4;
+	pOut->Size = MELP_FRAME_BYTES ;
 }
 
 DataProcessBlock_t  MELP = {melp_create, melp_init, melp_info, melp_data_ready, melp_process, melp_close};

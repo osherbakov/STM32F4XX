@@ -15,6 +15,7 @@
 
 #define	CVSD_DATA_TYPE			(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define CVSD_BLOCK_SIZE   		(180)
+#define CVSD_BLOCK_BYTES   		(CVSD_BLOCK_SIZE * 4)
 
 #ifndef TRUE
 #define TRUE (1)
@@ -55,36 +56,36 @@ void cvsd_init(void *pHandle)
 }
 
 
-void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= CVSD_BLOCK_SIZE)
+	while(*pInBytes >= CVSD_BLOCK_BYTES)
 	{
 		arm_scale_f32(pDataIn, 32767.0f, pDataIn, CVSD_BLOCK_SIZE);
 		cvsd_encode_f32(cvsd_ana, dataBits, pDataIn, CVSD_BLOCK_SIZE);
 		cvsd_decode_f32(cvsd_syn, pDataOut, dataBits, CVSD_BLOCK_SIZE);
 		arm_scale_f32(pDataOut, 1.0f/32768.0f, pDataOut, CVSD_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + CVSD_BLOCK_SIZE * 4);
-		pDataOut = (void *)((uint32_t)pDataOut + CVSD_BLOCK_SIZE * 4);
-		*pInSamples -= CVSD_BLOCK_SIZE;
-		nGenerated += CVSD_BLOCK_SIZE;
+		pDataIn = (void *)((uint32_t)pDataIn + CVSD_BLOCK_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + CVSD_BLOCK_BYTES);
+		*pInBytes -= CVSD_BLOCK_BYTES;
+		nGenerated += CVSD_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 void cvsd_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = CVSD_DATA_TYPE;
-	pInData->Size = CVSD_BLOCK_SIZE * 4;
+	pInData->Size = CVSD_BLOCK_BYTES;
 }
 
 void cvsd_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = CVSD_DATA_TYPE;
-	pIn->Size = CVSD_BLOCK_SIZE * 4;
+	pIn->Size = CVSD_BLOCK_BYTES;
 	
 	pOut->Type = CVSD_DATA_TYPE;
-	pOut->Size = CVSD_BLOCK_SIZE * 4;
+	pOut->Size = CVSD_BLOCK_BYTES;
 }
 
 

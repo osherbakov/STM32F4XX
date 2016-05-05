@@ -28,6 +28,7 @@
 #define  UPDOWNSAMPLE_RATIO 	(48000/8000)
 #define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2))
 #define  DOWNSAMPLE_BLOCK_SIZE  (60)	// Divisable by 2,3,4,5,6,10,12,15,20,30
+#define  DOWNSAMPLE_BLOCK_BYTES (DOWNSAMPLE_BLOCK_SIZE * 2)	
 
 static q15_t DownSample48_8_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static q15_t DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
@@ -65,33 +66,33 @@ static void ds_48_8_init(void *pHandle)
 			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
-static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE)
+	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES)
 	{
 		arm_fir_decimate_q15(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF));
-		pDataOut = (void *)((uint32_t)pDataOut + (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO);
-		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE;
-		nGenerated += DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
+		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO);
+		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES;
+		nGenerated += DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 static void ds_48_8_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = DOWNSAMPLE_BLOCK_SIZE * 2;
+	pInData->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
 static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
-	pIn->Size = DOWNSAMPLE_BLOCK_SIZE * 2;
+	pIn->Size = DOWNSAMPLE_BLOCK_BYTES;
 	
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
-	pOut->Size = (DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO) * 2;
+	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
 
@@ -115,33 +116,33 @@ static void us_8_48_init(void *pHandle)
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
-static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO)
+	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_q15(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
-		pDataIn = (void *)((uint32_t)pDataIn + (DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF))/UPDOWNSAMPLE_RATIO);
-		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_SIZE * (DOWNSAMPLE_DATA_TYPE & 0x00FF));
-		*pInSamples -= DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
-		nGenerated += DOWNSAMPLE_BLOCK_SIZE;
+		pDataIn = (void *)((uint32_t)pDataIn + DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO);
+		pDataOut = (void *)((uint32_t)pDataOut + DOWNSAMPLE_BLOCK_BYTES);
+		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
+		nGenerated += DOWNSAMPLE_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 static void us_8_48_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = (DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO) * 2;
+	pInData->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
 static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
-	pIn->Size = (DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO) * 2;
+	pIn->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 	
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
-	pOut->Size = DOWNSAMPLE_BLOCK_SIZE * 2;
+	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
 

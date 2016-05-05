@@ -15,7 +15,7 @@
 
 
 #define AU_LAW_BLOCK_SIZE   		(60)
-
+#define AU_LAW_BLOCK_BYTES			(AU_LAW_BLOCK_SIZE * 2)   		
 
 static uint8_t dataBits[AU_LAW_BLOCK_SIZE] CCMRAM;
 
@@ -33,112 +33,112 @@ void aulaw_init(void *pHandle)
 {
 }
 
-void alaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void alaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
+	while(*pInBytes >= AU_LAW_BLOCK_BYTES)
 	{
 		alaw_encode_q15(pHandle, dataBits, pDataIn, AU_LAW_BLOCK_SIZE);
 		alaw_decode_q15(pHandle, pDataOut, dataBits, AU_LAW_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_SIZE * 2);
-		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_SIZE * 2);
-		*pInSamples -= AU_LAW_BLOCK_SIZE;
-		nGenerated += AU_LAW_BLOCK_SIZE;
+		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_BYTES);
+		*pInBytes -= AU_LAW_BLOCK_BYTES;
+		nGenerated += AU_LAW_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
-void alaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void alaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
+	while(*pInBytes >= AU_LAW_BLOCK_BYTES)
 	{
 		alaw_encode_q15(pHandle, pDataOut, pDataIn, AU_LAW_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_SIZE * 2);
+		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_BYTES);
 		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_SIZE);
-		*pInSamples -= AU_LAW_BLOCK_SIZE;
+		*pInBytes -= AU_LAW_BLOCK_BYTES;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
-void alaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void alaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
+	while(*pInBytes >= AU_LAW_BLOCK_SIZE)
 	{
 		alaw_decode_q15(pHandle, pDataOut, pDataIn, AU_LAW_BLOCK_SIZE);
 		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_SIZE);
-		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_SIZE * 2);
-		*pInSamples -= AU_LAW_BLOCK_SIZE;
-		nGenerated += AU_LAW_BLOCK_SIZE;
+		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_BYTES);
+		*pInBytes -= AU_LAW_BLOCK_SIZE;
+		nGenerated += AU_LAW_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
-void ulaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void ulaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
+	while(*pInBytes >= AU_LAW_BLOCK_BYTES)
 	{
 		ulaw_encode_q15(pHandle, dataBits, pDataIn, AU_LAW_BLOCK_SIZE);
 		ulaw_decode_q15(pHandle, pDataOut, dataBits, AU_LAW_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_SIZE * 2);
-		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_SIZE * 2);
-		*pInSamples -= AU_LAW_BLOCK_SIZE;
-		nGenerated += AU_LAW_BLOCK_SIZE;
+		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_BYTES);
+		*pInBytes -= AU_LAW_BLOCK_BYTES;
+		nGenerated += AU_LAW_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
-void ulaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void ulaw_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
+	while(*pInBytes >= AU_LAW_BLOCK_BYTES)
 	{
 		ulaw_encode_q15(pHandle, pDataOut, pDataIn, AU_LAW_BLOCK_SIZE);
-		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_SIZE * 2);
+		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_BYTES);
 		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_SIZE);
-		*pInSamples -= AU_LAW_BLOCK_SIZE;
+		*pInBytes -= AU_LAW_BLOCK_BYTES;
 		nGenerated += AU_LAW_BLOCK_SIZE;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
-void ulaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void ulaw_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= AU_LAW_BLOCK_SIZE)
+	while(*pInBytes >= AU_LAW_BLOCK_SIZE)
 	{
 		ulaw_decode_q15(pHandle, pDataOut, pDataIn, AU_LAW_BLOCK_SIZE);
 		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_SIZE);
-		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_SIZE * 2);
-		*pInSamples -= AU_LAW_BLOCK_SIZE;
-		nGenerated += AU_LAW_BLOCK_SIZE;
+		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_BYTES);
+		*pInBytes -= AU_LAW_BLOCK_SIZE;
+		nGenerated += AU_LAW_BLOCK_BYTES;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 
 void aulaw_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
-	pInData->Size = AU_LAW_BLOCK_SIZE * 2;
+	pInData->Size = AU_LAW_BLOCK_BYTES;
 }
 
 void aulaw_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
-	pIn->Size = AU_LAW_BLOCK_SIZE * 2;
+	pIn->Size = AU_LAW_BLOCK_BYTES;
 	
 	pOut->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
-	pOut->Size = AU_LAW_BLOCK_SIZE * 2;
+	pOut->Size = AU_LAW_BLOCK_BYTES;
 }
 
 void aulaw_encode_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
-	pIn->Size = AU_LAW_BLOCK_SIZE * 2;
+	pIn->Size = AU_LAW_BLOCK_BYTES;
 	
 	pOut->Type = DATA_TYPE_BITS | DATA_NUM_CH_1 | (1);
 	pOut->Size = AU_LAW_BLOCK_SIZE;
@@ -150,7 +150,7 @@ void aulaw_decode_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pIn->Size = AU_LAW_BLOCK_SIZE;
 	
 	pOut->Type = DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2);
-	pOut->Size = AU_LAW_BLOCK_SIZE * 2;
+	pOut->Size = AU_LAW_BLOCK_BYTES;
 }
 
 DataProcessBlock_t  ALAW = {aulaw_create, aulaw_init, aulaw_info, aulaw_data_ready, alaw_process, aulaw_close};

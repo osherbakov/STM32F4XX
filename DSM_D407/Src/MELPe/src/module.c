@@ -44,12 +44,13 @@ void melpe_init(void *pHandle)
 	melp_syn_init_q(melp_parameters);
 }
 
-void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
 	uint32_t	nFrameSize = melp_parameters->frameSize;
+	uint32_t	nFrameBytes = nFrameSize * 4;
 	
-	while(*pInSamples >= nFrameSize)
+	while(*pInBytes >= nFrameBytes)
 	{
 		arm_float_to_q15(pDataIn, speech, nFrameSize);
 #if NPP
@@ -63,12 +64,12 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSa
 		analysis_q(speech, melp_parameters);
 		synthesis_q(melp_parameters, speech);
 		arm_q15_to_float(speech, pDataOut, nFrameSize);		
-		pDataIn = (void *) ((int32_t)pDataIn + nFrameSize * 4);
-		pDataOut = (void *)((int32_t)pDataOut + nFrameSize * 4);
-		*pInSamples -= nFrameSize;
-		nGenerated += nFrameSize;
+		pDataIn = (void *) ((int32_t)pDataIn + nFrameBytes);
+		pDataOut = (void *)((int32_t)pDataOut + nFrameBytes);
+		*pInBytes -= nFrameBytes;
+		nGenerated += nFrameBytes;
 	}
-	*pOutSamples = nGenerated;
+	*pOutBytes = nGenerated;
 }
 
 void melpe_data_ready(void *pHandle, DataPort_t *pInData)
@@ -80,10 +81,10 @@ void melpe_data_ready(void *pHandle, DataPort_t *pInData)
 void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pIn->Size = melp_parameters->frameSize * 4;
+	pIn->Size = BLOCK * 4;
 	
 	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pOut->Size = melp_parameters->frameSize * 4;
+	pOut->Size = BLOCK * 4;
 }
 
 

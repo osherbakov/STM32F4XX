@@ -80,7 +80,7 @@ void StartDataProcessTask(void const * argument)
 	DataPort_t		DataIn;
 
 //	int32_t		DoProcessing;
-	uint32_t 	nSamplesIn, nSamplesModuleNeeds, nSamplesModuleGenerated;
+	uint32_t 	nBytesIn, nBytesModuleNeeds, nBytesModuleGenerated;
 
 	
 	// Allocate static data buffers
@@ -137,22 +137,22 @@ void StartDataProcessTask(void const * argument)
 				if (Queue_Count_Bytes(pDataQ) >= pDataQ->Size/2)
 					osParams.bStartProcess = 0;
 			}else {
-				nSamplesIn = Queue_Count_Elems(pDataQ);
+				nBytesIn = Queue_Count_Bytes(pDataQ);
 				pSyncModule->Ready(pRSIn, &DataIn);
-				nSamplesModuleNeeds = DataIn.Size/DataIn.ElemSize;
-				if(nSamplesIn >= nSamplesModuleNeeds) 
+				nBytesModuleNeeds = DataIn.Size;
+				if(nBytesIn >= nBytesModuleNeeds) 
 				{
-					Queue_PopData(pDataQ, pAudioIn, nSamplesModuleNeeds * pDataQ->ElemSize);
-					nSamplesIn = nSamplesModuleNeeds;
-					pSyncModule->Process(pRSIn, pAudioIn, pAudioOut, &nSamplesIn, &nSamplesModuleGenerated);
+					Queue_PopData(pDataQ, pAudioIn, nBytesModuleNeeds);
+					nBytesIn = nBytesModuleNeeds;
+					pSyncModule->Process(pRSIn, pAudioIn, pAudioOut, &nBytesIn, &nBytesModuleGenerated);
 
-					nSamplesModuleNeeds = nSamplesIn = nSamplesModuleGenerated;
-					pSyncModule->Process(pRSOut, pAudioOut, pAudioIn, &nSamplesIn, &nSamplesModuleGenerated);
+					nBytesModuleNeeds = nBytesIn = nBytesModuleGenerated;
+					pSyncModule->Process(pRSOut, pAudioOut, pAudioIn, &nBytesIn, &nBytesModuleGenerated);
 					
-					if(Queue_Space_Bytes(osParams.PCM_Out_data) < nSamplesModuleGenerated * osParams.PCM_Out_data->ElemSize) {
+					if(Queue_Space_Bytes(osParams.PCM_Out_data) < nBytesModuleGenerated) {
 						ProcOverrun++;
 					}
-					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nSamplesModuleGenerated * osParams.PCM_Out_data->ElemSize);
+					Queue_PushData(osParams.PCM_Out_data, pAudioIn, nBytesModuleGenerated);
 					DATA_Total = Queue_Count_Elems(osParams.PCM_Out_data) + Queue_Count_Elems(pDataQ);
 				}
 			}

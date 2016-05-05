@@ -151,10 +151,10 @@ void codec2_initialize(void *pHandle)
 	frame_size = codec2_samples_per_frame(p_codec); 
 }
 
-uint32_t codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples)
+uint32_t codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes)
 {
 	uint32_t	nGenerated = 0;
-	while(*pInSamples >= frame_size)
+	while(*pInBytes >= frame_size)
 	{
 BSP_LED_On(LED4);
 		arm_scale_f32(pDataIn, 32767.0f, speech, frame_size);
@@ -167,7 +167,7 @@ BSP_LED_Off(LED5);
 //		v_equ(pDataOut, pDataIn, frame_size);
 		pDataIn += frame_size * 4;
 		pDataOut += frame_size * 4;
-		*pInSamples -= frame_size;
+		*pInBytes -= frame_size;
 		nGenerated += frame_size;		
 	}
 	return nGenerated;

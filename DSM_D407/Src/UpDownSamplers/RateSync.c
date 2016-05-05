@@ -28,6 +28,7 @@
 #define	 RATESYNC_ELEM_STRIDE		(2)
 #define  RATESYNC_DATA_TYPE			(DATA_TYPE_I16 | DATA_NUM_CH_2 | (RATESYNC_ELEM_SIZE))
 #define  RATESYNC_BLOCK_SIZE  		(48)
+#define  RATESYNC_BLOCK_BYTES  		(RATESYNC_BLOCK_SIZE * RATESYNC_ELEM_SIZE)
 
 
 //
@@ -80,9 +81,9 @@ void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
 	}
 }
 
-void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInSamples, uint32_t *pOutSamples)
+void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
-	uint32_t	nInSamples;
+	uint32_t	nInSamples, nSavedInSamples;
 	uint32_t	nOutSamples;
 	uint32_t	Delay;				// Delay of output sample relative to input
 	uint32_t 	TimeIn, DeltaIn; 
@@ -107,7 +108,7 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 
 	idxIn =  idxOut = 0;
 	nOutSamples = 0;
-	nInSamples = *pInSamples;
+	nSavedInSamples = nInSamples = *pInBytes / RATESYNC_ELEM_SIZE;
 
 	while(nInSamples > 0)
 	{
@@ -158,26 +159,26 @@ void ratesync_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pI
 	pRS->States[0] = S1;
 	pRS->States[1] = S2;
 	pRS->States[2] = S3;
-	pRS->AddRemoveCnt += (nOutSamples - *pInSamples);
-	*pOutSamples = nOutSamples;
-	*pInSamples = nInSamples;
+	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
+	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE;
+	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE;
 }
 
 
 void ratesync_data_ready(void *pHandle, DataPort_t *pInData)
 {
 	pInData->Type = RATESYNC_DATA_TYPE;
-	pInData->Size = RATESYNC_BLOCK_SIZE * RATESYNC_ELEM_SIZE;
+	pInData->Size = RATESYNC_BLOCK_BYTES;
 }
 
 
 void ratesync_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = RATESYNC_DATA_TYPE;
-	pIn->Size = RATESYNC_BLOCK_SIZE * RATESYNC_ELEM_SIZE;
+	pIn->Size = RATESYNC_BLOCK_BYTES;
 	
 	pOut->Type = RATESYNC_DATA_TYPE;
-	pOut->Size = RATESYNC_BLOCK_SIZE * RATESYNC_ELEM_SIZE ;
+	pOut->Size = RATESYNC_BLOCK_BYTES;
 }
 
 
