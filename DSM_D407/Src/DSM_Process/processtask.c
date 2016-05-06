@@ -28,7 +28,7 @@ extern DataProcessBlock_t  US_8_48;
 extern DataProcessBlock_t  DS_48_8;
 extern DataProcessBlock_t  US_8_48_Q15;
 extern DataProcessBlock_t  DS_48_8_Q15;
-extern DataProcessBlock_t  RATESYNC;
+extern DataProcessBlock_t  RATESYNC_S;
 
 
 uint32_t	ProcUnderrun, ProcOverrun;
@@ -53,7 +53,7 @@ void OutData(uint32_t nSamples) {
 DataProcessBlock_t  *pProcModule = 	&BYPASS;
 DataProcessBlock_t  *pDecModule = 	&BYPASS;
 DataProcessBlock_t  *pIntModule = 	&BYPASS;
-DataProcessBlock_t  *pSyncModule = 	&RATESYNC;
+DataProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
 
 void			*pRSIn;
 void			*pRSOut;
@@ -108,10 +108,10 @@ void StartDataProcessTask(void const * argument)
 	pSyncModule->Init(pRSIn);
 	pSyncModule->Init(pRSOut);
 	
-	((RateSyncData_t *)pRSIn)->DeltaIn = 1;
-	((RateSyncData_t *)pRSIn)->DeltaOut = 1;
-	((RateSyncData_t *)pRSOut)->DeltaIn = 1;
-	((RateSyncData_t *)pRSOut)->DeltaOut = 1;
+	((RateSyncData_t *)pRSIn)->DeltaIn = 160;
+	((RateSyncData_t *)pRSIn)->DeltaOut = 147;
+	((RateSyncData_t *)pRSOut)->DeltaIn = 147;
+	((RateSyncData_t *)pRSOut)->DeltaOut = 160;
 
 	while(1)
 	{
