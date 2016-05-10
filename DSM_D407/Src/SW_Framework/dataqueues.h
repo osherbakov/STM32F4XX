@@ -24,8 +24,6 @@ typedef enum DataType
 	DATA_TYPE_SHIFT   	= 10			// Shift amount to extract data type
 }DataType_t;
 
-#define DATA_TYPE_SIZE(a)  					((((a) & DATA_TYPE_MASK) >> DATA_TYPE_SHIFT) + 1)
-
 typedef enum DataChannels
 {
 	DATA_NUM_CH_NONE 	= 0x0000,
@@ -47,9 +45,9 @@ typedef enum DataChannels
 	DATA_CH_SHIFT 		= 12			// Shift amount to extract number of channels
 } DataChannels_t;
 
+#define DATA_TYPE_SIZE(a)  			((((a) & DATA_TYPE_MASK) >> DATA_TYPE_SHIFT) + 1)
 #define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_CH_MASK) >> DATA_CH_SHIFT) + 1)
-
-#define ELEM_SIZE(a)			((a) & 0x00FF)
+#define DATA_TYPE_ELEM_SIZE(a)  	(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
 
 typedef enum DataChannelMask
 {
@@ -103,9 +101,6 @@ typedef struct DataPort {
 	};						// All info about data in the queue - Type, Element Size
 	uint16_t		Size;	// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 } DataPort_t;
-
-#define NUM_ELEMS(a)	(a.Size/a.ElemSize)
-#define ELEMS_SIZE(a)	(a.Size*a.ElemSize)
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
 extern void Queue_Init(DQueue_t *pQueue, uint32_t type);

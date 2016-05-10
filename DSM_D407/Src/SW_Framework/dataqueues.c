@@ -6,16 +6,15 @@
 
 #define MIN(a, b)  	(((a) < (b)) ? (a) : (b))
 #define MAX(a, b)  	(((a) > (b)) ? (a) : (b))
-#define ABS(a)			(((a) >  0) ? (a) : -(a))
+#define ABS(a)		(((a) >  0) ? (a) : -(a))
 
 
 //
 // Definitions:
 //   Data type and type_size - the type (char, short, int, fixed, float) and size (in bytes) of a single element
-//	 Element - the combination of N data types, as having the same type, where N is number of channels
+//	 Element - the combination of N data types, as having the same type, where N is number of channels,
+// 	  so basically, an element is the unit/collection of multiple data of the same type with the same timestamp ...
 //   The data types in the element can be INTERLEAVED (CH1 CH2 CH1 CH2 ...) or SEQUENTIAL (CH1 CH1 CH1 ... CH2 CH2 CH2...)
-
-#define DATA_TYPE_ELEM_SIZE(a)  		(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
 
 #define  Q31_F				((float)(1U<<31))
 #define	 Q31_INV_F			(1.0F / Q31_F)
@@ -189,7 +188,7 @@ void DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, u
 		memcpy(pDst, pSrc, nSrcElements * (SrcType & 0x00FF));
 		return;
 	}		
-	srcStep = (SrcType & 0x00FF); 			// Step size to get the next element
+	srcStep = (SrcType & 0x00FF); 		// Step size to get the next element
 	dstStep = (DstType & 0x00FF);
 	
 	srcSize = DATA_TYPE_SIZE(SrcType);	// Size of one datatype(1,2,3,4 bytes)

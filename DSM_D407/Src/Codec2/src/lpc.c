@@ -26,18 +26,12 @@
 */
 
 #define LPC_MAX_N 512		/* maximum no. of samples in frame */
-#define PI 3.141592654f		/* mathematical constant */
-
-#define ALPHA 1.0f
-#define BETA  0.94f
-
 
 #include <math.h>
 #include "mat.h"
 
 #include "defines.h"
 #include "lpc.h"
-
 
 
 
@@ -107,3 +101,33 @@ void levinson_durbin(
     lpcs[i] = a[order][i];
   lpcs[0] = 1.0f;  
 }
+
+/*---------------------------------------------------------------------------*\
+
+  inverse_filter()
+
+  Inverse Filter, A(z).  Produces an array of residual samples from an array
+  of input samples and linear prediction coefficients.
+
+  The filter memory is stored in the first order samples of the input array.
+
+\*---------------------------------------------------------------------------*/
+
+void inverse_filter(
+  float Sn[],	/* Nsam input samples */
+  float a[],	/* LPCs for this frame of samples */
+  int Nsam,	/* number of samples */
+  float res[],	/* Nsam residual samples */
+  int order	/* order of LPC */
+)
+{
+  int i,j;	/* loop variables */
+
+  for(i=0; i<Nsam; i++) {
+    res[i] = 0.0;
+    for(j=0; j<=order; j++)
+      res[i] += Sn[i-j]*a[j];
+  }
+}
+
+

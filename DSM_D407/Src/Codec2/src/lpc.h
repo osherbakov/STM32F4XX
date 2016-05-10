@@ -32,5 +32,6 @@
 
 void autocorrelate(float Sn[], float Rn[], int Nsam, int order);
 void levinson_durbin(float R[],	float lpcs[], int order);
+void inverse_filter(float Sn[], float a[], int Nsam, float res[], int order);
 
 #endif
