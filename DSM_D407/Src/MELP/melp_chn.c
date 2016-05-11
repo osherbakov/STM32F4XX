@@ -34,13 +34,7 @@ Returns: void
 #include "melp_sub.h"
 #include "dsp_sub.h"
 
-/* Define number of channel bits per frame */
-#define NUM_CH_BITS 54
 #define ORIGINAL_BIT_ORDER 0  /* flag to use bit order of original version */
-
-/* Define bit buffer */
-static unsigned int bit_buffer[NUM_CH_BITS] CCMRAM;
-static struct melp_param param_buffer;
 
 #if (ORIGINAL_BIT_ORDER)
 /* Original linear order */
@@ -72,26 +66,16 @@ static int bit_order[NUM_CH_BITS] RODATA = {
 static int sync_bit = 0; /* sync bit */
 
 
-void melp_chn_write(struct melp_param *par)
+void melp_chn_write(struct melp_param *par, unsigned char chbuf[])
 {
 	int i, bit_cntr;
-	unsigned int *bit_ptr; 
-
-	param_buffer.gain_index[1] = par->gain_index[1];
-	param_buffer.gain_index[0] =  par->gain_index[0];
-	param_buffer.pitch_index =  par->pitch_index;
-	param_buffer.jit_index =  par->jit_index;
-	param_buffer.bpvc_index =  par->bpvc_index;
-
-	memcpy(param_buffer.msvq_par.indices, par->msvq_par.indices, sizeof(param_buffer.msvq_par.indices));
-	memcpy(param_buffer.fsvq_par.indices, par->fsvq_par.indices, sizeof(param_buffer.fsvq_par.indices));
-	return;
+	unsigned char *bit_ptr; 
 
 	/* FEC: code additional information in redundant indices */
-	// fec_code(par);
+	fec_code(par);
 
 	/*	Fill bit buffer	*/
-	bit_ptr = bit_buffer;
+	bit_ptr = chbuf;
 	bit_cntr = 0;
 
 	pack_code(par->gain_index[1],&bit_ptr,&bit_cntr,5,1);
@@ -110,27 +94,15 @@ void melp_chn_write(struct melp_param *par)
 	pack_code(par->fsvq_par.indices[0],&bit_ptr,&bit_cntr, FS_BITS,1);
 }
 
-int melp_chn_read(struct melp_param *par)
+int melp_chn_read(struct melp_param *par, unsigned char chbuf[])
 {
 	int erase = 0;
 	int i, bit_cntr;
-	unsigned int *bit_ptr; 
+	unsigned char *bit_ptr; 
 
 	/*	Read information from  bit buffer	*/
-	bit_ptr = bit_buffer;
+	bit_ptr = chbuf;
 	bit_cntr = 0;
-
-	par->gain_index[1] = param_buffer.gain_index[1];
-	par->gain_index[0] = param_buffer.gain_index[0];
-	par->pitch_index = param_buffer.pitch_index;
-	par->jit_index = param_buffer.jit_index;
-	par->bpvc_index = param_buffer.bpvc_index;
-	memcpy(par->msvq_par.indices, param_buffer.msvq_par.indices, sizeof(param_buffer.msvq_par.indices));
-	memcpy(par->fsvq_par.indices, param_buffer.fsvq_par.indices, sizeof(param_buffer.fsvq_par.indices));
-
-	/* Clear unvoiced flag */
-	par->uv_flag = 0;
-	return 0;
 
 	unpack_code(&bit_ptr,&bit_cntr,&par->gain_index[1],5,1,0);
 
@@ -149,7 +121,7 @@ int melp_chn_read(struct melp_param *par)
 
 	/* Clear unvoiced flag */
 	par->uv_flag = 0;
-	// erase = fec_decode(par,erase);
+	erase = fec_decode(par,erase);
 	/* Return erase flag */
 	return(erase);
 }

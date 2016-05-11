@@ -20,7 +20,6 @@
 
 /* ====== General parameters ====== */
 extern struct melp_param	melp_parameters[];           /* melp analysis parameters */
-extern unsigned char		chbuf[];                   /* channel bit data buffer */
 
 /* ====== Quantization ====== */
 extern const int16_t	msvq_bits[];

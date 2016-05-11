@@ -35,12 +35,17 @@ void StartDefaultTask(void const * argument);
 void StartDataInPDMTask(void const * argument);
 void StartDataProcessTask(void const * argument);
 
+typedef enum PROC_STATE {
+	STOPPED = 0,
+	WAITING_FOR_BUFF = 1,
+	RUNNING = 2
+} PROC_STATE_t;
 
 typedef struct 
 {
 		AUDIO_ModeInTypeDef  audioInMode;		// Global Audio IN mode  - from USB, I2S, or PDM/I2S Microphone
 		int bStartPlay;						  	// Sync the start of playing with the next block of PDM data
-		int bStartProcess;						// Start processing Data only when half buffer is filled flag
+		PROC_STATE_t ProcessingState;			// State of processing: 0 - stopped, 1 - waiting for 1/2 buffers, 2 - normal
 
 		osMessageQId dataInReadyMsg;			// Message queue to indicate that any input data for processing and routing is ready
 	

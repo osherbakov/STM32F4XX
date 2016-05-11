@@ -5,6 +5,7 @@
 #define __TARGET_FPU_VFP 1
 #define __FPU_PRESENT 1
 #include <stdint.h>
+#include "cmsis_os.h"
 #endif
 
 #include "arm_math.h"
@@ -16,6 +17,11 @@
 #define	CVSD_DATA_TYPE			(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define CVSD_BLOCK_SIZE   		(180)
 #define CVSD_BLOCK_BYTES   		(CVSD_BLOCK_SIZE * 4)
+
+#define	CVSD_ENCDEC_TYPE		(DATA_TYPE_F32_32K | DATA_NUM_CH_1 | (1))
+#define	CVSD_BITS_TYPE			(DATA_TYPE_BITS | DATA_NUM_CH_1 | (1))
+#define CVSD_BITS_SIZE   		(180)
+#define CVSD_BITS_BYTES   		(CVSD_BITS_SIZE)
 
 #ifndef TRUE
 #define TRUE (1)
@@ -88,5 +94,107 @@ void cvsd_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = CVSD_BLOCK_BYTES;
 }
 
-
 DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_info, cvsd_data_ready, cvsd_process, cvsd_close};
+
+
+//
+//    CVSD  Encoder  (Samples -> Bits)
+//
+void *cvsd_encode_create(uint32_t Params)
+{
+	return osAlloc(sizeof(CVSD_STATE_F32_t));
+}
+
+void cvsd_encode_close(void *pHandle)
+{
+	osFree(pHandle);
+	return;
+}
+
+void cvsd_encode_init(void *pHandle)
+{
+	cvsd_init_f32(pHandle);
+}
+
+void cvsd_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
+{
+	uint32_t	nGenerated = 0;
+	while(*pInBytes >= CVSD_BLOCK_BYTES)
+	{
+		cvsd_encode_f32(pHandle, pDataOut, pDataIn, CVSD_BLOCK_SIZE);
+		pDataIn = (void *)((uint32_t)pDataIn + CVSD_BLOCK_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + CVSD_BITS_BYTES);
+		*pInBytes -= CVSD_BLOCK_BYTES;
+		nGenerated += CVSD_BITS_BYTES;
+	}
+	*pOutBytes = nGenerated;
+}
+
+void cvsd_encode_data_ready(void *pHandle, DataPort_t *pInData)
+{
+	pInData->Type = CVSD_ENCDEC_TYPE;
+	pInData->Size = CVSD_BLOCK_BYTES;
+}
+
+void cvsd_encode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Type = CVSD_ENCDEC_TYPE;
+	pIn->Size = CVSD_BLOCK_BYTES;
+	
+	pOut->Type = CVSD_BITS_TYPE;
+	pOut->Size = CVSD_BITS_BYTES;
+}
+
+DataProcessBlock_t  CVSD_ENC = {cvsd_encode_create, cvsd_encode_init, cvsd_encode_data_info, cvsd_encode_data_ready, cvsd_encode_process, cvsd_encode_close};
+
+//
+//    CVSD  Decoder  (Bits -> Samples)
+//
+void *cvsd_decode_create(uint32_t Params)
+{
+	return osAlloc(sizeof(CVSD_STATE_F32_t));
+}
+
+void cvsd_decode_close(void *pHandle)
+{
+	osFree(pHandle);
+	return;
+}
+
+void cvsd_decode_init(void *pHandle)
+{
+	cvsd_init_f32(pHandle);
+}
+
+void cvsd_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
+{
+	uint32_t	nGenerated = 0;
+	while(*pInBytes >= CVSD_BITS_BYTES)
+	{
+		cvsd_decode_f32(pHandle, pDataOut, pDataIn, CVSD_BITS_SIZE);
+		pDataIn = (void *)((uint32_t)pDataIn + CVSD_BITS_BYTES);
+		pDataOut = (void *)((uint32_t)pDataOut + CVSD_BLOCK_BYTES);
+		*pInBytes -= CVSD_BITS_BYTES;
+		nGenerated += CVSD_BLOCK_BYTES;
+	}
+	*pOutBytes = nGenerated;
+}
+
+void cvsd_decode_data_ready(void *pHandle, DataPort_t *pInData)
+{
+	pInData->Type = CVSD_ENCDEC_TYPE;
+	pInData->Size = CVSD_BITS_BYTES;
+}
+
+void cvsd_decode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
+{
+	pIn->Type = CVSD_BITS_TYPE;
+	pIn->Size = CVSD_BITS_BYTES;
+	
+	pOut->Type = CVSD_ENCDEC_TYPE;
+	pOut->Size = CVSD_BLOCK_BYTES;
+}
+
+DataProcessBlock_t  CVSD_DEC = {cvsd_decode_create, cvsd_decode_init, cvsd_decode_data_info, cvsd_decode_data_ready, cvsd_decode_process, cvsd_decode_close};
+
+

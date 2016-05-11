@@ -16,7 +16,7 @@
 
 /* ====== General parameters ====== */
 struct melp_param	melp_parameters[NF] CCMRAM;          /* melp analysis parameters */
-unsigned char		chbuf[CHSIZE] CCMRAM;                /* channel bit data buffer */
+unsigned char		chbuf[NUM_CH_BITS] CCMRAM;           /* channel bit data buffer */
 
 /* ====== Quantization ====== */
 const int16_t		msvq_bits[MSVQ_STAGES] RODATA = {7, 6, 6, 6};

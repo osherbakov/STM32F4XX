@@ -212,7 +212,7 @@ static void ivfilt(int16_t ivbuf[], int16_t lpbuf[], int16_t len)
  *	inbuf		---- input data buffer (Q12)					*
  *	pitTrack	---- pitch pitTrackParam structure				*
  *	classStat	---- classification paramters					*
- *==============================================================*/
+ *================`==============================================*/
 	static int16_t	proBuf[PIT_COR_LEN] CCMRAM;                                   /* Q15 */
 	static int16_t	trk_index[MAXPITCH + 1] CCMRAM;
 	static int16_t	gp[MAXPITCH + 1] CCMRAM, peak[MAXPITCH + 1]CCMRAM , corx[NODE] CCMRAM;      /* Q15 */

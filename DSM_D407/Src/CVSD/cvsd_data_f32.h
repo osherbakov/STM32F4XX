@@ -59,7 +59,6 @@ typedef struct CVSD_STATE_F32{
 	uint32_t	ShiftRegister;
 	float		V_syllabic;
 	float		V_integrator;
-	uint32_t	bitcount;
 }CVSD_STATE_F32_t;
 
 #endif	// __CVSD_DATA_F32_H__

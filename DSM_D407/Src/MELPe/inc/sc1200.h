@@ -24,17 +24,11 @@
 /* =================== */
 /* Definition of Types */
 /* =================== */
-
-//typedef int				int32_t;				/* 32 bit "accumulator" (L_*) */
-//typedef unsigned int	uint32_t;				/* 32 bit unsigned data */
-//typedef short			int16_t;				/* 16 bit "register" (sw*) */
-//typedef unsigned short	uint16_t;				/* 16 bit unsigned data */
-
 typedef long long		Word40;					/* 40 bit "accumulator"	*/
+
 /* ================== */
 /* General Definition */
 /* ================== */
-
 #define BOOLEAN		int32_t
 #define TRUE		1
 #define FALSE		0
@@ -56,7 +50,6 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 #define RATE2400		2400
 #define RATE1200		1200
 
-#define SKIP_CHANNEL    FALSE
 
 #define POSTFILTER      TRUE
 // #define NPP             TRUE
@@ -66,8 +59,8 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
  *                  Global Constants                                *
  * ================================================================ */
 
-#define FSAMP               8000                        /* sampling frequency */
-#define FRAME				180                          /* speech frame size */
+#define FSAMP               8000             /* sampling frequency */
+#define FRAME				180              /* speech frame size */
 #define NF					3                /* number of frames in one block */
 #define BLOCK				(NF*FRAME)
 #define FFTLENGTH			512
@@ -181,8 +174,7 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 /* Channel I/O constants */
 /* ===================== */
 
-#define CHWORDSIZE		8                  /* number of bits per channel word */
-#define ERASE_MASK		(uint16_t) 0x4000              /* erasure flag mask */
+#define ERASE_MASK		(uint16_t) 0x4000                /* erasure flag mask */
                                                           /* for channel word */
 #define GN_QLO_Q8		2560            /* 10.0 * (1 << 8) minimum gain in dB */
 #define GN_QUP_Q8		19712           /* 77.0 * (1 << 8) maximum gain in dB */
@@ -201,8 +193,6 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 #define FS_BITS			8            /* number of bits for Fourier magnitudes */
 #define FS_LEVELS		(1 << FS_BITS)                /* number of levels for */
                                                         /* Fourier magnitudes */
-#define CHSIZE			27                  /* The shortest integer number of */
-                                             /* words in channel packet; NF*9 */
 #define NUM_CH_BITS		81              /* the size is determined for 1.2kbps */
 
 
@@ -243,7 +233,6 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 struct melp_param {                                        /* MELP parameters */
 	int32_t	rate;													/* I16 */
 	int32_t frameSize;
-	int32_t bitSize;
 	int32_t chwordSize;
 	int16_t	pitch;                                                  /* Q7 */
 	int16_t	jitter;                                                /* Q15 */
@@ -266,11 +255,9 @@ struct quant_param {
 	int16_t	jit_index[NF];      /* Suspected that a scalar is good enough */
 	int16_t	bpvc_index[NF];
 	int16_t	fs_index;
-	BOOLEAN		uv_flag[NF];                            /* global uv decision */
+	BOOLEAN	uv_flag[NF];                            /* global uv decision */
 	int16_t	msvq_index[MSVQ_STAGES];
 	int16_t	fsvq_index;
-	unsigned char	*chptr;                     /* channel related parameters */
-	int16_t	chbit;                             /* they are rate dependent */
 };
 
 #ifdef _MSC_VER
@@ -294,25 +281,25 @@ struct quant_param {
 #include "arm_const_structs.h"
 
 
-void	analysis_q(int16_t sp_in[], struct melp_param *par);
+void	analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[]);
 
 void	sc_ana(struct melp_param *par);
 
-void	synthesis_q(struct melp_param *par, int16_t sp_out[]);
+void	synthesis_q(struct melp_param *par, int16_t sp_out[], unsigned char chbuf[]);
 
 void	melp_ana_init_q(struct melp_param *par);
 
 void	melp_syn_init_q(struct melp_param *par);
 
-void	melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[], int32_t chwordsize);
+void	melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[]);
 
-void	low_rate_chn_write(struct quant_param *qpar, int32_t chwordsize);
+void	low_rate_chn_write(struct quant_param *qpar, unsigned char chbuf[]);
 
 BOOLEAN	melp_chn_read_q(struct quant_param *qpar, struct melp_param *par,
 					  struct melp_param *prev_par, unsigned char chbuf[]);
 
 BOOLEAN	low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
-                          struct melp_param *prev_par);
+                          struct melp_param *prev_par, unsigned char chbuf[]);
 
 void	fec_code_q(struct quant_param *par);
 

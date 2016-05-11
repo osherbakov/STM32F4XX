@@ -104,6 +104,8 @@ void StartDataInPDMTask(void const * argument)
 {
 	// Allocate the storage for PDM data (double-buffered) and resulting storage for PCM
 	osParams.pPDM_In  = (uint8_t *)osAlloc(NUM_PDM_BYTES * 2);
+	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
+		
 	pPCM0 = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 	pPCM1 = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 

@@ -38,6 +38,6 @@ void iirflt(float input[], const float coeff[], float output[], float delay[], i
 void zerflt(float input[], const float coeff[], float output[], int order,int npts);
 void firflt(float input[], const float coeff[], float output[], float delay[], int order,int npts);
 
-void  pack_code(int code,unsigned int **p_ch_beg,int *p_ch_bit,int numbits,int size);
-int unpack_code(unsigned int **p_ch_beg,int *p_ch_bit,int *p_code,int numbits,int wsize,unsigned int erase_mask);
+void pack_code(int code,unsigned char **p_ch_beg,int *p_ch_bit,int numbits,int size);
+int  unpack_code(unsigned char **p_ch_beg,int *p_ch_bit,int *p_code,int numbits,int wsize,unsigned int erase_mask);
 

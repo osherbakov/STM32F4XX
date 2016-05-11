@@ -79,7 +79,7 @@ static float pulse_cof[MIX_ORD+1]	CCMRAM,
 static float w_fs[NUM_HARM]			CCMRAM;
 static float w_fs_inv[NUM_HARM]		CCMRAM;
 
-void melp_syn(struct melp_param *par, float sp_out[])
+void melp_syn(struct melp_param *par, float sp_out[], unsigned char chbuf[])
 {
 
     int i, gaincnt;
@@ -102,7 +102,7 @@ void melp_syn(struct melp_param *par, float sp_out[])
     }
 
     /*	Read and decode channel input buffer	*/
-    erase = melp_chn_read(par);
+    erase = melp_chn_read(par, chbuf);
 
 	/* Decode new frame if no erasures occurred */
 	if (erase)

@@ -188,7 +188,7 @@ void pack_code_q(int16_t code, unsigned char **ptr_ch_begin,
 			*ch_word |= (unsigned char) (shl(temp, ch_bit));
 
 		/* Check for full channel word */
-		ch_bit = add(ch_bit, 1);
+		ch_bit = ch_bit + 1;
 		if (ch_bit >= wsize){
 			ch_bit = 0;
 			(*ptr_ch_begin) ++;

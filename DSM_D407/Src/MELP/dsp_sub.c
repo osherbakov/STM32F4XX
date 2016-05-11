@@ -192,10 +192,10 @@ void	rand_num(float output[], float amplitude, int npts)
 /*								*/
 /*	Subroutine PACK_CODE: Pack bit code into channel.	*/
 /*								*/
-void pack_code(int code,unsigned int **p_ch_beg,int *p_ch_bit, int numbits, int wsize)
+void pack_code(int code, unsigned char **p_ch_beg,int *p_ch_bit, int numbits, int wsize)
 {
     int	i,ch_bit;
-    unsigned int *ch_word;
+    unsigned char *ch_word;
 
 	ch_bit = *p_ch_bit;
 	ch_word = *p_ch_beg;
@@ -224,16 +224,16 @@ void pack_code(int code,unsigned int **p_ch_beg,int *p_ch_bit, int numbits, int 
 /*	Subroutine UNPACK_CODE: Unpack bit code from channel.	*/
 /*      Return 1 if erasure, otherwise 0.                       */
 /*								*/
-int unpack_code(unsigned int **p_ch_beg, int *p_ch_bit, int *p_code, int numbits, int wsize, unsigned int ERASE_MASK)
+int unpack_code(unsigned char **p_ch_beg, int *p_ch_bit, int *p_code, int numbits, int wsize, unsigned int ERASE_MASK)
 {
     int ret_code;
     int	i,ch_bit;
-    unsigned int *ch_word;
+    unsigned char *ch_word;
 
 	ch_bit = *p_ch_bit;
 	ch_word = *p_ch_beg;
 	*p_code = 0;
-        ret_code = *ch_word & ERASE_MASK;
+    ret_code = *ch_word & ERASE_MASK;
 
 	for (i = 0; i < numbits; i++) {
 		/* Mask in bit from channel word to code	*/

@@ -107,7 +107,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[]);
 ** Return value:	None
 **
 *****************************************************************************/
-void synthesis_q(struct melp_param *par, int16_t sp_out[])
+void synthesis_q(struct melp_param *par, int16_t sp_out[], unsigned char chbuf[])
 {
 	register int16_t	i;
 
@@ -127,10 +127,8 @@ void synthesis_q(struct melp_param *par, int16_t sp_out[])
 	/* Read and decode channel input buffer. */
 	if (par->rate == RATE2400)
 		erase = melp_chn_read_q(&quant_par, par, &prev_par, chbuf);
-#if !SKIP_CHANNEL
 	else
-		erase = (BOOLEAN) low_rate_chn_read(&quant_par, par, &prev_par);
-#endif
+		erase = (BOOLEAN) low_rate_chn_read(&quant_par, par, &prev_par, chbuf);
 
 	if (par->rate == RATE2400){
 		par->uv_flag = quant_par.uv_flag[0];
@@ -156,20 +154,21 @@ void synthesis_q(struct melp_param *par, int16_t sp_out[])
 /*  Outputs:                                                                  */
 /*    speech[] - output speech signal                                         */
 /*  Returns: void                                                             */
-	static int16_t	lpc_del[LPC_ORD];                               /* Q0 */
-	static int16_t	prev_pcof[MIX_ORD + 1], prev_ncof[MIX_ORD + 1];
-	static int16_t	disp_del[DISP_ORD] CCMRAM;
-	static int16_t	ase_del[LPC_ORD], tilt_del[TILT_ORD];
-	static int16_t	pulse_del[MIX_ORD], noise_del[MIX_ORD];
-	static int16_t	fs_real[PITCHMAX] CCMRAM;
-	static int16_t	sig2[BEGIN + PITCHMAX] CCMRAM;
-	static int16_t	sigbuf[BEGIN + PITCHMAX] CCMRAM;
-	static int16_t	curr_tilt, tilt_cof[TILT_ORD + 1];	
-	static int16_t	lsf[LPC_ORD];
-	static int16_t	lpc[LPC_ORD + 1];
-	static int16_t	ase_num[LPC_ORD + 1], ase_den[LPC_ORD];
-	static int16_t	curr_pcof[MIX_ORD + 1], curr_ncof[MIX_ORD + 1];
-	static int16_t	pulse_cof[MIX_ORD + 1], noise_cof[MIX_ORD + 1];
+
+static int16_t	lpc_del[LPC_ORD];                               /* Q0 */
+static int16_t	prev_pcof[MIX_ORD + 1], prev_ncof[MIX_ORD + 1];
+static int16_t	disp_del[DISP_ORD] CCMRAM;
+static int16_t	ase_del[LPC_ORD], tilt_del[TILT_ORD];
+static int16_t	pulse_del[MIX_ORD], noise_del[MIX_ORD];
+static int16_t	fs_real[PITCHMAX] CCMRAM;
+static int16_t	sig2[BEGIN + PITCHMAX] CCMRAM;
+static int16_t	sigbuf[BEGIN + PITCHMAX] CCMRAM;
+static int16_t	curr_tilt, tilt_cof[TILT_ORD + 1];	
+static int16_t	lsf[LPC_ORD];
+static int16_t	lpc[LPC_ORD + 1];
+static int16_t	ase_num[LPC_ORD + 1], ase_den[LPC_ORD];
+static int16_t	curr_pcof[MIX_ORD + 1], curr_ncof[MIX_ORD + 1];
+static int16_t	pulse_cof[MIX_ORD + 1], noise_cof[MIX_ORD + 1];
 	
 static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 {

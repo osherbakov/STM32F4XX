@@ -11,7 +11,6 @@ EXTDECL void cvsd_init_f32(void *state)
 {
 	CVSD_STATE_F32_t *p_state = (CVSD_STATE_F32_t *) state;
 	p_state->ShiftRegister = 0;
-	p_state->bitcount = 0;
 	p_state->V_integrator = 0;
 	p_state->V_syllabic = SYLLABIC_MIN;
 }
@@ -24,18 +23,12 @@ EXTDECL uint8_t *cvsd_encode_f32(void *state, uint8_t *pBits, float *pSamples, i
 	float			V_integrator;
 	float			V;
 	uint32_t		SR;
-	int				bitcount;
-	uint8_t			databyte;
 
 	CVSD_STATE_F32_t *p_state = (CVSD_STATE_F32_t *) state;
 
 	V_syllabic = p_state->V_syllabic;
 	V_integrator = p_state->V_integrator;
 	SR = p_state->ShiftRegister;
-	bitcount = p_state->bitcount;
-	databyte = *pBits;
-	
-	if(bitcount) databyte >>= (8 - bitcount);
 	
 	while(nSamples--)
 	{
@@ -45,16 +38,9 @@ EXTDECL uint8_t *cvsd_encode_f32(void *state, uint8_t *pBits, float *pSamples, i
 
 		// Add the comparator bit into the shift register
 		SR = ((SR << 1) | sample_bigger_than_ref) & SR_MASK;
-		// Add bit into databyte
-		databyte = (databyte << 1) | sample_bigger_than_ref;
 
-		bitcount += 1;
-		if(bitcount >= 8)
-		{
-			*pBits++ = databyte;
-			bitcount = 0;
-			databyte = 0;
-		}
+		// Add bit into databyte
+		*pBits++ = sample_bigger_than_ref ? 0xFF : 0x00;
 
 		//  PROCESS SYLLABIC BLOCK
 		// Apply overflow detector - all ones or all zeros
@@ -68,14 +54,8 @@ EXTDECL uint8_t *cvsd_encode_f32(void *state, uint8_t *pBits, float *pSamples, i
 		// V_integrator -= _MUL(V_integrator, INTEGRATOR_LEAK);
 		_MAC(V_integrator, -V_integrator, INTEGRATOR_LEAK);
 	}
-	if(bitcount > 0)
-	{
-		databyte <<= (8 - bitcount);
-		*pBits = databyte;
-	}
 
 	p_state->ShiftRegister = SR;
-	p_state->bitcount = bitcount;
 	p_state->V_syllabic = V_syllabic;
 	p_state->V_integrator = V_integrator;
 	return pBits;
@@ -88,8 +68,6 @@ EXTDECL uint8_t *cvsd_decode_f32(void *state, float *pSamples, uint8_t *pBits, i
 	float			V_integrator;
 	float			V_s;
 	uint32_t		SR;
-	int				bitcount; 
-	uint8_t			databyte;
 	float			sample;
 
 	CVSD_STATE_F32_t *p_state = (CVSD_STATE_F32_t *) state;
@@ -98,15 +76,10 @@ EXTDECL uint8_t *cvsd_decode_f32(void *state, float *pSamples, uint8_t *pBits, i
 	V_syllabic = p_state->V_syllabic;
 	V_integrator = p_state->V_integrator;
 	SR = p_state->ShiftRegister;
-	bitcount = p_state->bitcount;
-	databyte = *pBits++;
-	databyte <<= bitcount;
-	
 	while(nBits--)
 	{
 		// Extract the comparator output bit
-		sample_bigger_than_ref = (databyte & 0x80) ? 0x01 : 0x00;
-		databyte <<= 1;
+		sample_bigger_than_ref = (*pBits++) ? 0x01 : 0x00;
 
 		// Add the bit into the shift register
 		SR = ((SR << 1) | sample_bigger_than_ref) & SR_MASK ;
@@ -127,21 +100,12 @@ EXTDECL uint8_t *cvsd_decode_f32(void *state, float *pSamples, uint8_t *pBits, i
 		sample = MIN(sample, SAMPLE_MAX_VALUE);
 		*pSamples++ = sample;
 
-		bitcount += 1;
-		if(bitcount >= 8)
-		{
-			databyte = *pBits++;
-			bitcount = 0;
-		}
 	}
 
 	// Save the working vars in state
 	p_state->ShiftRegister = SR;
-	p_state->bitcount = bitcount;
 	p_state->V_syllabic = V_syllabic;
 	p_state->V_integrator = V_integrator;
-	if(bitcount) pBits -= 1;	
-
 	return	pBits;
 }
 

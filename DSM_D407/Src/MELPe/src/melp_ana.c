@@ -96,7 +96,7 @@ int16_t	top_lpc[LPC_ORD] CCMRAM;
 /* Prototype */
 
 static void		melp_ana(int16_t sp_in[], struct melp_param *par, int16_t subnum);
-void		sc_ana(struct melp_param *par);
+static void		sc_ana(struct melp_param *par);
 static BOOLEAN	subenergyRelation1(classParam classStat[], int16_t curTrack);
 static BOOLEAN	subenergyRelation2(classParam classStat[], int16_t curTrack);
 
@@ -116,7 +116,7 @@ static BOOLEAN	subenergyRelation2(classParam classStat[], int16_t curTrack);
 **
 *****************************************************************************/
 static int16_t	lpc[LPC_ORD + 1] CCMRAM, weights[LPC_ORD] CCMRAM;
-void analysis_q(int16_t sp_in[], struct melp_param *par)
+void analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[])
 {
 	register int16_t	i;
 	int16_t	num_frames;
@@ -250,11 +250,9 @@ void analysis_q(int16_t sp_in[], struct melp_param *par)
 
 	/* Write channel bitstream */
 	if (par->rate == RATE2400)
-		melp_chn_write_q(&quant_par, chbuf, par->chwordSize);
-#if !SKIP_CHANNEL
+		melp_chn_write_q(&quant_par, chbuf);
 	else
-		low_rate_chn_write(&quant_par, par->chwordSize);
-#endif
+		low_rate_chn_write(&quant_par, chbuf);
 
 	/* Update delay buffers for next block */
 	v_equ(hpspeech, &(hpspeech[num_frames*FRAME]), IN_BEG);

@@ -70,8 +70,10 @@ Group (phone 972 480 7442).
 #define MAX_NOISE 80.0f       /* maximum value allowed in noise estimation */
 
 /* Channel I/O constants */
-#define	CHWORDSIZE 6         /* number of bits per channel word */
 #define ERASE_MASK 0x4000    /* erasure flag mask for channel word */
+
+/* Define number of channel bits per frame */
+#define NUM_CH_BITS 	54
 
 #define GN_QLO 10.0f          /* minimum gain in dB */
 #define GN_QUP 77.0f          /* maximum gain in dB */
@@ -174,22 +176,22 @@ typedef struct melp_param {         /* MELP parameters */
 
 /* External function definitions */
 #ifdef _MSC_VER
-__declspec(dllexport) void __cdecl melp_ana(float sp_in[],struct melp_param *par);
-__declspec(dllexport) void __cdecl melp_syn(struct melp_param *par, float sp_out[]);
+__declspec(dllexport) void __cdecl melp_ana(float sp_in[],struct melp_param *par, unsigned char chbuf[]) ;
+__declspec(dllexport) void __cdecl melp_syn(struct melp_param *par, float sp_out[], unsigned char chbuf[]);
 __declspec(dllexport) void __cdecl melp_ana_init(struct melp_param *par);
 __declspec(dllexport) void __cdecl melp_syn_init(struct melp_param *par);
-__declspec(dllexport) int  __cdecl melp_chn_read(struct melp_param *par);
-__declspec(dllexport) void __cdecl melp_chn_write(struct melp_param *par);
+__declspec(dllexport) int  __cdecl melp_chn_read(struct melp_param *par, unsigned char chbuf[]);
+__declspec(dllexport) void __cdecl melp_chn_write(struct melp_param *par, unsigned char chbuf[]);
 
 __declspec(dllexport) void __cdecl fec_code(struct melp_param *par);
 __declspec(dllexport) int  __cdecl fec_decode(struct melp_param *par, int erase);
 #else
-void  melp_ana(float sp_in[],struct melp_param *par);
-void  melp_syn(struct melp_param *par, float sp_out[]);
+void  melp_ana(float sp_in[],struct melp_param *par, unsigned char chbuf[]);
+void  melp_syn(struct melp_param *par, float sp_out[], unsigned char chbuf[]);
 void  melp_ana_init(struct melp_param *par);
 void  melp_syn_init(struct melp_param *par);
-int   melp_chn_read(struct melp_param *par);
-void  melp_chn_write(struct melp_param *par);
+int   melp_chn_read(struct melp_param *par, unsigned char chbuf[]);
+void  melp_chn_write(struct melp_param *par, unsigned char chbuf[]);
 
 void  fec_code(struct melp_param *par);
 int   fec_decode(struct melp_param *par, int erase);

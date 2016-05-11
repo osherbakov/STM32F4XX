@@ -21,6 +21,8 @@
 
 /* ========== Static Variables ========== */
 static int16_t	speech[BLOCK] CCMRAM;
+static unsigned char chan_buffer[NUM_CH_BITS];
+
 
 void *melpe_create(uint32_t Params)
 {
@@ -37,7 +39,6 @@ void melpe_init(void *pHandle)
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_parameters->rate = RATE2400;
 	melp_parameters->frameSize = FRAME;
-	melp_parameters->bitSize = 7;
 	melp_parameters->chwordSize = 8;
 	
 	melp_ana_init_q(melp_parameters);
@@ -61,8 +62,8 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBy
 		} else
 			npp(melp_parameters, speech, speech);
 #endif
-		analysis_q(speech, melp_parameters);
-		synthesis_q(melp_parameters, speech);
+		analysis_q(speech, melp_parameters, chan_buffer);
+		synthesis_q(melp_parameters, speech, chan_buffer);
 		arm_q15_to_float(speech, pDataOut, nFrameSize);		
 		pDataIn = (void *) ((int32_t)pDataIn + nFrameBytes);
 		pDataOut = (void *)((int32_t)pDataOut + nFrameBytes);

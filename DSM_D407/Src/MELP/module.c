@@ -18,6 +18,7 @@ int		rate;
 
 /* ========== Static Variables ========== */
 static float		speech[MELP_FRAME_SIZE] CCMRAM;
+static unsigned char chan_buffer[NUM_CH_BITS];
 struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par CCMRAM;                 /* melp synthesis parameters */
 
@@ -46,8 +47,8 @@ void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	while(*pInBytes >= MELP_FRAME_BYTES )
 	{
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
-		melp_ana(speech, &melp_ana_par);
-		melp_syn(&melp_syn_par, speech);
+		melp_ana(speech, &melp_ana_par, chan_buffer);
+		melp_syn(&melp_syn_par, speech, chan_buffer);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
 		pDataIn = (void *)( (uint32_t)pDataIn + MELP_FRAME_BYTES );
 		pDataOut = (void *)((uint32_t)pDataOut + MELP_FRAME_BYTES );
@@ -73,4 +74,6 @@ void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 DataProcessBlock_t  MELP = {melp_create, melp_init, melp_info, melp_data_ready, melp_process, melp_close};
+
+
 

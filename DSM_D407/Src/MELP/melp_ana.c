@@ -51,7 +51,7 @@ static float r[LPC_ORD+1]				CCMRAM,
 			 lpc[LPC_ORD+1]				CCMRAM;
 static float weights[LPC_ORD]			CCMRAM;
 	
-void melp_ana(float sp_in[],struct melp_param *par)
+void melp_ana(float sp_in[],struct melp_param *par, unsigned char chbuf[])
 {
     int i;
     float sub_pitch;
@@ -173,7 +173,7 @@ void melp_ana(float sp_in[],struct melp_param *par)
     
 
     /* Write channel bitstream */
-    melp_chn_write(par);
+    melp_chn_write(par, chbuf);
 
     /* Update delay buffers for next frame */
     v_equ(&speech[0],&speech[FRAME],IN_BEG);

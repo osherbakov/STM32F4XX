@@ -104,11 +104,11 @@ static int16_t	sync_bit = 0;                                 /* sync bit */
 
 int16_t parity(int16_t x, int16_t leng);
 
-void melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[], int32_t chwordsize)
+void melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[])
 {
 	register int16_t	i;
 	unsigned char	*bit_ptr;
-	int16_t	bit_cntr;
+	int16_t			bit_cntr;
 
 
 	/* FEC: code additional information in redundant indeces */
@@ -135,12 +135,8 @@ void melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[], int32_t c
 	pack_code_q(qpar->fsvq_index, &bit_ptr, &bit_cntr, FS_BITS, 1);
 
 	/* Write channel output buffer */
-	qpar->chptr = chbuf;
-	qpar->chbit = 0;
 	for (i = 0; i < BITNUM2400; i++){
-		pack_code_q(bit_buffer[bit_order[i]], &qpar->chptr, &qpar->chbit, 1, chwordsize);
-		if (i == 0)                             /* set beginning of frame bit */
-			*(qpar->chptr) |= (uint16_t) 0x8000;
+		chbuf[i] = bit_buffer[bit_order[i]];
 	}
 }
 
@@ -151,18 +147,12 @@ BOOLEAN melp_chn_read_q(struct quant_param *qpar, struct melp_param *par,
 	register int16_t	i;
 	unsigned char	*bit_ptr;
 	BOOLEAN		erase = FALSE;
-	int16_t	index, bit_cntr, dontcare;
+	int16_t		bit_cntr, dontcare;
 
 
 	/* Read channel output buffer into bit buffer */
-	bit_ptr = bit_buffer;
-	qpar->chptr = chbuf;
-	qpar->chbit = 0;
 	for (i = 0; i < BITNUM2400; i++){
-		erase |= unpack_code_q(&(qpar->chptr), &(qpar->chbit), &index, 1,
-							 par->chwordSize, ERASE_MASK);
-		bit_buffer[bit_order[i]] = (unsigned char) index;
-		bit_ptr ++;
+		bit_buffer[bit_order[i]] = chbuf[i];
 	}
 
 	/* Read information from  bit buffer */
@@ -178,12 +168,10 @@ BOOLEAN melp_chn_read_q(struct quant_param *qpar, struct melp_param *par,
 					   1, 0);
 
 	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->jit_index[0], 1, 1, 0);
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->bpvc_index[0],
-					   NUM_BANDS - 1, 1, 0);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->bpvc_index[0], NUM_BANDS - 1, 1, 0);
 
 	for (i = 0; i < MSVQ_STAGES; i++)
-		(void) unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->msvq_index[i]),
-						   msvq_bits[i], 1, 0);
+		(void) unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->msvq_index[i]), msvq_bits[i], 1, 0);
 
 	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->fsvq_index, FS_BITS, 1, 0);
 
@@ -258,7 +246,7 @@ BOOLEAN melp_chn_read_q(struct quant_param *qpar, struct melp_param *par,
 ** Return value:	None
 **
 *****************************************************************************/
-void low_rate_chn_write(struct quant_param *qpar, int32_t chwordsize)
+void low_rate_chn_write(struct quant_param *qpar, unsigned char chbuf[])
 {
 	register int16_t	i;
 	int16_t	bit_cntr, cnt;
@@ -266,7 +254,6 @@ void low_rate_chn_write(struct quant_param *qpar, int32_t chwordsize)
 	int16_t	uv_index = 0, bp_prot1 = 0, bp_prot2 = 0, lsp_prot = 0;
 	int16_t	uv_parity;
 	unsigned char	*bit_ptr;
-
 
 	/* FEC: code additional information in redundant indices */
 	low_rate_fec_code(qpar);
@@ -418,12 +405,8 @@ void low_rate_chn_write(struct quant_param *qpar, int32_t chwordsize)
 	pack_code_q(qpar->jit_index[0], &bit_ptr, &bit_cntr, 1, 1);
 
 	/* ======== Write channel output buffer ======== */
-	qpar->chptr = chbuf;
-	qpar->chbit = 0;
 	for (i = 0; i < BITNUM1200; i++){
-		pack_code_q(bit_buffer[i], &qpar->chptr, &qpar->chbit, 1, chwordsize);
-		if (i == 0)
-			*(qpar->chptr) |= 0x8000;           /* set beginning of frame bit */
+		chbuf[i] = bit_buffer[i];
 	}
 }
 
@@ -446,7 +429,7 @@ static int16_t	qplsp[LPC_ORD], prev_gain[2*NF*NUM_GAINFR];
 static int16_t	ilsp1[LPC_ORD], ilsp2[LPC_ORD], res[2*LPC_ORD];
 static int16_t	weighted_fsmag[NUM_HARM];                              /* Q13 */
 BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
-							struct melp_param *prev_par)
+							struct melp_param *prev_par, unsigned char chbuf[])
 {
 	register int16_t	i, j, k;
 	static int16_t	prev_uv = 1;
@@ -496,13 +479,8 @@ BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
 	}
 
 	/* ======== Read channel output buffer into bit buffer ======== */
-	bit_ptr = bit_buffer;
-	qpar->chptr = chbuf;
-	qpar->chbit = 0;
 	for (i = 0; i < BITNUM1200; i++){
-		erase |= unpack_code_q(&qpar->chptr, &qpar->chbit, &index, 1, par->chwordSize, ERASE_MASK);
-		bit_buffer[i] = (unsigned char) index;
-		bit_ptr++;
+		bit_buffer[i] = chbuf[i];
 	}
 
 	bit_ptr = bit_buffer;
