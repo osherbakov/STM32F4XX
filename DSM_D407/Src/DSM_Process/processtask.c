@@ -160,9 +160,9 @@ void StartDataProcessTask(void const * argument)
 				{
 					Queue_PopData(pDataQ, pAudio, nBytesModuleNeeds);
 					// Convert data from the Queue-provided type to the Processing-Module-required type
-					DataConvertOut(pAudioIn, DataIn.Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nBytesModuleNeeds);
+					DataConvertDst(pAudioIn, DataIn.Type, DATA_CHANNEL_ALL, pAudio, pDataQ->Type, DATA_CHANNEL_ANY, nBytesModuleNeeds);
 					//   Call data processing
-					pDecModule->Process(pDecState, pAudioIn, pAudioOut, &nSamplesModuleNeeds, &nSamplesModuleGenerated);
+					pDecModule->Process(pDecState, pAudioIn, pAudioOut, &nBytesModuleNeeds, &nBytesModuleGenerated);
 					// Convert data from the Processing-Module-provided type to the HW Queue type
 					DataConvert(pAudio, osParams.DownSample_data->Type, DATA_CHANNEL_1 , pAudioOut, Type, DATA_CHANNEL_1, nSamplesModuleGenerated);
 					// Place the processed data into the queue for the next module to process

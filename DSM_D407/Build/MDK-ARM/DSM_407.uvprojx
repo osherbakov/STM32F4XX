@@ -10,13 +10,13 @@
       <TargetName>DSM_407_Debug</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5060061::V5.06 update 1 (build 61)::ARMCC</pArmCC>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pArmCC>5060183::V5.06 update 2 (build 183)::ARMCC</pArmCC>
+      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F407VG</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.7.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.8.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IROM(0x08000000,0x100000) IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -329,6 +329,8 @@
             <v6LangP>0</v6LangP>
             <vShortEn>0</vShortEn>
             <vShortWch>0</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
             <VariousControls>
               <MiscControls>--C99 --gnu</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
@@ -823,6 +825,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -925,6 +929,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -1092,6 +1098,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -1284,6 +1292,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -1341,7 +1351,7 @@
         <TargetCommonOption>
           <Device>STM32F407VG</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.7.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.8.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IROM(0x08000000,0x100000) IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -1654,6 +1664,8 @@
             <v6LangP>0</v6LangP>
             <vShortEn>0</vShortEn>
             <vShortWch>0</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
             <VariousControls>
               <MiscControls>--C99 --gnu</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
@@ -2148,6 +2160,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -2250,6 +2264,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -2417,6 +2433,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
@@ -2609,6 +2627,8 @@
                     <v6LangP>0</v6LangP>
                     <vShortEn>0</vShortEn>
                     <vShortWch>0</vShortWch>
+                    <v6Lto>0</v6Lto>
+                    <v6WtE>0</v6WtE>
                     <VariousControls>
                       <MiscControls></MiscControls>
                       <Define></Define>
