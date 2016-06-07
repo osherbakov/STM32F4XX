@@ -107,8 +107,6 @@ extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
 extern void 	Queue_Init(DQueue_t *pQueue, uint32_t type);
 extern uint32_t Queue_Count(DQueue_t *pQueue);
 extern uint32_t Queue_Space(DQueue_t *pQueue);
-extern uint32_t Queue_CountElems(DQueue_t *pQueue);
-extern uint32_t Queue_SpaceElems(DQueue_t *pQueue);
 extern void 	Queue_Clear(DQueue_t *pQueue);
 extern uint32_t Queue_Push(DQueue_t *pQueue, void *pDataSrc, uint32_t nBytes);
 extern uint32_t Queue_Pop(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes);
@@ -119,7 +117,7 @@ typedef void 	*Data_Create_t(uint32_t Params);
 typedef void 	Data_Init_t(void *pHandle);
 typedef void 	Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
 typedef void 	Data_Ready_t(void *pHandle, DataPort_t *pInData);
-typedef void 	Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
+typedef void 	Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInBytes, uint32_t *pOutBytes);
 typedef void 	Data_Close_t(void *pHandle);
 
 typedef struct DataProcessBlock {

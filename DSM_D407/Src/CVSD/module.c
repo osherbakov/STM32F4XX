@@ -14,11 +14,10 @@
 #include "cvsd_data_f32.h"
 #include "dataqueues.h"
 
-#define	CVSD_DATA_TYPE			(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
+#define	CVSD_DATA_TYPE			(DATA_TYPE_F32_32K | DATA_NUM_CH_1 | (4))
 #define CVSD_BLOCK_SIZE   		(180)
 #define CVSD_BLOCK_BYTES   		(CVSD_BLOCK_SIZE * 4)
 
-#define	CVSD_ENCDEC_TYPE		(DATA_TYPE_F32_32K | DATA_NUM_CH_1 | (1))
 #define	CVSD_BITS_TYPE			(DATA_TYPE_BITS | DATA_NUM_CH_1 | (1))
 #define CVSD_BITS_SIZE   		(180)
 #define CVSD_BITS_BYTES   		(CVSD_BITS_SIZE)
@@ -67,10 +66,8 @@ void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	uint32_t	nGenerated = 0;
 	while(*pInBytes >= CVSD_BLOCK_BYTES)
 	{
-		arm_scale_f32(pDataIn, 32767.0f, pDataIn, CVSD_BLOCK_SIZE);
 		cvsd_encode_f32(cvsd_ana, dataBits, pDataIn, CVSD_BLOCK_SIZE);
 		cvsd_decode_f32(cvsd_syn, pDataOut, dataBits, CVSD_BLOCK_SIZE);
-		arm_scale_f32(pDataOut, 1.0f/32768.0f, pDataOut, CVSD_BLOCK_SIZE);
 		pDataIn = (void *)((uint32_t)pDataIn + CVSD_BLOCK_BYTES);
 		pDataOut = (void *)((uint32_t)pDataOut + CVSD_BLOCK_BYTES);
 		*pInBytes -= CVSD_BLOCK_BYTES;
@@ -132,13 +129,13 @@ void cvsd_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 
 void cvsd_encode_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	pInData->Type = CVSD_ENCDEC_TYPE;
+	pInData->Type = CVSD_DATA_TYPE;
 	pInData->Size = CVSD_BLOCK_BYTES;
 }
 
 void cvsd_encode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
-	pIn->Type = CVSD_ENCDEC_TYPE;
+	pIn->Type = CVSD_DATA_TYPE;
 	pIn->Size = CVSD_BLOCK_BYTES;
 	
 	pOut->Type = CVSD_BITS_TYPE;
@@ -182,7 +179,7 @@ void cvsd_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 
 void cvsd_decode_data_ready(void *pHandle, DataPort_t *pInData)
 {
-	pInData->Type = CVSD_ENCDEC_TYPE;
+	pInData->Type = CVSD_BITS_TYPE;
 	pInData->Size = CVSD_BITS_BYTES;
 }
 
@@ -191,7 +188,7 @@ void cvsd_decode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pIn->Type = CVSD_BITS_TYPE;
 	pIn->Size = CVSD_BITS_BYTES;
 	
-	pOut->Type = CVSD_ENCDEC_TYPE;
+	pOut->Type = CVSD_DATA_TYPE;
 	pOut->Size = CVSD_BLOCK_BYTES;
 }
 

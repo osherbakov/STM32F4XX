@@ -47,7 +47,7 @@ typedef struct RateSyncData {
 		int32_t		DeltaOut;		// The calculated Output difference between samples (CPU-tied)
 		uint32_t	Delay;			// The delay amount (how Output samples are delayed relative to Input)
 		int32_t		AddRemoveCnt;	// The counter of Added (positive) or Removed (negative) samples 
-		float		States[3];		// States memory
+		float		States[6];		// States memory
 }RateSyncData_t;
 
 void *ratesync_create(uint32_t Params)
@@ -178,8 +178,9 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	uint32_t	idxIn, idxOut;
 	float		C0, C1, C2, C3;
 	float		D0, D1, D2, D3, accum;
-	float		S1, S2, S3;
-	float		NextInSample;
+	float		S1L, S2L, S3L;
+	float		S1R, S2R, S3R;
+	float		NextInLSample, NextInRSample;
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	DeltaIn = pRS->DeltaIn; 
@@ -189,9 +190,12 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	// Initial settings for time:
 	TimeIn = 0 + DeltaIn;				// First IN Sample
 	TimeOut =  0 - Delay + DeltaOut;	// First OUT Sample
-	S1 = pRS->States[0];
-	S2 = pRS->States[1];
-	S3 = pRS->States[2];
+	S1L = pRS->States[0];
+	S2L = pRS->States[1];
+	S3L = pRS->States[2];
+	S1R = pRS->States[3];
+	S2R = pRS->States[4];
+	S3R = pRS->States[5];
 
 	idxIn =  idxOut = 0;
 	nOutSamples = 0;
@@ -199,7 +203,8 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 
 	while(nInSamples > 0)
 	{
-		NextInSample = (float)((int16_t *)pDataIn)[idxIn];
+		NextInLSample = (float)((int16_t *)pDataIn)[idxIn + 0];
+		NextInRSample = (float)((int16_t *)pDataIn)[idxIn + 1];
 		while(TimeOut <= TimeIn )
 		{
 			Delay = TimeIn - TimeOut;
@@ -221,29 +226,43 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 			// Calculate Output value using data in[idxIn]
 			{
 				accum = 0.5f;
-				accum += NextInSample * C0;
-				accum += S1 * C1;
-				accum += S2 * C2;
-				accum += S3 * C3;
+				accum += NextInLSample * C0;
+				accum += S1L * C1;
+				accum += S2L * C2;
+				accum += S3L * C3;
 			}
-			// Save data out[idxOut]
+			// Save data out[idxOut + 0]
 			((int16_t *)pDataOut)[idxOut + 0] = (int16_t) accum;
+
+			// Calculate Output value using data in[idxIn + 1]
+			{
+				accum = 0.5f;
+				accum += NextInRSample * C0;
+				accum += S1R * C1;
+				accum += S2R * C2;
+				accum += S3R * C3;
+			}
+			// Save data out[idxOut + 1]
 			((int16_t *)pDataOut)[idxOut + 1] = (int16_t) accum;
 			idxOut += RATESYNC_ELEM_STRIDE_S;
 			TimeOut += DeltaOut;
 			nOutSamples++;
 		}
 		// Shift and Save State from datain[idxIn++]
-		S3 = S2; S2 = S1; S1 = NextInSample;
+		S3L = S2L; S2L = S1L; S1L = NextInLSample;
+		S3R = S2R; S2R = S1R; S1R = NextInRSample;
 		idxIn += RATESYNC_ELEM_STRIDE_S;			
 		TimeIn += DeltaIn;
 		nInSamples--;
 	}
 	// Save the delay value and states for future calculations
 	pRS->Delay = Delay;
-	pRS->States[0] = S1;
-	pRS->States[1] = S2;
-	pRS->States[2] = S3;
+	pRS->States[0] = S1L;
+	pRS->States[1] = S2L;
+	pRS->States[2] = S3L;
+	pRS->States[3] = S1R;
+	pRS->States[4] = S2R;
+	pRS->States[5] = S3R;
 	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_S;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_S;
