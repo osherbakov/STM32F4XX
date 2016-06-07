@@ -66,8 +66,10 @@ void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	uint32_t	nGenerated = 0;
 	while(*pInBytes >= CVSD_BLOCK_BYTES)
 	{
+		arm_scale_f32(pDataIn, 32767.0f, pDataIn, CVSD_BLOCK_SIZE);
 		cvsd_encode_f32(cvsd_ana, dataBits, pDataIn, CVSD_BLOCK_SIZE);
 		cvsd_decode_f32(cvsd_syn, pDataOut, dataBits, CVSD_BLOCK_SIZE);
+		arm_scale_f32(pDataOut, 1.0f/32768.0f, pDataOut, CVSD_BLOCK_SIZE);
 		pDataIn = (void *)((uint32_t)pDataIn + CVSD_BLOCK_BYTES);
 		pDataOut = (void *)((uint32_t)pDataOut + CVSD_BLOCK_BYTES);
 		*pInBytes -= CVSD_BLOCK_BYTES;

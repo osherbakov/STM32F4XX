@@ -167,14 +167,12 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 	int	 srcIdx, dstIdx;
 	float fdata, scale;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
-	unsigned int nBytes;
 	void *pS, *pD;
 	
 	if((DstType == SrcType) && (DstChMask == SrcChMask))
 	{
-		nBytes = nElements * (DstType & 0x00FF);
-		memcpy(pDst, pSrc, nBytes);
-		nGeneratedBytes = nBytes;
+		nGeneratedBytes = nElements * (DstType & 0x00FF);
+		memcpy(pDst, pSrc, nGeneratedBytes);
 		return nGeneratedBytes;
 	}		
 	
@@ -224,8 +222,9 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 		}
 	}
 	
-	nGeneratedBytes = 0;
+	nGeneratedBytes = nElements * dstStep;
 	srcIdx = 0;
+	
 	while(nElements)
 	{
 		for (dstIdx = 0; dstIdx < dstCntr; dstIdx++)
@@ -242,7 +241,7 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 				{
 					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
 					data = (dataShift >= 0) ? data << dataShift : data >> -dataShift;
-				  if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
+					if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
 				}else if(bToFloat)
 				{
 					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
@@ -254,7 +253,7 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 					fdata = (*(float *) pS) * scale;
 					data = FLOAT_TO_Q31(fdata);
 					data = data >> -dataShift;
-				  if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;
+					if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;
 				}
 			}else
 			{
@@ -263,7 +262,6 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 			}
 
 			// 4. Adjust the Src index, and check for exit condition
-			nGeneratedBytes += dstStep;
 			srcIdx++;
 			if(srcIdx >= srcCntr)
 			{
