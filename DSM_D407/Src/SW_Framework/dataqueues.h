@@ -111,7 +111,7 @@ extern void 	Queue_Clear(DQueue_t *pQueue);
 extern uint32_t Queue_Push(DQueue_t *pQueue, void *pDataSrc, uint32_t nBytes);
 extern uint32_t Queue_Pop(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes);
 
-extern uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nElements);
+extern uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcBytes);
 
 typedef void 	*Data_Create_t(uint32_t Params);
 typedef void 	Data_Init_t(void *pHandle);
