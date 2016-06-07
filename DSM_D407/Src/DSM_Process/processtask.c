@@ -131,7 +131,7 @@ void StartDataProcessTask(void const * argument)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		if( (event.status == osEventMessage) && (osParams.ProcessingState == RUNNING) ) // Message came that some valid Input Data is present
 		{
-#if 0			
+#if 1			
 			nBytesIn = Queue_Count(pDataQ);
 			pSyncModule->Ready(pRSIn, &DataIn);
 			nBytesModuleNeeds = DataIn.Size;
@@ -150,7 +150,7 @@ void StartDataProcessTask(void const * argument)
 				Queue_Push(osParams.PCM_Out_data, pAudioIn, nBytesModuleGenerated);
 				DATA_Total = Queue_Count(osParams.PCM_Out_data) + Queue_Count(pDataQ);
 			}
-#endif			
+#else			
 			do {
 				DoProcessing = 0;
 				// First, downsample, if neccessary, the received signal
@@ -225,7 +225,7 @@ void StartDataProcessTask(void const * argument)
 					}
 				}
 			}while(0);
-			}
+#endif			
 		}
 	}
 }

@@ -58,7 +58,7 @@ void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 	Queue_Clear(pQueue);
 }
 
-uint32_t Queue_Count_Bytes(DQueue_t *pQueue)
+uint32_t Queue_Count(DQueue_t *pQueue)
 {
 	int Count;
 	uint32_t iPut, iGet, nSize;
@@ -68,17 +68,17 @@ uint32_t Queue_Count_Bytes(DQueue_t *pQueue)
 	else if(Count > nSize) {Count -= nSize;}
 	return Count;
 }
-uint32_t Queue_Count_Elems(DQueue_t *pQueue)
+uint32_t Queue_CountElems(DQueue_t *pQueue)
 {
 	uint32_t Count, ElemSize;
 	
-	Count = Queue_Count_Bytes(pQueue);
+	Count = Queue_Count(pQueue);
 	ElemSize = pQueue->ElemSize;
 	return Count/ElemSize;
 }
 
 
-uint32_t Queue_Space_Bytes(DQueue_t *pQueue)
+uint32_t Queue_Space(DQueue_t *pQueue)
 {
 	int Space;
 	uint32_t iPut, iGet, nSize;
@@ -89,11 +89,11 @@ uint32_t Queue_Space_Bytes(DQueue_t *pQueue)
 	return Space;
 }
 
-uint32_t Queue_Space_Elems(DQueue_t *pQueue)
+uint32_t Queue_SpaceElems(DQueue_t *pQueue)
 {
 	uint32_t Space, ElemSize;
 	
-	Space = Queue_Space_Bytes(pQueue);
+	Space = Queue_Space(pQueue);
 	ElemSize = pQueue->ElemSize;
 	return Space/ElemSize;
 }
