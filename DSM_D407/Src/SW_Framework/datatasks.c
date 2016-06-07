@@ -36,7 +36,7 @@ InData(NUM_PCM_SAMPLES);
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
 				AudioInOverrun++;
 			}
-			Queue_PushData(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
+			Queue_Push(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 	}
@@ -53,7 +53,7 @@ InData(NUM_PCM_SAMPLES);
 			if(Queue_Space_Bytes(osParams.PCM_In_data) < NUM_PCM_BYTES) {
 				AudioInOverrun++;
 			}
-			Queue_PushData(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
+			Queue_Push(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
 	}
@@ -74,7 +74,7 @@ OutData(NUM_PCM_SAMPLES);
 			AudioOutUnderrun++;
 			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 		}else {
-			Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
+			Queue_Pop(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
 		}
 }
 
@@ -91,7 +91,7 @@ OutData(NUM_PCM_SAMPLES);
 			AudioOutUnderrun++;
 			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 		}else {
-			Queue_PopData(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
+			Queue_Pop(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 		}
 }
 

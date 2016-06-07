@@ -12,7 +12,7 @@
 //
 // Definitions:
 //   Data type and type_size - the type (char, short, int, fixed, float) and size (in bytes) of a single element
-//	 Element - the combination of N data types, as having the same type, where N is number of channels,
+//	 Element - the combination of N data types, all having the same type, where N is number of channels,
 // 	  so basically, an element is the unit/collection of multiple data of the same type with the same timestamp ...
 //   The data types in the element can be INTERLEAVED (CH1 CH2 CH1 CH2 ...) or SEQUENTIAL (CH1 CH1 CH1 ... CH2 CH2 CH2...)
 
@@ -29,6 +29,8 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 	DQueue_t *pQ = osAlloc(sizeof(DQueue_t));	if(pQ == 0) return 0;
 	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
 	pQ->Size = nBytes;
+	// Check if the type or channel number is not specified
+	// In that case use the provided Element Size field
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
 		pQ->Type = Type;
 	}else{
@@ -43,6 +45,8 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 
 void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 {
+	// Check if the type or channel number is not specified
+	// In that case use the provided Element Size field
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
 		pQueue->Type = Type;
 	}else{
@@ -99,7 +103,7 @@ void Queue_Clear(DQueue_t *pQueue)
 	pQueue->iPut = pQueue->iGet = 0;
 }
 
-uint32_t Queue_PushData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
+uint32_t Queue_Push(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 {
 	int diff, space;
 	uint32_t iPut, iGet, nSize;
@@ -133,7 +137,7 @@ uint32_t Queue_PushData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	return ret;
 }
 
-uint32_t Queue_PopData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
+uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 {
 	int diff, count;
 	uint32_t iPut, iGet, nSize;
@@ -168,6 +172,130 @@ uint32_t Queue_PopData(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	pQueue->iGet = iGet;
 	return ret;
 }
+
+uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nElements)
+{
+	int  srcStep, dstStep;
+	int  srcSize, dstSize;
+	int  srcChan, dstChan;
+	int  srcOffset[8], dstOffset[8];
+	int  srcCntr, dstCntr;
+	int	 nGeneratedBytes;
+	int  data;
+	int	 srcIdx, dstIdx;
+	float fdata, scale;
+	int  bSameType, bNonFloat, dataShift, bToFloat;
+	unsigned int nBytes;
+	void *pS, *pD;
+	
+	if((DstType == SrcType) && (DstChMask == SrcChMask))
+	{
+		nBytes = nElements * (DstType & 0x00FF);
+		memcpy(pDst, pSrc, nBytes);
+		nGeneratedBytes = nBytes;
+		return nGeneratedBytes;
+	}		
+	
+	srcStep = (SrcType & 0x00FF); 		// Step size to get the next element
+	dstStep = (DstType & 0x00FF);
+	
+	srcSize = DATA_TYPE_SIZE(SrcType);	// Size of one datatype(1,2,3,4 bytes)
+	dstSize = DATA_TYPE_SIZE(DstType);
+	
+	srcChan = DATA_TYPE_NUM_CHANNELS(SrcType);
+	dstChan = DATA_TYPE_NUM_CHANNELS(DstType);
+	
+	bSameType = (SrcType & DATA_TYPE_MASK) == (DstType & DATA_TYPE_MASK) ? 1 : 0;
+	bNonFloat = ((SrcType & DATA_FP_MASK) == 0 ) && ((DstType & DATA_FP_MASK) == 0) ? 1 : 0;
+	bToFloat = ((DstType & DATA_FP_MASK) != 0) ? 1 : 0;
+	dataShift = 8 * (dstSize - srcSize);
+	scale = (SrcType & DATA_RANGE_MASK) == (DstType & DATA_RANGE_MASK) ? 1.0F :
+				(SrcType & DATA_RANGE_MASK) && !(DstType & DATA_RANGE_MASK) ? 32768.0F :
+					1.0F/32768.0F;
+	// Check and create the proper mask for the destination, populate the offsets array
+	DstChMask = (DstChMask == DATA_CHANNEL_ANY)? DATA_CHANNEL_ALL : DstChMask;
+	DstChMask &= ((1 << dstChan) - 1);
+	for(dstCntr = 0, dstIdx = 0; dstIdx < dstChan; dstIdx++)
+	{
+		if(DstChMask & 0x01) dstOffset[dstCntr++] = dstIdx * dstSize;
+		DstChMask >>= 1;
+	}
+
+	// There is a difference between DATA_CHANNEL_ANY and DATA_CHANNEL_ALL - 
+	//  when moving data from buffers with different number of channels,
+	//  DATA_CHANNEL_ANY in Source will populate AABBCCDDEEFF from ABCDEF buffer, and ABCDEF out of AABBCCDDEEFF
+	//  DATA_CHANNEL_ALL in Source will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF 
+	//    i.e nSrcElements will be consumed in all cases
+	if(SrcChMask == DATA_CHANNEL_ANY)
+	{
+		srcCntr = dstCntr;
+		for(srcIdx = 0; srcIdx < srcCntr; srcIdx++)
+		{
+			srcOffset[srcIdx] = 0;
+		}
+	}else	{
+		SrcChMask &= ((1 << srcChan) - 1);
+		for(srcCntr = 0, srcIdx = 0; srcIdx < srcChan; srcIdx++)
+		{
+			if(SrcChMask & 0x01) srcOffset[srcCntr++] = srcIdx * srcSize;
+			SrcChMask >>= 1;
+		}
+	}
+	
+	nGeneratedBytes = 0;
+	srcIdx = 0;
+	while(nElements)
+	{
+		for (dstIdx = 0; dstIdx < dstCntr; dstIdx++)
+		{
+			// 1. Adjust the SRC pointer to point to the next data type in the element
+			pS = (void *) (((uint32_t)pSrc) + srcOffset[srcIdx]); 
+			// 2. Adjust the DST pointer to point to the next data type in the element
+			pD = (void *) (((uint32_t)pDst) + dstOffset[dstIdx]); 			
+			// 3. Get the data and convert from one type to another
+			if( !bSameType) 
+			{	// Special cases - Integer to Integer conversion (No FP)
+				//  or Q7, Q15, Q31 into another Integer/Q format
+				if( bNonFloat )
+				{
+					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
+					data = (dataShift >= 0) ? data << dataShift : data >> -dataShift;
+				  if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
+				}else if(bToFloat)
+				{
+					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
+					data = data << dataShift;
+					fdata = Q31_TO_FLOAT(data);
+					*(float *) pD = fdata * scale;
+				}else
+				{
+					fdata = (*(float *) pS) * scale;
+					data = FLOAT_TO_Q31(fdata);
+					data = data >> -dataShift;
+				  if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;
+				}
+			}else
+			{
+				if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;
+				if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
+			}
+
+			// 4. Adjust the Src index, and check for exit condition
+			nGeneratedBytes += dstStep;
+			srcIdx++;
+			if(srcIdx >= srcCntr)
+			{
+				srcIdx = 0;
+				pSrc = (void *)((uint32_t)pSrc + srcStep);
+				nElements--;
+			}
+		}
+		pDst = (void *)((uint32_t)pDst + dstStep);
+	}
+	return nGeneratedBytes;
+}
+
+
 
 uint32_t DataConvertSrc(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcBytes)
 {

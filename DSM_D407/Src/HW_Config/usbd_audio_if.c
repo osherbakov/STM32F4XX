@@ -99,7 +99,7 @@ OutData(USBD_AUDIO_FREQ/1000);
 				if(Queue_Count_Bytes(osParams.USB_In_data) < nbytes) {
 					AudioOutUnderrun++;
 				}
-				Queue_PopData(osParams.USB_In_data,  pBuff, nbytes);
+				Queue_Pop(osParams.USB_In_data,  pBuff, nbytes);
 			break;
 
 		case USB_AUDIO_OUT:	// Callback called by USBD stack when it receives OUTPUT data from the Host
@@ -109,7 +109,7 @@ OutData(USBD_AUDIO_FREQ/1000);
 					AudioInOverrun++;
 				}
 InData(USBD_AUDIO_FREQ/1000);
-				Queue_PushData(osParams.USB_Out_data,  pBuff, nbytes);
+				Queue_Push(osParams.USB_Out_data,  pBuff, nbytes);
 				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
 			}
 			break;

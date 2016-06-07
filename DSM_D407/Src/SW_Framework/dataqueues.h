@@ -7,25 +7,26 @@
 typedef enum DataType
 {
 	DATA_TYPE_BITS 		= 0x0000,		// Bits, not grouped into integers
-	DATA_TYPE_I8 		= 0x0000,		// 8-bit Integer, full range 0 - 255 (-128 +127)
-	DATA_TYPE_Q7		= 0x0100,		// Q7 signed (-1.0 +1.0)
-	DATA_TYPE_I16		= 0x0400,		// 16-bit Integer, full range (-32768 +32768)
-	DATA_TYPE_Q15   	= 0x0500,		// Q15 signed, range (-1.0 +1.0)
-	DATA_TYPE_I24		= 0x0800,		// 24-bit Integer, full range
-	DATA_TYPE_Q23		= 0x0900,   	// Q23 signed, range (-1.0 +1.0)
-	DATA_TYPE_I32		= 0x0C00,		// 32-bit Integer
+	DATA_TYPE_I8 		= 0x0000,		// 8-bit Integer signed, full range 0 - 255 (-128 +127)
+	DATA_TYPE_Q7		= 0x0100,		// Q7 Fixed Point signed (-1.0 +1.0)
+	DATA_TYPE_I16		= 0x0400,		// 16-bit Integer signed, full range (-32768 +32768)
+	DATA_TYPE_Q15   	= 0x0500,		// Q15 Fixed Point signed, range (-1.0 +1.0)
+	DATA_TYPE_I24		= 0x0800,		// 24-bit Integer signed, full range
+	DATA_TYPE_Q23		= 0x0900,   	// Q23 Fixed Point signed, range (-1.0 +1.0)
+	DATA_TYPE_I32		= 0x0C00,		// 32-bit Integer signed
 	DATA_TYPE_Q31   	= 0x0D00,		// Q31 signed, range (-1.0 + 1.0)
 	DATA_TYPE_F32_32K	= 0x0E00,		// 32-bit Floating point, range (-32768.0  +32767.0)
 	DATA_TYPE_F32		= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
 // Variuos masks to extract needed info from the type	
 	DATA_TYPE_MASK		= 0x0F00,
-	DATA_RANGE_MASK		= 0x0100,		// Range is limited to (-1.0 +1.0)
+	DATA_RANGE_MASK		= 0x0100,		// Range is (-1.0 +1.0) - can be Fixed or Floating
 	DATA_FP_MASK		= 0x0200,		// Floating Point representation
 	DATA_TYPE_SHIFT   	= 10			// Shift amount to extract data type
 }DataType_t;
 
 typedef enum DataChannels
 {
+// Number of channels in one element 
 	DATA_NUM_CH_NONE 	= 0x0000,
 	DATA_NUM_CH_1 		= 0x0000,
 	DATA_NUM_CH_2 		= 0x1000,
@@ -36,7 +37,7 @@ typedef enum DataChannels
 	DATA_NUM_CH_7 		= 0x6000,
 	DATA_NUM_CH_8 		= 0x7000,
 
-//  The data organization when  there are more than 1 channel specified
+//  The data organization when more than one channel is specified
 	DATA_ALT 			= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating  ABCDABCDABCD in memory
 	DATA_SEQ			= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another AAABBBBBBDDD in memory
 //	The masks to extract the information from the channels data	
@@ -49,7 +50,7 @@ typedef enum DataChannels
 #define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_CH_MASK) >> DATA_CH_SHIFT) + 1)
 #define DATA_TYPE_ELEM_SIZE(a)  	(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
 
-typedef enum DataChannelMask
+typedef enum DataChannelsMask
 {
 	DATA_CHANNEL_ANY 	= 0x0000,
 	DATA_CHANNEL_1 		= 0x0001,
@@ -61,7 +62,7 @@ typedef enum DataChannelMask
 	DATA_CHANNEL_7 		= 0x0040,
 	DATA_CHANNEL_8 		= 0x0080,
 	DATA_CHANNEL_ALL	= 0x00FF
-} DataChannelMask_t;
+} DataChannelsMask_t;
 
 typedef struct DBuffer {
 	union {
@@ -103,24 +104,23 @@ typedef struct DataPort {
 } DataPort_t;
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
-extern void Queue_Init(DQueue_t *pQueue, uint32_t type);
-extern uint32_t Queue_Count_Bytes(DQueue_t *pQueue);
-extern uint32_t Queue_Space_Bytes(DQueue_t *pQueue);
-extern uint32_t Queue_Count_Elems(DQueue_t *pQueue);
-extern uint32_t Queue_Space_Elems(DQueue_t *pQueue);
-extern void Queue_Clear(DQueue_t *pQueue);
-extern uint32_t Queue_PushData(DQueue_t *pQueue, void *pDataSrc, uint32_t nBytes);
-extern uint32_t Queue_PopData(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes);
+extern void 	Queue_Init(DQueue_t *pQueue, uint32_t type);
+extern uint32_t Queue_Count(DQueue_t *pQueue);
+extern uint32_t Queue_Space(DQueue_t *pQueue);
+extern uint32_t Queue_CountElems(DQueue_t *pQueue);
+extern uint32_t Queue_SpaceElems(DQueue_t *pQueue);
+extern void 	Queue_Clear(DQueue_t *pQueue);
+extern uint32_t Queue_Push(DQueue_t *pQueue, void *pDataSrc, uint32_t nBytes);
+extern uint32_t Queue_Pop(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes);
 
-extern uint32_t DataConvertSrc(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcBytes);
-extern uint32_t DataConvertDst(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nDstBytes);
+extern uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nElements);
 
-typedef void Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
-typedef void *Data_Create_t(uint32_t Params);
-typedef void Data_Init_t(void *pHandle);
-typedef void Data_Ready_t(void *pHandle, DataPort_t *pInData);
-typedef void Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
-typedef void Data_Close_t(void *pHandle);
+typedef void 	*Data_Create_t(uint32_t Params);
+typedef void 	Data_Init_t(void *pHandle);
+typedef void 	Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
+typedef void 	Data_Ready_t(void *pHandle, DataPort_t *pInData);
+typedef void 	Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInElements, uint32_t *pOutElements);
+typedef void 	Data_Close_t(void *pHandle);
 
 typedef struct DataProcessBlock {
 	Data_Create_t		*Create;
