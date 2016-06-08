@@ -162,19 +162,17 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 	int  srcChan, dstChan;
 	int  srcOffset[8], dstOffset[8];
 	int  srcCntr, dstCntr;
-	int	 nGeneratedBytes;
 	int  data;
 	int	 srcIdx, dstIdx;
 	float fdata, scale;
-	unsigned int nElements;
+	unsigned int nElements, nGeneratedBytes;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
 	void *pS, *pD;
 	
 	if((DstType == SrcType) && (DstChMask == SrcChMask))
 	{
-		nGeneratedBytes = nSrcBytes;
-		memcpy(pDst, pSrc, nGeneratedBytes);
-		return nGeneratedBytes;
+		memcpy(pDst, pSrc, nSrcBytes);
+		return nSrcBytes;
 	}		
 	
 	srcStep = (SrcType & 0x00FF); 		// Step size to get the next element
@@ -206,7 +204,7 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 	//  when moving data from buffers with different number of channels,
 	//  DATA_CHANNEL_ANY in Source will populate AABBCCDDEEFF from ABCDEF buffer, and ABCDEF out of AABBCCDDEEFF
 	//  DATA_CHANNEL_ALL in Source will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF 
-	//    i.e nSrcElements will be consumed in all cases
+	//    i.e nElements will be consumed in all cases
 	if(SrcChMask == DATA_CHANNEL_ANY)
 	{
 		srcCntr = dstCntr;
@@ -224,7 +222,7 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 	}
 	
 	nElements = (nSrcBytes / srcStep);
-	nGeneratedBytes = nElements * dstStep ;
+	nGeneratedBytes = nElements * dstStep;
 	srcIdx = 0;
 	
 	while(nElements > 0)
