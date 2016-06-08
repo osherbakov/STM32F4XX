@@ -14,12 +14,12 @@
 #include "cvsd_data_f32.h"
 #include "dataqueues.h"
 
-#define	CVSD_DATA_TYPE			(DATA_TYPE_F32_32K | DATA_NUM_CH_1 | (4))
-#define CVSD_BLOCK_SIZE   		(180)
+#define	CVSD_DATA_TYPE			(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
+#define CVSD_BLOCK_SIZE   		(60)
 #define CVSD_BLOCK_BYTES   		(CVSD_BLOCK_SIZE * 4)
 
 #define	CVSD_BITS_TYPE			(DATA_TYPE_BITS | DATA_NUM_CH_1 | (1))
-#define CVSD_BITS_SIZE   		(180)
+#define CVSD_BITS_SIZE   		(60)
 #define CVSD_BITS_BYTES   		(CVSD_BITS_SIZE)
 
 #ifndef TRUE

@@ -48,9 +48,9 @@ void OutData(uint32_t nSamples) {
 //  Task to handle all incoming data
 //
 
-DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&MELPE;
-DataProcessBlock_t  *pIntModule = 	&US_8_48;
+DataProcessBlock_t  *pDecModule = 	&DS_48_16;
+DataProcessBlock_t  *pProcModule = 	&CVSD;
+DataProcessBlock_t  *pIntModule = 	&US_16_48;
 
 
 DataProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
