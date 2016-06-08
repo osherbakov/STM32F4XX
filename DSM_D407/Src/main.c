@@ -71,18 +71,18 @@ int main(void)
 	/* Technically, we can do that at the beginning of the task, but the safest way is to allocate them now, before any task is run */
 
 	// Queues to pass data to/from USB
-	osParams.USB_Out_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
-	osParams.USB_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.USB_OutQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.USB_InQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to get the data from PDM microphone or I2S PCM data source
-	osParams.PCM_In_data = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.PCM_InQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to pass data to the output DAC
-	osParams.PCM_Out_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.PCM_OutQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queues for Upsample and Downsample
-	osParams.DownSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
-	osParams.UpSample_data = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.DownSampleQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.UpSampleQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
 
 	
 	/* Start scheduler */
@@ -172,10 +172,10 @@ void StartDefaultTask(void const * argument)
 				}
 				// If new mode is selected - restart audio output to be in sync with PDM or USB data
 				BSP_AUDIO_OUT_Stop(CODEC_PDWN_SW);
-				Queue_Clear(osParams.PCM_Out_data);
-				Queue_Clear(osParams.USB_Out_data);
-				Queue_Clear(osParams.PCM_In_data);
-				Queue_Clear(osParams.USB_In_data);
+				Queue_Clear(osParams.PCM_OutQ);
+				Queue_Clear(osParams.USB_OutQ);
+				Queue_Clear(osParams.PCM_InQ);
+				Queue_Clear(osParams.USB_InQ);
 				osParams.bStartPlay = 1;
 				osParams.ProcessingState = WAITING_FOR_BUFF;
 

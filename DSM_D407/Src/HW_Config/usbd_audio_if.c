@@ -96,21 +96,21 @@ static int8_t AUDIO_AudioCmd (void *pBuff, uint32_t nbytes, uint8_t cmd)
 		
 		case USB_AUDIO_IN:		// Callback called by USBD stack to get INPUT data INTO the Host
 OutData(USBD_AUDIO_FREQ/1000);
-				if(Queue_Count(osParams.USB_In_data) < nbytes) {
+				if(Queue_Count(osParams.USB_InQ) < nbytes) {
 					AudioOutUnderrun++;
 				}
-				Queue_Pop(osParams.USB_In_data,  pBuff, nbytes);
+				Queue_Pop(osParams.USB_InQ,  pBuff, nbytes);
 			break;
 
 		case USB_AUDIO_OUT:	// Callback called by USBD stack when it receives OUTPUT data from the Host
 			if(osParams.audioInMode == AUDIO_MODE_IN_USB)			{
 				// Place data into the queue and report to the main data processing task that data had arrived
-				if(Queue_Space(osParams.USB_Out_data) < nbytes) {
+				if(Queue_Space(osParams.USB_OutQ) < nbytes) {
 					AudioInOverrun++;
 				}
 InData(USBD_AUDIO_FREQ/1000);
-				Queue_Push(osParams.USB_Out_data,  pBuff, nbytes);
-				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.USB_Out_data, 0);
+				Queue_Push(osParams.USB_OutQ,  pBuff, nbytes);
+				osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.USB_OutQ, 0);
 			}
 			break;
   }

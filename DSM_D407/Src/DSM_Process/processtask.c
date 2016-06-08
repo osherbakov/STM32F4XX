@@ -31,7 +31,7 @@ extern DataProcessBlock_t  DS_48_8_Q15;
 extern DataProcessBlock_t  RATESYNC_S;
 
 
-int32_t	DATA_In, DATA_Out, DATA_InOut, DATA_Total;
+int32_t	DATA_In, DATA_Out, DATA_InOut;
 
 void InData(uint32_t nSamples) {
 	DATA_In += nSamples;
@@ -48,9 +48,9 @@ void OutData(uint32_t nSamples) {
 //  Task to handle all incoming data
 //
 
-DataProcessBlock_t  *pProcModule = 	&BYPASS;
-DataProcessBlock_t  *pDecModule = 	&DS_48_16;
-DataProcessBlock_t  *pIntModule = 	&US_16_48;
+DataProcessBlock_t  *pDecModule = 	&DS_48_8;
+DataProcessBlock_t  *pProcModule = 	&MELPE;
+DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
 DataProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
@@ -61,7 +61,7 @@ void			*pRSOut;
 void StartDataProcessTask(void const * argument)
 {
 	osEvent		event;
-	DQueue_t 	*pDataQ;
+	DQueue_t 	*pDataQIn, *pDataQOut;
 
 	uint8_t 	*pAudio;
 	float		*pAudioIn;
@@ -69,9 +69,10 @@ void StartDataProcessTask(void const * argument)
 	void		*pProcModuleState;
 	void		*pDecState;
 	void		*pIntState;
-	DataPort_t	DataMod;
+	DataPort_t	DataIn, DataOut;
 
 	uint32_t 	nBytesIn, nBytesNeeded, nBytesGenerated;
+	uint32_t 	nElemsIn, nElemsNeeded;
 	
 	int			DoProcessing;
 
@@ -82,7 +83,7 @@ void StartDataProcessTask(void const * argument)
 	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
 
-	DATA_Total = DATA_InOut = DATA_In = DATA_Out = 0;
+	DATA_InOut = DATA_In = DATA_Out = 0;
 
 	// Create the processing modules
 	pProcModuleState = pProcModule->Create(0);
@@ -101,9 +102,9 @@ void StartDataProcessTask(void const * argument)
 	while(1)
 	{
 		// Check if we have to start playing audio thru external codec when we accumulate more than 1/2 of the buffer
-		if(osParams.bStartPlay && (Queue_Count(osParams.PCM_Out_data) >= osParams.PCM_Out_data->Size/2))
+		if(osParams.bStartPlay && (Queue_Count(osParams.PCM_OutQ) >= osParams.PCM_OutQ->Size/2))
 		{
-			Queue_Pop(osParams.PCM_Out_data, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
+			Queue_Pop(osParams.PCM_OutQ, osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 			BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 			osParams.bStartPlay = 0;
 		}
@@ -111,90 +112,102 @@ void StartDataProcessTask(void const * argument)
 		// Wait for the next IN Audio data packet to arrive (either from I2S MIC, or from the USB)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
-		pDataQ = (DQueue_t *) event.value.p;
-		if((osParams.ProcessingState == WAITING_FOR_BUFF) && (Queue_Count(pDataQ) >= pDataQ->Size/2)) 
+		pDataQIn = (DQueue_t *) event.value.p;
+		if((osParams.ProcessingState == WAITING_FOR_BUFF) && (Queue_Count(pDataQIn) >= pDataQIn->Size/2)) 
 		{
 			osParams.ProcessingState = RUNNING;
 		}
 		if( osParams.ProcessingState == RUNNING ) // Message came that some valid Input Data is present
 		{
 #if 0
+			pDataQIn = (DQueue_t *) event.value.p;
+			pDataQOut = osParams.PCM_OutQ;
 			nBytesIn = Queue_Count(pDataQ);
-			pSyncModule->Ready(pRSIn, &DataIn);
+			pSyncModule->Info(pRSIn, &DataIn, &DataOut);
 			nBytesNeeded = DataIn.Size;
-			if(nBytesIn >= nBytesNeeded) 
+			if(nBytesIn >= nBytesNeeded)
 			{
 				Queue_Pop(pDataQ, pAudioIn, nBytesNeeded);
 				pSyncModule->Process(pRSIn, pAudioIn, pAudioOut, &nBytesNeeded, &nBytesGenerated);
 
 				nBytesIn = nBytesGenerated;
 				pSyncModule->Process(pRSOut, pAudioOut, pAudioIn, &nBytesIn, &nBytesGenerated);
-				Queue_Push(osParams.PCM_Out_data, pAudioIn, nBytesGenerated);
-				DATA_Total = Queue_Count(osParams.PCM_Out_data) + Queue_Count(pDataQ);
+				Queue_Push(pDataQOut, pAudioIn, nBytesGenerated);
 			}
 #else			
 			do {
 				DoProcessing = 0;
 				// First, downsample, if neccessary, the received signal
-				nBytesIn = Queue_Count(pDataQ);
-				pDecModule->Ready(pDecState, &DataMod); 
-				nBytesNeeded = DataMod.Size;
-				if(nBytesIn >= nBytesNeeded)
+				pDataQIn = (DQueue_t *) event.value.p;
+				pDataQOut = osParams.DownSampleQ;
+				nElemsIn = Queue_Count(pDataQIn)/pDataQIn->ElemSize;
+				// Find out how many Elements we will need
+				pDecModule->Info(pDecState, &DataIn, &DataOut); 
+				nElemsNeeded = DataIn.Size/DataIn.ElemSize;
+				if(nElemsIn >= nElemsNeeded)
 				{
-					Queue_Pop(pDataQ, pAudio, nBytesNeeded);
+					nBytesNeeded = nElemsNeeded * pDataQIn->ElemSize;
+					Queue_Pop(pDataQIn, pAudio, nBytesNeeded);
 					// Convert data from the Queue-provided type to the Processing-Module-required type
-					nBytesIn = DataConvert(pAudioIn, DataMod.Type, DATA_CHANNEL_1, pAudio, pDataQ->Type, DATA_CHANNEL_1, nBytesNeeded/DataMod.ElemSize);
+					DataConvert(pAudio, pDataQIn->Type, DATA_CHANNEL_1, pAudioIn, DataIn.Type, DATA_CHANNEL_1, &nBytesNeeded, &nBytesGenerated);
 					//   Call data processing
-					pDecModule->Process(pDecState, pAudioIn, pAudioOut, &nBytesIn, &nBytesGenerated);
+					pDecModule->Process(pDecState, pAudioIn, pAudioOut, &nBytesGenerated, &nBytesIn);
 					// Convert data from the Processing-Module-provided type to the HW Queue type
-					nBytesGenerated = DataConvert(pAudio, osParams.DownSample_data->Type, DATA_CHANNEL_1, pAudioOut, DataMod.Type, DATA_CHANNEL_1, nBytesGenerated/DataMod.ElemSize);
+					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_1, pAudio, pDataQOut->Type, DATA_CHANNEL_1, &nBytesIn, &nBytesGenerated);
 					// Place the processed data into the queue for the next module to process
-					Queue_Push(osParams.DownSample_data, pAudio, nBytesGenerated);
+					Queue_Push(pDataQOut, pAudio, nBytesGenerated);
 					DoProcessing = 1;
 				}
 
 				// Second, do the data processing
-				nBytesIn = Queue_Count(osParams.DownSample_data);
-				pProcModule->Ready(pProcModuleState, &DataMod);
-				nBytesNeeded = DataMod.Size;
-				if(nBytesIn >= nBytesNeeded)
+				pDataQIn = osParams.DownSampleQ;
+				pDataQOut = osParams.UpSampleQ;
+				
+				nElemsIn = Queue_Count(pDataQIn)/pDataQIn->ElemSize;
+				pProcModule->Info(pProcModuleState, &DataIn, &DataOut);
+				nElemsNeeded = DataIn.Size/DataIn.ElemSize;
+				if(nElemsIn >= nElemsNeeded)
 				{
-					Queue_Pop(osParams.DownSample_data, pAudio, nBytesNeeded);
+					nBytesNeeded = nElemsNeeded * pDataQIn->ElemSize;
+					Queue_Pop(pDataQIn, pAudio, nBytesNeeded);
 					// Convert data from the Queue-provided type to the Processing-Module-required type
-					nBytesIn = DataConvert(pAudioIn, DataMod.Type, DATA_CHANNEL_1, pAudio, osParams.DownSample_data->Type, DATA_CHANNEL_1, nBytesNeeded/DataMod.ElemSize);
+					DataConvert(pAudio, pDataQIn->Type, DATA_CHANNEL_1, pAudioIn, DataIn.Type, DATA_CHANNEL_1, &nBytesNeeded, &nBytesGenerated);
 					//   Call data processing
-					pProcModule->Process(pProcModuleState, pAudioIn, pAudioOut, &nBytesIn, &nBytesGenerated);
+					pProcModule->Process(pProcModuleState, pAudioIn, pAudioOut, &nBytesGenerated, &nBytesIn);
 					// Convert data from the Processing-Module-provided type to the HW Queue type
-					nBytesGenerated = DataConvert(pAudio, osParams.UpSample_data->Type, DATA_CHANNEL_1, pAudioOut, DataMod.Type, DATA_CHANNEL_1, nBytesGenerated/DataMod.ElemSize);
-
+					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_1, pAudio, pDataQOut->Type, DATA_CHANNEL_1, &nBytesIn, &nBytesGenerated);
 					// Place the processed data into the queue for the next module to process
-					Queue_Push(osParams.UpSample_data, pAudio, nBytesGenerated);
+					Queue_Push(pDataQOut, pAudio, nBytesGenerated);
 					DoProcessing = 1;
 				}
 
 				// Third, upsample and distribute to the output channels
-				nBytesIn = Queue_Count(osParams.UpSample_data);
-				pIntModule->Ready(pIntState, &DataMod);
-				nBytesNeeded = DataMod.Size;
+				pDataQIn = osParams.UpSampleQ;
+				nElemsIn = Queue_Count(pDataQIn)/pDataQIn->ElemSize;
+				pIntModule->Info(pIntState, &DataIn, &DataOut);
+				nElemsNeeded = DataIn.Size/DataIn.ElemSize;
 				if(nBytesIn >= nBytesNeeded)
 				{
-					Queue_Pop(osParams.UpSample_data, pAudio, nBytesNeeded);
+					nBytesNeeded = nElemsNeeded * pDataQIn->ElemSize;
+					Queue_Pop(pDataQIn, pAudio, nBytesNeeded);
 					// Convert data from the Queue-provided type to the Processing-Module-required type
-					nBytesIn = DataConvert(pAudioIn, DataMod.Type, DATA_CHANNEL_1, pAudio, osParams.UpSample_data->Type, DATA_CHANNEL_1, nBytesNeeded/DataMod.ElemSize);
+					DataConvert(pAudio, pDataQIn->Type, DATA_CHANNEL_1, pAudioIn, DataIn.Type, DATA_CHANNEL_1, &nBytesNeeded, &nBytesGenerated);
 					//   Call data processing
-					pIntModule->Process(pIntState, pAudioIn, pAudioOut, &nBytesIn, &nBytesGenerated);
-					// Convert data from the Processing-Module-provided type to the HW Queue type
-					nBytesGenerated = DataConvert(pAudio, osParams.PCM_Out_data->Type, DATA_CHANNEL_ALL, pAudioOut, DataMod.Type, DATA_CHANNEL_ANY, nBytesGenerated/DataMod.ElemSize);
-
+					pIntModule->Process(pIntState, pAudioIn, pAudioOut, &nBytesGenerated, &nBytesIn);
+					nBytesNeeded =  nBytesIn;
+					
 					//   Distribute output data to all output data sinks (USB, I2S, etc)
-					Queue_Push(osParams.PCM_Out_data, pAudio, nBytesGenerated);
-					Queue_Push(osParams.USB_In_data, pAudio, nBytesGenerated);
+					// Convert data from the Processing-Module-provided type to the HW Queue type
+					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_ANY, pAudio, osParams.PCM_OutQ->Type, DATA_CHANNEL_ALL, &nBytesIn, &nBytesGenerated);
+					Queue_Push(osParams.PCM_OutQ, pAudio, nBytesGenerated);
+
+					nBytesIn = nBytesNeeded;
+					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_ANY, pAudio, osParams.USB_InQ->Type, DATA_CHANNEL_ALL, &nBytesIn, &nBytesGenerated);
+					Queue_Push(osParams.USB_InQ, pAudio, nBytesGenerated);
 					DoProcessing = 1;
 				}
-				
-				DATA_Total = Queue_Count(osParams.PCM_Out_data) + Queue_Count(pDataQ);
-		
-			}while(DoProcessing);
+
+			}while(0);
 #endif			
 		}
 	}

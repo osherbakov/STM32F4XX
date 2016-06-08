@@ -33,12 +33,12 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack()
 InData(NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM0);
-			if(Queue_Space(osParams.PCM_In_data) < NUM_PCM_BYTES) {
+			if(Queue_Space(osParams.PCM_InQ) < NUM_PCM_BYTES) {
 				AudioInOverrun++;
 			}
-			Queue_Push(osParams.PCM_In_data, pPCM0, NUM_PCM_BYTES);
+			Queue_Push(osParams.PCM_InQ, pPCM0, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
-			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
+			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_InQ, 0);
 	}
 }
 
@@ -50,12 +50,12 @@ void BSP_AUDIO_IN_TransferComplete_CallBack()
 InData(NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
 			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM1);
-			if(Queue_Space(osParams.PCM_In_data) < NUM_PCM_BYTES) {
+			if(Queue_Space(osParams.PCM_InQ) < NUM_PCM_BYTES) {
 				AudioInOverrun++;
 			}
-			Queue_Push(osParams.PCM_In_data, pPCM1, NUM_PCM_BYTES);
+			Queue_Push(osParams.PCM_InQ, pPCM1, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
-			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_In_data, 0);
+			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_InQ, 0);
 	}
 }
 
@@ -69,12 +69,12 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 {
 		uint32_t	nBytes; 
 OutData(NUM_PCM_SAMPLES);
-		nBytes = Queue_Count(osParams.PCM_Out_data);
+		nBytes = Queue_Count(osParams.PCM_OutQ);
 		if(nBytes < NUM_PCM_BYTES){
 			AudioOutUnderrun++;
 			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 		}else {
-			Queue_Pop(osParams.PCM_Out_data, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
+			Queue_Pop(osParams.PCM_OutQ, &osParams.pPCM_Out[0], NUM_PCM_BYTES);
 		}
 }
 
@@ -86,12 +86,12 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
 		uint32_t	nBytes;
 OutData(NUM_PCM_SAMPLES);
-		nBytes = Queue_Count(osParams.PCM_Out_data);
+		nBytes = Queue_Count(osParams.PCM_OutQ);
 		if(nBytes < NUM_PCM_BYTES){
 			AudioOutUnderrun++;
 			memset(&osParams.pPCM_Out[0], 0, 2 * NUM_PCM_BYTES);
 		}else {
-			Queue_Pop(osParams.PCM_Out_data, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
+			Queue_Pop(osParams.PCM_OutQ, &osParams.pPCM_Out[NUM_PCM_BYTES], NUM_PCM_BYTES);
 		}
 }
 

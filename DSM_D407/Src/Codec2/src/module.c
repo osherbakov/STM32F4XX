@@ -45,7 +45,7 @@ void codec2_deinit(void *pHandle)
 
 void codec2_initialize(void *pHandle)
 {
-	codec2_init(p_codec, CODEC2_MODE_1200);
+	codec2_init(p_codec, CODEC2_MODE_3200);
 	frame_size = codec2_samples_per_frame(p_codec); 
 	frame_bytes = frame_size * 4;
 }

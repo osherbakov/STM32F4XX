@@ -94,14 +94,15 @@ typedef struct DQueue {
 // It may be used to allocate queues connecting different modules
 typedef struct DataPort {
 	union {
-		uint16_t		Type;
+		uint16_t	Type;
 		struct {
-			uint8_t		ElemSize;		// Size of the element in bytes
-			uint8_t		ElemType;		// Type of the element in the buffer
+			uint8_t	ElemSize;		// Size of the element in bytes
+			uint8_t	ElemType;		// Type of the element in the buffer
 		};
 	};						// All info about data in the queue - Type, Element Size
-	uint16_t		Size;	// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
+	uint16_t		Size;	// Required size in bytes (must be a multiple of ElemSize)
 } DataPort_t;
+
 
 extern DQueue_t *Queue_Create(uint32_t nBuffSize, uint32_t type);
 extern void 	Queue_Init(DQueue_t *pQueue, uint32_t type);
@@ -111,7 +112,9 @@ extern void 	Queue_Clear(DQueue_t *pQueue);
 extern uint32_t Queue_Push(DQueue_t *pQueue, void *pDataSrc, uint32_t nBytes);
 extern uint32_t Queue_Pop(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes);
 
-extern uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcBytes);
+extern void 	DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask, 
+					void *pDst, uint32_t DstType, uint32_t DstChMask, 
+						uint32_t *pnSrcBytes, uint32_t *pnDstBytes);
 
 typedef void 	*Data_Create_t(uint32_t Params);
 typedef void 	Data_Init_t(void *pHandle);

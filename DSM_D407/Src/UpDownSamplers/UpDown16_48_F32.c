@@ -44,7 +44,7 @@ static void bypass_init(void *pHandle)
 static void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t nGenerated = *pInBytes;
-	memcpy(pDataOut, pDataIn, nGenerated * 4 );
+	memcpy(pDataOut, pDataIn, nGenerated);
 	*pInBytes = 0;
 	*pOutBytes = nGenerated;
 }

@@ -155,7 +155,9 @@ uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	return ret;
 }
 
-uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSrc, uint32_t SrcType, uint32_t SrcChMask, uint32_t nSrcBytes)
+void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask, 
+					void *pDst, uint32_t DstType, uint32_t DstChMask, 
+						uint32_t *pnSrcBytes, uint32_t *pnDstBytes)
 {
 	int  srcStep, dstStep;
 	int  srcSize, dstSize;
@@ -171,8 +173,10 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 	
 	if((DstType == SrcType) && (DstChMask == SrcChMask))
 	{
-		memcpy(pDst, pSrc, nSrcBytes);
-		return nSrcBytes;
+		memcpy(pDst, pSrc, *pnSrcBytes);
+		*pnDstBytes =  *pnSrcBytes;
+		*pnSrcBytes = 0;
+		return;
 	}		
 	
 	srcStep = (SrcType & 0x00FF); 		// Step size to get the next element
@@ -221,7 +225,7 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 		}
 	}
 	
-	nElements = (nSrcBytes / srcStep);
+	nElements = (*pnSrcBytes / srcStep);
 	nGeneratedBytes = nElements * dstStep;
 	srcIdx = 0;
 	
@@ -272,5 +276,6 @@ uint32_t DataConvert(void *pDst, uint32_t DstType, uint32_t DstChMask, void *pSr
 		}
 		pDst = (void *)((uint32_t)pDst + dstStep);
 	}
-	return nGeneratedBytes;
+	*pnSrcBytes = 0;
+	*pnDstBytes =  nGeneratedBytes;
 }
