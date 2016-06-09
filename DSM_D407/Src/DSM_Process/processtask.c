@@ -61,7 +61,7 @@ void OutData(uint32_t nSamples) {
 //
 
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&CODEC;
+DataProcessBlock_t  *pProcModule = 	&MELPE;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
@@ -210,7 +210,7 @@ void StartDataProcessTask(void const * argument)
 					DoProcessing = 1;
 				}
 
-			}while(DoProcessing);
+			}while(0);
 #endif			
 		}
 	}

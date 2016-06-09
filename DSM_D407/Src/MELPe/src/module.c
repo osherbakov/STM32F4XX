@@ -82,10 +82,10 @@ void melpe_data_ready(void *pHandle, DataPort_t *pInData)
 void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pIn->Size = BLOCK * 4;
+	pIn->Size = melp_parameters->frameSize * 4;
 	
 	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pOut->Size = BLOCK * 4;
+	pOut->Size = melp_parameters->frameSize * 4;
 }
 
 

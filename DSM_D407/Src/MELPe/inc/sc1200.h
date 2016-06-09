@@ -51,7 +51,7 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 #define RATE1200		1200
 
 
-#define POSTFILTER      TRUE
+// #define POSTFILTER      TRUE
 // #define NPP             TRUE
 // #define	NEW_DC_FILTER	TRUE
 
