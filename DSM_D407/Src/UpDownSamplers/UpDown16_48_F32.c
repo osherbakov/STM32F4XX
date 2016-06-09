@@ -49,12 +49,6 @@ static void bypass_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	*pOutBytes = nGenerated;
 }
 
-static void bypass_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = BYPASS_DATA_TYPE;
-	pInData->Size = BYPASS_BLOCK_BYTES;
-}
-
 static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = BYPASS_DATA_TYPE;
@@ -65,7 +59,7 @@ static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_info, bypass_data_ready, bypass_process, bypass_close};
+DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_info, bypass_process, bypass_close};
 
 
 //
@@ -133,12 +127,6 @@ static void ds_48_16_process(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	*pOutBytes = nGenerated;
 }
 
-static void ds_48_16_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = DOWNSAMPLE_BLOCK_BYTES;
-}
-
 static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
@@ -148,7 +136,7 @@ static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_info, ds_48_16_data_ready, ds_48_16_process, ds_48_16_close};
+DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_info, ds_48_16_process, ds_48_16_close};
 
 static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
@@ -182,12 +170,6 @@ static void us_16_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	*pOutBytes = nGenerated;
 }
 
-static void us_16_48_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
-}
-
 static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
@@ -197,5 +179,5 @@ static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_info, us_16_48_data_ready, us_16_48_process, us_16_48_close};
+DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_info, us_16_48_process, us_16_48_close};
 

@@ -269,19 +269,6 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 }
 
 
-void ratesync_data_ready_mono(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = RATESYNC_DATA_TYPE_M;
-	pInData->Size = RATESYNC_BLOCK_BYTES_M;
-}
-
-void ratesync_data_ready_stereo(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = RATESYNC_DATA_TYPE_S;
-	pInData->Size = RATESYNC_BLOCK_BYTES_S;
-}
-
-
 void ratesync_info_mono(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = RATESYNC_DATA_TYPE_M;
@@ -301,6 +288,6 @@ void ratesync_info_stereo(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_init, ratesync_info_mono, ratesync_data_ready_mono, ratesync_process_mono, ratesync_close};
-DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_init, ratesync_info_stereo, ratesync_data_ready_stereo, ratesync_process_stereo, ratesync_close};
+DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_init, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_init, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
 

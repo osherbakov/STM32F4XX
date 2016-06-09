@@ -78,12 +78,6 @@ void cvsd_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	*pOutBytes = nGenerated;
 }
 
-void cvsd_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = CVSD_DATA_TYPE;
-	pInData->Size = CVSD_BLOCK_BYTES;
-}
-
 void cvsd_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = CVSD_DATA_TYPE;
@@ -93,7 +87,7 @@ void cvsd_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = CVSD_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_info, cvsd_data_ready, cvsd_process, cvsd_close};
+DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_info, cvsd_process, cvsd_close};
 
 
 //
@@ -129,12 +123,6 @@ void cvsd_encode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 	*pOutBytes = nGenerated;
 }
 
-void cvsd_encode_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = CVSD_DATA_TYPE;
-	pInData->Size = CVSD_BLOCK_BYTES;
-}
-
 void cvsd_encode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = CVSD_DATA_TYPE;
@@ -144,7 +132,7 @@ void cvsd_encode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = CVSD_BITS_BYTES;
 }
 
-DataProcessBlock_t  CVSD_ENC = {cvsd_encode_create, cvsd_encode_init, cvsd_encode_data_info, cvsd_encode_data_ready, cvsd_encode_process, cvsd_encode_close};
+DataProcessBlock_t  CVSD_ENC = {cvsd_encode_create, cvsd_encode_init, cvsd_encode_data_info, cvsd_encode_process, cvsd_encode_close};
 
 //
 //    CVSD  Decoder  (Bits -> Samples)
@@ -179,12 +167,6 @@ void cvsd_decode_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t 
 	*pOutBytes = nGenerated;
 }
 
-void cvsd_decode_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = CVSD_BITS_TYPE;
-	pInData->Size = CVSD_BITS_BYTES;
-}
-
 void cvsd_decode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = CVSD_BITS_TYPE;
@@ -194,6 +176,6 @@ void cvsd_decode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = CVSD_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  CVSD_DEC = {cvsd_decode_create, cvsd_decode_init, cvsd_decode_data_info, cvsd_decode_data_ready, cvsd_decode_process, cvsd_decode_close};
+DataProcessBlock_t  CVSD_DEC = {cvsd_decode_create, cvsd_decode_init, cvsd_decode_data_info, cvsd_decode_process, cvsd_decode_close};
 
 

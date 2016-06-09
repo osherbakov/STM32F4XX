@@ -80,12 +80,6 @@ static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 	*pOutBytes = nGenerated;
 }
 
-static void ds_48_8_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = DOWNSAMPLE_BLOCK_BYTES;
-}
-
 static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
@@ -96,7 +90,7 @@ static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  DS_48_8_Q15 = {ds_48_8_create, ds_48_8_init, ds_48_8_info, ds_48_8_data_ready, ds_48_8_process, ds_48_8_close};
+DataProcessBlock_t  DS_48_8_Q15 = {ds_48_8_create, ds_48_8_init, ds_48_8_info, ds_48_8_process, ds_48_8_close};
 
 static arm_fir_interpolate_instance_q15 CCMRAM Int;
 
@@ -130,12 +124,6 @@ static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 	*pOutBytes = nGenerated;
 }
 
-static void us_8_48_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DOWNSAMPLE_DATA_TYPE;
-	pInData->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
-}
-
 static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
@@ -146,5 +134,5 @@ static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  US_8_48_Q15 = {us_8_48_create, us_8_48_init, us_8_48_info, us_8_48_data_ready, us_8_48_process, us_8_48_close};
+DataProcessBlock_t  US_8_48_Q15 = {us_8_48_create, us_8_48_init, us_8_48_info, us_8_48_process, us_8_48_close};
 

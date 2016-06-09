@@ -64,12 +64,6 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInB
 	*pOutBytes = nGenerated;
 }
 
-void codec2_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pInData->Size = frame_bytes;
-}
-
 void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
@@ -80,5 +74,5 @@ void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_info, codec2_data_ready, codec2_process, codec2_deinit};
+DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_info, codec2_process, codec2_deinit};
 

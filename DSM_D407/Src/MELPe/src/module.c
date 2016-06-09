@@ -73,12 +73,6 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBy
 	*pOutBytes = nGenerated;
 }
 
-void melpe_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pInData->Size = melp_parameters->frameSize * 4;
-}
-
 void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
@@ -89,4 +83,4 @@ void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  MELPE = {melpe_create, melpe_init, melpe_info, melpe_data_ready, melpe_process, melpe_close};
+DataProcessBlock_t  MELPE = {melpe_create, melpe_init, melpe_info, melpe_process, melpe_close};

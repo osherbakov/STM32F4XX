@@ -210,7 +210,7 @@ void StartDataProcessTask(void const * argument)
 					DoProcessing = 1;
 				}
 
-			}while(0);
+			}while(DoProcessing);
 #endif			
 		}
 	}

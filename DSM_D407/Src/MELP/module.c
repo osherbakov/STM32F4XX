@@ -59,11 +59,6 @@ void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	*pOutBytes =  nGenerated;
 }
 
-void melp_data_ready(void *pHandle, DataPort_t *pInData)
-{
-	pInData->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
-	pInData->Size = MELP_FRAME_BYTES ;
-}
 
 void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
@@ -74,7 +69,7 @@ void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = MELP_FRAME_BYTES ;
 }
 
-DataProcessBlock_t  MELP = {melp_create, melp_init, melp_info, melp_data_ready, melp_process, melp_close};
+DataProcessBlock_t  MELP = {melp_create, melp_init, melp_info, melp_process, melp_close};
 
 
 
