@@ -71,18 +71,18 @@ int main(void)
 	/* Technically, we can do that at the beginning of the task, but the safest way is to allocate them now, before any task is run */
 
 	// Queues to pass data to/from USB
-	osParams.USB_OutQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
-	osParams.USB_InQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.USB_OutQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.USB_InQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to get the data from PDM microphone or I2S PCM data source
-	osParams.PCM_InQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.PCM_InQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queue to pass data to the output DAC
-	osParams.PCM_OutQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_Q15 | DATA_NUM_CH_2);
+	osParams.PCM_OutQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 
 	// Queues for Upsample and Downsample
-	osParams.DownSampleQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
-	osParams.UpSampleQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 2, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.DownSampleQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_F32 | DATA_NUM_CH_1);
+	osParams.UpSampleQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_F32 | DATA_NUM_CH_1);
 
 	
 	/* Start scheduler */

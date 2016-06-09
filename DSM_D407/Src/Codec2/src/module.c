@@ -1,13 +1,9 @@
-
-#ifndef _MSC_VER
-#ifndef ARM_MATH_CM4
 #define ARM_MATH_CM4
-#endif
 #define __TARGET_FPU_VFP 1
 #define __FPU_PRESENT 1
+
 #include <stdint.h>
 #include "cmsis_os.h"
-#endif
 
 #include "arm_math.h"
 #include "arm_const_structs.h"
@@ -45,7 +41,7 @@ void codec2_deinit(void *pHandle)
 
 void codec2_initialize(void *pHandle)
 {
-	codec2_init(p_codec, CODEC2_MODE_1600);
+	codec2_init(p_codec, CODEC2_MODE_2400);
 	frame_size = codec2_samples_per_frame(p_codec); 
 	frame_bytes = frame_size * 4;
 }
@@ -60,8 +56,6 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInB
 		codec2_decode(p_codec, speech, bits);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, frame_size);
 
-		arm_copy_f32(pDataIn, pDataOut, frame_size);
-		
 		pDataIn = (void *)((uint32_t)pDataIn + frame_bytes);
 		pDataOut =  (void *)((uint32_t)pDataOut + frame_bytes);
 		*pInBytes -= frame_bytes;

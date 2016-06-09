@@ -61,7 +61,7 @@ void OutData(uint32_t nSamples) {
 //
 
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&ULAW;
+DataProcessBlock_t  *pProcModule = 	&CODEC;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
