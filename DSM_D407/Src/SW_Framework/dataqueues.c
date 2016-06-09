@@ -166,7 +166,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	int  srcCntr, dstCntr;
 	int  data;
 	int	 srcIdx, dstIdx;
-	float fdata, scale;
+	float fdata;
 	unsigned int nElements, nGeneratedBytes;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
 	void *pS, *pD;
@@ -192,9 +192,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	bNonFloat = ((SrcType & DATA_FP_MASK) == 0 ) && ((DstType & DATA_FP_MASK) == 0) ? 1 : 0;
 	bToFloat = ((DstType & DATA_FP_MASK) != 0) ? 1 : 0;
 	dataShift = 8 * (dstSize - srcSize);
-	scale = (SrcType & DATA_RANGE_MASK) == (DstType & DATA_RANGE_MASK) ? 1.0F :
-				(SrcType & DATA_RANGE_MASK) && !(DstType & DATA_RANGE_MASK) ? 32768.0F :
-					1.0F/32768.0F;
+
 	// Check and create the proper mask for the destination, populate the offsets array
 	DstChMask = (DstChMask == DATA_CHANNEL_ANY)? DATA_CHANNEL_ALL : DstChMask;
 	DstChMask &= ((1 << dstChan) - 1);
@@ -251,10 +249,10 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
 					data = data << dataShift;
 					fdata = Q31_TO_FLOAT(data);
-					*(float *) pD = fdata * scale;
+					* ((float *) pD) = fdata;
 				}else
 				{
-					fdata = (*(float *) pS) * scale;
+					fdata = *((float *) pS);
 					data = FLOAT_TO_Q31(fdata);
 					data = data >> -dataShift;
 					if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;

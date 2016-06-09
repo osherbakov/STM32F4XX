@@ -15,7 +15,6 @@ typedef enum DataType
 	DATA_TYPE_Q23		= 0x0900,   	// Q23 Fixed Point signed, range (-1.0 +1.0)
 	DATA_TYPE_I32		= 0x0C00,		// 32-bit Integer signed
 	DATA_TYPE_Q31   	= 0x0D00,		// Q31 signed, range (-1.0 + 1.0)
-	DATA_TYPE_F32_32K	= 0x0E00,		// 32-bit Floating point, range (-32768.0  +32767.0)
 	DATA_TYPE_F32		= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
 // Variuos masks to extract needed info from the type	
 	DATA_TYPE_MASK		= 0x0F00,
