@@ -33,6 +33,18 @@ extern DataProcessBlock_t  RATESYNC_S;
 
 int32_t	DATA_In, DATA_Out, DATA_InOut;
 
+
+// Allocate static data buffers
+uint8_t 	sAudio[MAX_AUDIO_SIZE_BYTES] CCMRAM;
+float		sAudioIn[MAX_AUDIO_SAMPLES] CCMRAM;
+float		sAudioOut[MAX_AUDIO_SAMPLES] CCMRAM;
+
+uint8_t 	*pAudio   = sAudio;
+float		*pAudioIn = sAudioIn;
+float		*pAudioOut = sAudioOut;
+
+
+
 void InData(uint32_t nSamples) {
 	DATA_In += nSamples;
 	DATA_InOut = DATA_In - DATA_Out;
@@ -49,7 +61,7 @@ void OutData(uint32_t nSamples) {
 //
 
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&CODEC;
+DataProcessBlock_t  *pProcModule = 	&ULAW;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
@@ -63,9 +75,6 @@ void StartDataProcessTask(void const * argument)
 	osEvent		event;
 	DQueue_t 	*pDataQIn, *pDataQOut;
 
-	uint8_t 	*pAudio;
-	float		*pAudioIn;
-	float		*pAudioOut;
 	void		*pProcModuleState;
 	void		*pDecState;
 	void		*pIntState;
@@ -75,12 +84,6 @@ void StartDataProcessTask(void const * argument)
 	uint32_t 	nElemsIn, nElemsNeeded;
 	
 	int			DoProcessing;
-
-	
-	// Allocate static data buffers
-	pAudio   = osAlloc(MAX_AUDIO_SIZE_BYTES);
-	pAudioIn = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
-	pAudioOut = osAlloc(MAX_AUDIO_SAMPLES * sizeof(float));
 
 
 	DATA_InOut = DATA_In = DATA_Out = 0;

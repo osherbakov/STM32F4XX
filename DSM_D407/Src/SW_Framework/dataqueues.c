@@ -1,3 +1,13 @@
+#ifndef _MSC_VER
+#ifndef ARM_MATH_CM4
+#define ARM_MATH_CM4
+#endif
+#define __TARGET_FPU_VFP 1
+#define __FPU_PRESENT 1
+#include <stdint.h>
+#endif
+
+#include <arm_math.h> 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os.h"
@@ -22,6 +32,8 @@
 #define  FLOAT_TO_Q31(a) 	( (int)(((float) (a)) * Q31_F))
 #define  Q31_TO_FLOAT(a) 	( ((float) (a)) * Q31_INV_F)
 
+
+#define  memcpy(dst,src,nbytes)  arm_copy_q7((q7_t *)(src),(q7_t *)(dst),nbytes)
 
 DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 {

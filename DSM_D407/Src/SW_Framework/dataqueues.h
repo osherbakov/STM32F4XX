@@ -132,4 +132,13 @@ typedef struct DataProcessBlock {
 } DataProcessBlock_t;
 
 
+#ifdef _MSC_VER
+#define CCMRAM
+#define RODATA
+#else
+#define CCMRAM __attribute__((section (".ccmram")))
+#define RODATA __attribute__((section (".rodata")))
+#endif
+
+
 #endif // __DATAQUEUES_H__
