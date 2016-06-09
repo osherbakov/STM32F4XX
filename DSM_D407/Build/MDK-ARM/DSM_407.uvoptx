@@ -75,7 +75,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
+        <IsCurrentTarget>0</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
       <Books>
@@ -344,7 +344,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>0</IsCurrentTarget>
+        <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
       <Books>
@@ -487,6 +487,16 @@
           <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>pRSOut</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>AudioInOverrun</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>AudioOutUnderrun</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -1183,7 +1193,7 @@
       <GroupNumber>7</GroupNumber>
       <FileNumber>49</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Src\SW_Framework\dataqueues.c</PathWithFileName>
@@ -1415,7 +1425,7 @@
 
   <Group>
     <GroupName>Codecs/MELP</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1603,7 +1613,7 @@
 
   <Group>
     <GroupName>Codecs/CVSD</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1647,7 +1657,7 @@
 
   <Group>
     <GroupName>Codecs/CODEC2</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
