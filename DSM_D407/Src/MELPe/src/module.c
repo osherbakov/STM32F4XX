@@ -39,7 +39,6 @@ void melpe_init(void *pHandle)
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_parameters->rate = RATE2400;
 	melp_parameters->frameSize = FRAME;
-	melp_parameters->chwordSize = 8;
 	
 	melp_ana_init_q(melp_parameters);
 	melp_syn_init_q(melp_parameters);
