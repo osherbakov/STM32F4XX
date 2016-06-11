@@ -16,7 +16,7 @@
 #define	 NUM_PCM_BYTES  	(NUM_PCM_SAMPLES * NUM_CHANNELS * AUDIODATA_SIZE)
 
 
-#define MAX_AUDIO_SAMPLES		(320)		// Maximum Size of linear buffer in Samples
+#define MAX_AUDIO_SAMPLES		(180 * 3)		// Maximum Size of linear buffer in Samples
 
 typedef enum
 {

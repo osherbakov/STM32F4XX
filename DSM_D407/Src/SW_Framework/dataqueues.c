@@ -207,7 +207,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 
 	// Check and create the proper mask for the destination, populate the offsets array
 	DstChMask = (DstChMask == DATA_CHANNEL_ANY)? DATA_CHANNEL_ALL : DstChMask;
-	DstChMask &= ((1 << dstChan) - 1);
+	DstChMask &= ((1 << dstChan) - 1);	// Limit the mask to the number of channels ONLY
 	for(dstCntr = 0, dstIdx = 0; dstIdx < dstChan; dstIdx++)
 	{
 		if(DstChMask & 0x01) dstOffset[dstCntr++] = dstIdx * dstSize;
@@ -227,7 +227,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 			srcOffset[srcIdx] = 0;
 		}
 	}else	{
-		SrcChMask &= ((1 << srcChan) - 1);
+		SrcChMask &= ((1 << srcChan) - 1);	// Limit the mask to the number of channels ONLY
 		for(srcCntr = 0, srcIdx = 0; srcIdx < srcChan; srcIdx++)
 		{
 			if(SrcChMask & 0x01) srcOffset[srcCntr++] = srcIdx * srcSize;

@@ -51,7 +51,7 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 #define RATE1200		1200
 
 
-// #define POSTFILTER      TRUE
+#define POSTFILTER      TRUE
 // #define NPP             TRUE
 // #define	NEW_DC_FILTER	TRUE
 
@@ -233,7 +233,6 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 struct melp_param {                                        /* MELP parameters */
 	int32_t	rate;													/* I16 */
 	int32_t frameSize;
-	int32_t chwordSize;
 	int16_t	pitch;                                                  /* Q7 */
 	int16_t	jitter;                                                /* Q15 */
 	int16_t	lsf[LPC_ORD];                                          /* Q15 */
