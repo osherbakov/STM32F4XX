@@ -110,11 +110,11 @@ static int16_t	double_chk(int16_t sig_in[], int16_t *pcorr,
 		temp_pit = pitch;
 		while (temp_pit > temp2){
 			temp_pit = shr(temp_pit, 1);
-			temp1 = add(temp1, 1);
+			temp1++;
 		}
 		/* Q7*Q15/Q11 -> Q11 */
 		temp2 = divide_s(temp_pit, temp2);
-		temp1 = sub(4, temp1);
+		temp1 = 4 - temp1;
 		/* temp_pit=pitch/mult in Q7 */
 		temp_pit = shr(temp2, temp1);
 
@@ -160,7 +160,7 @@ static void		double_ver(int16_t sig_in[], int16_t *pcorr,
 	/* Verify pitch multiples for short pitches */
 	multiple = 1;
 	while (extract_l(L_shr(L_mult(pitch, multiple), 1)) < SHORT_PITCH){
-		multiple = add(multiple, 1);
+		multiple++;
 	}
 
 	if (multiple > 1){
@@ -217,7 +217,7 @@ int16_t f_pitch_scale(int16_t sig_out[], int16_t sig_in[],
 		corr = L_v_magsq(temp_buf, length, 0, 1);
 	}
 
-	scale = sub(scale, shr(norm_l(corr), 1));
+	scale -= shr(norm_l(corr), 1);
 
 	/* Scale signal buffer */
 	v_equ_shr(sig_out, sig_in, scale, length);
@@ -251,7 +251,7 @@ int16_t find_pitch_q(int16_t sig_in[], int16_t *pcorr, int16_t lower,
 	max_denom = 1;
 	even_flag = 1;
 	/* cbegin = -((length+upper)/2) */
-	cbegin = negate(shr(add(length, upper), 1));
+	cbegin = negate(shr((length + upper), 1));
 
 	c0_0 = L_v_magsq(&sig_in[cbegin], length, 0, 1);
 	cT_T = L_v_magsq(&sig_in[cbegin + upper], length, 0, 1);
@@ -264,10 +264,10 @@ int16_t find_pitch_q(int16_t sig_in[], int16_t *pcorr, int16_t lower,
 		/* calculate normalization for numerator and denominator */
 		shift1a = norm_s(extract_h(c0_0));
 		shift1b = norm_s(extract_h(cT_T));
-		shift = add(shift1a, shift1b);
+		shift = shift1a + shift1b;
 		shift2 = shr(shift, 1);               /* shift2 = half of total shift */
 		if (shl(shift2, 1) != shift)
-			shift1a = sub(shift1a, 1);
+			shift1a--;
 
 		/* check if current maximum value */
 		if (corr > 0){
@@ -293,7 +293,7 @@ int16_t find_pitch_q(int16_t sig_in[], int16_t *pcorr, int16_t lower,
 			c0_0 = L_msu(c0_0, sig_in[cbegin], sig_in[cbegin]);
 			c0_0 = L_mac(c0_0, sig_in[cbegin + length],
 						 sig_in[cbegin + length]);
-			cbegin = add(cbegin, 1);
+			cbegin++;
 		} else {
 			even_flag = 1;
 			cT_T = L_msu(cT_T, sig_in[cbegin + i - 1 + length],
@@ -349,8 +349,8 @@ int16_t frac_pch_q(int16_t sig_in[], int16_t *pcorr, int16_t fpitch,
 	/* Perform local integer pitch search for better fpitch estimate */
 	if (range > 0){
 		ipitch = shift_r(fpitch, -7);
-		lower = sub(ipitch, range);
-		upper = add(ipitch, range);
+		lower = ipitch - range;
+		upper = ipitch + range;
 		if (upper > pmax){
 			upper = pmax;
 		}
@@ -377,17 +377,17 @@ int16_t frac_pch_q(int16_t sig_in[], int16_t *pcorr, int16_t fpitch,
 	if (length < lmin){
 		length = lmin;
 	}
-	cbegin = negate(shr(add(length, ipitch), 1));
+	cbegin = negate(shr((length + ipitch), 1));
 
 	/* Calculate normalization for numerator and denominator */
 	mag_sq = L_v_magsq(&sig_in[cbegin], length, 0, 1);
 	shift1a = norm_s(extract_h(mag_sq));
 	shift1b = norm_s(extract_h(L_v_magsq(&sig_in[cbegin + ipitch - 1],
 							   (int16_t) (length + 2), 0, 1)));
-	shift = add(shift1a, shift1b);
+	shift = shift1a + shift1b;
 	shift2 = shr(shift, 1);                   /* shift2 = half of total shift */
 	if (shl(shift2, 1) != shift)
-		shift1a = sub(shift1a, 1);
+		shift1a--;
 
 	/* Calculate correlations with appropriate normalization */
 	c0_0 = extract_h(L_shl(mag_sq, shift1a));
@@ -405,7 +405,7 @@ int16_t frac_pch_q(int16_t sig_in[], int16_t *pcorr, int16_t fpitch,
 		/* fractional component should be less than 1, so decrement pitch */
 		c0_T1 = c0_T;
 		c0_T = c0_Tm1;
-		ipitch = sub(ipitch, 1);
+		ipitch--;
 	}
 	cT_T1 = extract_h(L_shl(L_v_inner(&sig_in[cbegin + ipitch],
 									  &sig_in[cbegin + ipitch + 1], length,

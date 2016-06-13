@@ -121,7 +121,7 @@ void melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[])
 	pack_code_q(qpar->gain_index[1], &bit_ptr, &bit_cntr, 5, 1);
 
 	/* Toggle and write sync bit */
-	sync_bit = sub(1, sync_bit);
+	sync_bit = 1 - sync_bit;
 	pack_code_q(sync_bit, &bit_ptr, &bit_cntr, 1, 1);
 
 	pack_code_q(qpar->gain_index[0], &bit_ptr, &bit_cntr, 3, 1);
@@ -263,7 +263,7 @@ void low_rate_chn_write(struct quant_param *qpar, unsigned char chbuf[])
 	bit_cntr = 0;
 
 	/* ====== Toggle and write sync bit ====== */
-	sync_bit = sub(1, sync_bit);
+	sync_bit = 1 -  sync_bit;
 	pack_code_q(sync_bit, &bit_ptr, &bit_cntr, 1, 1);
 
 	/* ===== Count the number of voiced frame ===== */

@@ -123,7 +123,7 @@ void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 		for (j = 0; j < iwidth; j++){
 			/*	temp1 = find_hbuf[2*(j + i)]; */
 			/*	temp2 = find_hbuf[2*(j + i) + 1]; */
-			temp2 = add(i, j);
+			temp2 = i +  j;
 			temp1 = find_hbuf[2*temp2];
 			temp2 = find_hbuf[2*temp2 + 1];
 			L_temp = L_add(L_mult(temp1, temp1), L_mult(temp2, temp2));
@@ -140,7 +140,7 @@ void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 		avg = L40_add(avg, L_fsmag[k]);
 	temp1 = norm32(avg);
 	L_temp = (int32_t) L40_shl(avg, temp1);	/* man. of avg */
-	temp1 = sub(31, temp1);						/* exp. of avg */
+	temp1 = 31 - temp1;						/* exp. of avg */
 	/* now compute num_harm/avg. avg = L_temp(Q31) x 2^temp1 */
 	temp2 = shl(num_harm, 10);
 	/* num_harm = temp2(Q15) x 2^5 */
@@ -148,7 +148,7 @@ void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 	/* now think fs as Q15 x 2^31. The constant below should be 31 */
 	/* but consider Q5 for num_harm and fsmag before sqrt Q11, and */
 	/* add two guard bits  30 = 31 + 5 - 4 - 2                     */
-	shift = sub(30, temp1);
+	shift = 30 - temp1;
 	/* the sentence above is just for clarity. temp1 = sub(31, temp1) */
 	/* and shift = sub(30, temp1) can be shift = sub(temp1, 1)        */
 
@@ -179,7 +179,7 @@ void idft_real_q(int16_t real[], int16_t signal[], int16_t length)
 	int16_t	temp;
 	int32_t	L_temp;
 
-	length2 = add(shr(length, 1), 1);
+	length2 = shr(length, 1) + 1;
 	/*	w = TWOPI / length; */
 	w = divide_s(TWO_Q3, length);                      /* w = 2/length in Q18 */
 
@@ -201,7 +201,7 @@ void idft_real_q(int16_t real[], int16_t signal[], int16_t length)
 	w = shr(w, 1);                                     /* w = 2/length in Q17 */
 	w2 = shr(w, 1);                                   /* w2 = 1/length in Q17 */
 	real[0] = mult(real[0], w2);                               /* real in Q15 */
-	temp = sub(length2, 1);
+	temp = length2 - 1;
 	for (i = 1; i < temp; i++){
 		/*	real[i] *= (2.0/length); */
 		real[i] = mult(real[i], w);
@@ -218,9 +218,9 @@ void idft_real_q(int16_t real[], int16_t signal[], int16_t length)
 		k = k_inc;
 		for (j = 1; j < length2; j++){
 			L_temp = L_mac(L_temp, real[j], idftc[k]);
-			k = add(k, k_inc);
+			k += k_inc;
 			if (k >= length)
-				k = sub(k, length);
+				k -= length;
 		}
 		signal[i] = round_l(L_temp);
 	}

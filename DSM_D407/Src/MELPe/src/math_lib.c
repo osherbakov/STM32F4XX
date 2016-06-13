@@ -120,7 +120,7 @@ int16_t L_divider2(int32_t numer, int32_t denom, int16_t numer_shift,
 
 	while (denom > (int32_t) SW_MAX){
 		denom = L_shr(denom,1);
-		short_shift = add(short_shift, 1);
+		short_shift++;
 	}
 	numer = L_shr(numer, short_shift);
 
@@ -173,7 +173,7 @@ int16_t log10_fxp(int16_t x, int16_t Q)
 	/* Treat x as if it is a fixed-point number with Q7.  Use "shift" to      */
 	/* record the exponent required for adjustment.                           */
 
-	shift = sub(7, Q);
+	shift = 7 - Q;
 
 	/* If x is 0, stop and return minus infinity. */
 	if (!x) return(-SW_MAX);
@@ -184,10 +184,10 @@ int16_t log10_fxp(int16_t x, int16_t Q)
 	index2 = shr(x, 7);
 	while ((!index2) && x){
 		x = shl(x, 1);
-		shift = sub(shift, 1);
+		shift--;
 		index2 = shr(x, 7);
 	}
-	index1 = sub(index2, 1);
+	index1 = index2 - 1;
 
 	/* interpolation */
 
@@ -245,16 +245,16 @@ int16_t L_log10_fxp(int32_t x, int16_t Q)
 	int32_t	L_temp;
 
 
-	shift = sub(23, Q);
+	shift = 23 - Q;
 	if (!x) return((int16_t) -SW_MAX);
 
 	index2 = extract_l(L_shr(x, 23));
 	while ((!index2) && x){
 		x = L_shl(x, 1);
-		shift = sub(shift, 1);
+		shift--;
 		index2 = extract_l(L_shr(x, 23));
 	}
-	index1 = sub(index2, 1);
+	index1 = index2 - 1;
 
 	/* interpolation */
 
@@ -356,7 +356,7 @@ int16_t pow10_fxp(int16_t x, int16_t Q)
 	index1 = shr((int16_t) (x & (int16_t) 0x0ff0), 4);
 						/* index1 is the most significant 8 bits of the */
                           /* fractional part of x, Q8 */
-	index2 = add(index1, 1);
+	index2 = index1 + 1;
 
 	/* interpolation */
 	/* shift by 11 to make it a number between 0 & 1 in Q15 */
@@ -582,7 +582,7 @@ int16_t sin_fxp(int16_t x)
 	}
 	/* convert input to be within range 0-128 */
 	index1 = shr(tx, 7);
-	index2 = add(index1, 1);
+	index2 = index1 + 1;
 
 	if (index1 == 128){
 		if (sign != 0)
@@ -671,7 +671,7 @@ int16_t cos_fxp(int16_t x)
 	}
 	/* convert input to be within range 0-128 */
 	index1 = shr(tx, 7);
-	index2 = add(index1, 1);
+	index2 = index1 + 1;
 
 	if (index1 == 128)
 		return((int16_t) 0);

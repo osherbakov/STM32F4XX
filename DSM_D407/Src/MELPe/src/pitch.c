@@ -257,11 +257,11 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 	for (i = 0; i < PIT_COR_LEN - MAXPITCH; i++){
 		ACC_A = L40_mac(ACC_A, proBuf[i], proBuf[i+MAXPITCH]); /* Q31 */
 	}
-	shift = add(r0_shift, rk_shift);
+	shift = r0_shift + rk_shift;
 	if (shift & 1){
 		L_r0 = L_shr(L_r0, 1);
 		r0_shift = sub(r0_shift, 1);
-		shift = add(r0_shift, rk_shift);
+		shift = r0_shift + rk_shift;
 	}
 	shift = shr(shift, 1);
 	ACC_A = L40_shl(ACC_A, shift);
@@ -308,11 +308,11 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 		for (j = lowStart; j < lowStart + PIT_WIN; j++){
 			ACC_A = L40_mac(ACC_A, proBuf[j], proBuf[j+i]);
 		}
-		shift = add(r0_shift, rk_shift);
+		shift = r0_shift + rk_shift;
 		if (shift & 1){
 			L_r0 = L_shr(L_r0, 1);
-			r0_shift = sub(r0_shift, 1);
-			shift = add(r0_shift, rk_shift);
+			r0_shift--;
+			shift = r0_shift + rk_shift;
 		}
 		shift = shr(shift, 1);
 		ACC_A = L40_shl(ACC_A, shift);
@@ -385,10 +385,10 @@ static void corPeak(int16_t inbuf[], pitTrackParam *pitTrack,
 			temp2 = pitTrack->pit[i];
 			temp = temp2;
 			while (temp < temp1){
-				temp = add(temp, temp2);
+				temp += temp2;
 			}
 			temp2 = shr(temp2, 1);
-			temp2 = sub(temp, temp2);
+			temp2 = temp - temp2;
 			if (temp2 >= temp1)
 				temp = sub(temp, pitTrack->pit[i]);
 
@@ -584,7 +584,7 @@ int16_t pitLookahead(pitTrackParam *pitTrack, int16_t num)
 	}
 
 	/* -------- forward tracker -------- */
-	for(i = sub(num, 1); i >= 0; i--){
+	for(i = (num - 1); i >= 0; i--){
 		for(j = 0; j < NODE; j++){
 			index = trackPitch(shl(pitTrack[i].pit[j], 7), &pitTrack[i + 1]);
 

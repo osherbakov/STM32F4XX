@@ -252,7 +252,7 @@ int16_t peakiness_q(int16_t input[], int16_t npts)
 		if (peak_fact > LIMIT_PEAKI){
 			peak_fact = SW_MAX;
 		} else {                    /* shl 7 is mult , other shift is Q7->Q12 */
-			temp1 = add(scale, 5);
+			temp1 = scale + 5;
 			temp2 = shl(npts, 7);
 			temp2 = sqrt_fxp(temp2, 7);
 			L_temp = L_mult(peak_fact, temp2);
@@ -517,7 +517,7 @@ BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
 		*code |= shl(shr((int16_t) ((int16_t) *ch_word & shl(1, ch_bit)), ch_bit), i);
 
 		/* Check for end of channel word */
-		ch_bit = add(ch_bit, 1);
+		ch_bit++;
 		if (ch_bit >= wsize){
 			ch_bit = 0;
 			(*ptr_ch_begin) ++;
@@ -593,7 +593,7 @@ void zerflt_q(int16_t input[], const int16_t coeff[], int16_t output[],
 //	arm_copy_q15(input, output, npts);
 //	return;
 
-	for (i = sub(npts, 1); i >= 0; i--){
+	for (i = npts - 1; i >= 0; i--){
 		accum = 0;
 		for (j = 0; j <= order; j++)
 			accum = L_mac(accum, input[i - j], coeff[j]);
@@ -621,7 +621,7 @@ void zerflt_Q(int16_t input[], const int16_t coeff[], int16_t output[],
 //	return;
 
 	scale = sub(15, Q_coeff);
-	for (i = sub(npts, 1); i >= 0; i--){
+	for (i = npts - 1; i >= 0; i--){
 		accum = 0;
 		for (j = 0; j <= order; j++)
 			accum = L_mac(accum, input[i - j], coeff[j]);

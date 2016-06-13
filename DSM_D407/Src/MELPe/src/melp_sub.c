@@ -267,8 +267,8 @@ void remove_dc(int16_t sigin[], int16_t sigout[], int16_t len)
 	/* equal to len.                                                          */
 
 	temp = norm_s(len);
-	up_shift = sub(15, temp);
-	temp = sub(up_shift, 1);
+	up_shift = 15 - temp;
+	temp = up_shift - 1;
 	two_power_down = shl(1, temp);
 
 	sum = 0;
@@ -331,7 +331,7 @@ int16_t gain_ana_q(int16_t sigin[], int16_t pitch, int16_t minlength,
 	/* Find shortest pitch multiple window length (floating point) */
 	flength = pitch_Q6;
 	while (flength < tmp_minlength){
-		flength = add(flength, pitch_Q6);
+		flength += pitch_Q6;
 	}
 
 	/* Convert window length to integer and check against maximum */
@@ -693,7 +693,7 @@ void q_gain_q(int16_t *gain, int16_t *gain_index, int16_t gn_qlo,
 		quant_u_q(&gain[0], &gain_index[0], temp, temp2, 6, SIX_Q12, 0, 3);
 
 		/* Skip all-zero code */
-		gain_index[0] = add(gain_index[0], 1);
+		gain_index[0]++;
 	}
 
 	/* Update previous gain for next time */

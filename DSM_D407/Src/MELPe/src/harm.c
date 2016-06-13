@@ -70,7 +70,7 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 
 
 	/*	length2 = (length/2) + 1; */
-	length2 = add(shr(length, 1), 1);
+	length2 = shr(length, 1) + 1;
 	/*	w = TWOPI / length; */
 	w = divide_s(TWO_Q3, length);                      /* w = 2/length in Q18 */
 
@@ -94,7 +94,7 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 	w = shr(w, 1);                                     /* w = 2/length in Q17 */
 	w2 = shr(w, 1);                                   /* w2 = 1/length in Q17 */
 	mag[0] = mult(mag[0], w2);                                /* mag[] in Q15 */
-	temp = sub(length2, 1);
+	temp = length2 - 1;
 	for (i = 1; i < temp; i++){
 		/*	mag[i] *= (2.0/length); */
 		mag[i] = mult(mag[i], w);                         /* mag[] is now Q15 */
@@ -110,14 +110,14 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 		L_temp = L_deposit_h(mag[0]);                        /* L_temp in Q15 */
 		k = i;
 		for (j = 1; j < length2; j++){
-			k = add(k, phase[j]);
+			k += phase[j];
 			while (k < 0)
-				k = add(k, length);
+				k += length;
 			while (k >= length)
-				k = sub(k, length);
+				k -= length;
 			L_temp = L_mac(L_temp, mag[j], idftc[k]);
-			k = sub(k, phase[j]);
-			k = add(k, i);
+			k -= phase[j];
+			k += i;
 		}
 
 		/* It might take some proofs, but mag[] is already weighted by w      */
@@ -247,7 +247,7 @@ void harm_syn_pitch(int16_t amp[], int16_t signal[], int16_t fc,
 	totalCnt = (int16_t) ((length/2) + 1);
 
 	/* ====== set values to mag and phase ====== */
-	v_equ(mag, amp, add(voicedCnt, 1));                                /* Q13 */
+	v_equ(mag, amp, voicedCnt + 1);                                /* Q13 */
 
 	/* Now we compute phase[] in multiples of w = (2*PI)/length.  Therefore   */
 	/* phase[] -> (i*FIXED_PHASE)*length/(2*PI).                              */
@@ -255,33 +255,33 @@ void harm_syn_pitch(int16_t amp[], int16_t signal[], int16_t fc,
 	temp2 = extract_l(L_mult(FIXED_PHASE, length));
 	temp2 = shr(temp2, 1);                    /* temp2 = FIXED_PHASE * length */
 	while (temp2 >= 2*length)
-		temp2 = sub(temp2, (int16_t) (2*length));
+		temp2 -= (2*length);
 	for (i = 0; i < mixedCnt + 1; i++){
 		phase[i] = shr(temp1, 1);
 		temp1 = add(temp1, temp2);
 		if (temp1 >= 2*length)
-			temp1 = sub(temp1, (int16_t) (2*length));
+			temp1 -= (2*length);
 	}
 	index = 0;
-	for (i = add(voicedCnt, 1); i < add(mixedCnt, 1); i++, index ++){
-		temp1 = sub(i, voicedCnt);
-		temp2 = sub(mixedCnt, voicedCnt);
+	for (i = voicedCnt + 1; i < (mixedCnt + 1); i++, index++){
+		temp1 = i - voicedCnt;
+		temp2 = mixedCnt - voicedCnt;
 		fn = divide_s(temp1, temp2);                                   /* Q15 */
 		temp1 = mult(factor, fn);
 		temp2 = sub(ONE_Q15, fn);
-		temp1 = add(temp1, temp2);
+		temp1 += temp2;
 		mag[i] = mult(amp[i], temp1);                                  /* Q13 */
 		temp1 = mult(fn, rndphase[index]);                              /* Q0 */
 		temp2 = sub(phase[i], temp1);
 		if (temp2 < 0)
-			temp2 = add(temp2, length);
+			temp2 += length;
 		phase[i] = temp2;
 	}
-	for (i = add(mixedCnt, 1); i < totalCnt; i++, index ++){
+	for (i = mixedCnt + 1; i < totalCnt; i++, index ++){
 		mag[i] = mult(amp[i], factor);                                 /* Q13 */
 		temp2 = negate(rndphase[index]);                                /* Q0 */
 		if (temp2 < 0)
-			temp2 = add(temp2, length);
+			temp2 += length;
 		phase[i] = temp2;                         /* This moves phase[i] from */
                                                      /* negative to positive. */
 	}

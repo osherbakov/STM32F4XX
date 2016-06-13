@@ -470,7 +470,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 				 length, 15);
 
 		/* Copy processed speech to output array (not past frame end) */
-		if (add(syn_begin, length) >= FRAME){
+		if (syn_begin + length >= FRAME){
 			v_equ(&sp_out[syn_begin], &sigbuf[BEGIN], (int16_t) (FRAME - syn_begin));
 
 #if POSTFILTER
@@ -484,7 +484,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 			v_equ(&sp_out[syn_begin], &sigbuf[BEGIN], length);
 
 		/* Update syn_begin for next period */
-		syn_begin = add(syn_begin, length);
+		syn_begin += length;
 	}
 
 	/* Save previous pulse and noise filters for next frame */
@@ -497,7 +497,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 	prev_lpc_gain = lpc_gain;
 
 	/* Update syn_begin for next frame */
-	syn_begin = sub(syn_begin, FRAME);
+	syn_begin -= FRAME;
 }
 
 

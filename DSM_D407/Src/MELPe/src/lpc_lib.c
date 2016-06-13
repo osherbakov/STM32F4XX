@@ -218,7 +218,7 @@ int32_t lpc_aejw_q(int16_t lpc[], int16_t omega, int16_t order)
 	c_re = shr(mult(cs, temp1), 3);                            /* -> Q9 */
 	c_im = shr(mult(sn, temp1), 3);                            /* -> Q9 */
 
-	for (i = sub(order, 2); i >= 0; i--){
+	for (i = order - 2; i >= 0; i--){
 		/* add a[i] */
 		temp = shr(lpc[i], 3);
 		c_re = add(c_re, temp);
@@ -611,8 +611,8 @@ static void		lsp_to_freq(int16_t lsp[], int16_t freq[], int16_t order)
 		for (i = 0; i < DFTLENGTH_D4; i++){
 			lsp_cos[temp1] = negate(lsp_cos[temp2]);
 			lsp_cos[temp1 + DFTLENGTH_D2] = lsp_cos[temp2];
-			temp1 = add(temp1, 1);
-			temp2 = sub(temp2, 1);
+			temp1++;
+			temp2--;
 		}
 
 		/* compute default values for freq[] */
@@ -637,7 +637,7 @@ static void		lsp_to_freq(int16_t lsp[], int16_t freq[], int16_t order)
 		p_cos = i;
 		/* mag2 = 0.5 * lsp[p2]; */
 		L_temp2 = L_mult(lsp[p2], X05_Q14);                  /* mag[2] in Q25 */
-		for (j = sub(p2, 1); j >= 0; j--){
+		for (j = p2 - 1; j >= 0; j--){
 			L_temp1 = L_shr(L_mult(lsp[j], lsp_cos[p_cos]), 1);
 			L_temp2 = L_add(L_temp2, L_temp1);
 			p_cos = add(p_cos, i);
@@ -665,7 +665,7 @@ static void		lsp_to_freq(int16_t lsp[], int16_t freq[], int16_t order)
 					temp2 = sub(i, 1);
 					temp1 = add(shl(temp2, 6), temp1);
 					freq[count] = divide_s(temp1, shl(DFTLENGTH, 5));
-					count = add(count, 1);
+					count++;
 				}
 			}
 			prev_less = FALSE;
@@ -715,7 +715,7 @@ int16_t lpc_pred2refl_q(int16_t lpc[], int16_t *refc, int16_t order)
 	v_equ(b, lpc, order);
 
 	/* compute reflection coefficients */
-	for (i = sub(order, 1); i >= 0; i--){
+	for (i = order - 1; i >= 0; i--){
 
 		if( b[i] >= 4096 )
 			b[i] = 4095;
@@ -744,11 +744,11 @@ int16_t lpc_pred2refl_q(int16_t lpc[], int16_t *refc, int16_t order)
 			temp = extract_h(L_shl(acc, shift1));
 			if( temp > e ){
 				temp = shr(temp, 1);
-				shift1 = sub(shift1, 1);
+				shift1--;
 			}
 			b[j] = divide_s(temp, e);
-			shift1 = sub(shift1, 3);
-			shift1 = sub(shift1, shift);
+			shift1 -= 3;
+			shift1 -= shift;
 			b[j] = shr(b[j], shift1);					/* b[j] in Q12 */
 
 			if ( sign < 0)
@@ -825,7 +825,7 @@ int16_t lpc_lsp2pred_q(int16_t lsf[], int16_t lpc[], int16_t order)
 		f1[1] = L_add(f1[1], L_shl(L_mpy_ls(f1[0], c1), 1));
 	}
 
-	for (i = sub(p2, 1); i >= 0; i--){
+	for (i = p2 - 1; i >= 0; i--){
 		/* short f (f is a Q14) */
 		f0[i + 1] = L_add(f0[i + 1], f0[i]);
 		f1[i + 1] = L_sub(f1[i + 1], f1[i]);

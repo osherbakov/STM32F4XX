@@ -162,7 +162,7 @@ void classify(int16_t inbuf[], classParam *classStat, int16_t autocorr[])
 				  sigbuf_len); */
 		v_equ(sigbuf_in, &(bpfdel[2*i]), BPF_ORD/3);
 		v_equ(sigbuf_out, &(bpfdel[2*i + 2]), BPF_ORD/3);
-		for (j = BPF_ORD/3; j < add(sigbuf_len, BPF_ORD/3); j++){
+		for (j = BPF_ORD/3; j < (sigbuf_len +  BPF_ORD/3); j++){
 			L_temp = L_mult(sigbuf_in[j], ptr_bpf_num[0]);
 			L_temp = L_mac(L_temp, sigbuf_in[j - 1], ptr_bpf_num[1]);
 			L_temp = L_mac(L_temp, sigbuf_in[j - 2], ptr_bpf_num[2]);
@@ -283,7 +283,7 @@ void classify(int16_t inbuf[], classParam *classStat, int16_t autocorr[])
 		/* significant loss of precision.  We use Q8 for it and therefore we  */
 		/* adjust sum1_shift beforehand.                                      */
 
-		sum1_shift = sub(sum1_shift, 8);
+		sum1_shift = sum1_shift - 8;
 		temp2 = extract_l(L_shr(L_sum2, sum1_shift));                   /* Q8 */
 		temp1 = shr(temp1, 7);                                          /* Q8 */
 		temp1 = divide_s(temp1, temp2);                                /* Q15 */
@@ -515,8 +515,8 @@ static void		frac_cor(int16_t inbuf[], int16_t pitch, int16_t *cor)
 	/* ------ Calculate the autocorrelation function ------- */
 	/* This is the new version of the autocorrelation function */
 	/* (Andre Ebner, 11/30/99) */
-	lowPitch = sub(pitch, PITCH_RANGE);
-	highPitch = add(pitch, PITCH_RANGE);
+	lowPitch = pitch - PITCH_RANGE;
+	highPitch = pitch + PITCH_RANGE;
 	if (lowPitch < MINPITCH) lowPitch = MINPITCH;
 	if (highPitch > MAXPITCH) highPitch = MAXPITCH;
 
@@ -544,11 +544,11 @@ static void		frac_cor(int16_t inbuf[], int16_t pitch, int16_t *cor)
 	for (i = 0; i < PIT_COR_LEN - highPitch; i++){
 		ACC_A = L40_mac(ACC_A, inbuf[i], inbuf[i+highPitch]); /* Q31 */
 	}
-	shift = add(r0_shift, rk_shift);
+	shift = r0_shift + rk_shift;
 	if (shift & 1){
 		L_r0 = L_shr(L_r0, 1);
-		r0_shift = sub(r0_shift, 1);
-		shift = add(r0_shift, rk_shift);
+		r0_shift = r0_shift - 1;
+		shift = r0_shift + rk_shift;
 	}
 	shift = shr(shift, 1);
 	ACC_A = L40_shl(ACC_A, shift);
@@ -560,8 +560,8 @@ static void		frac_cor(int16_t inbuf[], int16_t pitch, int16_t *cor)
 	maxgp = divide_s(temp, root); 
 	lowStart = 0;
 	highStart = highPitch;
-	win = sub(PIT_COR_LEN, highPitch);
-	for (i = sub(highPitch, 1); i >= lowPitch; i--){
+	win = PIT_COR_LEN - highPitch;
+	for (i = highPitch - 1; i >= lowPitch; i--){
 		gp = 0;
 		if (i % 2 == 0){
 			ACC_r0 = L_r0;
@@ -590,11 +590,11 @@ static void		frac_cor(int16_t inbuf[], int16_t pitch, int16_t *cor)
 		for (j = lowStart; j < lowStart + win; j++){
 			ACC_A = L40_mac(ACC_A, inbuf[j], inbuf[j+i]);
 		}
-		shift = add(r0_shift, rk_shift);
+		shift = r0_shift + rk_shift;
 		if (shift & 1){
 			L_r0 = L_shr(L_r0, 1);
-			r0_shift = sub(r0_shift, 1);
-			shift = add(r0_shift, rk_shift);
+			r0_shift = r0_shift - 1;
+			shift = r0_shift + rk_shift;
 		}
 		shift = shr(shift, 1);
 		ACC_A = L40_shl(ACC_A, shift);

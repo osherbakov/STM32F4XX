@@ -1147,9 +1147,9 @@ static void		vgetbits(int16_t dest[], int16_t source, int16_t bit_pos,
 	const int16_t		lsb_mask = 0x1;         /* least significant bit mask */
 
 
-	if ((n >= 0) && (bit_pos >= sub(n, 1))){
+	if ((n >= 0) && (bit_pos >= (n - 1))){
 		source = shr(source, (int16_t) (bit_pos - n + 1));
-		for (i = sub(n, 1); i >= 0; i--){
+		for (i = n - 1; i >= 0; i--){
 			dest[i] = (int16_t) (source & lsb_mask);
 			source = shr(source, 1);
 		}
@@ -1237,7 +1237,7 @@ static void		crc4_enc(int16_t bit[], int16_t num_bits)
 	int16_t	delay[4], x, ll;
 
 
-	ll = add(num_bits, 4);
+	ll = num_bits + 4;
 	v_zap(delay, 4);
 
 	for (i = 1; i <= num_bits; i++){

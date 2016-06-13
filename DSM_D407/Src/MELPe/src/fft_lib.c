@@ -141,10 +141,10 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 		}
 		m = nn;
 		while (m >= 2 && j > m){
-			j = sub(j, m);
+			j -= m;
 			m = shr(m, 1);
 		}
-		j = add(j, m);
+		j += m;
 	}
 
 	/* Stage 1 */
@@ -234,8 +234,8 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 		wr = ONE_Q15;
 		wi = 0;
 		for (m = 1; m < mmax; m += 2){
-			for (i = m; i <= n; i = add(i, istep)){
-				j = add(i, mmax);
+			for (i = m; i <= n; i += istep){
+				j = i + mmax;
 
 				L_temp1 = L_mult(wr, data[j]);
 				L_temp2 = L_mult(wi, data[j+1]);
@@ -258,7 +258,7 @@ int16_t cfft(int16_t datam1[], int16_t nn)
 				data[i+1] = extract_h(L_sub(L_deposit_h(sPI), L_tempi));
 				data[j+1] = extract_h(L_add(L_deposit_h(sPI), L_tempi));
 			}
-			index = add(index, index_step);
+			index += index_step;
 			wr = wr_array[index];
 			wi = wi_array[index];
 		}
