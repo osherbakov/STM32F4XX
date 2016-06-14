@@ -285,7 +285,7 @@ int16_t vq_ms4_q(const int16_t *cb, int16_t *u, const int16_t *u_est,
 					/* want to limit the number of times the inner loop is    */
 					/* entered (to reduce the *maximum* complexity) */
 					if (inner_counter < max_inner){
-						inner_counter = add(inner_counter, 1);
+						inner_counter++;;
 						if (inner_counter < max_inner){
 							p_max = 0;
 							/* find the new maximum */
@@ -504,7 +504,7 @@ void vq_fsw_q(int16_t w_fs[], int16_t num_harm, int16_t pitch)
 		/* w_fs[i] = 117.0/(25.0 + 75.0* pow(1.0 + */
 		/*           1.4*SQR(w0*(i+1)/(0.25*PI)),0.69)) */
 
-		temp = add(i, 1);
+		temp = i + 1;
 		temp = shl(temp, 11);                                   /* (i+1), Q11 */
 		L_temp = L_mult(tempw0, temp);                                 /* Q29 */
 		L_temp = L_shl(L_temp, 1);                                     /* Q30 */

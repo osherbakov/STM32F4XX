@@ -168,7 +168,7 @@ void pitch_vq(struct melp_param *par)
 			dcb[temp1] = sub(codebook[temp2], prev_qpitch);            /* Q12 */
 			v_equ(&dcb[temp1 + 1], &codebook[temp2 + 1], NF - 1);
 			v_sub(&dcb[temp1 + 1], &codebook[temp2], NF - 1);
-			temp1 = add(temp1, NF);
+			temp1 +=  NF;
 		}
 
 		pitch_index = wvq2(deltp, deltw, dcb, NF, indexlist, distlist,
@@ -380,7 +380,7 @@ void gain_vq(struct melp_param *par)
 	temp = 0;
 	for (i = 0; i < NF; i++){
 		v_equ(&(gain_target[temp]), par[i].gain, NUM_GAINFR);
-		temp = add(temp, NUM_GAINFR);
+		temp += NUM_GAINFR;
 	}
 
 	minErr = LW_MAX;
@@ -415,7 +415,7 @@ void gain_vq(struct melp_param *par)
 				index = i;
 			}
 		}
-		temp2 = add(temp2, NF_X_NUM_GAINFR);
+		temp2 += NF_X_NUM_GAINFR;
 	}
 
 	/*	temp2 = index * NF * NUM_GAINFR; */
@@ -426,7 +426,7 @@ void gain_vq(struct melp_param *par)
 		/*	v_equ(par[i].gain, &(gain_vq_cb[index*NUM_GAINFR*NF +
 											i*NUM_GAINFR]), NUM_GAINFR); */
 		v_equ(par[i].gain, &(gain_vq_cb[temp2]), NUM_GAINFR);
-		temp2 = add(temp2, NUM_GAINFR);
+		temp2 += NUM_GAINFR;
 	}
 
 	quant_par.gain_index[0] = index;
@@ -568,7 +568,7 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 					max_dMin = InsertCand(c1, s1, dMin, distortion, entry,
 							 	  nextIndex[0], vq_index[0]);
 				}
-				ptr_offset = add(ptr_offset, dim);
+				ptr_offset += dim;
 			}
 		}
 
@@ -645,8 +645,8 @@ static void		lspVQ(int16_t target[], int16_t weight[], int16_t qout[],
 	for (i = 0; i < ncPrev; i++){
 		v_equ(&(cb_index[temp1]), vq_index[i], tos);
 		v_equ(&qout[temp2], cand[i], dim);
-		temp1 = add(temp1, tos);
-		temp2 = add(temp2, dim);
+		temp1 += tos;
+		temp2 += dim;
 	}
 }
 
@@ -759,7 +759,7 @@ static int16_t	InsertCand(int16_t c1, int16_t s1, int16_t dMin[],
 	L_temp = L_mult((LSP_VQ_CAND - 1) , LSP_VQ_STAGES);
 	L_temp = L_shr(L_temp, 1);
 	ptr_offset = extract_l(L_temp);
-	temp2 = add(s1, 1);
+	temp2 = s1 + 1;
 	for (j = (LSP_VQ_CAND - 1); j > i; j--){
 		dMin[j] = dMin[j - 1];
 		temp1 = sub(ptr_offset, LSP_VQ_STAGES);

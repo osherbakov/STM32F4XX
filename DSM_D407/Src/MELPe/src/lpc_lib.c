@@ -88,17 +88,17 @@ static int16_t	lpc_refl2pred(int16_t refc[], int16_t lpc[],
 /*                                                                            */
 /*	Q values: input - Q0, win_cof - Q15, hf_correction - Q15                  */
 
-int16_t inputw[LPC_FRAME];
+int16_t inputw[LPC_FRAME] CCMRAM;
+/* Lag window coefficients */
+static const int16_t		lagw_cof[EN_FILTER_ORDER - 1] RODATA = {
+	32756, 32721, 32663, 32582, 32478, 32351, 32201, 32030, 31837, 31622,
+	31387, 31131, 30855, 30560, 30246, 29914
+};
 
 void lpc_acor(int16_t input[], const int16_t win_cof[],
 			  int16_t autocorr[], int16_t hf_correction, int16_t order,
 			  int16_t npts)
 {
-	/* Lag window coefficients */
-	static const int16_t		lagw_cof[EN_FILTER_ORDER - 1] RODATA = {
-		32756, 32721, 32663, 32582, 32478, 32351, 32201, 32030, 31837, 31622,
-		31387, 31131, 30855, 30560, 30246, 29914
-	};
 	register int16_t	j;
 	int32_t	L_temp;
 	int16_t	norm_var, scale_fact, temp;
@@ -115,8 +115,7 @@ void lpc_acor(int16_t input[], const int16_t win_cof[],
 	/* Find scaling factor */
 	L_temp = L_v_magsq(inputw, npts, 0, 1);
 	if (L_temp){
-		norm_var = norm_l(L_temp);
-		norm_var = sub(4, shr(norm_var, 1));
+		norm_var = 4 -  norm_l(L_temp)/2;
 		if (norm_var < 0)	norm_var = 0;
 	} else
 		norm_var = 0;

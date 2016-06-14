@@ -83,34 +83,6 @@ void envelope_q(int16_t input[], int16_t prev_in, int16_t output[],
 }
 
 
-/* ====================================================== */
-/* This function fills an input array with a given value. */
-/* ====================================================== */
-//void v_fill(int16_t output[], int16_t fillval, int16_t npts)
-//{
-//	register int16_t	i;
-
-
-//	for (i = 0; i < npts; i++){
-//		output[i] = fillval;
-//	}
-//}
-
-
-/* ====================================================== */
-/* This function fills an input array with a given value. */
-/* ====================================================== */
-//void L_fill(int32_t output[], int32_t fillval, int16_t npts)
-//{
-//	register int16_t	i;
-
-
-//	for (i = 0; i < npts; i++){
-//		output[i] = fillval;
-//	}
-//}
-
-
 /* Subroutine interp_array: interpolate array                  */
 /*                                                             */
 /*	Q values:                                                  */
@@ -188,11 +160,11 @@ void pack_code_q(int16_t code, unsigned char **ptr_ch_begin,
 			*ch_word |= (unsigned char) (shl(temp, ch_bit));
 
 		/* Check for full channel word */
-		ch_bit = ch_bit + 1;
+		ch_bit++;
 		if (ch_bit >= wsize){
 			ch_bit = 0;
-			(*ptr_ch_begin) ++;
-			ch_word++ ;
+			(*ptr_ch_begin)++;
+			ch_word++;
 		}
 		code = shr(code, 1);
 	}
@@ -224,7 +196,7 @@ int16_t peakiness_q(int16_t input[], int16_t npts)
 
 	if (L_temp){
 		temp1 = norm_l(L_temp);
-		scale = sub(scale, shr(temp1, 1));
+		scale -= temp1/2;
 		if (scale < 0)	scale = 0;
 	} else
 		scale = 0;
@@ -318,7 +290,7 @@ void quant_u_q(int16_t *p_data, int16_t *p_index, int16_t qmin,
 			if (*p_in < qbnd)
 				break;
 			else
-				qbnd = add(qbnd, step);
+				qbnd += step;
 		}
 		/*	Quantize input to correct level */
 		/* *p_in = qmin + (i * step); */

@@ -39,9 +39,6 @@
 #define X102_Q14		16712                             /* 1.02 * (1 << 15) */
 #define X105_Q14		17203                             /* 1.05 * (1 << 15) */
 
-static void		realIDFT(int16_t mag[], int16_t phase[],
-						 int16_t signal[], int16_t length);
-
 
 /***************************************************************************
 **
@@ -70,7 +67,7 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 
 
 	/*	length2 = (length/2) + 1; */
-	length2 = shr(length, 1) + 1;
+	length2 = (length/2) + 1;
 	/*	w = TWOPI / length; */
 	w = divide_s(TWO_Q3, length);                      /* w = 2/length in Q18 */
 
@@ -94,8 +91,7 @@ static void realIDFT(int16_t mag[], int16_t phase[], int16_t signal[],
 	w = shr(w, 1);                                     /* w = 2/length in Q17 */
 	w2 = shr(w, 1);                                   /* w2 = 1/length in Q17 */
 	mag[0] = mult(mag[0], w2);                                /* mag[] in Q15 */
-	temp = length2 - 1;
-	for (i = 1; i < temp; i++){
+	for (i = 1; i < (length2 - 1); i++){
 		/*	mag[i] *= (2.0/length); */
 		mag[i] = mult(mag[i], w);                         /* mag[] is now Q15 */
 	}

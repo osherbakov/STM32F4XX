@@ -534,18 +534,3 @@ void firflt(float input[], const float coeff[], float output[], float delay[], i
 	v_equ(delay, &input[npts - order], order);
 	zerflt(input, coeff, output, order, npts);
 }
-
-//void zerflt(float input[], const float coeff[], float output[], int order, int npts)
-//{
-//    int i,j;
-//    float accum;
-
-
-//	firflt_f32(input, coeff, output, order, npts);
-//    for (i = npts-1; i >= 0; i-- ) {
-//		accum = 0.0;
-//		for (j = 0; j <= order; j++ )
-//			accum += input[i-j] * coeff[j];
-//		output[i] = accum;
-//    }
-//}

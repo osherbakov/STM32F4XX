@@ -1224,7 +1224,7 @@ static int16_t	sbc_syn(int16_t x[], int16_t n, int16_t k,
 	int16_t	retval = 0;
 
 
-	for (i = k, j = (int16_t) (n - k - 1); i < n; i++, j--, pmat += k)
+	for (i = k, j = (n - k - 1); i < n; i++, j--, pmat += k)
 		retval = add(retval,
 					 (int16_t) ((x[i] ^ binprod_int(x, pmat, k)) << j));
 	return(retval);

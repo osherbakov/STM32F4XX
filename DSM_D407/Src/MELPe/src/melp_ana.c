@@ -270,32 +270,23 @@ void analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[])
 /*    *par - MELP parameter structure                                         */
 /*  Returns: void                                                             */
 /* ========================================================================== */
-static int16_t	lpfsp_delin[LPF_ORD];
-static int16_t	lpfsp_delout[LPF_ORD];
-static int16_t	fpitch[NUM_PITCHES];
-static int16_t	auto_corr[EN_FILTER_ORDER], lpc[LPC_ORD + 1];
-int16_t	temp_delin[LPF_ORD];
-int16_t	temp_delout[LPF_ORD];
+static int16_t	lpfsp_delin[LPF_ORD] CCMRAM;
+static int16_t	lpfsp_delout[LPF_ORD] CCMRAM;
+static int16_t	fpitch[NUM_PITCHES] CCMRAM;
+static int16_t	auto_corr[EN_FILTER_ORDER] CCMRAM, lpc[LPC_ORD + 1] CCMRAM;
+static int16_t	pitch_avg;
+
+int16_t	temp_delin[LPF_ORD] CCMRAM;
+int16_t	temp_delout[LPF_ORD] CCMRAM;
 
 static void		melp_ana(int16_t speech[], struct melp_param *par, int16_t subnum)
 {
 	register int16_t	i;
-	static BOOLEAN	firstTime = TRUE;
-
-	static int16_t	pitch_avg;
 
 	int16_t	cur_track, begin;
 	int16_t	sub_pitch;
 	int16_t	temp, dontcare, pcorr;
 	int16_t	section;
-
-	if (firstTime){
-		v_zap(lpfsp_delin, LPF_ORD);      /* Release V2 only use "lpfsp_del". */
-		v_zap(lpfsp_delout, LPF_ORD);
-		pitch_avg = DEFAULT_PITCH_Q7;
-		v_fill(fpitch, DEFAULT_PITCH_Q7, 2);
-		firstTime = FALSE;
-	}
 
 	/* Copy input speech to pitch window and lowpass filter */
 
@@ -462,6 +453,11 @@ void melp_ana_init_q(struct melp_param *par)
 {
 	register int16_t	i;
 
+	v_zap(lpfsp_delin, LPF_ORD);      /* Release V2 only use "lpfsp_del". */
+	v_zap(lpfsp_delout, LPF_ORD);
+	pitch_avg = DEFAULT_PITCH_Q7;
+	v_fill(fpitch, DEFAULT_PITCH_Q7, 2);
+	
 	v_zap(hpspeech, IN_BEG + BLOCK);   /* speech[] is declared IN_BEG + BLOCK */
 
 	/* Initialize fixed MSE weighting and inverse of weighting */
@@ -505,6 +501,9 @@ void melp_ana_init_q(struct melp_param *par)
 ** Return value:	None
 **
 *****************************************************************************/
+static int16_t	bpvc_copy[NUM_BANDS] CCMRAM;
+static int16_t	sbp[NF + 1] CCMRAM;
+static BOOLEAN	uv[NF + 1] CCMRAM;
 
 void		sc_ana(struct melp_param *par)
 {
@@ -515,9 +514,6 @@ void		sc_ana(struct melp_param *par)
                                   /* but it is always an integer in Q7 as the */
                                   /* former floating point version specifies. */
 	int16_t	pitCand, npitch;                                        /* Q7 */
-	int16_t	bpvc_copy[NUM_BANDS];
-	int16_t	sbp[NF + 1];
-	BOOLEAN		uv[NF + 1];
 	int16_t	curTrack;
 	int16_t	index, index1, index2;
 	int16_t	temp1, temp2;

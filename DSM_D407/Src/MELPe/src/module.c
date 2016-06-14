@@ -40,6 +40,9 @@ void melpe_init(void *pHandle)
 	melp_parameters->rate = RATE2400;
 	melp_parameters->frameSize = FRAME;
 	
+//	melp_parameters->rate = RATE1200;
+//	melp_parameters->frameSize = BLOCK;
+	
 	melp_ana_init_q(melp_parameters);
 	melp_syn_init_q(melp_parameters);
 }

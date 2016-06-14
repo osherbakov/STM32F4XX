@@ -57,7 +57,7 @@ Secretariat fax: +33 493 65 47 16.
 /*  fsmag - Q13                                                 */
 /*  pitch - Q7                                                  */
 
-static int32_t L_fsmag[NUM_HARM];
+static int32_t L_fsmag[NUM_HARM] CCMRAM;
 static int16_t	find_hbuf[2*FFTLENGTH] CCMRAM;
 void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 			   int16_t num_harm, int16_t length)
@@ -66,18 +66,13 @@ void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 
 	int16_t	iwidth, i2;
 	int16_t	fwidth, mult_fwidth, shift, max;
-	int32_t	L_temp, L_max;
+	uint32_t	L_temp, L_max;
 	Word40	avg;
 	int16_t	temp1, temp2;
 
 	/* Find normalization factor of frame and scale input to maximum          */
 	/* precision. */
-	max = 0;
-	for (i = 0; i < length; i++){
-		temp1 = abs_s(input[i]);
-		if (temp1 > max)
-			max = temp1;
-	}
+	arm_max_q15(input, length, &max, &L_temp);
 	shift = norm_s(max);
 
 	/* initialize fsmag */
@@ -86,9 +81,6 @@ void find_harm_q(int16_t input[], int16_t fsmag[], int16_t pitch,
 	/* Perform peak-picking on FFT of input signal */
 	/* Calculate FFT of complex signal in scratch buffer */
 	v_zap(find_hbuf, 2*FFTLENGTH);
-//	for (i = 0; i < length; i++){
-//		find_hbuf[i] = shl(input[i], shift);
-//	}
 	v_lshift(find_hbuf, input, shift, length);
 	rfft(find_hbuf, FFTLENGTH);
 
