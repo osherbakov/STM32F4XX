@@ -94,12 +94,12 @@ uint32_t Queue_Space(DQueue_t *pQueue)
 
 void Queue_Clear(DQueue_t *pQueue)
 {
-	pQueue->iPut = pQueue->iGet = 0;
+	pQueue->isReady = pQueue->iPut = pQueue->iGet = 0;
 }
 
 uint32_t Queue_Push(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 {
-	int diff, space;
+	int diff, space, count;
 	uint32_t iPut, iGet, nSize;
 	uint32_t n_bytes, n_copy, ret;
 	
@@ -128,6 +128,13 @@ uint32_t Queue_Push(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	if(ret == space) {iPut = (iGet >= nSize) ? (iGet - nSize) : (iGet + nSize);}
 	else {iPut += ret; if(iPut >= nSize) iPut -= nSize;}
 	pQueue->iPut = iPut;
+	
+	// Set up the isReady flag - if the number of bytes available is more than 1/2 of the buffer
+	count =  iPut - iGet;
+	if (count < 0) { count += nSize; if(count <= 0) count += nSize;}
+	else if(count > nSize) {count -= nSize;}
+	if(count >= nSize/2) pQueue->isReady = 1;
+	
 	return ret;
 }
 
@@ -161,9 +168,11 @@ uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	}
 	
 	// Adjust the get pointer .... and save it
-	if(ret == count) {iGet = iPut;}	
+	if(ret == count) {iGet = iPut;}
 	else{ iGet += ret; if(iGet >= nSize) iGet -= nSize;}
 	pQueue->iGet = iGet;
+	// If after this pop the queue is empty - mark it as not-ready
+	if((ret < nBytes) || (ret == count)) pQueue->isReady = 0;
 	return ret;
 }
 

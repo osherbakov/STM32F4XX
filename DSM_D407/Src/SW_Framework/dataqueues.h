@@ -88,6 +88,7 @@ typedef struct DQueue {
 	uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
 	uint16_t	iGet;		// Get Index
 	uint16_t	iPut;		// Put Index
+	int32_t		isReady;	// == 0 if number of bytes is less than half. Reset when buffer is underrun
 } DQueue_t;
 
 // The structure that specifies the information about In/Out Data Port

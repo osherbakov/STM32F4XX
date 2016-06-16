@@ -116,14 +116,9 @@ void StartDataProcessTask(void const * argument)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
 		pDataQIn = (DQueue_t *) event.value.p;
-		if((osParams.ProcessingState == WAITING_FOR_BUFF) && (Queue_Count(pDataQIn) >= pDataQIn->Size/2)) 
-		{
-			osParams.ProcessingState = RUNNING;
-		}
-		if( osParams.ProcessingState == RUNNING ) // Message came that some valid Input Data is present
+		if( pDataQIn->isReady ) // Message came that some valid Input Data is present
 		{
 #if 0
-			pDataQIn = (DQueue_t *) event.value.p;
 			pDataQOut = osParams.PCM_OutQ;
 			nBytesIn = Queue_Count(pDataQ);
 			pSyncModule->Info(pRSIn, &DataIn, &DataOut);

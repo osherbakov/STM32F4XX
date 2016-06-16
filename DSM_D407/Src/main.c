@@ -151,7 +151,6 @@ void StartDefaultTask(void const * argument)
 	buttonState = BSP_PB_GetState(BUTTON_KEY);
 
 	osParams.bStartPlay = 1;
-	osParams.ProcessingState = WAITING_FOR_BUFF;
 	
 	/* Infinite loop */
   for(;;)
@@ -177,8 +176,6 @@ void StartDefaultTask(void const * argument)
 				Queue_Clear(osParams.PCM_InQ);
 				Queue_Clear(osParams.USB_InQ);
 				osParams.bStartPlay = 1;
-				osParams.ProcessingState = WAITING_FOR_BUFF;
-
 				
 				BSP_LED_Off(LED3);
 				BSP_LED_Off(LED4);
