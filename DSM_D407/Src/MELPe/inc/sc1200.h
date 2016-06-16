@@ -24,7 +24,7 @@
 /* =================== */
 /* Definition of Types */
 /* =================== */
-typedef long long		Word40;					/* 40 bit "accumulator"	*/
+typedef int32_t		Word40;					/* 40 bit "accumulator"	*/
 
 /* ================== */
 /* General Definition */
@@ -51,7 +51,7 @@ typedef long long		Word40;					/* 40 bit "accumulator"	*/
 #define RATE1200		1200
 
 
-#define POSTFILTER      TRUE
+// #define POSTFILTER      TRUE
 // #define NPP             TRUE
 // #define	NEW_DC_FILTER	TRUE
 
