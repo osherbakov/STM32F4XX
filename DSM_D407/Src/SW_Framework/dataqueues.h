@@ -3,6 +3,8 @@
 
 
 #include "stdint.h"
+#include "stm32f4xx_hal.h"
+#include "cmsis_os.h"
 
 typedef enum DataType
 {
@@ -122,6 +124,19 @@ typedef void 	Data_Init_t(void *pHandle);
 typedef void 	Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
 typedef void 	Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInBytes, uint32_t *pOutBytes);
 typedef void 	Data_Close_t(void *pHandle);
+
+typedef struct ProfileData {
+	uint32_t	tPrev;
+	uint32_t	tStart;
+	uint32_t	DutyX1000;
+} ProfileData_t;	
+
+#define		INIT_PROFILE(a)		do{(a)->tPrev = DWT->CYCCNT; (a)->DutyX1000=0;}while(0)
+#define		START_PROFILE(a)	do{(a)->tStart = DWT->CYCCNT;}while(0)
+#define		STOP_PROFILE(a)		do{	uint32_t t=(a)->tStart-(a)->tPrev;\
+									uint32_t d=DWT->CYCCNT-(a)->tStart;\
+									(a)->tPrev=(a)->tStart;\
+									(a)->DutyX1000=(100*d)/t;}while(0)
 
 typedef struct DataProcessBlock {
 	Data_Create_t		*Create;

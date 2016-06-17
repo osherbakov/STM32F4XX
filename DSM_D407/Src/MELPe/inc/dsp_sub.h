@@ -81,6 +81,13 @@ void	zerflt_Q(int16_t input[], const int16_t coeff[],
 				 int16_t output[], int16_t order, int16_t npts,
 				 int16_t Q_coeff);
 
+void	zerflt_q15(int16_t input[], const int16_t coeff[], int16_t output[],
+			   int16_t order, int16_t npts);
+
+void	zerflt_q15Q(int16_t input[], const int16_t coeff[],
+				 int16_t output[], int16_t order, int16_t npts,
+				 int16_t Q_coeff);
+
 void	iir_2nd_d(int16_t input[], const int16_t den[],
 				  const int16_t num[], int16_t output[], int16_t delin[],
 				  int16_t delout_hi[], int16_t delout_lo[],

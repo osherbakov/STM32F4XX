@@ -223,7 +223,7 @@ void analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[])
 		v_fill(par[i].fs_mag, ONE_Q13, NUM_HARM);
 		if (!par[i].uv_flag){
 			lpc_lsp2pred_q(par[i].lsf, &(lpc[1]), LPC_ORD);
-			zerflt_q(&hpspeech[(i*FRAME + FRAME_END - (LPC_FRAME/2))], lpc,
+			zerflt_q15(&hpspeech[(i*FRAME + FRAME_END - (LPC_FRAME/2))], lpc,
 				   sigbuf, LPC_ORD, LPC_FRAME);
 			window(sigbuf, win_cof_q, sigbuf, LPC_FRAME);
 			find_harm_q(sigbuf, par[i].fs_mag, par[i].pitch, NUM_HARM,
@@ -372,7 +372,7 @@ static void		melp_ana(int16_t speech[], struct melp_param *par, int16_t subnum)
 
 
 	/* Calculate LPC residual */
-	zerflt_q(&speech[PITCH_BEG], lpc, &sigbuf[LPF_ORD], LPC_ORD, PITCH_FR);
+	zerflt_q15(&speech[PITCH_BEG], lpc, &sigbuf[LPF_ORD], LPC_ORD, PITCH_FR);
 
 	/* Check peakiness of residual signal */
 	begin = LPF_ORD + (PITCHMAX/2);

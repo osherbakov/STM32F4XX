@@ -539,14 +539,15 @@ void window_Q(int16_t input[], int16_t win_coeff[], int16_t output[],
 	register int16_t	i;
 	int16_t	shift;
 
-//	arm_copy_q15(input, output, npts);
-//	return;
-
 	/* After computing "shift", win_coeff[]*2^(-shift) is considered Q15.     */
 	shift = 15 -  Qin;
-	for (i = 0; i < npts; i++){
-		output[i] = extract_h(L_shl(L_mult(win_coeff[i], input[i]), shift));
-	}
+
+	arm_mult_q15(input, win_coeff, output, npts);
+	arm_shift_q15(output, shift, output, npts);
+	
+//	for (i = 0; i < npts; i++){
+//		output[i] = extract_h(L_shl(L_mult(win_coeff[i], input[i]), shift));
+//	}
 }
 
 
@@ -592,7 +593,7 @@ void zerflt_Q(int16_t input[], const int16_t coeff[], int16_t output[],
 //	arm_copy_q15(input, output, npts);
 //	return;
 
-	scale = sub(15, Q_coeff);
+	scale = 15-Q_coeff;
 	for (i = npts - 1; i >= 0; i--){
 		accum = 0;
 		for (j = 0; j <= order; j++)
@@ -704,3 +705,366 @@ int16_t interp_scalar_q(int16_t prev, int16_t curr, int16_t ifact)
 	return(out);
 }
 
+
+/*								*/
+/*	Subroutine zerflt: all zero (FIR) filter.		*/
+/*      Note: the output array can overlay the input.           */
+/*								*/
+void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t order, int16_t npts)
+{
+   const int16_t *px, *pb;                    /* Temporary pointers for state and coefficient buffers */
+   int32_t acc0, acc1, acc2, acc3;			  /* Accumulators */
+   int16_t x0, x1, x2, x3, c0;				  /* Temporary variables to hold state and coefficient values */
+   uint32_t numTaps, tapCnt, blkCnt;          /* Loop counters */
+   int32_t p0,p1,p2,p3;						  /* Temporary product values */
+
+   pSrc += (npts - 1);
+   pDst += (npts - 1);
+   numTaps = order + 1;	
+
+
+   /* Apply loop unrolling and compute 4 output values simultaneously.  
+    * The variables acc0 ... acc3 hold output values that are being computed  
+   */
+   blkCnt = npts;
+
+   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.  
+   ** a second loop below computes the remaining 1 to 3 samples. */
+   while(blkCnt >= 4)
+   {
+      /* Set all accumulators to zero */
+      acc0 = 0;
+      acc1 = 0;
+      acc2 = 0;
+      acc3 = 0;
+
+	  /* Initialize state pointer */
+      px = pSrc;
+
+      /* Initialize coeff pointer */
+      pb = pCoeffs;		
+   
+      /* Read the first three samples from the state buffer */
+      x0 = *px--;
+      x1 = *px--;
+      x2 = *px--;
+
+      /* Loop unrolling.  Process 4 taps at a time. */
+      tapCnt = numTaps;
+      
+      /* Loop over the number of taps.  Unroll by a factor of 4.  
+       ** Repeat until we've computed numTaps-4 coefficients. */
+      while(tapCnt >= 4)
+      {
+         /* Read the b[0] coefficient */
+         c0 = *(pb++);
+
+         x3 = *(px--);
+
+         p0 = (q31_t) x0 * c0;
+         p1 = (q31_t) x1 * c0;
+         p2 = (q31_t) x2 * c0;
+         p3 = (q31_t) x3 * c0;
+
+         /* Read the b[1] coefficient */
+         c0 = *(pb++);
+		 x0 = *(px--);
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+         /* Perform the multiply-accumulate */
+         p0 = (q31_t) x1 * c0;
+         p1 = (q31_t) x2 * c0;   
+         p2 = (q31_t) x3 * c0;   
+         p3 = (q31_t) x0 * c0;   
+         
+         /* Read the b[2] coefficient */
+         c0 = *(pb++);
+         x1 = *(px--);
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+         /* Perform the multiply-accumulates */      
+         p0 = (q31_t) x2 * c0;
+         p1 = (q31_t) x3 * c0;   
+         p2 = (q31_t) x0 * c0;   
+         p3 = (q31_t) x1 * c0;   
+
+		 /* Read the b[3] coefficient */
+         c0 = *(pb++);
+         x2 = *(px--);
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+         /* Perform the multiply-accumulates */      
+         p0 = (q31_t) x3 * c0;
+         p1 = (q31_t) x0 * c0;   
+         p2 = (q31_t) x1 * c0;   
+         p3 = (q31_t) x2 * c0;   
+
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+		 tapCnt -= 4;
+     }
+
+      /* If the filter length is not a multiple of 4, compute the remaining filter taps */
+      while(tapCnt > 0)
+      {
+         /* Read coefficients */
+         c0 = *(pb++);
+
+         /* Fetch 1 state variable */
+         x3 = *(px--);
+
+         /* Perform the multiply-accumulates */      
+         p0 = (q31_t) x0 * c0;
+         p1 = (q31_t) x1 * c0;   
+         p2 = (q31_t) x2 * c0;   
+         p3 = (q31_t) x3 * c0;   
+
+         /* Reuse the present sample states for next sample */
+         x0 = x1;
+         x1 = x2;
+         x2 = x3;
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+         /* Decrement the loop counter */
+         tapCnt--;
+      }
+
+
+      /* The results in the 4 accumulators, store in the destination buffer. */
+      *pDst-- = (q15_t) (__SSAT((acc0 >> 12), 16));
+      *pDst-- = (q15_t) (__SSAT((acc1 >> 12), 16));
+      *pDst-- = (q15_t) (__SSAT((acc2 >> 12), 16));
+      *pDst-- = (q15_t) (__SSAT((acc3 >> 12), 16));
+      /* Advance the state pointer by 4 to process the next group of 4 samples */
+      pSrc -= 4;
+      blkCnt -= 4;
+   }
+
+   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.  
+   ** No loop unrolling is used. */
+
+   while(blkCnt > 0)
+   {
+      /* Set the accumulator to zero */
+      acc0 = 0.0f;
+      /* Initialize state pointer */
+      px = pSrc;
+	  /* Initialize Coefficient pointer */
+      pb = pCoeffs;
+      tapCnt = numTaps;
+
+	  /* Perform the multiply-accumulates */
+      do
+      {
+         acc0 += (q31_t) *px-- * *pb++;
+         tapCnt--;
+      } while(tapCnt > 0);
+
+      /* The result is store in the destination buffer. */
+      *pDst-- = (q15_t) (__SSAT((acc0 >> 12), 16));
+      /* Advance state pointer by 1 for the next sample */
+      pSrc--;
+      blkCnt--;
+   }
+}
+
+/*								*/
+/*	Subroutine zerflt: all zero (FIR) filter.		*/
+/*      Note: the output array can overlay the input.           */
+/*								*/
+void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t order, int16_t npts, int16_t Q_coeff)
+{
+   const int16_t *px, *pb;                    /* Temporary pointers for state and coefficient buffers */
+   int32_t acc0, acc1, acc2, acc3;			  /* Accumulators */
+   int16_t x0, x1, x2, x3, c0;				  /* Temporary variables to hold state and coefficient values */
+   uint32_t numTaps, tapCnt, blkCnt;          /* Loop counters */
+   int32_t p0,p1,p2,p3;						  /* Temporary product values */
+//   int32_t scale;
+
+//   scale = 15 - Q_coeff;
+	
+   pSrc += (npts - 1);
+   pDst += (npts - 1);
+   numTaps = order + 1;	
+
+
+   /* Apply loop unrolling and compute 4 output values simultaneously.  
+    * The variables acc0 ... acc3 hold output values that are being computed  
+   */
+   blkCnt = npts;
+
+   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.  
+   ** a second loop below computes the remaining 1 to 3 samples. */
+   while(blkCnt >= 4)
+   {
+      /* Set all accumulators to zero */
+      acc0 = 0;
+      acc1 = 0;
+      acc2 = 0;
+      acc3 = 0;
+
+	  /* Initialize state pointer */
+      px = pSrc;
+
+      /* Initialize coeff pointer */
+      pb = pCoeffs;		
+   
+      /* Read the first three samples from the state buffer */
+      x0 = *px--;
+      x1 = *px--;
+      x2 = *px--;
+
+      /* Loop unrolling.  Process 4 taps at a time. */
+      tapCnt = numTaps;
+      
+      /* Loop over the number of taps.  Unroll by a factor of 4.  
+       ** Repeat until we've computed numTaps-4 coefficients. */
+      while(tapCnt >= 4)
+      {
+         /* Read the b[0] coefficient */
+         c0 = *(pb++);
+
+         x3 = *(px--);
+
+         p0 = (q31_t) x0 * c0;
+         p1 = (q31_t) x1 * c0;
+         p2 = (q31_t) x2 * c0;
+         p3 = (q31_t) x3 * c0;
+
+         /* Read the b[1] coefficient */
+         c0 = *(pb++);
+		 x0 = *(px--);
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+         /* Perform the multiply-accumulate */
+         p0 = (q31_t) x1 * c0;
+         p1 = (q31_t) x2 * c0;   
+         p2 = (q31_t) x3 * c0;   
+         p3 = (q31_t) x0 * c0;   
+         
+         /* Read the b[2] coefficient */
+         c0 = *(pb++);
+         x1 = *(px--);
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+         /* Perform the multiply-accumulates */      
+         p0 = (q31_t) x2 * c0;
+         p1 = (q31_t) x3 * c0;   
+         p2 = (q31_t) x0 * c0;   
+         p3 = (q31_t) x1 * c0;   
+
+		 /* Read the b[3] coefficient */
+         c0 = *(pb++);
+         x2 = *(px--);
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+         /* Perform the multiply-accumulates */      
+         p0 = (q31_t) x3 * c0;
+         p1 = (q31_t) x0 * c0;   
+         p2 = (q31_t) x1 * c0;   
+         p3 = (q31_t) x2 * c0;   
+
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+
+		 tapCnt -= 4;
+     }
+
+      /* If the filter length is not a multiple of 4, compute the remaining filter taps */
+      while(tapCnt > 0)
+      {
+         /* Read coefficients */
+         c0 = *(pb++);
+
+         /* Fetch 1 state variable */
+         x3 = *(px--);
+
+         /* Perform the multiply-accumulates */      
+         p0 = (q31_t) x0 * c0;
+         p1 = (q31_t) x1 * c0;   
+         p2 = (q31_t) x2 * c0;   
+         p3 = (q31_t) x3 * c0;   
+
+         /* Reuse the present sample states for next sample */
+         x0 = x1;
+         x1 = x2;
+         x2 = x3;
+         
+         acc0 += p0;
+         acc1 += p1;
+         acc2 += p2;
+         acc3 += p3;
+         /* Decrement the loop counter */
+         tapCnt--;
+      }
+
+
+      /* The results in the 4 accumulators, store in the destination buffer. */
+      *pDst-- = (q15_t) (__SSAT((acc0 >> Q_coeff), 16));
+      *pDst-- = (q15_t) (__SSAT((acc1 >> Q_coeff), 16));
+      *pDst-- = (q15_t) (__SSAT((acc2 >> Q_coeff), 16));
+      *pDst-- = (q15_t) (__SSAT((acc3 >> Q_coeff), 16));
+      /* Advance the state pointer by 4 to process the next group of 4 samples */
+      pSrc -= 4;
+      blkCnt -= 4;
+   }
+
+   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.  
+   ** No loop unrolling is used. */
+
+   while(blkCnt > 0)
+   {
+      /* Set the accumulator to zero */
+      acc0 = 0.0f;
+      /* Initialize state pointer */
+      px = pSrc;
+	  /* Initialize Coefficient pointer */
+      pb = pCoeffs;
+      tapCnt = numTaps;
+
+	  /* Perform the multiply-accumulates */
+      do
+      {
+         acc0 += (q31_t) *px-- * *pb++;
+         tapCnt--;
+      } while(tapCnt > 0);
+
+      /* The result is store in the destination buffer. */
+      *pDst-- = (q15_t) (__SSAT((acc0 >> Q_coeff), 16));
+      /* Advance state pointer by 1 for the next sample */
+      pSrc--;
+      blkCnt--;
+   }
+}

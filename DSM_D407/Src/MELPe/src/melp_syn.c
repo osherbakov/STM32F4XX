@@ -423,7 +423,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Filter and scale pulse excitation */
 		v_equ(&sigbuf[BEGIN - MIX_ORD], pulse_del, MIX_ORD);
 		v_equ(pulse_del, &sigbuf[length + BEGIN - MIX_ORD], MIX_ORD);
-		zerflt_Q(&sigbuf[BEGIN], pulse_cof, &sigbuf[BEGIN], MIX_ORD, length,
+		zerflt_q15Q(&sigbuf[BEGIN], pulse_cof, &sigbuf[BEGIN], MIX_ORD, length,
 				 14);
 
 		temp1 = shr(mult(X1_732_Q14, syn_gain), 3);                     /* Q0 */
@@ -433,7 +433,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Filter noise excitation */
 		v_equ(&sig2[BEGIN - MIX_ORD], noise_del, MIX_ORD);
 		v_equ(noise_del, &sig2[length + BEGIN - MIX_ORD], MIX_ORD);
-		zerflt_Q(&sig2[BEGIN], noise_cof, &sig2[BEGIN], MIX_ORD, length, 14);
+		zerflt_q15Q(&sig2[BEGIN], noise_cof, &sig2[BEGIN], MIX_ORD, length, 14);
 		/* Add two excitation signals (mixed excitation) */
         v_add(&sigbuf[BEGIN], &sig2[BEGIN], length);          /* sigbuf in Q0 */
 
@@ -448,10 +448,10 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 					  length);
 		v_equ(ase_del, &sigbuf[BEGIN + length - LPC_ORD], LPC_ORD);
 
-		zerflt_q(&sigbuf[BEGIN], ase_num, &sigbuf[BEGIN], LPC_ORD, length);
+		zerflt_q15(&sigbuf[BEGIN], ase_num, &sigbuf[BEGIN], LPC_ORD, length);
 		v_equ(&sigbuf[BEGIN - TILT_ORD], tilt_del, TILT_ORD);
 		v_equ(tilt_del, &sigbuf[length + BEGIN - TILT_ORD], TILT_ORD);
-		zerflt_Q(&sigbuf[BEGIN], tilt_cof, &sigbuf[BEGIN], TILT_ORD, length,
+		zerflt_q15Q(&sigbuf[BEGIN], tilt_cof, &sigbuf[BEGIN], TILT_ORD, length,
 				 15);
 
 		/* Possible Signal overflow at this point! */
@@ -466,7 +466,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Implement pulse dispersion filter on output speech */
 		v_equ(&sigbuf[BEGIN - DISP_ORD], disp_del, DISP_ORD);
 		v_equ(disp_del, &sigbuf[length + BEGIN - DISP_ORD], DISP_ORD);
-		zerflt_Q(&sigbuf[BEGIN], disp_cof_q, &sigbuf[BEGIN], DISP_ORD,
+		zerflt_q15Q(&sigbuf[BEGIN], disp_cof_q, &sigbuf[BEGIN], DISP_ORD,
 				 length, 15);
 
 		/* Copy processed speech to output array (not past frame end) */
