@@ -75,7 +75,7 @@ static int16_t	lpc_refl2pred(int16_t refc[], int16_t lpc[],
 /* LPC_ACOR                                                                   */
 /*		Compute autocorrelations based on windowed speech frame               */
 /*                                                                            */
-/*	Synopsis: lpc_acor(input, window, r, hf_correction, order, npts)          */
+/*	Synopsis: lpc_autocorr(input, window, r, hf_correction, order, npts)      */
 /*		Input:                                                                */
 /*			input- input vector (npts samples, s[0..npts-1])                  */
 /*			win_cof- window vector (npts samples, s[0..npts-1])               */
@@ -95,7 +95,7 @@ static const int16_t		lagw_cof[EN_FILTER_ORDER - 1] RODATA = {
 	31387, 31131, 30855, 30560, 30246, 29914
 };
 
-void lpc_acor(int16_t input[], const int16_t win_cof[],
+void lpc_autocorr_q(int16_t input[], const int16_t win_cof[],
 			  int16_t autocorr[], int16_t hf_correction, int16_t order,
 			  int16_t npts)
 {
@@ -106,8 +106,7 @@ void lpc_acor(int16_t input[], const int16_t win_cof[],
 
 	/* window optimized for speed and readability.  does windowing and        */
 	/* autocorrelation sequentially and in the usual manner                   */
-	arm_mult_q15((q15_t *)win_cof, (q15_t *)input, (q15_t *)inputw, npts);
-	arm_shift_q15((q15_t *)inputw, -4, (q15_t *) inputw, npts);
+	arm_mult_shift_q15((q15_t *)win_cof, (q15_t *)input, (q15_t *)inputw, -4, npts);
 //	for (i = 0; i < npts; i++){
 //		inputw[i] = mult(win_cof[i], shr(input[i], 4));
 //	}
@@ -123,8 +122,7 @@ void lpc_acor(int16_t input[], const int16_t win_cof[],
 //	for (i = 0; i < npts; i++){
 //		inputw[i] = shr(mult(win_cof[i], input[i]), norm_var);
 //	}
-	arm_mult_q15((q15_t *)win_cof, (q15_t *)input, (q15_t *)inputw, npts);
-	arm_shift_q15((q15_t *)inputw, -norm_var, (q15_t *)inputw, npts);
+	arm_mult_shift_q15((q15_t *)win_cof, (q15_t *)input, (q15_t *)inputw, -norm_var, npts);
 
 	/* Compute r[0] */
 	L_temp = L_v_magsq(inputw, npts, 0, 1);
@@ -244,7 +242,7 @@ int32_t lpc_aejw_q(int16_t lpc[], int16_t omega, int16_t order)
 }
 
 
-/* Name: lpc_bwex- Move the zeros of A(z) toward the origin.                  */
+/* Name: lpc_bw_expand- Move the zeros of A(z) toward the origin.             */
 /*	Aliases: lpc_bw_expand                                                    */
 /*	Description:                                                              */
 /*		Expand the zeros of the LPC filter by gamma, which                    */
@@ -260,7 +258,6 @@ int32_t lpc_aejw_q(int16_t lpc[], int16_t omega, int16_t order)
 /*	Outputs:                                                                  */
 /*		aw- the bandwidth expanded LPC filter                                 */
 /*	Returns: NULL                                                             */
-/*	See_Also: lpc_lagw(3l)                                                    */
 /*	Includes:                                                                 */
 /*		lpc.h                                                                 */
 /*                                                                            */
@@ -269,7 +266,7 @@ int32_t lpc_aejw_q(int16_t lpc[], int16_t omega, int16_t order)
 /*                                                                            */
 /*	Q values: lpc[], aw[] - Q12, gamma - Q15, gk - Q15                        */
 
-int16_t lpc_bwex(int16_t lpc[], int16_t aw[], int16_t gamma,
+int16_t lpc_bw_expand_q(int16_t lpc[], int16_t aw[], int16_t gamma,
 				   int16_t order)
 {
 	register int16_t	i;
@@ -285,7 +282,7 @@ int16_t lpc_bwex(int16_t lpc[], int16_t aw[], int16_t gamma,
 }
 
 
-/* Name: lpc_clmp- Sort and ensure minimum separation in LSPs.                */
+/* Name: lpc_clamp- Sort and ensure minimum separation in LSPs.               */
 /*	Aliases: lpc_clamp                                                        */
 /*	Description:                                                              */
 /*		Ensure that all LSPs are ordered and separated                        */
@@ -311,7 +308,7 @@ int16_t lpc_bwex(int16_t lpc[], int16_t aw[], int16_t gamma,
 /*                                                                            */
 /*	Q values: lsp - Q15, delta - Q15                                          */
 
-int16_t lpc_clmp(int16_t lsp[], int16_t delta, int16_t order)
+int16_t lpc_clamp_q(int16_t lsp[], int16_t delta, int16_t order)
 {
 	register int16_t	i, j;
 	BOOLEAN		unsorted;
@@ -374,7 +371,7 @@ int16_t lpc_clmp(int16_t lsp[], int16_t delta, int16_t order)
 }
 
 
-/* Name: lpc_schr- Schur recursion (autocorrelations to refl coef)            */
+/* Name: lpc_schur- Schur recursion (autocorrelations to refl coef)            */
 /*	Aliases: lpc_schur                                                        */
 /*	Description:                                                              */
 /*		Compute reflection coefficients from autocorrelations                 */
@@ -402,7 +399,7 @@ int16_t lpc_clmp(int16_t lsp[], int16_t delta, int16_t order)
 static int32_t	y1_[LPC_ORD], y2_[LPC_ORD + 1] CCMRAM;
 static int16_t	refc[LPC_ORD] CCMRAM;                                                 /* Q15 */
 
-int16_t lpc_schr(int16_t autocorr[], int16_t lpc[], int16_t order)
+int16_t lpc_schur_q(int16_t autocorr[], int16_t lpc[], int16_t order)
 {
 	register int16_t	i, j;
 	int16_t	shift, alphap;
@@ -783,7 +780,7 @@ int16_t lpc_lsp2pred_q(int16_t lsf[], int16_t lpc[], int16_t order)
 
 
 	/* ensure minimum separation and sort */
-	lpc_clmp(lsf, 0, order);
+	lpc_clamp_q(lsf, 0, order);
 
 	/* p2 = p/2 */
 	p2 = shr(order, 1);
@@ -840,7 +837,7 @@ int16_t lpc_lsp2pred_q(int16_t lsf[], int16_t lpc[], int16_t order)
 }
 
 
-/* Name: lpc_syn- LPC synthesis filter.                                       */
+/* Name: lpc_synthesis- LPC synthesis filter.                                 */
 /*	Aliases: lpc_synthesis                                                    */
 /*	Description:                                                              */
 /*		LPC all-pole synthesis filter                                         */
@@ -863,7 +860,7 @@ int16_t lpc_lsp2pred_q(int16_t lsf[], int16_t lpc[], int16_t order)
 /*	Systems and Info. Science Lab                                             */
 /*	Copyright (c) 1995 by Texas Instruments, Inc.  All rights reserved.       */
 
-int16_t lpc_syn(int16_t x[], int16_t y[], int16_t a[], int16_t order,
+int16_t lpc_synthesis_q(int16_t x[], int16_t y[], int16_t a[], int16_t order,
 				  int16_t length)
 {
 	register int16_t	i, j;

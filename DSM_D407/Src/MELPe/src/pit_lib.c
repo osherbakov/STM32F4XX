@@ -558,28 +558,17 @@ int16_t p_avg_update_q(int16_t pitch, int16_t pcorr, int16_t pthresh)
 /*                                                                            */
 /* Q values                                                                   */
 /*      speech - Q0, resid - Q0, pitch_est - Q7, pitch_avg - Q7, pcorr2 - Q14 */
-	static int16_t	lpres_delin[LPF_ORD] CCMRAM;
-	static int16_t	lpres_delout[LPF_ORD] CCMRAM;
-	static int16_t	sigbuf[LPF_ORD + PITCH_FR] CCMRAM;
-	static int16_t	temp_delin[LPF_ORD] CCMRAM, temp_delout[LPF_ORD] CCMRAM;
+static int16_t	sigbuf[LPF_ORD + PITCH_FR] CCMRAM;
+static int16_t	temp_delin[LPF_ORD] CCMRAM, 
+				temp_delout[LPF_ORD] CCMRAM;
 
 int16_t pitch_ana_q(int16_t speech[], int16_t resid[],
 					int16_t pitch_est, int16_t pitch_avg,
 					int16_t *pcorr2)
 {
 	register int16_t	i, section;
-
-	static BOOLEAN	firstTime = TRUE;
 	int16_t	pcorr, pitch;
 	int16_t	temp, temp2;
-
-
-
-	if (firstTime){
-		v_zap(lpres_delin, LPF_ORD);
-		v_zap(lpres_delout, LPF_ORD);
-		firstTime = FALSE;
-	}
 
 	/* Lowpass filter residual signal */
 	v_equ(&sigbuf[LPF_ORD_SOS], &resid[-PITCHMAX], PITCH_FR);
@@ -589,8 +578,7 @@ int16_t pitch_ana_q(int16_t speech[], int16_t resid[],
 				  &lpf_num_q[section*3], &sigbuf[LPF_ORD_SOS],
 				  &lpres_delin[section*2], &lpres_delout[section*2], FRAME);
 		/* save delay buffers for the next overlapping frame */
-		for (i = (int16_t) (section*2); i < (int16_t) (section*2 + 2);
-			 i++){
+		for (i = (int16_t) (section*2); i < (int16_t) (section*2 + 2); i++){
 			temp_delin[i] = lpres_delin[i];
 			temp_delout[i] = lpres_delout[i];
 		}
@@ -599,8 +587,7 @@ int16_t pitch_ana_q(int16_t speech[], int16_t resid[],
 				  &lpres_delin[section*2], &lpres_delout[section*2],
 				  PITCH_FR - FRAME);
 		/* restore delay buffers for the next overlapping frame */
-		for (i = (int16_t) (section*2); i < (int16_t) (section*2 + 2);
-			 i++){
+		for (i = (int16_t) (section*2); i < (int16_t) (section*2 + 2); i++){
 			lpres_delin[i] = temp_delin[i];
 			lpres_delout[i] = temp_delout[i];
 		}

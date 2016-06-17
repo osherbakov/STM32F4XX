@@ -1288,7 +1288,7 @@ void quant_fsmag(struct melp_param *par)
 		if (par[i].uv_flag)
 			v_fill(par[i].fs_mag, ONE_Q13, NUM_HARM);
 		else {
-			window_Q(par[i].fs_mag, w_fs, par[i].fs_mag, NUM_HARM, 14);
+			window_q15Q(par[i].fs_mag, w_fs, par[i].fs_mag, 14, NUM_HARM);
 			last = i;
 			count++;
 		}

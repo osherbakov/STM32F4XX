@@ -533,75 +533,20 @@ BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
 /*    win_coeff - Qin, output = input             */
 /* ============================================== */
 
-void window_Q(int16_t input[], int16_t win_coeff[], int16_t output[],
-			  int16_t npts, int16_t Qin)
+void window_q15Q(int16_t input[], int16_t win_coeff[], int16_t output[],
+			  int16_t Qin, int16_t npts)
 {
-	register int16_t	i;
+//	register int16_t	i;
 	int16_t	shift;
 
 	/* After computing "shift", win_coeff[]*2^(-shift) is considered Q15.     */
 	shift = 15 -  Qin;
 
-	arm_mult_q15(input, win_coeff, output, npts);
-	arm_shift_q15(output, shift, output, npts);
+	arm_mult_shift_q15(input, win_coeff, output, shift, npts);
 	
 //	for (i = 0; i < npts; i++){
 //		output[i] = extract_h(L_shl(L_mult(win_coeff[i], input[i]), shift));
 //	}
-}
-
-
-/* Subroutine zerflt(): all zero (FIR) filter.                                */
-/*   Note: the output array can overlay the input.                            */
-/*                                                                            */
-/* Q values:                                                                  */
-/*   input[], output[] - Q0, coeff[] - Q12                                    */
-
-void zerflt_q(int16_t input[], const int16_t coeff[], int16_t output[],
-			int16_t order, int16_t npts)
-{
-	register int16_t	i, j;
-	int32_t	accum;
-
-//	arm_copy_q15(input, output, npts);
-//	return;
-
-	for (i = npts - 1; i >= 0; i--){
-		accum = 0;
-		for (j = 0; j <= order; j++)
-			accum = L_mac(accum, input[i - j], coeff[j]);
-		/* Round off output */
-		accum = L_shl(accum, 3);
-		output[i] = round_l(accum);
-	}
-}
-
-
-/* Subroutine zerflt_Q: all zero (FIR) filter.                                */
-/* Note: the output array can overlay the input.                              */
-/*                                                                            */
-/* Q values:                                                                  */
-/* coeff - specified by Q_coeff, output - same as input                       */
-
-void zerflt_Q(int16_t input[], const int16_t coeff[], int16_t output[],
-			  int16_t order, int16_t npts, int16_t Q_coeff)
-{
-	register int16_t	i, j;
-	int16_t	scale;
-	int32_t	accum;
-
-//	arm_copy_q15(input, output, npts);
-//	return;
-
-	scale = 15-Q_coeff;
-	for (i = npts - 1; i >= 0; i--){
-		accum = 0;
-		for (j = 0; j <= order; j++)
-			accum = L_mac(accum, input[i - j], coeff[j]);
-		/* Round off output */
-		accum = L_shl(accum, scale);
-		output[i] = round_l(accum);
-	}
 }
 
 
@@ -618,7 +563,6 @@ void iir_2nd_d(int16_t input[], const int16_t den[], const int16_t num[],
 	register int16_t	i;
 	int16_t	temp;
 	int32_t	accum;
-
 
 	for (i = 0; i < npts; i++){
 		accum = L_mult(delout_lo[0], den[1]);
@@ -665,7 +609,6 @@ void iir_2nd_s(int16_t input[], const int16_t den[], const int16_t num[],
 	register int16_t	i;
 	int32_t	accum;
 
-
 	for (i = 0; i < npts; i++){
 		accum = L_mult(input[i], num[0]);
 		accum = L_mac(accum, delin[0], num[1]);
@@ -688,21 +631,6 @@ void iir_2nd_s(int16_t input[], const int16_t den[], const int16_t num[],
 		delout[1] = delout[0];
 		delout[0] = output[i];
 	}
-}
-
-
-/* ========================================================================== */
-/* This function interpolates two scalars to obtain the output.  It calls     */
-/* interp_array() to do the job.  "ifact" is Q15, and "prev", "curr" and the  */
-/* returned value are of the same Q value.                                    */
-/* ========================================================================== */
-
-int16_t interp_scalar_q(int16_t prev, int16_t curr, int16_t ifact)
-{
-	int16_t	out;
-
-	interp_array_q(&prev, &curr, &out, ifact, 1);
-	return(out);
 }
 
 
@@ -890,16 +818,13 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
 /*	Subroutine zerflt: all zero (FIR) filter.		*/
 /*      Note: the output array can overlay the input.           */
 /*								*/
-void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t order, int16_t npts, int16_t Q_coeff)
+void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t order, int16_t Q_coeff, int16_t npts)
 {
    const int16_t *px, *pb;                    /* Temporary pointers for state and coefficient buffers */
    int32_t acc0, acc1, acc2, acc3;			  /* Accumulators */
    int16_t x0, x1, x2, x3, c0;				  /* Temporary variables to hold state and coefficient values */
    uint32_t numTaps, tapCnt, blkCnt;          /* Loop counters */
    int32_t p0,p1,p2,p3;						  /* Temporary product values */
-//   int32_t scale;
-
-//   scale = 15 - Q_coeff;
 	
    pSrc += (npts - 1);
    pDst += (npts - 1);
@@ -1067,4 +992,178 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
       pSrc--;
       blkCnt--;
    }
+}
+
+/*								*/
+/*	Subroutine polflt: all pole (IIR) filter.		*/
+/*	Note: The filter coefficients represent the		*/
+/*	denominator only, and the leading coefficient		*/
+/*	is assumed to be 1.					*/
+/*	The (order) samples BEFORE the output[0] contain previous	states		*/
+/*      The output array can overlay the input.                 */
+/*								*/
+void polflt_q15Q(int16_t input[], const int16_t coeff[], int16_t output[], int order,int16_t Q_coeff, int npts)
+{
+	int numTaps, numBlk;
+	int32_t accum0, accum1, accum2, accum3;
+	int16_t	a1, a2, a3, a4, c0;
+	int16_t y1, y2, y3, y4;
+	const int16_t *pc; 
+	int16_t *py;
+	int32_t	shift;
+	
+	shift = Q_coeff + 1;
+	
+	a1 = coeff[1]; a2 = coeff[2]; a3 = coeff[3]; a4 = coeff[4]; 
+	y1 = output[-1]; y2 = output[-2]; y3 = output[-3]; y4 = output[-4];
+	numBlk = npts;
+	while (numBlk >= 4) {
+		accum0 = (((q31_t) *input++) << shift) - ((q31_t) y1 * a1) - ((q31_t) y2 * a2) - ((q31_t) y3 * a3) - ((q31_t) y4 * a4);
+		accum1 = (((q31_t) *input++) << shift) - ((q31_t) y1 * a2) - ((q31_t) y2 * a3) - ((q31_t) y3 * a4);
+		accum2 = (((q31_t) *input++) << shift) - ((q31_t) y1 * a3) - ((q31_t) y2 * a4);
+		accum3 = (((q31_t) *input++) << shift) - ((q31_t) y1 * a4);
+
+		pc = &coeff[5];
+		py = &output[-5];
+		numTaps = order - 4;
+		while(numTaps > 0)
+		{
+			c0 = *pc++;
+			y1 = y2;
+			y2 = y3;
+			y3 = y4;
+			y4 = *py--;
+			accum0 -= ( (q31_t) y4 * c0);
+			accum1 -= ( (q31_t) y3 * c0);
+			accum2 -= ( (q31_t) y2 * c0);
+			accum3 -= ( (q31_t) y1 * c0);
+			numTaps--;
+		}
+		accum1 -= (accum0 * a1);
+		accum2 -= (accum1 * a1) + (accum0 * a2);
+		accum3 -= (accum2 * a1) + (accum1 * a2) + (accum0 * a3);
+
+		y4 = *output++ = (q15_t) (__SSAT((accum0 >> Q_coeff), 16));
+		y3 = *output++ = (q15_t) (__SSAT((accum1 >> Q_coeff), 16));
+		y2 = *output++ = (q15_t) (__SSAT((accum2 >> Q_coeff), 16));
+		y1 = *output++ = (q15_t) (__SSAT((accum3 >> Q_coeff), 16));
+		numBlk -= 4;
+	}
+	// For the rest (non-multiples of 4) of samples do it normally
+	while(numBlk > 0)
+	{
+		accum0 = (((q31_t) *input++) << shift);
+		pc = &coeff[1];
+		py = &output[-1];
+		numTaps = order;
+		while(numTaps > 0)
+		{
+			accum0 -= ( (q31_t)(*py--) * (*pc++) );
+			numTaps--;
+		}
+		*output++ = (q15_t) (__SSAT((accum0 >> Q_coeff), 16));
+		numBlk--;
+	}
+}
+
+/**    
+ * @brief           Q15 vector multiplication  with scaling (Left Shift)
+ * @param[in]       *pSrcA points to the first input vector    
+ * @param[in]       *pSrcB points to the second input vector    
+ * @param[out]      *pDst points to the output vector    
+ * @param[in]       blockSize number of samples in each vector    
+ * @return none.    
+ *    
+ * <b>Scaling and Overflow Behavior:</b>    
+ * \par    
+ * The function uses saturating arithmetic.    
+ * Results outside of the allowable Q15 range [0x8000 0x7FFF] will be saturated.    
+ */
+
+void arm_mult_shift_q15(
+  q15_t * pSrcA,
+  q15_t * pSrcB,
+  q15_t * pDst,
+  int32_t LeftShift,
+  uint32_t blockSize)
+{
+  uint32_t blkCnt;                               /* loop counters */
+  uint32_t RightShift;                           /* The shift for final result */
+	
+  RightShift = 15 - LeftShift;
+
+#ifndef ARM_MATH_CM0_FAMILY
+/* Run the below code for Cortex-M4 and Cortex-M3 */
+  q31_t inA1, inA2, inB1, inB2;                  /* temporary input variables */
+  q15_t out1, out2, out3, out4;                  /* temporary output variables */
+  q31_t mul1, mul2, mul3, mul4;                  /* temporary variables */
+
+  /* loop Unrolling */
+  blkCnt = blockSize >> 2u;
+
+  /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.        
+   ** a second loop below computes the remaining 1 to 3 samples. */
+  while(blkCnt > 0u)
+  {
+    /* read two samples at a time from sourceA */
+    inA1 = *__SIMD32(pSrcA)++;
+    /* read two samples at a time from sourceB */
+    inB1 = *__SIMD32(pSrcB)++;
+    /* read two samples at a time from sourceA */
+    inA2 = *__SIMD32(pSrcA)++;
+    /* read two samples at a time from sourceB */
+    inB2 = *__SIMD32(pSrcB)++;
+
+    /* multiply mul = sourceA * sourceB */
+    mul1 = (q31_t) ((q15_t) (inA1 >> 16) * (q15_t) (inB1 >> 16));
+    mul2 = (q31_t) ((q15_t) inA1 * (q15_t) inB1);
+    mul3 = (q31_t) ((q15_t) (inA2 >> 16) * (q15_t) (inB2 >> 16));
+    mul4 = (q31_t) ((q15_t) inA2 * (q15_t) inB2);
+
+    /* saturate result to 16 bit */
+    out1 = (q15_t) __SSAT(mul1 >> RightShift, 16);
+    out2 = (q15_t) __SSAT(mul2 >> RightShift, 16);
+    out3 = (q15_t) __SSAT(mul3 >> RightShift, 16);
+    out4 = (q15_t) __SSAT(mul4 >> RightShift, 16);
+
+    /* store the result */
+#ifndef ARM_MATH_BIG_ENDIAN
+
+    *__SIMD32(pDst)++ = __PKHBT(out2, out1, 16);
+    *__SIMD32(pDst)++ = __PKHBT(out4, out3, 16);
+
+#else
+
+    *__SIMD32(pDst)++ = __PKHBT(out2, out1, 16);
+    *__SIMD32(pDst)++ = __PKHBT(out4, out3, 16);
+
+#endif /* #ifndef ARM_MATH_BIG_ENDIAN */
+
+    /* Decrement the blockSize loop counter */
+    blkCnt--;
+  }
+
+  /* If the blockSize is not a multiple of 4, compute any remaining output samples here.    
+   ** No loop unrolling is used. */
+  blkCnt = blockSize % 0x4u;
+
+#else
+
+  /* Run the below code for Cortex-M0 */
+
+  /* Initialize blkCnt with number of samples */
+  blkCnt = blockSize;
+
+#endif /* #ifndef ARM_MATH_CM0_FAMILY */
+
+
+  while(blkCnt > 0u)
+  {
+    /* C = A * B */
+    /* Multiply the inputs and store the result in the destination buffer */
+    *pDst++ = (q15_t) __SSAT((((q31_t) (*pSrcA++) * (*pSrcB++)) >> RightShift), 16);
+
+    /* Decrement the blockSize loop counter */
+    blkCnt--;
+  }
 }

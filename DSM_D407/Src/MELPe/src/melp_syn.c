@@ -220,10 +220,10 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 
 	/* Un-weight Fourier magnitudes */
 	if (!par->uv_flag && !erase)
-		window_Q(par->fs_mag, w_fs_inv, par->fs_mag, NUM_HARM, 14);
+		window_q15Q(par->fs_mag, w_fs_inv, par->fs_mag, 14, NUM_HARM);
 
 	/* Clamp LSP bandwidths to avoid sharp LPC filters */
-	lpc_clamp(par->lsf, BWMIN_Q15, LPC_ORD);
+	lpc_clamp_q(par->lsf, BWMIN_Q15, LPC_ORD);
 
 	/* Calculate spectral tilt for current frame for spectral enhancement */
 	tilt_cof[0] = ONE_Q15;                                 /* tilt_cof in Q15 */
@@ -333,9 +333,9 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Calculate adaptive spectral enhancement filter coefficients */
 		ase_num[0] = ONE_Q12;                   /* ase_num and ase_den in Q12 */
 		temp1 = mult(sig_prob, ASE_NUM_BW_Q15);
-		lpc_bw_expand(&(lpc[1]), &(ase_num[1]), temp1, LPC_ORD);
+		lpc_bw_expand_q(&(lpc[1]), &(ase_num[1]), temp1, LPC_ORD);
 		temp1 = mult(sig_prob, ASE_DEN_BW_Q15);
-		lpc_bw_expand(&(lpc[1]), ase_den, temp1, LPC_ORD);
+		lpc_bw_expand_q(&(lpc[1]), ase_den, temp1, LPC_ORD);
 
 		/*	tilt_cof[1] = sig_prob * (intfact * curr_tilt +
 								  (1.0 - intfact) * prev_tilt);               */
@@ -423,8 +423,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Filter and scale pulse excitation */
 		v_equ(&sigbuf[BEGIN - MIX_ORD], pulse_del, MIX_ORD);
 		v_equ(pulse_del, &sigbuf[length + BEGIN - MIX_ORD], MIX_ORD);
-		zerflt_q15Q(&sigbuf[BEGIN], pulse_cof, &sigbuf[BEGIN], MIX_ORD, length,
-				 14);
+		zerflt_q15Q(&sigbuf[BEGIN], pulse_cof, &sigbuf[BEGIN], MIX_ORD, 14, length);
 
 		temp1 = shr(mult(X1_732_Q14, syn_gain), 3);                     /* Q0 */
 		/* Get scaled noise excitation */
@@ -433,7 +432,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Filter noise excitation */
 		v_equ(&sig2[BEGIN - MIX_ORD], noise_del, MIX_ORD);
 		v_equ(noise_del, &sig2[length + BEGIN - MIX_ORD], MIX_ORD);
-		zerflt_q15Q(&sig2[BEGIN], noise_cof, &sig2[BEGIN], MIX_ORD, length, 14);
+		zerflt_q15Q(&sig2[BEGIN], noise_cof, &sig2[BEGIN], MIX_ORD, 14, length);
 		/* Add two excitation signals (mixed excitation) */
         v_add(&sigbuf[BEGIN], &sig2[BEGIN], length);          /* sigbuf in Q0 */
 
@@ -444,21 +443,18 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 
 		/* Adaptive spectral enhancement */
 		v_equ(&sigbuf[BEGIN - LPC_ORD], ase_del, LPC_ORD);
-		lpc_synthesis(&sigbuf[BEGIN], &sigbuf[BEGIN], ase_den, LPC_ORD,
-					  length);
+		lpc_synthesis_q(&sigbuf[BEGIN], &sigbuf[BEGIN], ase_den, LPC_ORD, length);
 		v_equ(ase_del, &sigbuf[BEGIN + length - LPC_ORD], LPC_ORD);
 
 		zerflt_q15(&sigbuf[BEGIN], ase_num, &sigbuf[BEGIN], LPC_ORD, length);
 		v_equ(&sigbuf[BEGIN - TILT_ORD], tilt_del, TILT_ORD);
 		v_equ(tilt_del, &sigbuf[length + BEGIN - TILT_ORD], TILT_ORD);
-		zerflt_q15Q(&sigbuf[BEGIN], tilt_cof, &sigbuf[BEGIN], TILT_ORD, length,
-				 15);
+		zerflt_q15Q(&sigbuf[BEGIN], tilt_cof, &sigbuf[BEGIN], TILT_ORD, 15, length);
 
 		/* Possible Signal overflow at this point! */
 		/* Perform LPC synthesis filtering */
 		v_equ(&sigbuf[BEGIN - LPC_ORD], lpc_del, LPC_ORD);
-		lpc_synthesis(&sigbuf[BEGIN], &sigbuf[BEGIN], &(lpc[1]), LPC_ORD,
-					  length);
+		lpc_synthesis_q(&sigbuf[BEGIN], &sigbuf[BEGIN], &(lpc[1]), LPC_ORD, length);
 		v_equ(lpc_del, &sigbuf[length + BEGIN - LPC_ORD], LPC_ORD);
 		/* Adjust scaling of synthetic speech, sigbuf in Q0 */
 		scale_adj_q(&sigbuf[BEGIN], gain, length, SCALEOVER, INV_SCALEOVER_Q18);
@@ -466,8 +462,7 @@ static void		melp_syn(struct melp_param *par, int16_t sp_out[])
 		/* Implement pulse dispersion filter on output speech */
 		v_equ(&sigbuf[BEGIN - DISP_ORD], disp_del, DISP_ORD);
 		v_equ(disp_del, &sigbuf[length + BEGIN - DISP_ORD], DISP_ORD);
-		zerflt_q15Q(&sigbuf[BEGIN], disp_cof_q, &sigbuf[BEGIN], DISP_ORD,
-				 length, 15);
+		zerflt_q15Q(&sigbuf[BEGIN], disp_cof_q, &sigbuf[BEGIN], DISP_ORD, 15, length);
 
 		/* Copy processed speech to output array (not past frame end) */
 		if (syn_begin + length >= FRAME){

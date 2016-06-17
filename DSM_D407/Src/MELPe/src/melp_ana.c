@@ -140,11 +140,9 @@ void analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[])
 		/* (Q13) we use for RATE 2400.                                        */
 
 		if (par->rate == RATE2400)
-			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[OLD_IN_BEG], dcdelin,
-										dcdelout_hi, dcdelout_lo, FRAME);
+			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[OLD_IN_BEG], FRAME);
 		else
-			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[IN_BEG + i*FRAME], dcdelin,
-										dcdelout_hi, dcdelout_lo, FRAME);
+			dc_rmv_q(&sp_in[i*FRAME], &hpspeech[IN_BEG + i*FRAME], FRAME);
 
 		melp_ana(&hpspeech[i*FRAME], &par[i], i);
 	}
@@ -169,7 +167,7 @@ void analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[])
 			   LPC_ORD, weights, par->lsf, quant_par.msvq_index, MSVQ_MAXCNT);
 
 		/* Force minimum LSF bandwidth (separation) */
-		lpc_clamp(par->lsf, BWMIN_Q15, LPC_ORD);
+		lpc_clamp_q(par->lsf, BWMIN_Q15, LPC_ORD);
 
 	} else
 		lsf_vq(par);
@@ -234,7 +232,7 @@ void analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[])
 	if (par->rate == RATE2400){
 		/* quantize Fourier coefficients */
 		/* pre-weight vector, then use Euclidean distance */
-		window_Q(par->fs_mag, w_fs, par->fs_mag, NUM_HARM, 14);
+		window_q15Q(par->fs_mag, w_fs, par->fs_mag, 14, NUM_HARM);
 
 		/*	fsvq_enc(par->fs_mag, par->fs_mag, fs_vq_par); */
 		/* Later it is found that we do not need the structured variable      */
@@ -348,26 +346,26 @@ static void		melp_ana(int16_t speech[], struct melp_param *par, int16_t subnum)
 	/* entries for computation.  lpc_schur() needs (LPC_ORD + 1) entries.     */
 
 	if (par->rate == RATE2400)
-		lpc_autocorr(&speech[(FRAME_END - (LPC_FRAME/2))], win_cof_q, auto_corr,
+		lpc_autocorr_q(&speech[(FRAME_END - (LPC_FRAME/2))], win_cof_q, auto_corr,
 					 HF_CORR_Q15, LPC_ORD, LPC_FRAME);
 	else
-		lpc_autocorr(&speech[(FRAME_END - (LPC_FRAME/2))], win_cof_q, auto_corr,
+		lpc_autocorr_q(&speech[(FRAME_END - (LPC_FRAME/2))], win_cof_q, auto_corr,
 					 HF_CORR_Q15, EN_FILTER_ORDER - 1, LPC_FRAME);
 
 	lpc[0] = ONE_Q12;
-	lpc_schur(auto_corr, &(lpc[1]), LPC_ORD);                   /* lpc in Q12 */
+	lpc_schur_q(auto_corr, &(lpc[1]), LPC_ORD);                   /* lpc in Q12 */
 
 	if (par->rate == RATE2400){             /* Calculate Line Spectral Frequencies */
 		lpc_pred2lsp_q(&(lpc[1]), par->lsf, LPC_ORD);
 		v_equ(top_lpc, &(lpc[1]), LPC_ORD);
 	} else {
-		lpc_bw_expand(&(lpc[1]), &(lpc[1]), BWFACT_Q15, LPC_ORD);
+		lpc_bw_expand_q(&(lpc[1]), &(lpc[1]), BWFACT_Q15, LPC_ORD);
 
 		/* Calculate Line Spectral Frequencies */
 		lpc_pred2lsp_q(&(lpc[1]), par->lsf, LPC_ORD);
 
 		/* Force minimum LSF bandwidth (separation) */
-		lpc_clamp(par->lsf, BWMIN_Q15, LPC_ORD);
+		lpc_clamp_q(par->lsf, BWMIN_Q15, LPC_ORD);
 	}
 
 
@@ -455,6 +453,9 @@ void melp_ana_init_q(struct melp_param *par)
 
 	v_zap(lpfsp_delin, LPF_ORD);      /* Release V2 only use "lpfsp_del". */
 	v_zap(lpfsp_delout, LPF_ORD);
+	v_zap(lpres_delin, LPF_ORD);
+	v_zap(lpres_delout, LPF_ORD);
+	
 	pitch_avg = DEFAULT_PITCH_Q7;
 	v_fill(fpitch, DEFAULT_PITCH_Q7, 2);
 	

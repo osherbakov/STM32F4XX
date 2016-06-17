@@ -1118,7 +1118,7 @@ BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
 	prev_uv = par[NF - 1].uv_flag;
 	if (par[NF - 1].uv_flag){
 		v_fill(prev_fsmag, ONE_Q13, NUM_HARM);
-		window_Q(prev_fsmag, w_fs, prev_fsmag, NUM_HARM, 14);
+		window_q15Q(prev_fsmag, w_fs, prev_fsmag, 14, NUM_HARM);
 	}else
 		v_equ(prev_fsmag, par[NF - 1].fs_mag, NUM_HARM);
 

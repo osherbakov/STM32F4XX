@@ -58,7 +58,7 @@ void	quant_u_q(int16_t *p_data, int16_t *p_index, int16_t qmin,
 				int16_t qmax, int16_t nlev, int16_t nlev_q,
 				int16_t double_flag, int16_t scale);
 
-void quant_u_dec_q(int16_t index, int16_t *p_data, int16_t qmin,
+void 	quant_u_dec_q(int16_t index, int16_t *p_data, int16_t qmin,
 				 int16_t qmax, int16_t nlev_q, int16_t scale);
 
 void	rand_num_q(int16_t output[], int16_t amplitude, int16_t npts);
@@ -72,21 +72,15 @@ BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
 // void	window(int16_t input[], const int16_t win_coeff[],int16_t output[], int16_t npts);
 #define window(src,coef,dst,n)  arm_mult_q15((q15_t *)src, (q15_t *)coef, (q15_t *)dst, n)
 
-void	window_Q(int16_t input[], int16_t win_coeff[], int16_t output[], int16_t npts, int16_t Qin);
-
-void	zerflt_q(int16_t input[], const int16_t coeff[], int16_t output[],
-			   int16_t order, int16_t npts);
-
-void	zerflt_Q(int16_t input[], const int16_t coeff[],
-				 int16_t output[], int16_t order, int16_t npts,
-				 int16_t Q_coeff);
+void	window_q15Q(int16_t input[], int16_t win_coeff[], int16_t output[], int16_t Qin, int16_t npts);
 
 void	zerflt_q15(int16_t input[], const int16_t coeff[], int16_t output[],
 			   int16_t order, int16_t npts);
 
 void	zerflt_q15Q(int16_t input[], const int16_t coeff[],
-				 int16_t output[], int16_t order, int16_t npts,
-				 int16_t Q_coeff);
+				 int16_t output[], int16_t order, int16_t Q_coeff, int16_t npts);
+
+void 	polflt_q15Q(int16_t input[], const int16_t coeff[], int16_t output[], int order, int16_t Q_coeff, int npts);
 
 void	iir_2nd_d(int16_t input[], const int16_t den[],
 				  const int16_t num[], int16_t output[], int16_t delin[],
@@ -97,7 +91,11 @@ void	iir_2nd_s(int16_t input[], const int16_t den[],
 				  const int16_t num[], int16_t output[],
 				  int16_t delin[], int16_t delout[], int16_t npts);
 
-int16_t	interp_scalar_q(int16_t prev, int16_t curr, int16_t ifact);
+void 	arm_mult_shift_q15(q15_t * pSrcA, q15_t * pSrcB, q15_t * pDst, int32_t LeftShift, uint32_t blockSize);
+				  
+// int16_t	interp_scalar_q(int16_t prev, int16_t curr, int16_t ifact);
+#define interp_scalar_q(prev, curr, ifact) (add(mult(ifact, curr), mult(sub(ONE_Q15, ifact), curr)))
+
 
 
 #endif

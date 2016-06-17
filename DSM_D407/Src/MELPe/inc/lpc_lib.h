@@ -34,27 +34,17 @@ Secretariat fax: +33 493 65 47 16.
 #ifndef _LPC_LIB_H_
 #define _LPC_LIB_H_
 
-
-/* better names */
-#define lpc_autocorr			   lpc_acor
-#define lpc_bw_expand			   lpc_bwex
-#define lpc_lag_window			   lpc_lagw
-#define lpc_schur				   lpc_schr
-#define lpc_clamp				   lpc_clmp
-#define lpc_synthesis			   lpc_syn
-
-/* autocorrelation routine */
-void	lpc_acor(int16_t input[], const int16_t win_cof[], int16_t r[],
+void	lpc_autocorr_q(int16_t input[], const int16_t win_cof[], int16_t r[],
 				 int16_t hf_correction, int16_t order, int16_t npts);
 
 int32_t	lpc_aejw_q(int16_t lpc[], int16_t omega, int16_t order);
 
-int16_t	lpc_bwex(int16_t lpc[], int16_t aw[], int16_t gamma,
+int16_t	lpc_bw_expand_q(int16_t lpc[], int16_t aw[], int16_t gamma,
 					 int16_t order);
 
-int16_t	lpc_clmp(int16_t lsp[], int16_t delta, int16_t order);
+int16_t	lpc_clamp_q(int16_t lsp[], int16_t delta, int16_t order);
 
-int16_t	lpc_schr(int16_t autocorr[], int16_t lpc[], int16_t order);
+int16_t	lpc_schur_q(int16_t autocorr[], int16_t lpc[], int16_t order);
 
 int16_t	lpc_pred2lsp_q(int16_t lpc[], int16_t lsf[], int16_t order);
 
@@ -62,7 +52,7 @@ int16_t	lpc_pred2refl_q(int16_t lpc[], int16_t *refc, int16_t order);
 
 int16_t	lpc_lsp2pred_q(int16_t lsf[], int16_t lpc[], int16_t order);
 
-int16_t	lpc_syn(int16_t x[], int16_t y[], int16_t a[],
+int16_t	lpc_synthesis_q(int16_t x[], int16_t y[], int16_t a[],
 					int16_t order, int16_t length);
 
 

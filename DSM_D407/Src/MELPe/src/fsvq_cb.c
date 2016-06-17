@@ -38,8 +38,8 @@ Secretariat fax: +33 493 65 47 16.
 /*    vq_fsw(w_fs, NUM_HARM, X60_Q9);                                         */
 /* and the weighting is done by                                               */
 /*    for (i = 0; i < FS_LEVELS; i++)                                         */
-/*       window_Q(&fsvq_cb[i*NUM_HARM], w_fs, &fsvq_cb[i*NUM_HARM],           */
-/*                NUM_HARM, 14);                                              */
+/*       window_Q(&fsvq_cb[i*NUM_HARM], w_fs, &fsvq_cb[i*NUM_HARM], 14        */
+/*                NUM_HARM);                                                  */
 /* This change is made because fsvq_cb[] should be made in ROM and therefore  */
 /* modifications on it (weighting) are not appropriate.                       */
 

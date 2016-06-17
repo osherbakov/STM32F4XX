@@ -401,9 +401,8 @@ void classify(int16_t inbuf[], classParam *classStat, int16_t autocorr[])
 static int16_t	dcfree_speech[PIT_SUBFRAME] CCMRAM;
 static int16_t	zeroCrosCount(int16_t speech[])
 {
-	register int16_t	i;
-
-	int16_t	prev_sign, current_sign;
+	int16_t	i;
+	int16_t	prev, curr;
 	int16_t	count;
 
 	/* ======== Short term DC remove ======== */
@@ -411,20 +410,12 @@ static int16_t	zeroCrosCount(int16_t speech[])
 
 	/* ======== Count the number of zero crossings ======== */
 	count = 0;
-	if (dcfree_speech[0] >= 0)
-		prev_sign = 1;
-	else
-		prev_sign = -1;
+	prev = dcfree_speech[0];
 	for (i = 1; i < PIT_SUBFRAME; i++){
-		if (dcfree_speech[i] >= 0)
-			current_sign = 1;
-		else
-			current_sign = -1;
-		if ((prev_sign + current_sign) == 0)
-			count ++;
-		prev_sign = current_sign;
+		curr = dcfree_speech[i];
+		if ((prev ^ curr) & 0x8000)	count ++;
+		prev = curr;
 	}
-
 	return(divide_s(count, PIT_SUBFRAME));                             /* Q15 */
 }
 

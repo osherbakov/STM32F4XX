@@ -25,10 +25,9 @@ struct quant_param	quant_par;
 
 /* ====== Buffers ====== */
 int16_t	hpspeech[IN_BEG + BLOCK] CCMRAM;       /* input speech buffer dc removed */
-int16_t	dcdel[DC_ORD] CCMRAM;
-int16_t	dcdelin[DC_ORD] CCMRAM;
-int16_t	dcdelout_hi[DC_ORD] CCMRAM;
-int16_t	dcdelout_lo[DC_ORD] CCMRAM;
+int16_t	lpres_delin[LPF_ORD] CCMRAM;
+int16_t	lpres_delout[LPF_ORD] CCMRAM;
+
 
 /* ====== Classifier ====== */
 int16_t	voicedEn, silenceEn;                                       /* Q11 */

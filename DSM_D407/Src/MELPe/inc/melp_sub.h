@@ -38,8 +38,7 @@ Secretariat fax: +33 493 65 47 16.
 void	bpvc_ana_q(int16_t speech[], int16_t fpitch[], int16_t bpvc[],
 				 int16_t *pitch);
 
-void	dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t delin[],
-			   int16_t delout_hi[], int16_t delout_lo[], int16_t frame);
+void	dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t frame);
 
 void	remove_dc(int16_t sigin[], int16_t sigout[], int16_t len);
 

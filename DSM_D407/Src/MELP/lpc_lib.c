@@ -102,7 +102,6 @@ float lpc_aejw(float *a,float w,int p)
     Outputs:
         aw- the bandwidth expanded LPC filter
     Returns: NULL
-    See_Also: lpc_lagw(3l)
     Includes:
         spbstd.h
         lpc.h

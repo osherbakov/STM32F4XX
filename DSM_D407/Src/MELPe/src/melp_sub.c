@@ -201,12 +201,11 @@ void bpvc_ana_q(int16_t speech[], int16_t fpitch[], int16_t bpvc[],
 /* matlab commands: [z, p, k] = cheby2(4, 30, 0.015, 'high');                 */
 /*						sos = zp2sos(z, p, k);                                */
 /* order of sections swapped                                                  */
+int16_t	dcdelin[DC_ORD] CCMRAM;
+int16_t	dcdelout_hi[DC_ORD] CCMRAM;
+int16_t	dcdelout_lo[DC_ORD] CCMRAM;
 
-void dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t delin[],
-			int16_t delout_hi[], int16_t delout_lo[],
-			int16_t frame)
-{
-	static const int16_t	dc_num[(DC_ORD/2)*3] RODATA = {             /* Maybe Q13 */
+static const int16_t	dc_num[(DC_ORD/2)*3] RODATA = {             /* Maybe Q13 */
 #if NEW_DC_FILTER
 		8192,  -16376, 8192,
 		8192,  -16370, 8192,
@@ -215,11 +214,10 @@ void dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t delin[],
 		7769, -15534, 7769,
 		8007, -15999, 8007
 #endif
-	};
-
-	/* Signs of coefficients for dc_den are reversed.  dc_den[0] and          */
-	/* dc_den[3] are ignored.                                                 */
-	static const int16_t	dc_den[(DC_ORD/2)*3] RODATA= {
+};
+/* Signs of coefficients for dc_den are reversed.  dc_den[0] and          */
+/* dc_den[3] are ignored.                                                 */
+static const int16_t	dc_den[(DC_ORD/2)*3] RODATA= {
 #if NEW_DC_FILTER
 		-8192, 15729, -7569,
 		-8192, 16111, -7959,
@@ -228,15 +226,20 @@ void dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t delin[],
 		-8192, 15521, -7358,
 		-8192, 15986, -7836
 #endif
-	};
+};
+
+
+void dc_rmv_q(int16_t sigin[], int16_t sigout[], int16_t frame)
+{
+
 	register int16_t	section;
 
 	/* Remove DC from input speech */
 	v_equ(sigout, sigin, frame);
 	for (section = 0; section < DC_ORD/2; section++)
 		iir_2nd_d(sigout, &dc_den[section*3], &dc_num[section*3], sigout,
-				  &delin[section*2], &delout_hi[section*2],
-				  &delout_lo[section*2], frame);
+				  &dcdelin[section*2], &dcdelout_hi[section*2],
+				  &dcdelout_lo[section*2], frame);
 }
 
 
@@ -266,26 +269,21 @@ void remove_dc(int16_t sigin[], int16_t sigout[], int16_t len)
 	/* Find up_shift and two_power_down.  Note that two_power_down can be     */
 	/* equal to len.                                                          */
 
-	temp = norm_s(len);
-	up_shift = 15 - temp;
-	temp = up_shift - 1;
-	two_power_down = shl(1, temp);
+	up_shift = 15 - norm_s(len);
+	two_power_down = 1 << (up_shift - 1);
 
 	sum = 0;
 	for (i = 0; i < len; i++)
 		sum = L_add(sum, L_deposit_l(sigin[i]));
 	sum = L_shr(sum, up_shift);
 
-	/* if (len > two_power_down) */
-	/* if condition has been removed 'cos it is always true */
-	{
-		temp = divide_s(two_power_down, len);                          /* Q15 */
-		offset = mult(extract_l(sum), temp);
-	}
+	temp = divide_s(two_power_down, len);                          /* Q15 */
+	offset = mult(extract_l(sum), temp);
 	offset = shl(offset, 1);
 
-	for (i = 0; i < len; i++)
-		sigout[i] = sub(sigin[i], offset);
+//	for (i = 0; i < len; i++)
+//		sigout[i] = sub(sigin[i], offset);
+	arm_offset_q15(sigin,-offset, sigout,  len);
 }
 
 

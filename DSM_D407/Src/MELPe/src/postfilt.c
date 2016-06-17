@@ -337,18 +337,17 @@ void postfilt(int16_t speech[], int16_t prev_lsf[], int16_t cur_lsf[])
 /*      = ---------------------------------------- * 0.9672                   */
 /*          (1.0 - 1.9334 z^{-1} + 0.9355 z^{-2})                             */
 
+static const int16_t  hpf60_num[3] RODATA = {                           /* Q13 */
+							8192, -16384, 8192
+};
+static const int16_t  hpf60_den[3] RODATA = {                  /* Negated; Q13 */
+							-8192, 15838, -7664
+};
+static int16_t	hpf60_delin[2] = {0, 0};                       /* Q13 */
+static int16_t	hpf60_delout_hi[2] = {0, 0};
+static int16_t	hpf60_delout_lo[2] = {0, 0};
 static void		hpf60(int16_t speech[])
 {
-	static const int16_t  hpf60_num[3] RODATA = {                           /* Q13 */
-								8192, -16384, 8192
-	};
-	static const int16_t  hpf60_den[3] RODATA = {                  /* Negated; Q13 */
-								-8192, 15838, -7664
-	};
-	static int16_t	hpf60_delin[2] = {0, 0};                       /* Q13 */
-	static int16_t	hpf60_delout_hi[2] = {0, 0};
-	static int16_t	hpf60_delout_lo[2] = {0, 0};
-
 
 	iir_2nd_d(speech, hpf60_den, hpf60_num, speech, hpf60_delin,
 			  hpf60_delout_hi, hpf60_delout_lo, FRAME);
@@ -364,9 +363,6 @@ static void		hpf60(int16_t speech[])
 /*                (1 + 2 z^{-1} + z^{-2})                                     */
 /*      = ---------------------------------------- * 0.9178                   */
 /*          (1.0 + 1.8307 z^{-1} + 0.8446 z^{-2})                             */
-
-static void		lpf3500(int16_t speech[])
-{
 	static const int16_t	lpf3500_num[3] RODATA = {                         /* Q13 */
 								8192, 16384, 8192
 	};
@@ -377,7 +373,8 @@ static void		lpf3500(int16_t speech[])
 	static int16_t	lpf3500_delout_hi[2] = {0, 0};
 	static int16_t	lpf3500_delout_lo[2] = {0, 0};
 
-
+static void		lpf3500(int16_t speech[])
+{
 	iir_2nd_d(speech, lpf3500_den, lpf3500_num, speech, lpf3500_delin,
 			  lpf3500_delout_hi, lpf3500_delout_lo, FRAME);
 }

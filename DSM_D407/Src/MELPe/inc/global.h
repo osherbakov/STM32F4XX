@@ -28,14 +28,13 @@ extern struct quant_param	quant_par;
 
 /* ====== Buffers ====== */
 extern int16_t	hpspeech[];             /* input speech buffer dc removed */
-extern int16_t	dcdel[];
-extern int16_t	dcdelin[];
-extern int16_t	dcdelout_hi[];
-extern int16_t	dcdelout_lo[];
+extern int16_t	lpres_delin[];
+extern int16_t	lpres_delout[];
+
 
 /* ====== Classifier ====== */
 extern int16_t	voicedEn, silenceEn;
-extern int32_t		voicedCnt;
+extern int32_t	voicedCnt;
 
 /* ====== Fourier Harmonics Weights ====== */
 extern int16_t	w_fs[];

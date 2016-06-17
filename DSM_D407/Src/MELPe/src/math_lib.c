@@ -767,29 +767,3 @@ int16_t sqrt_Q15(int16_t x)
 }
 
 
-//int16_t add_shr(int16_t Var1, int16_t Var2)
-//{
-//	int16_t	temp;
-//	int32_t	L_1, L_2;
-
-
-//	L_1		= L_deposit_l(Var1);
-//	L_2		= L_deposit_l(Var2);
-//	temp	= (int16_t) L_shr(L_add(L_1, L_2),1);
-//	return temp;
-//}
-
-
-//int16_t sub_shr(int16_t Var1, int16_t Var2)
-//{
-//	int16_t	temp;
-//	int32_t	L_1, L_2;
-
-
-//	L_1		= L_deposit_l(Var1);
-//	L_2		= L_deposit_l(Var2);
-//	temp	= (int16_t) L_shr(L_sub(L_1, L_2), 1);
-//	return temp;
-//}
-
-
