@@ -43,7 +43,7 @@ typedef struct NLP{
     arm_fir_instance_f32 arm_fir;  /* fir from arm */
 } NLP;
 
-struct CODEC2 {
+typedef struct CODEC2 {
     int           mode;					   /* Current bit-rate						    */
 
     /* Pre-calculated constant tables/windows   */
@@ -76,7 +76,7 @@ struct CODEC2 {
     float         xq_dec[2];
 
 	MODEL		  *models;
-};
+} CODEC2_t;
 
 typedef struct {
     /* Pre-calculated Codec2 constant tables/windows   */
