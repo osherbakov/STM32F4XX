@@ -65,9 +65,8 @@ void	rand_num_q(int16_t output[], int16_t amplitude, int16_t npts);
 
 int16_t rand_minstdgen(void);
 
-BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
-					int16_t *code, int16_t numbits, int16_t wsize,
-					uint16_t erase_mask);
+void	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
+					int16_t *code, int16_t numbits, int16_t wsize);
 
 // void	window(int16_t input[], const int16_t win_coeff[],int16_t output[], int16_t npts);
 #define window(src,coef,dst,n)  arm_mult_q15((q15_t *)src, (q15_t *)coef, (q15_t *)dst, n)

@@ -222,18 +222,15 @@ void pack_code(int code, unsigned char **p_ch_beg,int *p_ch_bit, int numbits, in
 
 /*								*/
 /*	Subroutine UNPACK_CODE: Unpack bit code from channel.	*/
-/*      Return 1 if erasure, otherwise 0.                       */
 /*								*/
-int unpack_code(unsigned char **p_ch_beg, int *p_ch_bit, int *p_code, int numbits, int wsize, unsigned int ERASE_MASK)
+void unpack_code(unsigned char **p_ch_beg, int *p_ch_bit, int *p_code, int numbits, int wsize)
 {
-    int ret_code;
     int	i,ch_bit;
     unsigned char *ch_word;
 
 	ch_bit = *p_ch_bit;
 	ch_word = *p_ch_beg;
 	*p_code = 0;
-    ret_code = *ch_word & ERASE_MASK;
 
 	for (i = 0; i < numbits; i++) {
 		/* Mask in bit from channel word to code	*/
@@ -249,12 +246,6 @@ int unpack_code(unsigned char **p_ch_beg, int *p_ch_bit, int *p_code, int numbit
 
 	/*  Save updated bit counter	*/
 	*p_ch_bit = ch_bit;
-
-    /* Catch erasure in new word if read */
-    if (ch_bit != 0)
-      ret_code |= *ch_word & ERASE_MASK;
-
-    return(ret_code);
 }
 
 

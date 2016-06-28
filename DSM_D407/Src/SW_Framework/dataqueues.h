@@ -128,15 +128,14 @@ typedef void 	Data_Close_t(void *pHandle);
 typedef struct ProfileData {
 	uint32_t	tPrev;
 	uint32_t	tStart;
-	uint32_t	DutyX1000;
+	float		Duty;
 } ProfileData_t;	
 
-#define		INIT_PROFILE(a)		do{(a)->tPrev = DWT->CYCCNT; (a)->DutyX1000=0;}while(0)
+#define		INIT_PROFILE(a)		do{(a)->tPrev = DWT->CYCCNT; (a)->Duty=0;}while(0)
 #define		START_PROFILE(a)	do{(a)->tStart = DWT->CYCCNT;}while(0)
-#define		STOP_PROFILE(a)		do{	uint32_t t=(a)->tStart-(a)->tPrev;\
+#define		STOP_PROFILE(a)		do{	uint32_t t=(a)->tStart-(a)->tPrev;(a)->tPrev=(a)->tStart;\
 									uint32_t d=DWT->CYCCNT-(a)->tStart;\
-									(a)->tPrev=(a)->tStart;\
-									(a)->DutyX1000=(100*d)/t;}while(0)
+									(a)->Duty=(a)->Duty*0.9f+(0.1f*d)/t; }while(0)
 
 typedef struct DataProcessBlock {
 	Data_Create_t		*Create;

@@ -469,20 +469,17 @@ int16_t	rand_minstdgen()
 /*    is used and they are packed into the array pointed by "ptr_ch_begin".   */
 /*    "ptr_ch_bit" points to the position of the next bit being copied onto.  */
 /* ========================================================================== */
-BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
-					int16_t *code, int16_t numbits, int16_t wsize,
-					uint16_t erase_mask)
+void	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
+					int16_t *code, int16_t numbits, int16_t wsize)
 {
 	register int16_t	i;
 	unsigned char	*ch_word;
-	int16_t	ret_code;
 	int16_t	ch_bit;
 
 
 	ch_bit = *ptr_ch_bit;
 	ch_word = *ptr_ch_begin;
 	*code = 0;
-	ret_code = (int16_t) (*ch_word & erase_mask);
 
 	for (i = 0; i < numbits; i++){
 		/* Mask in bit from channel word to code */
@@ -499,12 +496,6 @@ BOOLEAN	unpack_code_q(unsigned char **ptr_ch_begin, int16_t *ptr_ch_bit,
 
 	/* Save updated bit counter */
 	*ptr_ch_bit = ch_bit;
-
-	/* Catch erasure in new word if read */
-	if (ch_bit != 0)
-		ret_code |= *ch_word & erase_mask;
-
-	return(ret_code);
 }
 
 

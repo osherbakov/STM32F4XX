@@ -37,7 +37,7 @@ static void bypass_close(void *pHandle)
 	return;
 }
 
-static void bypass_init(void *pHandle)
+static void bypass_open(void *pHandle, uint32_t Params)
 {
 }
 
@@ -59,7 +59,7 @@ static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_info, bypass_process, bypass_close};
+DataProcessBlock_t  BYPASS = {bypass_create, bypass_open, bypass_info, bypass_process, bypass_close};
 
 
 //
@@ -107,7 +107,7 @@ static void ds_48_16_close(void *pHandle)
 	return;
 }
 
-static void ds_48_16_init(void *pHandle)
+static void ds_48_16_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_decimate_init_f32(pHandle, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 			DownSample48_16_Coeff, DownSample48_16_Buff, DOWNSAMPLE_BLOCK_SIZE);
@@ -136,7 +136,7 @@ static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_info, ds_48_16_process, ds_48_16_close};
+DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_open, ds_48_16_info, ds_48_16_process, ds_48_16_close};
 
 static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
@@ -150,7 +150,7 @@ static void us_16_48_close(void *pHandle)
 	return;
 }
 
-static void us_16_48_init(void *pHandle)
+static void us_16_48_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSample16_48_Coeff, UpSample16_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -179,5 +179,5 @@ static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_info, us_16_48_process, us_16_48_close};
+DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_open, us_16_48_info, us_16_48_process, us_16_48_close};
 

@@ -18,8 +18,8 @@ int		rate;
 #define MELP_FRAME_BYTES  	(MELP_FRAME_SIZE * 4)
 
 /* ========== Static Variables ========== */
-static float		speech[MELP_FRAME_SIZE] CCMRAM;
-static unsigned char chan_buffer[NUM_CH_BITS];
+static float			speech[MELP_FRAME_SIZE] 	CCMRAM;
+static unsigned char 	chan_buffer[NUM_CH_BITS] 	CCMRAM;
 struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par CCMRAM;                 /* melp synthesis parameters */
 

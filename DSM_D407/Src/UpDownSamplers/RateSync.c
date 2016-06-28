@@ -61,7 +61,7 @@ void ratesync_close(void *pHandle)
 	return;
 }
 
-void ratesync_init(void *pHandle)
+void ratesync_open(void *pHandle, uint32_t Params)
 {
 		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 		pRS->DeltaIn = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Input samples
@@ -288,6 +288,6 @@ void ratesync_info_stereo(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_init, ratesync_info_mono, ratesync_process_mono, ratesync_close};
-DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_init, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
+DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
 

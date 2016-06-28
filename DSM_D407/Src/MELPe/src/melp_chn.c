@@ -70,35 +70,6 @@ Secretariat fax: +33 493 65 47 16.
 #define INVAL_PIND		1                             /* Invalid pitch index  */
 #define SMOOTH			16383                                          /* Q15 */
 
-#define ORIGINAL_BIT_ORDER	0    /* flag to use bit order of original version */
-#if (ORIGINAL_BIT_ORDER)                             /* Original linear order */
-static int16_t	bit_order[NUM_CH_BITS] RODATA = {
-	 0,	 1,	 2,	 3,	 4,	 5,
-	 6,	 7,	 8,	 9,	10, 11,
-	12, 13, 14, 15, 16, 17,
-	18, 19, 20, 21, 22, 23,
-	24, 25, 26, 27, 28, 29,
-	30, 31, 32, 33, 34, 35,
-	36, 37, 38, 39, 40, 41,
-	42, 43, 44, 45, 46, 47,
-	48, 49, 50, 51, 52, 53
-};
-#else                                      /* Order based on priority of bits */
-static int16_t	bit_order[NUM_CH_BITS] RODATA = {
-	 0,	17,  9,	28, 34,  3,
-	 4,	39,  1,	 2,	13, 38,
-	14, 10, 11, 40, 15, 21,
-	27, 45, 12, 26, 25, 33,
-	20, 24, 23, 32, 44, 46,
-	22, 31, 53, 52, 51,  7,
-	 6,	19, 18, 29, 37, 30,
-	36, 35, 43, 42, 16, 41,
-	50, 49, 48, 47,  8,	 5
-};
-#endif
-
-/* Define bit buffer */
-static unsigned char	bit_buffer[NUM_CH_BITS] CCMRAM;
 
 static int16_t	sync_bit = 0;                                 /* sync bit */
 
@@ -115,7 +86,7 @@ void melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[])
 	fec_code_q(qpar);
 
 	/* Fill bit buffer */
-	bit_ptr = bit_buffer;
+	bit_ptr = chbuf;
 	bit_cntr = 0;
 
 	pack_code_q(qpar->gain_index[1], &bit_ptr, &bit_cntr, 5, 1);
@@ -134,10 +105,6 @@ void melp_chn_write_q(struct quant_param *qpar, unsigned char chbuf[])
 
 	pack_code_q(qpar->fsvq_index, &bit_ptr, &bit_cntr, FS_BITS, 1);
 
-	/* Write channel output buffer */
-	for (i = 0; i < BITNUM2400; i++){
-		chbuf[i] = bit_buffer[bit_order[i]];
-	}
 }
 
 
@@ -149,31 +116,24 @@ BOOLEAN melp_chn_read_q(struct quant_param *qpar, struct melp_param *par,
 	BOOLEAN		erase = FALSE;
 	int16_t		bit_cntr, dontcare;
 
-
-	/* Read channel output buffer into bit buffer */
-	for (i = 0; i < BITNUM2400; i++){
-		bit_buffer[bit_order[i]] = chbuf[i];
-	}
-
 	/* Read information from  bit buffer */
-	bit_ptr = bit_buffer;
+	bit_ptr = chbuf;
 	bit_cntr = 0;
 
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->gain_index[1], 5, 1, 0);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->gain_index[1], 5, 1);
 
 	/* Read sync bit */
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &dontcare, 1, 1, 0);
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->gain_index[0], 3, 1, 0);
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->pitch_index), PIT_BITS,
-					   1, 0);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &dontcare, 1, 1);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->gain_index[0], 3, 1);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->pitch_index), PIT_BITS, 1);
 
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->jit_index[0], 1, 1, 0);
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->bpvc_index[0], NUM_BANDS - 1, 1, 0);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->jit_index[0], 1, 1);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->bpvc_index[0], NUM_BANDS - 1, 1);
 
 	for (i = 0; i < MSVQ_STAGES; i++)
-		(void) unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->msvq_index[i]), msvq_bits[i], 1, 0);
+		(void) unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->msvq_index[i]), msvq_bits[i], 1);
 
-	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->fsvq_index, FS_BITS, 1, 0);
+	(void) unpack_code_q(&bit_ptr, &bit_cntr, &qpar->fsvq_index, FS_BITS, 1);
 
 	/* Clear unvoiced flag */
 	qpar->uv_flag[0] = FALSE;
@@ -259,7 +219,7 @@ void low_rate_chn_write(struct quant_param *qpar, unsigned char chbuf[])
 	low_rate_fec_code(qpar);
 
 	/* ====== Fill bit buffer ====== */
-    bit_ptr = bit_buffer;
+    bit_ptr = chbuf;
 	bit_cntr = 0;
 
 	/* ====== Toggle and write sync bit ====== */
@@ -404,10 +364,6 @@ void low_rate_chn_write(struct quant_param *qpar, unsigned char chbuf[])
 	/* ====== Packing jitter index ====== */
 	pack_code_q(qpar->jit_index[0], &bit_ptr, &bit_cntr, 1, 1);
 
-	/* ======== Write channel output buffer ======== */
-	for (i = 0; i < BITNUM1200; i++){
-		chbuf[i] = bit_buffer[i];
-	}
 }
 
 
@@ -478,36 +434,31 @@ BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
 		firstTime = FALSE;
 	}
 
-	/* ======== Read channel output buffer into bit buffer ======== */
-	for (i = 0; i < BITNUM1200; i++){
-		bit_buffer[i] = chbuf[i];
-	}
-
-	bit_ptr = bit_buffer;
+	bit_ptr = chbuf;
 	bit_cntr = 0;
 
 	/* ====== Read sync bit ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &dontcare, 1, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &dontcare, 1, 1);
 
 	/* ====== Unpacking Global U/V dicision ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &uv_index, UV_BITS, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &uv_index, UV_BITS, 1);
 
 	/* ====== Unpacking parity bit ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &uv_parity, 1, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &uv_parity, 1, 1);
 
 	/* ====== Unpacking pitch information ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &qpar->pitch_index, PITCH_VQ_BITS, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &qpar->pitch_index, PITCH_VQ_BITS, 1);
 
 	/* error check in U/V pattern */
 	bit_ptr1 = bit_ptr;
 	bit_cntr1= bit_cntr;
-	/*	unpack_code(&bit_ptr1, &bit_cntr1, &dontcare, 39, 1, 0);          LSP */
+	/*	unpack_code(&bit_ptr1, &bit_cntr1, &dontcare, 39,);          LSP */
 	bit_cntr1 = 0; bit_ptr1 += 39;
-	unpack_code_q(&bit_ptr1, &bit_cntr1, &prot_lsp,  3, 1, 0);           /* LSP */
-	unpack_code_q(&bit_ptr1, &bit_cntr1, &dontcare, 10, 1, 0);          /* GAIN */
-	unpack_code_q(&bit_ptr1, &bit_cntr1, &dontcare,  2, 1, 0);            /* BP */
-	unpack_code_q(&bit_ptr1, &bit_cntr1, &prot_bp2,  2, 1, 0);            /* BP */
-	unpack_code_q(&bit_ptr1, &bit_cntr1, &prot_bp1,  2, 1, 0);            /* BP */
+	unpack_code_q(&bit_ptr1, &bit_cntr1, &prot_lsp,  3, 1);           /* LSP */
+	unpack_code_q(&bit_ptr1, &bit_cntr1, &dontcare, 10, 1);          /* GAIN */
+	unpack_code_q(&bit_ptr1, &bit_cntr1, &dontcare,  2, 1);            /* BP */
+	unpack_code_q(&bit_ptr1, &bit_cntr1, &prot_bp2,  2, 1);            /* BP */
+	unpack_code_q(&bit_ptr1, &bit_cntr1, &prot_bp1,  2, 1);            /* BP */
 
 	if (uv_parity != parity(uv_index, 3))
 		flag_parity |= 1;
@@ -793,93 +744,86 @@ BOOLEAN low_rate_chn_read(struct quant_param *qpar, struct melp_param *par,
 	cuv = qpar->uv_flag[2];
 
 	if ((uv1 == 1) && (uv2 == 1) && (cuv == 1)){
-	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][1]), 4, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][1]), 4, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]), 4, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &dontcare,                3, 1, 0);
+	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][1]), 4, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][1]), 4, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]), 4, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &dontcare,                3, 1);
 	} else if ((uv1 == 1) && (uv2 == 1) && (cuv != 1)){
-	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 8, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]), 6, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][2]), 5, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][3]), 5, 1, 0);
+	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 8, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]), 6, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][2]), 5, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][3]), 5, 1);
 	} else if ((uv1 == 1) && (uv2 != 1) && (cuv == 1)){
-	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 8, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][1]), 6, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][2]), 5, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][3]), 5, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 9, 1, 0);
+	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 8, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][1]), 6, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][2]), 5, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][3]), 5, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 9, 1);
 	} else if ((uv1 != 1) && (uv2 == 1) && (cuv == 1)){
-	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 8, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][1]), 6, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][2]), 5, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][3]), 5, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 9, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 9, 1, 0);
+	    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]), 8, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][1]), 6, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][2]), 5, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][3]), 5, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 9, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 9, 1);
 	} else {
 	    if ((uv1 != 1) && (uv2 != 1) && (cuv == 1)){
 			/* ---- Interpolation [4 inp + (8+6+6+6) res + 9 uv] ---- */
 		    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]),
-						9, 1, 0);
+						9, 1);
 		} else {
 		    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][0]),
-						8, 1, 0);
+						8, 1);
 			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][1]),
-						6, 1, 0);
+						6, 1);
 			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][2]),
-						5, 1, 0);
+						5, 1);
 			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[0][3]),
-						5, 1, 0);
+						5, 1);
 		}
 
-		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 4, 1, 0);
+		unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[1][0]), 4, 1);
 		if ((uv1 != 1) && (uv2 != 1) && (cuv == 1)){
-		    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]),
-						8, 1, 0);
-			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]),
-						6, 1, 0);
-			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][2]),
-						6, 1, 0);
-			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][3]),
-						6, 1, 0);
-			unpack_code_q(&bit_ptr, &bit_cntr, &dontcare, 3, 1, 0);
+		    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 8, 1);
+			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]), 6, 1);
+			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][2]), 6, 1);
+			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][3]), 6, 1);
+			unpack_code_q(&bit_ptr, &bit_cntr, &dontcare, 3, 1);
 		} else {
-		    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]),
-						8, 1, 0);
-			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]),
-						6, 1, 0);
+		    unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][0]), 8, 1);
+			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->lsf_index[2][1]), 6, 1);
 		}
 	}
 
 	/* ====== Unpacking gain information ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->gain_index[0]),
-				GAIN_VQ_BITS, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->gain_index[0]), GAIN_VQ_BITS, 1);
 
 	/* ====== Unpacking voicing information ====== */
 	for (i = 0; i < NF; i++){
     	if (!qpar->uv_flag[i])
-			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->bpvc_index[i]), 2, 1, 0);
+			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->bpvc_index[i]), 2, 1);
 	}
 	if (cnt == 2)
-	    unpack_code_q(&bit_ptr, &bit_cntr, &prot_bp1, 2, 1, 0);
+	    unpack_code_q(&bit_ptr, &bit_cntr, &prot_bp1, 2, 1);
 	else if (cnt == 1){
-	    unpack_code_q(&bit_ptr, &bit_cntr, &prot_bp2, 2, 1, 0);
-		unpack_code_q(&bit_ptr, &bit_cntr, &prot_bp1, 2, 1, 0);
+	    unpack_code_q(&bit_ptr, &bit_cntr, &prot_bp2, 2, 1);
+		unpack_code_q(&bit_ptr, &bit_cntr, &prot_bp1, 2, 1);
 	} else if (cnt == 0){                                              /* UUU */
 	    for (i = 0; i < NF; i++)
-			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->bpvc_index[i]), 2, 1, 0);
+			unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->bpvc_index[i]), 2, 1);
 	}
 
 	/* ====== Unpacking Fourier magnitudes information ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->fs_index), FS_BITS, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->fs_index), FS_BITS, 1);
 
 	/* ====== Unpacking jitter information ====== */
-	unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->jit_index[0]), 1, 1, 0);
+	unpack_code_q(&bit_ptr, &bit_cntr, &(qpar->jit_index[0]), 1, 1);
 
 	/* ====== FEC decoding ====== */
 	erase = low_rate_fec_decode(qpar, erase, lsp_check);

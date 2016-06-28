@@ -173,9 +173,6 @@ typedef int32_t		Word40;					/* 40 bit "accumulator"	*/
 /* ===================== */
 /* Channel I/O constants */
 /* ===================== */
-
-#define ERASE_MASK		(uint16_t) 0x4000                /* erasure flag mask */
-                                                          /* for channel word */
 #define GN_QLO_Q8		2560            /* 10.0 * (1 << 8) minimum gain in dB */
 #define GN_QUP_Q8		19712           /* 77.0 * (1 << 8) maximum gain in dB */
 #define GN_QLEV			32

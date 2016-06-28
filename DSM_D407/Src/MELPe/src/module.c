@@ -20,8 +20,8 @@
 /* ====== External memory ====== */
 
 /* ========== Static Variables ========== */
-static int16_t	speech[BLOCK] CCMRAM;
-static unsigned char chan_buffer[NUM_CH_BITS];
+static int16_t			speech[BLOCK] CCMRAM;
+static unsigned char 	chan_buffer[NUM_CH_BITS]  CCMRAM;
 
 ProfileData_t	MELPE_P;
 

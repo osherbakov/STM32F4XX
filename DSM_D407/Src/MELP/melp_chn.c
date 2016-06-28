@@ -34,37 +34,10 @@ Returns: void
 #include "melp_sub.h"
 #include "dsp_sub.h"
 
-#define ORIGINAL_BIT_ORDER 0  /* flag to use bit order of original version */
-
-#if (ORIGINAL_BIT_ORDER)
-/* Original linear order */
-static int bit_order[NUM_CH_BITS] RODATA = {
-	0,  1,  2,  3,  4,  5,
-	6,  7,  8,  9,  10, 11,
-	12, 13, 14, 15, 16, 17, 
-	18, 19, 20, 21, 22, 23,
-	24, 25, 26, 27, 28, 29,
-	30, 31, 32, 33, 34, 35,
-	36, 37, 38, 39, 40, 41, 
-	42, 43, 44, 45, 46, 47, 
-	48, 49, 50, 51, 52, 53};
-#else
-/* Order based on priority of bits */
-static int bit_order[NUM_CH_BITS] RODATA = {
-	0,  17, 9,  28, 34, 3, 
-	4,  39, 1,  2,  13, 38,
-	14, 10, 11, 40, 15, 21,
-	27, 45, 12, 26, 25, 33,
-	20, 24, 23, 32, 44, 46,
-	22, 31, 53, 52, 51, 7,
-	6,  19, 18, 29, 37, 30,
-	36, 35, 43, 42, 16, 41, 
-	50, 49, 48, 47, 8,  5
-};
-#endif
+#define UV_PIND 0    /* Unvoiced pitch index */
+#define INVAL_PIND 1 /* Invalid pitch index  */
 
 static int sync_bit = 0; /* sync bit */
-
 
 void melp_chn_write(struct melp_param *par, unsigned char chbuf[])
 {
@@ -72,7 +45,12 @@ void melp_chn_write(struct melp_param *par, unsigned char chbuf[])
 	unsigned char *bit_ptr; 
 
 	/* FEC: code additional information in redundant indices */
-	fec_code(par);
+    if (par->uv_flag)
+    {
+		/* Set pitch index to unvoiced value */
+		par->pitch_index = UV_PIND;
+	}
+//	fec_code(par);
 
 	/*	Fill bit buffer	*/
 	bit_ptr = chbuf;
@@ -104,24 +82,24 @@ int melp_chn_read(struct melp_param *par, unsigned char chbuf[])
 	bit_ptr = chbuf;
 	bit_cntr = 0;
 
-	unpack_code(&bit_ptr,&bit_cntr,&par->gain_index[1],5,1,0);
+	unpack_code(&bit_ptr,&bit_cntr,&par->gain_index[1],5,1);
 
 	/* Read sync bit */
-	unpack_code(&bit_ptr,&bit_cntr,&i,1,1,0);
-	unpack_code(&bit_ptr,&bit_cntr,&par->gain_index[0],3,1,0);
-	unpack_code(&bit_ptr,&bit_cntr,&par->pitch_index,PIT_BITS,1,0);
+	unpack_code(&bit_ptr,&bit_cntr,&i,1,1);
+	unpack_code(&bit_ptr,&bit_cntr,&par->gain_index[0],3,1);
+	unpack_code(&bit_ptr,&bit_cntr,&par->pitch_index,PIT_BITS,1);
 
-	unpack_code(&bit_ptr,&bit_cntr,&par->jit_index,1,1,0);
-	unpack_code(&bit_ptr,&bit_cntr,&par->bpvc_index, NUM_BANDS-1,1,0);
+	unpack_code(&bit_ptr,&bit_cntr,&par->jit_index,1,1);
+	unpack_code(&bit_ptr,&bit_cntr,&par->bpvc_index, NUM_BANDS-1,1);
 
 	for (i = 0; i < par->msvq_par.num_stages; i++) {
-		unpack_code(&bit_ptr,&bit_cntr,&par->msvq_par.indices[i],par->msvq_par.bits[i],1,0);
+		unpack_code(&bit_ptr,&bit_cntr,&par->msvq_par.indices[i],par->msvq_par.bits[i],1);
 	}
-	unpack_code(&bit_ptr,&bit_cntr,&par->fsvq_par.indices[0], FS_BITS,1,0);
+	unpack_code(&bit_ptr,&bit_cntr,&par->fsvq_par.indices[0], FS_BITS,1);
 
 	/* Clear unvoiced flag */
-	par->uv_flag = 0;
-	erase = fec_decode(par,erase);
+	par->uv_flag = (par->pitch_index == UV_PIND) ? 1 : 0;
+	erase = 0; //fec_decode(par,erase);
 	/* Return erase flag */
 	return(erase);
 }

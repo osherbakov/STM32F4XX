@@ -69,9 +69,6 @@ Group (phone 972 480 7442).
 #define MIN_NOISE 10.0f       /* minimum value allowed in noise estimation */
 #define MAX_NOISE 80.0f       /* maximum value allowed in noise estimation */
 
-/* Channel I/O constants */
-#define ERASE_MASK 0x4000    /* erasure flag mask for channel word */
-
 /* Define number of channel bits per frame */
 #define NUM_CH_BITS 	54
 
