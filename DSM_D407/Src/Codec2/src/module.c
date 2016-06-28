@@ -36,9 +36,9 @@ void codec2_deinit(void *pHandle)
 	return;
 }
 
-void codec2_initialize(void *pHandle)
+void codec2_open(void *pHandle, uint32_t Params)
 {
-	codec2_init(pHandle, CODEC2_MODE_1200);
+	codec2_init(pHandle, CODEC2_MODE_3200);
 	INIT_PROFILE(&CODEC_P);
 }
 
@@ -77,5 +77,5 @@ void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_info, codec2_process, codec2_deinit};
+DataProcessBlock_t  CODEC = {codec2_create, codec2_open, codec2_info, codec2_process, codec2_deinit};
 

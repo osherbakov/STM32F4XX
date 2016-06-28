@@ -120,7 +120,7 @@ extern void 	DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 						uint32_t *pnSrcBytes, uint32_t *pnDstBytes);
 
 typedef void 	*Data_Create_t(uint32_t Params);
-typedef void 	Data_Init_t(void *pHandle);
+typedef void 	Data_Open_t(void *pHandle, uint32_t Params);
 typedef void 	Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataOut);
 typedef void 	Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInBytes, uint32_t *pOutBytes);
 typedef void 	Data_Close_t(void *pHandle);
@@ -140,7 +140,7 @@ typedef struct ProfileData {
 
 typedef struct DataProcessBlock {
 	Data_Create_t		*Create;
-	Data_Init_t			*Init;
+	Data_Open_t			*Open;
 	Data_Info_t			*Info;
 	Data_Process_t  	*Process;
 	Data_Close_t		*Close;

@@ -96,11 +96,11 @@ void StartDataProcessTask(void const * argument)
 	pRSOut = pSyncModule->Create(0);
 
 	// Initialize processing modules
-	pProcModule->Init(pProcModuleState);
-	pDecModule->Init(pDecState);
-	pIntModule->Init(pIntState);
-	pSyncModule->Init(pRSIn);
-	pSyncModule->Init(pRSOut);
+	pProcModule->Open(pProcModuleState, 0);
+	pDecModule->Open(pDecState, 0);
+	pIntModule->Open(pIntState, 0);
+	pSyncModule->Open(pRSIn, 0);
+	pSyncModule->Open(pRSOut, 0);
 	
 	while(1)
 	{

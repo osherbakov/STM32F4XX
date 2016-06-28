@@ -60,7 +60,7 @@ static void ds_48_8_close(void *pHandle)
 	return;
 }
 
-static void ds_48_8_init(void *pHandle)
+static void ds_48_8_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_decimate_init_q15(pHandle, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
@@ -90,7 +90,7 @@ static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  DS_48_8_Q15 = {ds_48_8_create, ds_48_8_init, ds_48_8_info, ds_48_8_process, ds_48_8_close};
+DataProcessBlock_t  DS_48_8_Q15 = {ds_48_8_create, ds_48_8_open, ds_48_8_info, ds_48_8_process, ds_48_8_close};
 
 static arm_fir_interpolate_instance_q15 CCMRAM Int;
 
@@ -104,7 +104,7 @@ static void us_8_48_close(void *pHandle)
 	return;
 }
 
-static void us_8_48_init(void *pHandle)
+static void us_8_48_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_interpolate_init_q15(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -134,5 +134,5 @@ static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  US_8_48_Q15 = {us_8_48_create, us_8_48_init, us_8_48_info, us_8_48_process, us_8_48_close};
+DataProcessBlock_t  US_8_48_Q15 = {us_8_48_create, us_8_48_open, us_8_48_info, us_8_48_process, us_8_48_close};
 

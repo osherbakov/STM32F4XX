@@ -35,7 +35,7 @@ void melp_close(void *pHandle)
 	return;
 }
 
-void melp_init(void *pHandle)
+void melp_open(void *pHandle, uint32_t Params)
 {
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_ana_init(&melp_ana_par);
@@ -74,7 +74,6 @@ void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = MELP_FRAME_BYTES ;
 }
 
-DataProcessBlock_t  MELP = {melp_create, melp_init, melp_info, melp_process, melp_close};
-
+DataProcessBlock_t  MELP = {melp_create, melp_open, melp_info, melp_process, melp_close};
 
 

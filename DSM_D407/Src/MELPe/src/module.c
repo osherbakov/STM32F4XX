@@ -35,7 +35,7 @@ void melpe_close(void *pHandle)
 	return;
 }
 
-void melpe_init(void *pHandle)
+void melpe_open(void *pHandle, uint32_t Params)
 {
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_parameters->rate = RATE2400;
@@ -89,4 +89,4 @@ void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  MELPE = {melpe_create, melpe_init, melpe_info, melpe_process, melpe_close};
+DataProcessBlock_t  MELPE = {melpe_create, melpe_open, melpe_info, melpe_process, melpe_close};
