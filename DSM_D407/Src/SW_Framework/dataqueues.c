@@ -52,6 +52,7 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 	// The final sanity check - Element size cannot be 0!!!
 	if(pQ->ElemSize == 0) pQ->Type = 1;
 	Queue_Clear(pQ);
+	pQ->pNext = 0;
 	return pQ;
 }
 
@@ -68,6 +69,7 @@ void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 	// The final sanity check - Element size cannot be 0!!!
 	if(pQueue->ElemSize == 0) pQueue->Type = 1;
 	Queue_Clear(pQueue);
+	pQueue->pNext = 0;
 }
 
 uint32_t Queue_Count(DQueue_t *pQueue)
@@ -215,15 +217,12 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	bToFloat = ((DstType & DATA_FP_MASK) != 0) ? 1 : 0;
 
 	// Check for invalid conditions
-	if( ((SrcChMask & srcAllMask) == 0) || 
-		((DstChMask & dstAllMask) == 0) ||
-        (nElements  == 0) )
-	{
+	if( nElements  == 0 ){
 		*pnDstBytes = 0;
 		return;
 	}
 	// Some special cases when we have only a single channel for both Src and Dst
-	if( (srcChan == dstChan) && (dstChan == 1) ){
+	if( (srcChan == dstChan) && (dstChan == 1) && (SrcChMask == DstChMask) && SrcChMask){
 		
 		if((DstType & DATA_TYPE_MASK) == DATA_TYPE_F32) {
 			switch( SrcType & DATA_TYPE_MASK)
@@ -231,19 +230,15 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 				case DATA_TYPE_Q7:
 					arm_q7_to_float(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q15:
 					arm_q15_to_float(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q31:
 					arm_q31_to_float(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_F32:
 					arm_copy_f32(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
-					break;
 				default:
 					break;
 			}
@@ -254,19 +249,15 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 				case DATA_TYPE_Q7:
 					arm_q7_to_q31(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q15:
 					arm_q15_to_q31(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q31:
 					arm_copy_q31(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_F32:
 					arm_float_to_q31(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
-					break;
 				default:
 					break;
 			}
@@ -277,19 +268,15 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 				case DATA_TYPE_Q7:
 					arm_q7_to_q15(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q15:
 					arm_copy_q15(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q31:
 					arm_q31_to_q15(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_F32:
 					arm_float_to_q15(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
-					break;
 				default:
 					break;
 			}
@@ -300,19 +287,15 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 				case DATA_TYPE_Q7:
 					arm_copy_q7(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q15:
 					arm_q15_to_q7(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_Q31:
 					arm_q31_to_q7(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
-					break;
 				case DATA_TYPE_F32:
 					arm_float_to_q7(pSrc, pDst, nElements);
 					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
-					break;
 				default:
 					break;
 			}

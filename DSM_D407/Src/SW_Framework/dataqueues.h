@@ -91,6 +91,7 @@ typedef struct DQueue {
 	uint16_t	iGet;		// Get Index
 	uint16_t	iPut;		// Put Index
 	int32_t		isReady;	// == 0 if number of bytes is less than half. Reset when buffer is underrun
+	struct DQueue *pNext;	// Pointer to the next queue (we support single writer/multiple readers)
 } DQueue_t;
 
 // The structure that specifies the information about In/Out Data Port

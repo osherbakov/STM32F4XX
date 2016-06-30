@@ -102,6 +102,8 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	float		D0, D1, D2, D3, accum;
 	float		S1, S2, S3;
 	float		NextInSample;
+	float		ONE, ONE_HALF, ONE_SIXTH;
+	
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	START_PROFILE(&RATESYNC_P);
@@ -110,6 +112,10 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	DeltaIn = pRS->DeltaIn; 
 	DeltaOut = pRS->DeltaOut;	
 	Delay = pRS->Delay;
+
+	ONE = 1.0f;
+	ONE_HALF = 0.5f;
+	ONE_SIXTH = 1.0f/6.0f;
 
 	// Initial settings for time:
 	TimeIn = 0 + DeltaIn;				// First IN Sample
@@ -131,21 +137,20 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 			// Calculate the FIR Filter coefficients
 			{	
 				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
-				D1 = (D0-1.0f); D2 = (D1-1.0f); D3 = (D2-1.0f);
+				D1 = (D0-ONE); D2 = (D1-ONE); D3 = (D2-ONE);
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
 				//Coeffs[3] = D*(D-1)*(D-2)/6.0f;
 				//calc_coeff(Coeffs, D, 4);
-				C0 = -D1*D2*D3/6.0f;
-				C1 = D0*D2*D3/2.0f;
-				C2 = -D0*D1*D3/2.0f;
-				C3 = D0*D1*D2/6.0f;
-
+				C0 = -D1*D2*D3*ONE_SIXTH;
+				C1 = D0*D2*D3*ONE_HALF;
+				C2 = -D0*D1*D3*ONE_HALF;
+				C3 = D0*D1*D2*ONE_SIXTH;
 			}
 			// Calculate Output value using data in[idxIn]
 			{
-				accum = 0.5f;
+				accum = ONE_HALF;
 				accum += NextInSample * C0;
 				accum += S1 * C1;
 				accum += S2 * C2;
@@ -188,6 +193,8 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	float		S1L, S2L, S3L;
 	float		S1R, S2R, S3R;
 	float		NextInLSample, NextInRSample;
+	float		ONE, ONE_HALF, ONE_SIXTH;
+	
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	START_PROFILE(&RATESYNC_P);
@@ -196,6 +203,11 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	DeltaOut = pRS->DeltaOut;	
 	Delay = pRS->Delay;
 
+	ONE = 1.0f;
+	ONE_HALF = 0.5f;
+	ONE_SIXTH = 1.0f/6.0f;
+	
+	
 	// Initial settings for time:
 	TimeIn = 0 + DeltaIn;				// First IN Sample
 	TimeOut =  0 - Delay + DeltaOut;	// First OUT Sample
@@ -220,21 +232,20 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 			// Calculate the FIR Filter coefficients
 			{	
 				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
-				D1 = (D0-1.0f); D2 = (D1-1.0f); D3 = (D2-1.0f);
+				D1 = (D0-ONE); D2 = (D1-ONE); D3 = (D2-ONE);
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
 				//Coeffs[3] = D*(D-1)*(D-2)/6.0f;
 				//calc_coeff(Coeffs, D, 4);
-				C0 = -D1*D2*D3/6.0f;
-				C1 = D0*D2*D3/2.0f;
-				C2 = -D0*D1*D3/2.0f;
-				C3 = D0*D1*D2/6.0f;
-
+				C0 = -D1*D2*D3*ONE_SIXTH;
+				C1 = D0*D2*D3*ONE_HALF;
+				C2 = -D0*D1*D3*ONE_HALF;
+				C3 = D0*D1*D2*ONE_SIXTH;
 			}
 			// Calculate Output value using data in[idxIn]
 			{
-				accum = 0.5f;
+				accum = ONE_HALF;
 				accum += NextInLSample * C0;
 				accum += S1L * C1;
 				accum += S2L * C2;
@@ -245,7 +256,7 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 
 			// Calculate Output value using data in[idxIn + 1]
 			{
-				accum = 0.5f;
+				accum = ONE_HALF;
 				accum += NextInRSample * C0;
 				accum += S1R * C1;
 				accum += S2R * C2;
@@ -298,6 +309,6 @@ void ratesync_info_stereo(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
-DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
+DataProcessBlock_t  RATESYNC_M CCMRAM = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+DataProcessBlock_t  RATESYNC_S CCMRAM = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
 

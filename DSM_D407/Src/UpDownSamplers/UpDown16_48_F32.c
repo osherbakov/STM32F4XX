@@ -95,7 +95,7 @@ static float UpSample16_48_Coeff[UPSAMPLE_TAPS] RODATA = {
 0.0993839502334595f, -0.00137842050753534f, -0.0617895275354385f, -0.082396112382412f,
 -0.0734485313296318f, -0.0499703288078308f, -0.0288104526698589f, 0.00449248310178518f};
 
-static arm_fir_decimate_instance_f32 CCMRAM Dec ;
+static arm_fir_decimate_instance_f32 Dec CCMRAM;
 
 static void *ds_48_16_create(uint32_t Params)
 {
@@ -136,9 +136,9 @@ static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_open, ds_48_16_info, ds_48_16_process, ds_48_16_close};
+DataProcessBlock_t  DS_48_16 CCMRAM = {ds_48_16_create, ds_48_16_open, ds_48_16_info, ds_48_16_process, ds_48_16_close};
 
-static arm_fir_interpolate_instance_f32 CCMRAM Int;
+static arm_fir_interpolate_instance_f32 Int CCMRAM;
 
 static void *us_16_48_create(uint32_t Params)
 {
@@ -179,5 +179,5 @@ static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_open, us_16_48_info, us_16_48_process, us_16_48_close};
+DataProcessBlock_t  US_16_48 CCMRAM = {us_16_48_create, us_16_48_open, us_16_48_info, us_16_48_process, us_16_48_close};
 

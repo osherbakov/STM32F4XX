@@ -50,8 +50,8 @@ static float UpSample8_48_Coeff[UPSAMPLE_TAPS] RODATA = {
 
 static arm_fir_decimate_instance_f32 Dec CCMRAM ;
 
-ProfileData_t	DS48_8_P;
-ProfileData_t	US8_48_P;
+ProfileData_t	DS48_8_P CCMRAM;
+ProfileData_t	US8_48_P CCMRAM;
 
 static void *ds_48_8_create(uint32_t Params)
 {
@@ -73,16 +73,16 @@ static void ds_48_8_open(void *pHandle,uint32_t Params)
 static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
+	START_PROFILE(&DS48_8_P);
 	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES)
 	{
-		START_PROFILE(&DS48_8_P);
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
 		pDataIn = (void *)((uint32_t )pDataIn + DOWNSAMPLE_BLOCK_BYTES);
 		pDataOut = (void *)((uint32_t )pDataOut + DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO);
 		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES;
 		nGenerated += DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
-		STOP_PROFILE(&DS48_8_P);
 	}
+	STOP_PROFILE(&DS48_8_P);
 	*pOutBytes = nGenerated;
 }
 
@@ -97,7 +97,7 @@ static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  DS_48_8 = {ds_48_8_create, ds_48_8_open, ds_48_8_info, ds_48_8_process, ds_48_8_close};
+DataProcessBlock_t  DS_48_8 CCMRAM = {ds_48_8_create, ds_48_8_open, ds_48_8_info, ds_48_8_process, ds_48_8_close};
 
 static arm_fir_interpolate_instance_f32 Int CCMRAM;
 
@@ -121,16 +121,16 @@ static void us_8_48_open(void *pHandle, uint32_t Params)
 static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
+	START_PROFILE(&US8_48_P);
 	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO)
 	{
-		START_PROFILE(&US8_48_P);
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 		pDataIn = (void *)((uint32_t )pDataIn + DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO);
 		pDataOut = (void *)((uint32_t )pDataOut + DOWNSAMPLE_BLOCK_BYTES);
 		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_BYTES;
-		STOP_PROFILE(&US8_48_P);
 	}
+	STOP_PROFILE(&US8_48_P);
 	*pOutBytes = nGenerated;
 }
 
@@ -143,4 +143,4 @@ static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  US_8_48 = {us_8_48_create, us_8_48_open, us_8_48_info, us_8_48_process, us_8_48_close};
+DataProcessBlock_t  US_8_48 CCMRAM = {us_8_48_create, us_8_48_open, us_8_48_info, us_8_48_process, us_8_48_close};
