@@ -185,21 +185,16 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	int  srcChan, dstChan;
 	int  srcOffset[8], dstOffset[8];
 	int  srcCntr, dstCntr;
-	int  data;
+	int	 srcAllMask, dstAllMask;
+
 	int	 srcIdx, dstIdx;
+	int  data;
 	float fdata;
 	unsigned int nElements, nGeneratedBytes;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
 	void *pS, *pD;
 	
-	if((DstType == SrcType) && (DstChMask == SrcChMask))
-	{
-		memcpy(pDst, pSrc, *pnSrcBytes);
-		*pnDstBytes =  *pnSrcBytes;
-		*pnSrcBytes = 0;
-		return;
-	}		
-	
+
 	srcStep = (SrcType & 0x00FF); 		// Step size to get the next element
 	dstStep = (DstType & 0x00FF);
 	
@@ -209,14 +204,134 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	srcChan = DATA_TYPE_NUM_CHANNELS(SrcType);
 	dstChan = DATA_TYPE_NUM_CHANNELS(DstType);
 	
+	srcAllMask = ((1 << srcChan) - 1);
+	dstAllMask = ((1 << dstChan) - 1);
+
+	nElements = (*pnSrcBytes / srcStep);
+	nGeneratedBytes = nElements * dstStep;
+
 	bSameType = (SrcType & DATA_TYPE_MASK) == (DstType & DATA_TYPE_MASK) ? 1 : 0;
 	bNonFloat = ((SrcType & DATA_FP_MASK) == 0 ) && ((DstType & DATA_FP_MASK) == 0) ? 1 : 0;
 	bToFloat = ((DstType & DATA_FP_MASK) != 0) ? 1 : 0;
+
+	// Check for invalid conditions
+	if( ((SrcChMask & srcAllMask) == 0) || 
+		((DstChMask & dstAllMask) == 0) ||
+        (nElements  == 0) )
+	{
+		*pnDstBytes = 0;
+		return;
+	}
+	// Some special cases when we have only a single channel for both Src and Dst
+	if( (srcChan == dstChan) && (dstChan == 1) ){
+		
+		if((DstType & DATA_TYPE_MASK) == DATA_TYPE_F32) {
+			switch( SrcType & DATA_TYPE_MASK)
+			{
+				case DATA_TYPE_Q7:
+					arm_q7_to_float(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q15:
+					arm_q15_to_float(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q31:
+					arm_q31_to_float(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_F32:
+					arm_copy_f32(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
+					break;
+				default:
+					break;
+			}
+		}
+		if((DstType & DATA_TYPE_MASK) == DATA_TYPE_Q31) {
+			switch( SrcType & DATA_TYPE_MASK)
+			{
+				case DATA_TYPE_Q7:
+					arm_q7_to_q31(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q15:
+					arm_q15_to_q31(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q31:
+					arm_copy_q31(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_F32:
+					arm_float_to_q31(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
+					break;
+				default:
+					break;
+			}
+		}
+		if((DstType & DATA_TYPE_MASK) == DATA_TYPE_Q15) {
+			switch( SrcType & DATA_TYPE_MASK)
+			{
+				case DATA_TYPE_Q7:
+					arm_q7_to_q15(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q15:
+					arm_copy_q15(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q31:
+					arm_q31_to_q15(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_F32:
+					arm_float_to_q15(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
+					break;
+				default:
+					break;
+			}
+		}
+		if((DstType & DATA_TYPE_MASK) == DATA_TYPE_Q7) {
+			switch( SrcType & DATA_TYPE_MASK)
+			{
+				case DATA_TYPE_Q7:
+					arm_copy_q7(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q15:
+					arm_q15_to_q7(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_Q31:
+					arm_q31_to_q7(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes;	return;
+					break;
+				case DATA_TYPE_F32:
+					arm_float_to_q7(pSrc, pDst, nElements);
+					*pnSrcBytes = 0;*pnDstBytes =  nGeneratedBytes; return;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+	
+	if((DstType == SrcType) && (DstChMask == SrcChMask)){
+		memcpy(pDst, pSrc, *pnSrcBytes);
+		*pnDstBytes =  *pnSrcBytes;
+		*pnSrcBytes = 0;
+		return;
+	}		
+	
+	// Prepare the shift amount for the data transferred
 	dataShift = 8 * (dstSize - srcSize);
 
 	// Check and create the proper mask for the destination, populate the offsets array
 	DstChMask = (DstChMask == DATA_CHANNEL_ANY)? DATA_CHANNEL_ALL : DstChMask;
-	DstChMask &= ((1 << dstChan) - 1);	// Limit the mask to the number of channels ONLY
+	DstChMask &= dstAllMask;	// Limit the mask to the ACTUAL number of channels
 	for(dstCntr = 0, dstIdx = 0; dstIdx < dstChan; dstIdx++)
 	{
 		if(DstChMask & 0x01) dstOffset[dstCntr++] = dstIdx * dstSize;
@@ -236,7 +351,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 			srcOffset[srcIdx] = 0;
 		}
 	}else	{
-		SrcChMask &= ((1 << srcChan) - 1);	// Limit the mask to the number of channels ONLY
+		SrcChMask &= srcAllMask;	// Limit the mask to the ACTUAL number of channels
 		for(srcCntr = 0, srcIdx = 0; srcIdx < srcChan; srcIdx++)
 		{
 			if(SrcChMask & 0x01) srcOffset[srcCntr++] = srcIdx * srcSize;
@@ -244,10 +359,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 		}
 	}
 	
-	nElements = (*pnSrcBytes / srcStep);
-	nGeneratedBytes = nElements * dstStep;
 	srcIdx = 0;
-	
 	while(nElements > 0)
 	{
 		for (dstIdx = 0; dstIdx < dstCntr; dstIdx++)

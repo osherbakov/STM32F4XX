@@ -83,7 +83,7 @@ void StartDataProcessTask(void const * argument)
 	uint32_t 	nBytesIn, nBytesNeeded, nBytesGenerated;
 	uint32_t 	nElemsIn, nElemsNeeded;
 	
-	int			DoProcessing;
+	int			DoMoreProcessing;
 
 
 	DATA_InOut = DATA_In = DATA_Out = 0;
@@ -117,7 +117,7 @@ void StartDataProcessTask(void const * argument)
 		if( pDataQIn->isReady ) // Message came that some valid Input Data is present
 		{
 			do {
-				DoProcessing = 0;
+				DoMoreProcessing = 0;
 				
 				pDataQIn = (DQueue_t *) event.value.p;
 				pDataQOut = osParams.RateSyncQ;
@@ -130,7 +130,7 @@ void StartDataProcessTask(void const * argument)
 					nBytesIn = nBytesNeeded;
 					pSyncModule->Process(pRSyncState, pAudioIn, pAudioOut, &nBytesIn, &nBytesGenerated);
 					Queue_Push(pDataQOut, pAudioOut, nBytesGenerated);
-					DoProcessing = 1;
+					DoMoreProcessing = 1;
 				}
 				
 				// First, downsample, if neccessary, the received signal
@@ -152,7 +152,7 @@ void StartDataProcessTask(void const * argument)
 					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_1, pAudio, pDataQOut->Type, DATA_CHANNEL_1, &nBytesIn, &nBytesGenerated);
 					// Place the processed data into the queue for the next module to process
 					Queue_Push(pDataQOut, pAudio, nBytesGenerated);
-					DoProcessing = 1;
+					DoMoreProcessing = 1;
 				}
 
 				// Second, do the data processing
@@ -174,7 +174,7 @@ void StartDataProcessTask(void const * argument)
 					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_1, pAudio, pDataQOut->Type, DATA_CHANNEL_1, &nBytesIn, &nBytesGenerated);
 					// Place the processed data into the queue for the next module to process
 					Queue_Push(pDataQOut, pAudio, nBytesGenerated);
-					DoProcessing = 1;
+					DoMoreProcessing = 1;
 				}
 
 				// Third, upsample and distribute to the output channels
@@ -200,10 +200,10 @@ void StartDataProcessTask(void const * argument)
 					nBytesIn = nBytesNeeded;
 					DataConvert(pAudioOut, DataOut.Type, DATA_CHANNEL_ANY, pAudio, osParams.USB_InQ->Type, DATA_CHANNEL_ALL, &nBytesIn, &nBytesGenerated);
 					Queue_Push(osParams.USB_InQ, pAudio, nBytesGenerated);
-					DoProcessing = 1;
+					DoMoreProcessing = 1;
 				}
 
-			}while(DoProcessing);
+			}while(DoMoreProcessing);
 		}
 	}
 }
