@@ -53,7 +53,8 @@ typedef struct
 	
 		DQueue_t	*USB_OutQ;				// Data Queue for USB OUT (Host -> Device) SPEAKER data 
 		DQueue_t	*USB_InQ;				// Data Queue for USB IN (Device -> Host) MIC data 
-	
+
+		DQueue_t	*RateSyncQ;				// Data Queue for Input rate-synchronized data
 }osObjects_t;
 
 extern osObjects_t osParams;

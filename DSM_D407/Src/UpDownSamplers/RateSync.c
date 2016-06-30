@@ -37,6 +37,7 @@
 #define  RATESYNC_BLOCK_BYTES_S  	(RATESYNC_BLOCK_SIZE * RATESYNC_ELEM_SIZE_S)
 
 
+ProfileData_t	RATESYNC_P;
 
 //
 // Input data resync module. The input sampling rate is reported by calling InClock.
@@ -63,10 +64,11 @@ void ratesync_close(void *pHandle)
 
 void ratesync_open(void *pHandle, uint32_t Params)
 {
-		RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
-		pRS->DeltaIn = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Input samples
-		pRS->DeltaOut = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Output samples
-		pRS->AddRemoveCnt = 0;
+	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
+	pRS->DeltaIn = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Input samples
+	pRS->DeltaOut = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Output samples
+	pRS->AddRemoveCnt = 0;
+	INIT_PROFILE(&RATESYNC_P);
 }
 
 void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
@@ -102,6 +104,9 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	float		NextInSample;
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
+	START_PROFILE(&RATESYNC_P);
+
+	
 	DeltaIn = pRS->DeltaIn; 
 	DeltaOut = pRS->DeltaOut;	
 	Delay = pRS->Delay;
@@ -126,7 +131,7 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 			// Calculate the FIR Filter coefficients
 			{	
 				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
-				D1 = (D0-1); D2 = (D0-2); D3 = (D0-3);
+				D1 = (D0-1.0f); D2 = (D1-1.0f); D3 = (D2-1.0f);
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
@@ -166,6 +171,8 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_M;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_M;
+
+	STOP_PROFILE(&RATESYNC_P);
 }
 
 void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -183,6 +190,8 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	float		NextInLSample, NextInRSample;
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
+	START_PROFILE(&RATESYNC_P);
+	
 	DeltaIn = pRS->DeltaIn; 
 	DeltaOut = pRS->DeltaOut;	
 	Delay = pRS->Delay;
@@ -211,7 +220,7 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 			// Calculate the FIR Filter coefficients
 			{	
 				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
-				D1 = (D0-1); D2 = (D0-2); D3 = (D0-3);
+				D1 = (D0-1.0f); D2 = (D1-1.0f); D3 = (D2-1.0f);
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
@@ -266,6 +275,7 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_S;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_S;
+	STOP_PROFILE(&RATESYNC_P);
 }
 
 
