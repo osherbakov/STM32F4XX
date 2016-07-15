@@ -99,7 +99,7 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	uint32_t 	TimeOut, DeltaOut;	// Time delta for output samples
 	uint32_t	idxIn, idxOut;
 	float		C0, C1, C2, C3;
-	float		D0, D1, D2, D3, accum;
+	float		D0, D1, D2, D3, D0D1, D2D3, accum;
 	float		S1, S2, S3;
 	float		NextInSample;
 	float		ONE, ONE_HALF, ONE_SIXTH;
@@ -138,15 +138,16 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 			{	
 				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
 				D1 = (D0-ONE); D2 = (D1-ONE); D3 = (D2-ONE);
+				D0D1 = D0*D1; D2D3 = D2*D3;
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
 				//Coeffs[3] = D*(D-1)*(D-2)/6.0f;
 				//calc_coeff(Coeffs, D, 4);
-				C0 = -D1*D2*D3*ONE_SIXTH;
-				C1 = D0*D2*D3*ONE_HALF;
-				C2 = -D0*D1*D3*ONE_HALF;
-				C3 = D0*D1*D2*ONE_SIXTH;
+				C0 = -D1*D2D3*ONE_SIXTH;
+				C1 = D0*D2D3*ONE_HALF;
+				C2 = -D0D1*D3*ONE_HALF;
+				C3 = D0D1*D2*ONE_SIXTH;
 			}
 			// Calculate Output value using data in[idxIn]
 			{
@@ -189,7 +190,7 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	uint32_t 	TimeOut, DeltaOut;	// Time delta for output samples
 	uint32_t	idxIn, idxOut;
 	float		C0, C1, C2, C3;
-	float		D0, D1, D2, D3, accum;
+	float		D0, D1, D2, D3, D0D1, D2D3, accum;
 	float		S1L, S2L, S3L;
 	float		S1R, S2R, S3R;
 	float		NextInLSample, NextInRSample;
@@ -233,15 +234,16 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 			{	
 				D0 =  ((float)Delay) /((float)DeltaIn);		// D0 is the fraction of the IN Samples time
 				D1 = (D0-ONE); D2 = (D1-ONE); D3 = (D2-ONE);
+				D0D1 = D0*D1; D2D3 = D2*D3;
 				//Coeffs[0] = -(D-1)*(D-2)*(D-3)/6.0f;
 				//Coeffs[1] = D*(D-2)*(D-3)/2.0f;
 				//Coeffs[2] = -D*(D-1)*(D-3)/2.0f;
 				//Coeffs[3] = D*(D-1)*(D-2)/6.0f;
 				//calc_coeff(Coeffs, D, 4);
-				C0 = -D1*D2*D3*ONE_SIXTH;
-				C1 = D0*D2*D3*ONE_HALF;
-				C2 = -D0*D1*D3*ONE_HALF;
-				C3 = D0*D1*D2*ONE_SIXTH;
+				C0 = -D1*D2D3*ONE_SIXTH;
+				C1 = D0*D2D3*ONE_HALF;
+				C2 = -D0D1*D3*ONE_HALF;
+				C3 = D0D1*D2*ONE_SIXTH;
 			}
 			// Calculate Output value using data in[idxIn]
 			{
