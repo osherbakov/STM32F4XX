@@ -38,22 +38,22 @@
 DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 {
 	if(nBytes == 0) return 0;
-	DQueue_t *pQ = osAlloc(sizeof(DQueue_t));	if(pQ == 0) return 0;
-	pQ->pBuffer = osAlloc(nBytes); if(pQ->pBuffer == 0) { osFree(pQ); return 0;}
-	pQ->Size = nBytes;
+	DQueue_t *pQueue = osAlloc(sizeof(DQueue_t));	if(pQueue == 0) return 0;
+	pQueue->pBuffer = osAlloc(nBytes); if(pQueue->pBuffer == 0) { osFree(pQueue); return 0;}
+	pQueue->Size = nBytes;
 	// Check if the type or channel number is not specified
 	// In that case use the provided Element Size field
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
-		pQ->Type = Type;
+		pQueue->Type = Type;
 	}else{
-		pQ->ElemType = Type >> 8;
-		pQ->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
+		pQueue->ElemType = Type >> 8;
+		pQueue->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
 	}
 	// The final sanity check - Element size cannot be 0!!!
-	if(pQ->ElemSize == 0) pQ->Type = 1;
-	Queue_Clear(pQ);
-	pQ->pNext = 0;
-	return pQ;
+	if(pQueue->ElemSize == 0) pQueue->Type = 1;
+	Queue_Clear(pQueue);
+	pQueue->pNext = 0;
+	return pQueue;
 }
 
 void Queue_Init(DQueue_t *pQueue, uint32_t Type)

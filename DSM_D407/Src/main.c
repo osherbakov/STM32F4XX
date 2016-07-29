@@ -88,7 +88,7 @@ int main(void)
 	osParams.RateSyncQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
 	
 	// Link output queues
-	osParams.USB_InQ->pNext =  osParams.PCM_OutQ;
+	osParams.PCM_OutQ->pNext = osParams.USB_InQ;
 	
 	/* Start scheduler */
 	osKernelStart();
