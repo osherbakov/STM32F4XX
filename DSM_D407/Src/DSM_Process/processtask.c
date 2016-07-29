@@ -34,15 +34,6 @@ extern DataProcessBlock_t  RATESYNC_S;
 int32_t	DATA_In, DATA_Out, DATA_InOut;
 
 
-// Allocate static ping-pong data buffers
-static float	sAudio0[2 * MAX_AUDIO_SAMPLES] CCMRAM;
-static float	sAudio1[2 * MAX_AUDIO_SAMPLES] CCMRAM;
-
-static void		*pAudio0 = sAudio0;
-static void		*pAudio1 = sAudio1;
-
-
-
 void InData(uint32_t nSamples) {
 	DATA_In += nSamples;
 	DATA_InOut = DATA_In - DATA_Out;
@@ -64,59 +55,6 @@ DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
 DataProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
-
-
-int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut) 
-{
-	DataPort_t	DataIn, DataOut;
-
-	uint32_t 	nBytesIn, nBytesNeeded, nBytesGenerated;
-	uint32_t 	nElemsIn, nElemsNeeded;
-	uint32_t	srcChMask, dstChMask;
-	
-	int			DoMoreProcessing = 0;
-	
-	// Get the info anout processing Module - number of channels, data format for In and Out
-	pModule->Info(pModuleState, &DataIn, &DataOut); 
-	
-	// How many elements are in the queue
-	nElemsIn = Queue_Count(pDataQIn)/pDataQIn->ElemSize;
-	// How many Elements we will need
-	nElemsNeeded = DataIn.Size/DataIn.ElemSize;
-	if(nElemsIn >= nElemsNeeded)
-	{
-		// How many bytes we have to pop
-		nBytesNeeded = nElemsNeeded * pDataQIn->ElemSize;
-		Queue_Pop(pDataQIn, pAudio0, nBytesNeeded);
-		
-		// Convert data from the Queue-provided type to the Processing-Module-required type  In->Out
-		if(DATA_TYPE_NUM_CHANNELS(pDataQIn->Type) == DATA_TYPE_NUM_CHANNELS(DataIn.Type)) {
-			srcChMask = dstChMask = DATA_CHANNEL_ALL;
-		}else {
-			srcChMask = DATA_CHANNEL_ANY; dstChMask = DATA_CHANNEL_ALL;
-		}
-		DataConvert(pAudio0, pDataQIn->Type, srcChMask, pAudio1, DataIn.Type, dstChMask, &nBytesNeeded, &nBytesGenerated);
-		//   Call data processing     
-		pModule->Process(pModuleState, pAudio1, pAudio0, &nBytesGenerated, &nBytesIn);
-		DoMoreProcessing = nBytesIn;
-
-		while(pDataQOut) 
-		{
-			nBytesIn = DoMoreProcessing;
-			// Convert data from the Processing-Module-provided type to the HW Queue type
-			if(DATA_TYPE_NUM_CHANNELS(pDataQOut->Type) == DATA_TYPE_NUM_CHANNELS(DataOut.Type)) {
-				srcChMask = dstChMask = DATA_CHANNEL_ALL;
-			}else {
-				srcChMask = DATA_CHANNEL_ANY; dstChMask = DATA_CHANNEL_ALL;
-			}
-			DataConvert(pAudio0, DataOut.Type, srcChMask, pAudio1, pDataQOut->Type, dstChMask, &nBytesIn, &nBytesGenerated);
-			// Place the processed data into the queue for the next module to process
-			Queue_Push(pDataQOut, pAudio1, nBytesGenerated);
-			pDataQOut = pDataQOut->pNext;
-		}
-	}
-	return DoMoreProcessing;
-}
 
 void StartDataProcessTask(void const * argument)
 {

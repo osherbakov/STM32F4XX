@@ -146,6 +146,7 @@ typedef struct DataProcessBlock {
 	Data_Close_t		*Close;
 } DataProcessBlock_t;
 
+extern int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut) ;
 
 #ifdef _MSC_VER
 #define CCMRAM
