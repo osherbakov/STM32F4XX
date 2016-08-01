@@ -209,6 +209,9 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	
 	srcAllMask = ((1 << srcChan) - 1);
 	dstAllMask = ((1 << dstChan) - 1);
+	
+	SrcChMask &= srcAllMask;
+	DstChMask &= dstAllMask;
 
 	nElements = (*pnSrcBytes / srcStep);
 	nGeneratedBytes = nElements * dstStep;

@@ -75,7 +75,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
+        <IsCurrentTarget>0</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
       <Books>
@@ -157,7 +157,7 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
-        <nTsel>5</nTsel>
+        <nTsel>11</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -245,8 +245,8 @@
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
-          <SubType>6</SubType>
-          <ItemText>pAudio</ItemText>
+          <SubType>9</SubType>
+          <ItemText>speech</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -278,7 +278,7 @@
         <AscS3>0</AscS3>
         <aSer3>0</aSer3>
         <eProf>0</eProf>
-        <aLa>1</aLa>
+        <aLa>0</aLa>
         <aPa1>0</aPa1>
         <AscS4>0</AscS4>
         <aSer4>1</aSer4>
@@ -308,11 +308,6 @@
           <IntNumber>2</IntNumber>
           <FirstString>\\DSM_407\../../Src/UpDownSamplers/RateSync.c\RATESYNC_P.Duty</FirstString>
           <SecondString>000080000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F5570446F776E53616D706C6572732F5261746553796E632E635C5241544553594E435F502E44757479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000003000000000000000000D03F1C0000000000000000000000000000000000000026790108</SecondString>
-        </Wi>
-        <Wi>
-          <IntNumber>3</IntNumber>
-          <FirstString>\\DSM_407\../../Src/MELP/module.c\MELP_P.Duty</FirstString>
-          <SecondString>000000000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F4D454C502F6D6F64756C652E635C4D454C505F502E4475747900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000004000000000000000000D03F1C0000000000000000000000000000000000000026790108</SecondString>
         </Wi>
       </LogicAnalyzers>
       <DebugDescription>
@@ -378,7 +373,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>0</IsCurrentTarget>
+        <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>18</CpuCode>
       <Books>
@@ -460,7 +455,7 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
-        <nTsel>5</nTsel>
+        <nTsel>11</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -591,7 +586,7 @@
         <AscS3>0</AscS3>
         <aSer3>0</aSer3>
         <eProf>0</eProf>
-        <aLa>1</aLa>
+        <aLa>0</aLa>
         <aPa1>0</aPa1>
         <AscS4>0</AscS4>
         <aSer4>1</aSer4>
@@ -619,11 +614,6 @@
         </Wi>
         <Wi>
           <IntNumber>2</IntNumber>
-          <FirstString>\\DSM_407\../../Src/MELP/module.c\MELP_P.Duty</FirstString>
-          <SecondString>000080000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F4D454C502F6D6F64756C652E635C4D454C505F502E4475747900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000003000000000000000000D03F18000000000000000000000000000000000000006C780108</SecondString>
-        </Wi>
-        <Wi>
-          <IntNumber>3</IntNumber>
           <FirstString>\\DSM_407\../../Src/UpDownSamplers/RateSync.c\RATESYNC_P.Duty</FirstString>
           <SecondString>000000000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F5570446F776E53616D706C6572732F5261746553796E632E635C5241544553594E435F502E44757479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000004000000000000000000D03F18000000000000000000000000000000000000006C780108</SecondString>
         </Wi>
@@ -1079,7 +1069,7 @@
 
   <Group>
     <GroupName>Middlewares/FreeRTOS</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1195,7 +1185,7 @@
 
   <Group>
     <GroupName>Application/MDK-ARM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1691,7 +1681,7 @@
 
   <Group>
     <GroupName>Codecs/CVSD</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1735,7 +1725,7 @@
 
   <Group>
     <GroupName>Codecs/CODEC2</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2019,7 +2009,7 @@
 
   <Group>
     <GroupName>Codecs/MELPe</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
