@@ -455,7 +455,7 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
-        <nTsel>11</nTsel>
+        <nTsel>5</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -507,49 +507,7 @@
           <WinNumber>1</WinNumber>
           <ItemText>DATA_InOut</ItemText>
         </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>DS48_8_P</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>US8_48_P</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>MELPE_P</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>ULAW_P</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>MELP_P</ItemText>
-        </Ww>
-        <Ww>
-          <count>6</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>CODEC_P</ItemText>
-        </Ww>
-        <Ww>
-          <count>7</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>RATESYNC_P</ItemText>
-        </Ww>
       </WatchWindow1>
-      <WatchWindow2>
-        <Ww>
-          <count>0</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>\\DSM_407\../../Src/MELP/module.c\MELP_P.Duty</ItemText>
-        </Ww>
-      </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -586,7 +544,7 @@
         <AscS3>0</AscS3>
         <aSer3>0</aSer3>
         <eProf>0</eProf>
-        <aLa>0</aLa>
+        <aLa>1</aLa>
         <aPa1>0</aPa1>
         <AscS4>0</AscS4>
         <aSer4>1</aSer4>
@@ -601,23 +559,6 @@
       <Lin2Executable></Lin2Executable>
       <Lin2ConfigFile></Lin2ConfigFile>
       <bLin2Auto>0</bLin2Auto>
-      <LogicAnalyzers>
-        <Wi>
-          <IntNumber>0</IntNumber>
-          <FirstString>\\DSM_407\../../Src/UpDownSamplers/UpDown8_48_F32.c\DS48_8_P.Duty</FirstString>
-          <SecondString>FF0000000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F5570446F776E53616D706C6572732F5570446F776E385F34385F4633322E635C445334385F385F502E447574790000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000001000000000000000000D03F180000000000000000000000000000000000000028030008</SecondString>
-        </Wi>
-        <Wi>
-          <IntNumber>1</IntNumber>
-          <FirstString>\\DSM_407\../../Src/UpDownSamplers/UpDown8_48_F32.c\US8_48_P.Duty</FirstString>
-          <SecondString>008000000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F5570446F776E53616D706C6572732F5570446F776E385F34385F4633322E635C5553385F34385F502E447574790000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000002000000000000000000D03F180000000000000000000000000000000000000028030008</SecondString>
-        </Wi>
-        <Wi>
-          <IntNumber>2</IntNumber>
-          <FirstString>\\DSM_407\../../Src/UpDownSamplers/RateSync.c\RATESYNC_P.Duty</FirstString>
-          <SecondString>000000000000000000000000000000000000F03F000000000000000000000000000000005C5C44534D5F3430375C2E2E2F2E2E2F5372632F5570446F776E53616D706C6572732F5261746553796E632E635C5241544553594E435F502E44757479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000004000000000000000000D03F18000000000000000000000000000000000000006C780108</SecondString>
-        </Wi>
-      </LogicAnalyzers>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>
@@ -1069,7 +1010,7 @@
 
   <Group>
     <GroupName>Middlewares/FreeRTOS</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

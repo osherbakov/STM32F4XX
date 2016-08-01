@@ -21,8 +21,6 @@
 static float    speech[CODEC2_BUFF_SIZE] CCMRAM;
 static unsigned char bits[64] CCMRAM;
 
-ProfileData_t	CODEC_P;
-
 void *codec2_create(uint32_t Params)
 {
 	int mem_req = codec2_state_memory_req();
@@ -39,7 +37,6 @@ void codec2_deinit(void *pHandle)
 void codec2_open(void *pHandle, uint32_t Params)
 {
 	codec2_init(pHandle, CODEC2_MODE_3200);
-	INIT_PROFILE(&CODEC_P);
 }
 
 void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -49,7 +46,6 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInB
 	uint32_t	frame_bytes =  frame_size * 4;
 	while(*pInBytes >= frame_bytes)
 	{
-		START_PROFILE(&CODEC_P);
 		arm_scale_f32(pDataIn, 32767.0f, speech, frame_size);
 		codec2_encode(pHandle, bits, speech);
 		codec2_decode(pHandle, speech, bits);
@@ -59,7 +55,6 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInB
 		pDataOut =  (void *)((uint32_t)pDataOut + frame_bytes);
 		*pInBytes -= frame_bytes;
 		nGenerated += frame_bytes;		
-		STOP_PROFILE(&CODEC_P);
 	}
 	*pOutBytes = nGenerated;
 }

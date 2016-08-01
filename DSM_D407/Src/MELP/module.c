@@ -23,8 +23,6 @@ static unsigned char 	chan_buffer[NUM_CH_BITS] 	CCMRAM;
 struct melp_param	melp_ana_par CCMRAM;                 /* melp analysis parameters */
 struct melp_param	melp_syn_par CCMRAM;                 /* melp synthesis parameters */
 
-ProfileData_t	MELP_P;
-
 void *melp_create(uint32_t Params)
 {
 	return 0;
@@ -40,7 +38,6 @@ void melp_open(void *pHandle, uint32_t Params)
 	/* ====== Initialize MELP analysis and synthesis ====== */
 	melp_ana_init(&melp_ana_par);
 	melp_syn_init(&melp_syn_par);
-	INIT_PROFILE(&MELP_P);
 }
 
 
@@ -50,7 +47,6 @@ void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	
 	while(*pInBytes >= MELP_FRAME_BYTES )
 	{
-		START_PROFILE(&MELP_P);
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
 		melp_ana(speech, &melp_ana_par, chan_buffer);
 		melp_syn(&melp_syn_par, speech, chan_buffer);
@@ -59,7 +55,6 @@ void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 		pDataOut = (void *)((uint32_t)pDataOut + MELP_FRAME_BYTES );
 		*pInBytes -= MELP_FRAME_BYTES ;
 		nGenerated += MELP_FRAME_BYTES ;
-		STOP_PROFILE(&MELP_P);
 	}
 	*pOutBytes =  nGenerated;
 }

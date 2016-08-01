@@ -126,18 +126,6 @@ typedef void 	Data_Info_t(void *pHandle, DataPort_t *pDataIn, DataPort_t *pDataO
 typedef void 	Data_Process_t(void *pHandle, void *pIn, void *pOut, uint32_t *pInBytes, uint32_t *pOutBytes);
 typedef void 	Data_Close_t(void *pHandle);
 
-typedef struct ProfileData {
-	uint32_t	tPrev;
-	uint32_t	tStart;
-	float		Duty;
-} ProfileData_t;	
-
-#define		INIT_PROFILE(a)		do{(a)->tPrev = DWT->CYCCNT; (a)->Duty=0;}while(0)
-#define		START_PROFILE(a)	do{(a)->tStart = DWT->CYCCNT;}while(0)
-#define		STOP_PROFILE(a)		do{	uint32_t t=(a)->tStart-(a)->tPrev;(a)->tPrev=(a)->tStart;\
-									uint32_t d=DWT->CYCCNT-(a)->tStart;\
-									(a)->Duty=(a)->Duty*0.9f+(0.1f*d)/t; }while(0)
-
 typedef struct DataProcessBlock {
 	Data_Create_t		*Create;
 	Data_Open_t			*Open;

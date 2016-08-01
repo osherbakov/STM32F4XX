@@ -37,8 +37,6 @@
 #define  RATESYNC_BLOCK_BYTES_S  	(RATESYNC_BLOCK_SIZE * RATESYNC_ELEM_SIZE_S)
 
 
-ProfileData_t	RATESYNC_P;
-
 //
 // Input data resync module. The input sampling rate is reported by calling InClock.
 //  The output data rate is hard linked to the CPU clock and is equal to SAMPLE_FREQ
@@ -68,7 +66,6 @@ void ratesync_open(void *pHandle, uint32_t Params)
 	pRS->DeltaIn = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Input samples
 	pRS->DeltaOut = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Output samples
 	pRS->AddRemoveCnt = 0;
-	INIT_PROFILE(&RATESYNC_P);
 }
 
 void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
@@ -106,9 +103,6 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
-	START_PROFILE(&RATESYNC_P);
-
-	
 	DeltaIn = pRS->DeltaIn; 
 	DeltaOut = pRS->DeltaOut;	
 	Delay = pRS->Delay;
@@ -177,8 +171,6 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_M;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_M;
-
-	STOP_PROFILE(&RATESYNC_P);
 }
 
 void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -198,8 +190,6 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
-	START_PROFILE(&RATESYNC_P);
-	
 	DeltaIn = pRS->DeltaIn; 
 	DeltaOut = pRS->DeltaOut;	
 	Delay = pRS->Delay;
@@ -288,7 +278,6 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_S;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_S;
-	STOP_PROFILE(&RATESYNC_P);
 }
 
 

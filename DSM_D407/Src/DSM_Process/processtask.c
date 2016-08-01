@@ -95,8 +95,9 @@ void StartDataProcessTask(void const * argument)
 	
 		// Wait for the next IN Audio data packet to arrive (either from I2S MIC, or from the USB)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
-		// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
 		pDataQIn = (DQueue_t *) event.value.p;
+
+		// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
 		if( pDataQIn->isReady ) // Message came that some valid Input Data is present
 		{
 			do {

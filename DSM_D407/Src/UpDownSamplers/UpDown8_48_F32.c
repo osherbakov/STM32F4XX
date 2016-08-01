@@ -50,8 +50,6 @@ static float UpSample8_48_Coeff[UPSAMPLE_TAPS] RODATA = {
 
 static arm_fir_decimate_instance_f32 Dec CCMRAM ;
 
-ProfileData_t	DS48_8_P CCMRAM;
-ProfileData_t	US8_48_P CCMRAM;
 
 static void *ds_48_8_create(uint32_t Params)
 {
@@ -67,13 +65,11 @@ static void ds_48_8_open(void *pHandle,uint32_t Params)
 {
 	arm_fir_decimate_init_f32(pHandle, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
 	DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
-	INIT_PROFILE(&DS48_8_P);
 }
 
 static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	START_PROFILE(&DS48_8_P);
 	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES)
 	{
 		arm_fir_decimate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE);
@@ -82,7 +78,6 @@ static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES;
 		nGenerated += DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 	}
-	STOP_PROFILE(&DS48_8_P);
 	*pOutBytes = nGenerated;
 }
 
@@ -115,13 +110,11 @@ static void us_8_48_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_interpolate_init_f32(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
 			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
-	INIT_PROFILE(&US8_48_P);
 }
 
 static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
-	START_PROFILE(&US8_48_P);
 	while(*pInBytes >= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO)
 	{
 		arm_fir_interpolate_f32(pHandle, pDataIn, pDataOut, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
@@ -130,7 +123,6 @@ static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32
 		*pInBytes -= DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 		nGenerated += DOWNSAMPLE_BLOCK_BYTES;
 	}
-	STOP_PROFILE(&US8_48_P);
 	*pOutBytes = nGenerated;
 }
 

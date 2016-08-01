@@ -23,8 +23,6 @@
 static int16_t			speech[BLOCK] CCMRAM;
 static unsigned char 	chan_buffer[NUM_CH_BITS]  CCMRAM;
 
-ProfileData_t	MELPE_P;
-
 void *melpe_create(uint32_t Params)
 {
 	return 0;
@@ -46,7 +44,6 @@ void melpe_open(void *pHandle, uint32_t Params)
 	
 	melp_ana_init_q(melp_parameters);
 	melp_syn_init_q(melp_parameters);
-	INIT_PROFILE(&MELPE_P);
 }
 
 void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -57,7 +54,6 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBy
 	
 	while(*pInBytes >= nFrameBytes)
 	{
-		START_PROFILE(&MELPE_P);
 		arm_float_to_q15(pDataIn, speech, nFrameSize);
 #if NPP
 		if (melp_parameters->rate == RATE1200){
@@ -74,7 +70,6 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBy
 		pDataOut = (void *)((int32_t)pDataOut + nFrameBytes);
 		*pInBytes -= nFrameBytes;
 		nGenerated += nFrameBytes;
-		STOP_PROFILE(&MELPE_P);
 	}
 	*pOutBytes = nGenerated;
 }

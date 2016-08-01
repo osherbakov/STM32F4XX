@@ -17,8 +17,6 @@
 #define AU_LAW_BLOCK_SIZE   		(60)
 #define AU_LAW_BLOCK_BYTES			(AU_LAW_BLOCK_SIZE * 2)   		
 
-ProfileData_t	ULAW_P;
-
 static uint8_t dataBits[AU_LAW_BLOCK_SIZE] CCMRAM;
 
 void *aulaw_create(uint32_t Params)
@@ -33,7 +31,6 @@ void aulaw_close(void *pHandle)
 
 void aulaw_open(void *pHandle, uint32_t Params)
 {
-	INIT_PROFILE(&ULAW_P);
 }
 
 void alaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -41,14 +38,12 @@ void alaw_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	uint32_t	nGenerated = 0;
 	while(*pInBytes >= AU_LAW_BLOCK_BYTES)
 	{
-		START_PROFILE(&ULAW_P);
 		alaw_encode_q15(pHandle, dataBits, pDataIn, AU_LAW_BLOCK_SIZE);
 		alaw_decode_q15(pHandle, pDataOut, dataBits, AU_LAW_BLOCK_SIZE);
 		pDataIn = (void *)((uint32_t)pDataIn + AU_LAW_BLOCK_BYTES);
 		pDataOut = (void *)((uint32_t)pDataOut + AU_LAW_BLOCK_BYTES);
 		*pInBytes -= AU_LAW_BLOCK_BYTES;
 		nGenerated += AU_LAW_BLOCK_BYTES;
-		STOP_PROFILE(&ULAW_P);
 	}
 	*pOutBytes = nGenerated;
 }
