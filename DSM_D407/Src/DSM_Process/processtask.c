@@ -50,7 +50,7 @@ void OutData(uint32_t nSamples) {
 //
 
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&MELPE;
+DataProcessBlock_t  *pProcModule = 	&ULAW;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
@@ -103,14 +103,11 @@ void StartDataProcessTask(void const * argument)
 			do {
 				DoMoreProcessing = 0;
 				// Rate-sync the input 48Ksamples/sec signal
-//				DoMoreProcessing += DoProcessing(pDataQIn, pSyncModule, pRSyncState, osParams.RateSyncQ);
+				DoMoreProcessing += DoProcessing(pDataQIn, pSyncModule, pRSyncState, osParams.RateSyncQ);
 				// Downsample, if neccessary, the received signal
-//				DoMoreProcessing += DoProcessing(osParams.RateSyncQ, pDecModule, pDecState, osParams.DownSampleQ);
-				DoMoreProcessing += DoProcessing(pDataQIn, pDecModule, pDecState, osParams.DownSampleQ);
-//				DoMoreProcessing += DoProcessing(pDataQIn, pDecModule, pDecState, osParams.DownSampleQ);
+				DoMoreProcessing += DoProcessing(osParams.RateSyncQ, pDecModule, pDecState, osParams.DownSampleQ);
 				// Do the data processing
 				DoMoreProcessing += DoProcessing(osParams.DownSampleQ, pProcModule, pProcModuleState, osParams.UpSampleQ);
-//				DoMoreProcessing += DoProcessing(pDataQIn, pProcModule, pProcModuleState, osParams.PCM_OutQ);
 				// Upsample and distribute to the output channels
 				DoMoreProcessing += DoProcessing(osParams.UpSampleQ, pIntModule, pIntState, osParams.PCM_OutQ);
 			}while(DoMoreProcessing);
