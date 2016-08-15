@@ -51,7 +51,6 @@ typedef enum DataChannels
 
 #define DATA_TYPE_SIZE(a)  			((((a) & DATA_TYPE_MASK) >> DATA_TYPE_SHIFT) + 1)
 #define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_CH_MASK) >> DATA_CH_SHIFT) + 1)
-#define DATA_TYPE_ELEM_SIZE(a)  	(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
 #define DATA_ELEM_SIZE(a)  			((a) & DATA_SIZE_MASK)
 
 typedef enum DataChannelsMask
