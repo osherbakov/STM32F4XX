@@ -42,18 +42,7 @@ DQueue_t *Queue_Create(uint32_t nBytes, uint32_t Type)
 	DQueue_t *pQueue = osAlloc(sizeof(DQueue_t));	if(pQueue == 0) return 0;
 	pQueue->pBuffer = osAlloc(nBytes); if(pQueue->pBuffer == 0) { osFree(pQueue); return 0;}
 	pQueue->Size = nBytes;
-	// Check if the type or channel number is not specified
-	// In that case use the provided Element Size field
-	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
-		pQueue->Type = Type;
-	}else{
-		pQueue->ElemType = Type >> 8;
-		pQueue->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
-	}
-	// The final sanity check - Element size cannot be 0!!!
-	if(pQueue->ElemSize == 0) pQueue->Type = 1;
-	Queue_Clear(pQueue);
-	pQueue->pNext = 0;
+	Queue_Init(pQueue, Type);
 	return pQueue;
 }
 
@@ -64,11 +53,10 @@ void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) == 0){
 		pQueue->Type = Type;
 	}else{
-		pQueue->ElemType = Type >> 8;
-		pQueue->ElemSize = DATA_TYPE_ELEM_SIZE(Type);
+		pQueue->Type = (Type & ~DATA_SIZE_MASK) | DATA_TYPE_ELEM_SIZE(Type);
 	}
 	// The final sanity check - Element size cannot be 0!!!
-	if(pQueue->ElemSize == 0) pQueue->Type = 1;
+	if(DATA_TYPE_ELEM_SIZE(Type) == 0) pQueue->Type = 0x0001;
 	Queue_Clear(pQueue);
 	pQueue->pNext = 0;
 }
@@ -198,8 +186,8 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	void *pS, *pD;
 	
 
-	srcStep = (SrcType & 0x00FF); 		// Step size to get the next element
-	dstStep = (DstType & 0x00FF);
+	srcStep = DATA_ELEM_SIZE(SrcType); 		// Step size to get the next element
+	dstStep = DATA_ELEM_SIZE(DstType);
 	
 	srcSize = DATA_TYPE_SIZE(SrcType);	// Size of one datatype(1,2,3,4 bytes)
 	dstSize = DATA_TYPE_SIZE(DstType);
@@ -420,13 +408,13 @@ int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModul
 	pModule->Info(pModuleState, &DataIn, &DataOut); 
 	
 	// How many elements are in the queue
-	nElemsIn = Queue_Count(pDataQIn)/pDataQIn->ElemSize;
+	nElemsIn = Queue_Count(pDataQIn)/DATA_ELEM_SIZE(pDataQIn->Type);
 	// How many Elements we will need
-	nElemsNeeded = DataIn.Size/DataIn.ElemSize;
+	nElemsNeeded = DataIn.Size/DATA_ELEM_SIZE(DataIn.Type);
 	if(nElemsIn >= nElemsNeeded)
 	{
 		// How many bytes we have to pop
-		nBytesNeeded = nElemsNeeded * pDataQIn->ElemSize;
+		nBytesNeeded = nElemsNeeded * DATA_ELEM_SIZE(pDataQIn->Type);
 		Queue_Pop(pDataQIn, pAudio0, nBytesNeeded);
 		
 		// Convert data from the Queue-provided type to the Processing-Module-required type  In->Out

@@ -21,6 +21,7 @@ typedef enum DataType
 	DATA_TYPE_F32		= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
 // Variuos masks to extract needed info from the type	
 	DATA_TYPE_MASK		= 0x0F00,
+	DATA_SIZE_MASK		= 0x00FF,
 	DATA_RANGE_MASK		= 0x0100,		// Range is (-1.0 +1.0) - can be Fixed or Floating
 	DATA_FP_MASK		= 0x0200,		// Floating Point representation
 	DATA_TYPE_SHIFT   	= 10			// Shift amount to extract data type
@@ -51,6 +52,7 @@ typedef enum DataChannels
 #define DATA_TYPE_SIZE(a)  			((((a) & DATA_TYPE_MASK) >> DATA_TYPE_SHIFT) + 1)
 #define DATA_TYPE_NUM_CHANNELS(a) 	((((a) & DATA_CH_MASK) >> DATA_CH_SHIFT) + 1)
 #define DATA_TYPE_ELEM_SIZE(a)  	(DATA_TYPE_SIZE(a) * DATA_TYPE_NUM_CHANNELS(a))
+#define DATA_ELEM_SIZE(a)  			((a) & DATA_SIZE_MASK)
 
 typedef enum DataChannelsMask
 {
@@ -67,25 +69,13 @@ typedef enum DataChannelsMask
 } DataChannelsMask_t;
 
 typedef struct DBuffer {
-	union {
-		uint16_t		Type;
-		struct {
-			uint8_t		ElemSize;		// Size of the element in bytes
-			uint8_t		ElemType;		// Type of the element in the buffer
-		};
-	};						
+	uint16_t	Type;
 	uint16_t	Size;			// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 	uint8_t		*pBuffer;		// Pointer to the actual data storage for the Buffer
 } DBuffer_t;
 
 typedef struct DQueue {
-	union {
-		uint16_t		Type;
-		struct {
-			uint8_t		ElemSize;		// Size of the element in bytes
-			uint8_t		ElemType;		// Type of the element in the buffer
-		};
-	};						// All info about data in the queue - Type, Element Size
+	uint16_t	Type;
 	uint16_t	Size;		// Total size of the buffer/queue in bytes (must be a multiple of ElemSize)
 	uint8_t		*pBuffer;	// Pointer to the actual data storage for the queue
 	uint16_t	iGet;		// Get Index
@@ -97,14 +87,8 @@ typedef struct DQueue {
 // The structure that specifies the information about In/Out Data Port
 // It may be used to allocate queues connecting different modules
 typedef struct DataPort {
-	union {
-		uint16_t	Type;
-		struct {
-			uint8_t	ElemSize;		// Size of the element in bytes
-			uint8_t	ElemType;		// Type of the element in the buffer
-		};
-	};						// All info about data in the queue - Type, Element Size
-	uint16_t		Size;	// Required size in bytes (must be a multiple of ElemSize)
+	uint16_t	Type;
+	uint16_t	Size;	// Required size in bytes (must be a multiple of ElemSize)
 } DataPort_t;
 
 
