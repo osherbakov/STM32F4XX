@@ -50,12 +50,10 @@ void Queue_Init(DQueue_t *pQueue, uint32_t Type)
 {
 	// Check if the type or channel number is not specified
 	// In that case use the provided Element Size field
-	if((Type & (DATA_TYPE_MASK | DATA_CH_MASK )) != 0)
+	if((Type & DATA_SIZE_MASK) == 0)
 	{
-		Type = (Type & ~DATA_SIZE_MASK) | ((DATA_TYPE_SIZE(Type) * DATA_TYPE_NUM_CHANNELS(Type)));
+		Type = Type | ((DATA_TYPE_SIZE(Type) * DATA_TYPE_NUM_CHANNELS(Type)));
 	}
-	// The final sanity check - Element size cannot be 0!!!
-	if(DATA_ELEM_SIZE(Type) == 0) Type = 0x0001;
 	pQueue->Type = Type;
 	Queue_Clear(pQueue);
 	pQueue->pNext = 0;
