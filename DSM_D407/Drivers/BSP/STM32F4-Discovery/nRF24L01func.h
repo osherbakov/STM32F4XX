@@ -396,29 +396,6 @@ s   *
    */
   void RF24_whatHappened(int *tx_ok,int *tx_fail,int *rx_ready);
 
-  /**
-   * Non-blocking write to the open writing pipe used for buffered writes
-   *
-   * @note Optimization: This function now leaves the CE pin high, so the radio
-   * will remain in TX or STANDBY-II Mode until a txStandBy() command is issued. Can be used as an alternative to startWrite()
-   * if writing multiple payloads at once.
-   * @warning It is important to never keep the nRF24L01 in TX mode with FIFO full for more than 4ms at a time. If the auto
-   * retransmit/autoAck is enabled, the nRF24L01 is never in TX mode long enough to disobey this rule. Allow the FIFO
-   * to clear by issuing txStandBy() or ensure appropriate time between transmissions.
-   *
-   * @see write()
-   * @see writeFast()
-   * @see startWrite()
-   * @see writeBlocking()
-   *
-   * For single noAck writes see:
-   * @see enableDynamicAck()
-   * @see setAutoAck()
-   *
-   * @param buf Pointer to the data to be sent
-   * @param len Number of bytes to be sent
-   */
-  void RF24_writeFast( const void* buf, uint8_t len);
   
   /**
    * Empty the transmit buffer. This is generally not required in standard operation.
@@ -714,17 +691,6 @@ s   *
    * @return Current value of status register
    */
   uint8_t RF24_write_register(uint8_t reg, uint8_t value);
-
-  /**
-   * Write the transmit payload
-   *
-   * The size of data written is the fixed payload size, see getPayloadSize()
-   *
-   * @param buf Where to get the data
-   * @param len Number of bytes to be sent
-   * @return Current value of status register
-   */
-  uint8_t RF24_write_payload(const void* buf, uint8_t len);
 
   /**
    * Write the transmit payload and no ACK is required

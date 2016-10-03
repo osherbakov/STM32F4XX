@@ -287,12 +287,6 @@ void RF24_powerUp(void)
    }
 }
 
-/****************************************************************************/
-void RF24_writeFast( const void* buf, uint8_t len)
-{
-	RF24_write_payload(buf, len); 
-}
-
 int RF24_writeAck( const void* buf, uint8_t len)
 {
 	//Send ONLY when Tx FIFO is empty - we need this to keep predictable timing.
@@ -738,7 +732,7 @@ void ProcessRF24(void)
 	if(RxMode == 0){
 		//			RF24_stopListeningFast();		
 		// RF24_setChannel(TxChannel++);
-		RF24_writeFast(_Tx, 16);
+		RF24_write_payload(_Tx, 16);
 		//			RxMode = 1;
 	}else{
 		//			RF24_startListeningFast();
