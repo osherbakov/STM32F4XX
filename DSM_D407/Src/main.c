@@ -146,9 +146,6 @@ void SystemClock_Config(void)
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
-extern int    rxOK;
-extern int		rxPass;
-
 void StartDefaultTask(void const * argument)
 {
 	int buttonState;	// User button State
@@ -161,9 +158,6 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
     osDelay(100);
-		rxPass = rxOK;
-		rxOK = 0;
-
 		// Check the USER button and switch to the next mode if pressed
 		if( BSP_PB_GetState(BUTTON_KEY) != buttonState )
 		{

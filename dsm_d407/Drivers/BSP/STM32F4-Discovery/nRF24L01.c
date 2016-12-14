@@ -11,15 +11,13 @@ static  SPI_HandleTypeDef    *pSpiHandle;
 static  volatile uint32_t	SPI_inprogress;
 static 	uint8_t txBuffer[MAX_PAYLOAD_SIZE + 1];
 static 	uint8_t rxBuffer[MAX_PAYLOAD_SIZE + 1];
-int     rxOK = 0;
-int			rxPass;
 
 #define		LOW  	(0)
 #define		HIGH	(1)
 
 #define  init_obj(a)		do{int32_t oldPRI=__get_PRIMASK();__disable_irq();(a) = 0; __set_PRIMASK(oldPRI);}while(0)
 #define  lock_obj(a) 		do{int32_t oldPRI=__get_PRIMASK();__disable_irq();if((a) == 0){(a) = 1; break;}__set_PRIMASK(oldPRI);}while(1)
-#define  release_obj(a) do{(a) = 0;__enable_irq();}while(0)
+#define  release_obj(a) 	do{(a) = 0;__enable_irq();}while(0)
 #define  keep_obj(a) 		do{__enable_irq();}while(0)
 
 
@@ -198,11 +196,8 @@ void NRF24L01_TxFail_CallBack(void)
 
 extern void RF24_read_payload( void* buf, uint8_t len );
 extern void RF24_flushRx(void);
-// static uint8_t RxBuffer[MAX_PAYLOAD_SIZE];
 
 void NRF24L01_RxReady_CallBack(void)
 {
-//	RF24_read_payload(RxBuffer, 16);
 	RF24_flushRx();	
-	rxOK++;
 }
