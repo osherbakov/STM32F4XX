@@ -31,17 +31,9 @@
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _MSC_VER
 #include "stm32f4_discovery.h"
-#ifndef ARM_MATH_CM4
-#define ARM_MATH_CM4
-#endif
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-#include <stdint.h>
 #include "cmsis_os.h"
 static inline void exit(int a){ do{}while(a);}
-#endif
 
 #include "arm_math.h"
 #include "arm_const_structs.h"

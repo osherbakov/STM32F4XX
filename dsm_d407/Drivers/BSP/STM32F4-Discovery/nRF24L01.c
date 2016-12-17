@@ -25,13 +25,13 @@ static 	uint8_t rxBuffer[MAX_PAYLOAD_SIZE + 1];
 /* NRF24L01 Chip Select functions */
 static inline void NRF24L01_CS(uint32_t newState)
 {	
-	return HAL_GPIO_WritePin(NRF24_CS_GPIO_PORT, NRF24_CS_PIN, (GPIO_PinState) newState);
+	HAL_GPIO_WritePin(NRF24_CS_GPIO_PORT, NRF24_CS_PIN, (GPIO_PinState) newState);
 }
 
 /* NRF24L01 Chip Enable functions */
 void NRF24L01_CE(uint32_t newState)
 {	
-	return HAL_GPIO_WritePin(NRF24_CE_GPIO_PORT, NRF24_CE_PIN, (GPIO_PinState) newState);
+	HAL_GPIO_WritePin(NRF24_CE_GPIO_PORT, NRF24_CE_PIN, (GPIO_PinState) newState);
 }
 
 /**

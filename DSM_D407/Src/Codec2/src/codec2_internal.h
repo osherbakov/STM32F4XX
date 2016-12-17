@@ -30,6 +30,8 @@
 #define __CODEC2_INTERNAL__
 #include "mat.h"
 
+#pragma anon_unions
+
 #define PMAX_M      600		/* maximum NLP analysis window size     */
 #define DEC         5		/* decimation factor                    */
 #define NLP_NTAP	48	    /* Decimation LPF order */

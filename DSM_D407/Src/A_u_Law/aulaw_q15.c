@@ -1,15 +1,9 @@
-#ifndef _MSC_VER
-#ifndef ARM_MATH_CM4
-#define ARM_MATH_CM4
-#endif
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-#include <stdint.h>
-#endif
+#include "arm_math.h" 
+#include "arm_const_structs.h"
 
 #include "aulaw_q15.h"
 #include "aulaw_data_q15.h"
-#include <arm_math.h> 
+
 
 #define ALAW_MAX 0xFFF
 #define MULAW_MAX 0x1FFF

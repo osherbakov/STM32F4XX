@@ -1,10 +1,3 @@
-#define ARM_MATH_CM4
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-
-#include <stdint.h>
-#include "cmsis_os.h"
-
 #include "arm_math.h"
 #include "arm_const_structs.h"
 

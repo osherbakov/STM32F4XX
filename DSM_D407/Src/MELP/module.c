@@ -1,5 +1,4 @@
 /*  compiler include files  */
-#define	 ARM_MATH_CM4 
 #include "mat.h"
 #include "melp.h"
 #include "dsp_sub.h"

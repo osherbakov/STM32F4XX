@@ -2,15 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef _MSC_VER
-#ifndef ARM_MATH_CM4
-#define ARM_MATH_CM4
-#endif
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-#include <stdint.h>
-#endif
-
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include "cvsd_f32.h"

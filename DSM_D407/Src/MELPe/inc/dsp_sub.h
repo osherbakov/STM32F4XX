@@ -36,6 +36,7 @@ Secretariat fax: +33 493 65 47 16.
 
 
 #include "arm_math.h"
+#include "arm_const_structs.h"
 
 void	envelope_q(int16_t input[], int16_t prev_in, int16_t output[],
 				 int16_t npts);

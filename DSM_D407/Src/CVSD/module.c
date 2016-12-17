@@ -1,13 +1,3 @@
-#ifndef _MSC_VER
-#ifndef ARM_MATH_CM4
-#define ARM_MATH_CM4
-#endif
-#define __TARGET_FPU_VFP 1
-#define __FPU_PRESENT 1
-#include <stdint.h>
-#include "cmsis_os.h"
-#endif
-
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include "cvsd_f32.h"
@@ -177,5 +167,4 @@ void cvsd_decode_data_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 DataProcessBlock_t  CVSD_DEC = {cvsd_decode_create, cvsd_decode_open, cvsd_decode_data_info, cvsd_decode_process, cvsd_decode_close};
-
 
