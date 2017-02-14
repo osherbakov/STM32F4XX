@@ -27,30 +27,36 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_FREERTOS_Init(void);
+
+//Global variables to be shared across modules
+osObjects_t osParams;
 
 int main(void)
 {
-  /* MCU Configuration----------------------------------------------------------*/
+	osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
+	osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
+	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	osMessageQDef(DATAREADY, 32, uint32_t);
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_CRC_Init();
-  MX_I2C1_Init();
-  MX_I2S2_Init();
-  MX_I2S3_Init();
-  MX_RNG_Init();
-  MX_SPI1_Init();
-  MX_TIM10_Init();
-  /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
+	/* Configure the system clock */
+	SystemClock_Config();
+
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_DMA_Init();
+	MX_CRC_Init();
+	MX_I2C1_Init();
+	MX_I2S2_Init();
+	MX_I2S3_Init();
+	MX_RNG_Init();
+	MX_SPI1_Init();
+	MX_TIM10_Init();
+	/* init code for USB_DEVICE */
+	MX_USB_DEVICE_Init();
 
 	/* Initialize all BSP features that we want to use - LEDS, buttons, Audio  */
 	BSP_LED_Init(LED3);
@@ -64,11 +70,18 @@ int main(void)
 
 	osParams.audioInMode =  AUDIO_MODE_IN_MIC;
 
-	/* Call init function for freertos objects (in freertos.c) */
-	MX_FREERTOS_Init();
-
 	/* Allocate and initialize data queues that will be used to pass data between tasks */
 	/* Technically, we can do that at the beginning of the task, but the safest way is to allocate them now, before any task is run */
+
+	/* Create the thread(s) */
+	osThreadCreate(osThread(defaultTask), NULL);
+
+	// The Thread that will handle input data
+	osThreadCreate(osThread(pdmInTask), &osParams);
+	// The thread that processes the data
+	osThreadCreate(osThread(dataProcessTask), &osParams);
+
+	osParams.dataInReadyMsg = osMessageCreate(osMessageQ(DATAREADY), 0);
 
 	// Queues to pass data to/from USB
 	osParams.USB_OutQ = Queue_Create(MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
