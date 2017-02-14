@@ -3,6 +3,23 @@
 
 #include <stdint.h>
 
+#define MAX_PAYLOAD_SIZE   (32)
+
+#ifndef TRUE 
+#define TRUE  (1)
+#endif
+#ifndef FALSE
+#define FALSE (0)
+#endif
+#ifndef HIGH 
+#define HIGH  	(1)
+#endif
+#ifndef LOW
+#define LOW 	(0)
+#endif
+
+#define _BV(x) (1<<(x))
+
 /* Link functions for nRF24L01+ peripheral */
 void		NRF24L01_Init(void *pSPIHandle);
 uint8_t		NRF24L01_Write(uint8_t WriteReg, uint8_t *pBuffer,  uint32_t NumBytesToWrite);

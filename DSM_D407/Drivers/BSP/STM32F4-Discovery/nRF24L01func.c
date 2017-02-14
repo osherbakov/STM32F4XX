@@ -7,26 +7,13 @@
  */
 
 #include "nRF24L01.h"
-#include "nRF24L01conf.h"
 #include "nRF24L01regs.h"
 #include "nRF24L01func.h"
 
+#include <string.h>
+
+
 #define RF24_ce(a) NRF24L01_CE(a)
-
-#define MAX_PAYLOAD_SIZE   (32)
-
-#ifndef TRUE 
-#define TRUE  (1)
-#endif
-#ifndef FALSE
-#define FALSE (0)
-#endif
-#ifndef HIGH 
-#define HIGH  	(1)
-#endif
-#ifndef LOW
-#define LOW 	(0)
-#endif
 
 extern uint32_t HAL_GetTick(void);
 extern void		HAL_Delay(uint32_t delay_ms);
@@ -202,17 +189,17 @@ void RF24_Init()
 }
 
 /****************************************************************************/
-static const uint8_t child_pipe[] PROGMEM =
+static const uint8_t child_pipe[]=
 {
   RX_ADDR_P0, RX_ADDR_P1, RX_ADDR_P2, RX_ADDR_P3, RX_ADDR_P4, RX_ADDR_P5
 };
 
-static const uint8_t child_pipe_enable[] PROGMEM =
+static const uint8_t child_pipe_enable[]=
 {
   ERX_P0, ERX_P1, ERX_P2, ERX_P3, ERX_P4, ERX_P5
 };
 
-static const uint8_t child_payload_size[] PROGMEM =
+static const uint8_t child_payload_size[]=
 {
   RX_PW_P0, RX_PW_P1, RX_PW_P2, RX_PW_P3, RX_PW_P4, RX_PW_P5
 };
@@ -446,16 +433,16 @@ void RF24_openReadingPipe(uint8_t pipe, uint8_t *address, uint8_t pipe_payload_s
 
 	// For pipes 2-5, only write the LSB, for 0 and 1 - full address
 	if ( pipe < 2 ){
-	  RF24_write(pgm_read_byte(&child_pipe[pipe]), address, addr_width);
+	  RF24_write(child_pipe[pipe], address, addr_width);
 	}else{
-	  RF24_write(pgm_read_byte(&child_pipe[pipe]), address, 1);
+	  RF24_write(child_pipe[pipe], address, 1);
 	}
-	RF24_write_register(pgm_read_byte(&child_payload_size[pipe]), pipe_payload_size);
+	RF24_write_register(child_payload_size[pipe], pipe_payload_size);
 
 	// Note it would be more efficient to set all of the bits for all open
 	// pipes at once.  However, I thought it would make the calling code
 	// more simple to do it this way.
-	RF24_write_register(EN_RXADDR, RF24_read_register(EN_RXADDR) | _BV(pgm_read_byte(&child_pipe_enable[pipe])));
+	RF24_write_register(EN_RXADDR, RF24_read_register(EN_RXADDR) | _BV(child_pipe_enable[pipe]));
 }
 
 /****************************************************************************/
@@ -466,7 +453,7 @@ void RF24_closeReadingPipe( uint8_t pipe )
   {
 	pipe0_enabled = FALSE;
   }
-  RF24_write_register(EN_RXADDR,RF24_read_register(EN_RXADDR) & ~_BV(pgm_read_byte(&child_pipe_enable[pipe])));
+  RF24_write_register(EN_RXADDR,RF24_read_register(EN_RXADDR) & ~_BV(child_pipe_enable[pipe]));
 }
 
 /****************************************************************************/

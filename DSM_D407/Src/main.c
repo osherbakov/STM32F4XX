@@ -30,14 +30,14 @@ void SystemClock_Config(void);
 
 //Global variables to be shared across modules
 osObjects_t osParams;
+osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
+osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
+osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
+osThreadDef(blinkTask, StartBlinkTask, osPriorityBelowNormal, 0, 256);
+osMessageQDef(DATAREADY, 32, uint32_t);
 
 int main(void)
 {
-	osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
-	osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
-	osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
-
-	osMessageQDef(DATAREADY, 32, uint32_t);
 
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
@@ -58,14 +58,6 @@ int main(void)
 	/* init code for USB_DEVICE */
 	MX_USB_DEVICE_Init();
 
-	/* Initialize all BSP features that we want to use - LEDS, buttons, Audio  */
-	BSP_LED_Init(LED3);
-	BSP_LED_Init(LED4);
-	BSP_LED_Init(LED5);
-	BSP_LED_Init(LED6);
-	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
- 	BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 85, SAMPLE_FREQ);
-	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
 	BSP_RF24_Init(&hspi1);
 
 	osParams.audioInMode =  AUDIO_MODE_IN_MIC;
@@ -80,6 +72,8 @@ int main(void)
 	osThreadCreate(osThread(pdmInTask), &osParams);
 	// The thread that processes the data
 	osThreadCreate(osThread(dataProcessTask), &osParams);
+
+	osThreadCreate(osThread(blinkTask), NULL);
 
 	osParams.dataInReadyMsg = osMessageCreate(osMessageQ(DATAREADY), 0);
 
@@ -163,14 +157,20 @@ void StartDefaultTask(void const * argument)
 {
 	int buttonState;	// User button State
 
-	buttonState = BSP_PB_GetState(BUTTON_KEY);
+	/* Initialize all BSP features that we want to use - LEDS, buttons, Audio  */
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED4);
+	BSP_LED_Init(LED5);
+	BSP_LED_Init(LED6);
+	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
 
+	buttonState = BSP_PB_GetState(BUTTON_KEY);
 	osParams.bStartPlay = 1;
 	
 	/* Infinite loop */
-  for(;;)
-  {
-    osDelay(100);
+	for(;;)
+	{
+		osDelay(100);
 		// Check the USER button and switch to the next mode if pressed
 		if( BSP_PB_GetState(BUTTON_KEY) != buttonState )
 		{
@@ -198,7 +198,31 @@ void StartDefaultTask(void const * argument)
 				BSP_LED_Off(LED6);
 			}
 		}
-  }
+	}
 }
 
+
+int ALL_LEDS_ON = 0;
+
+void StartBlinkTask(void const * argument)
+{
+ /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1000);
+	if(ALL_LEDS_ON) {
+		BSP_LED_Off(LED3);
+		BSP_LED_Off(LED4);
+		BSP_LED_Off(LED5);
+		BSP_LED_Off(LED6);
+		ALL_LEDS_ON = 0;
+	}else {
+		BSP_LED_On(LED3);
+		BSP_LED_On(LED4);
+		BSP_LED_On(LED5);
+		BSP_LED_On(LED6);
+		ALL_LEDS_ON = 1;
+	}
+  }
+}
 

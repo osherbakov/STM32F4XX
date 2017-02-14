@@ -8,14 +8,6 @@
 #define	 EXTDECL extern
 #endif
 
-#ifdef _MSC_VER
-#define CCMRAM
-#define RODATA
-#else
-#define CCMRAM __attribute__((section (".ccmram")))
-#define RODATA __attribute__((section (".rodata")))
-#endif
-
 EXTDECL uint32_t alaw_mem_req_q15(void);
 EXTDECL void alaw_init_q15(void *state);
 EXTDECL uint8_t *alaw_encode_q15(void *state, uint8_t *pBits, int16_t *pSamples, int nSamples);

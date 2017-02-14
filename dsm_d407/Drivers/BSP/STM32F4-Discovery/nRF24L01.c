@@ -1,19 +1,13 @@
 #include "stm32f4_discovery.h"
 #include "nRF24L01.h"
 #include "nRF24L01regs.h"
-#include "nRF24L01conf.h"
 #include "tim.h"
-
-
-#define  MAX_PAYLOAD_SIZE	(32)
+#include <string.h>
 
 static  SPI_HandleTypeDef    *pSpiHandle;
 static  volatile uint32_t	SPI_inprogress;
 static 	uint8_t txBuffer[MAX_PAYLOAD_SIZE + 1];
 static 	uint8_t rxBuffer[MAX_PAYLOAD_SIZE + 1];
-
-#define		LOW  	(0)
-#define		HIGH	(1)
 
 #define  init_obj(a)		do{int32_t oldPRI=__get_PRIMASK();__disable_irq();(a) = 0; __set_PRIMASK(oldPRI);}while(0)
 #define  lock_obj(a) 		do{int32_t oldPRI=__get_PRIMASK();__disable_irq();if((a) == 0){(a) = 1; break;}__set_PRIMASK(oldPRI);}while(1)
@@ -161,7 +155,6 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	if(hspi == pSpiHandle) {
 		NRF24L01_CS(HIGH);
-		release_obj(SPI_inprogress);
 		// Generate 10-12 usec pulse on CE
 		HAL_TIM_Base_Start_IT(&htim10);	
 		NRF24L01_CE(HIGH);		
@@ -179,25 +172,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		HAL_TIM_Base_Stop_IT(&htim10);
 		__HAL_TIM_SET_COUNTER(&htim10, 0);			
 		NRF24L01_CE(LOW);		
+		release_obj(SPI_inprogress);
 	}
 }
 
 /*****************************************************************************/
 /*              Interrupt callbacks for nRF24L01                             */
 
-void NRF24L01_TxDone_CallBack(void)
+__weak void NRF24L01_TxDone_CallBack(void)
 {
-	
-}
-void NRF24L01_TxFail_CallBack(void)
-{
-	
 }
 
-extern void RF24_read_payload( void* buf, uint8_t len );
-extern void RF24_flushRx(void);
-
-void NRF24L01_RxReady_CallBack(void)
+__weak void NRF24L01_TxFail_CallBack(void)
 {
-	RF24_flushRx();	
+}
+
+__weak void NRF24L01_RxReady_CallBack(void)
+{
 }

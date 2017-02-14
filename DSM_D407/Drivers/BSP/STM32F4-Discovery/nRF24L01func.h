@@ -15,7 +15,6 @@
 #ifndef __NRF24L01FUNC_H__
 #define __NRF24L01FUNC_H__
 
-#include "nRF24L01conf.h"
 /**
  * Power Amplifier level.
  *

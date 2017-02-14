@@ -1,11 +1,3 @@
-#ifdef _MSC_VER
-#define CCMRAM
-#define RODATA
-#else
-#define CCMRAM __attribute__((section (".ccmram")))
-#define RODATA __attribute__((section (".rodata")))
-#endif
-
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include "dataqueues.h"
