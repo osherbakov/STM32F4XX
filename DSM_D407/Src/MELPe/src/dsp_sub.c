@@ -50,6 +50,7 @@ Secretariat fax: +33 493 65 47 16.
 
 
 /* Prototype */
+static int16_t	rand_minstdgen();
 
 //uint32_t	L_mpyu(uint16_t var1, uint16_t var2);
 #define L_mpyu(a,b) ((int32_t)(a) * (b))
@@ -534,7 +535,7 @@ void window_q15Q(int16_t input[], int16_t win_coeff[], int16_t output[],
 	shift = 15 -  Qin;
 
 	arm_mult_shift_q15(input, win_coeff, output, shift, npts);
-	
+
 //	for (i = 0; i < npts; i++){
 //		output[i] = extract_h(L_shl(L_mult(win_coeff[i], input[i]), shift));
 //	}
@@ -639,15 +640,15 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
 
    pSrc += (npts - 1);
    pDst += (npts - 1);
-   numTaps = order + 1;	
+   numTaps = order + 1;
 
 
-   /* Apply loop unrolling and compute 4 output values simultaneously.  
-    * The variables acc0 ... acc3 hold output values that are being computed  
+   /* Apply loop unrolling and compute 4 output values simultaneously.
+    * The variables acc0 ... acc3 hold output values that are being computed
    */
    blkCnt = npts;
 
-   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.  
+   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
    ** a second loop below computes the remaining 1 to 3 samples. */
    while(blkCnt >= 4)
    {
@@ -661,8 +662,8 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
       px = pSrc;
 
       /* Initialize coeff pointer */
-      pb = pCoeffs;		
-   
+      pb = pCoeffs;
+
       /* Read the first three samples from the state buffer */
       x0 = *px--;
       x1 = *px--;
@@ -670,8 +671,8 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
 
       /* Loop unrolling.  Process 4 taps at a time. */
       tapCnt = numTaps;
-      
-      /* Loop over the number of taps.  Unroll by a factor of 4.  
+
+      /* Loop over the number of taps.  Unroll by a factor of 4.
        ** Repeat until we've computed numTaps-4 coefficients. */
       while(tapCnt >= 4)
       {
@@ -688,7 +689,7 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
          /* Read the b[1] coefficient */
          c0 = *(pb++);
 		 x0 = *(px--);
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
@@ -696,39 +697,39 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
 
          /* Perform the multiply-accumulate */
          p0 = (q31_t) x1 * c0;
-         p1 = (q31_t) x2 * c0;   
-         p2 = (q31_t) x3 * c0;   
-         p3 = (q31_t) x0 * c0;   
-         
+         p1 = (q31_t) x2 * c0;
+         p2 = (q31_t) x3 * c0;
+         p3 = (q31_t) x0 * c0;
+
          /* Read the b[2] coefficient */
          c0 = *(pb++);
          x1 = *(px--);
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
          acc3 += p3;
 
-         /* Perform the multiply-accumulates */      
+         /* Perform the multiply-accumulates */
          p0 = (q31_t) x2 * c0;
-         p1 = (q31_t) x3 * c0;   
-         p2 = (q31_t) x0 * c0;   
-         p3 = (q31_t) x1 * c0;   
+         p1 = (q31_t) x3 * c0;
+         p2 = (q31_t) x0 * c0;
+         p3 = (q31_t) x1 * c0;
 
 		 /* Read the b[3] coefficient */
          c0 = *(pb++);
          x2 = *(px--);
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
          acc3 += p3;
 
-         /* Perform the multiply-accumulates */      
+         /* Perform the multiply-accumulates */
          p0 = (q31_t) x3 * c0;
-         p1 = (q31_t) x0 * c0;   
-         p2 = (q31_t) x1 * c0;   
-         p3 = (q31_t) x2 * c0;   
+         p1 = (q31_t) x0 * c0;
+         p2 = (q31_t) x1 * c0;
+         p3 = (q31_t) x2 * c0;
 
          acc0 += p0;
          acc1 += p1;
@@ -747,17 +748,17 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
          /* Fetch 1 state variable */
          x3 = *(px--);
 
-         /* Perform the multiply-accumulates */      
+         /* Perform the multiply-accumulates */
          p0 = (q31_t) x0 * c0;
-         p1 = (q31_t) x1 * c0;   
-         p2 = (q31_t) x2 * c0;   
-         p3 = (q31_t) x3 * c0;   
+         p1 = (q31_t) x1 * c0;
+         p2 = (q31_t) x2 * c0;
+         p3 = (q31_t) x3 * c0;
 
          /* Reuse the present sample states for next sample */
          x0 = x1;
          x1 = x2;
          x2 = x3;
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
@@ -777,7 +778,7 @@ void zerflt_q15(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t or
       blkCnt -= 4;
    }
 
-   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.  
+   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
    ** No loop unrolling is used. */
 
    while(blkCnt > 0)
@@ -816,18 +817,18 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
    int16_t x0, x1, x2, x3, c0;				  /* Temporary variables to hold state and coefficient values */
    uint32_t numTaps, tapCnt, blkCnt;          /* Loop counters */
    int32_t p0,p1,p2,p3;						  /* Temporary product values */
-	
+
    pSrc += (npts - 1);
    pDst += (npts - 1);
-   numTaps = order + 1;	
+   numTaps = order + 1;
 
 
-   /* Apply loop unrolling and compute 4 output values simultaneously.  
-    * The variables acc0 ... acc3 hold output values that are being computed  
+   /* Apply loop unrolling and compute 4 output values simultaneously.
+    * The variables acc0 ... acc3 hold output values that are being computed
    */
    blkCnt = npts;
 
-   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.  
+   /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
    ** a second loop below computes the remaining 1 to 3 samples. */
    while(blkCnt >= 4)
    {
@@ -841,8 +842,8 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
       px = pSrc;
 
       /* Initialize coeff pointer */
-      pb = pCoeffs;		
-   
+      pb = pCoeffs;
+
       /* Read the first three samples from the state buffer */
       x0 = *px--;
       x1 = *px--;
@@ -850,8 +851,8 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
 
       /* Loop unrolling.  Process 4 taps at a time. */
       tapCnt = numTaps;
-      
-      /* Loop over the number of taps.  Unroll by a factor of 4.  
+
+      /* Loop over the number of taps.  Unroll by a factor of 4.
        ** Repeat until we've computed numTaps-4 coefficients. */
       while(tapCnt >= 4)
       {
@@ -868,7 +869,7 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
          /* Read the b[1] coefficient */
          c0 = *(pb++);
 		 x0 = *(px--);
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
@@ -876,39 +877,39 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
 
          /* Perform the multiply-accumulate */
          p0 = (q31_t) x1 * c0;
-         p1 = (q31_t) x2 * c0;   
-         p2 = (q31_t) x3 * c0;   
-         p3 = (q31_t) x0 * c0;   
-         
+         p1 = (q31_t) x2 * c0;
+         p2 = (q31_t) x3 * c0;
+         p3 = (q31_t) x0 * c0;
+
          /* Read the b[2] coefficient */
          c0 = *(pb++);
          x1 = *(px--);
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
          acc3 += p3;
 
-         /* Perform the multiply-accumulates */      
+         /* Perform the multiply-accumulates */
          p0 = (q31_t) x2 * c0;
-         p1 = (q31_t) x3 * c0;   
-         p2 = (q31_t) x0 * c0;   
-         p3 = (q31_t) x1 * c0;   
+         p1 = (q31_t) x3 * c0;
+         p2 = (q31_t) x0 * c0;
+         p3 = (q31_t) x1 * c0;
 
 		 /* Read the b[3] coefficient */
          c0 = *(pb++);
          x2 = *(px--);
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
          acc3 += p3;
 
-         /* Perform the multiply-accumulates */      
+         /* Perform the multiply-accumulates */
          p0 = (q31_t) x3 * c0;
-         p1 = (q31_t) x0 * c0;   
-         p2 = (q31_t) x1 * c0;   
-         p3 = (q31_t) x2 * c0;   
+         p1 = (q31_t) x0 * c0;
+         p2 = (q31_t) x1 * c0;
+         p3 = (q31_t) x2 * c0;
 
          acc0 += p0;
          acc1 += p1;
@@ -927,17 +928,17 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
          /* Fetch 1 state variable */
          x3 = *(px--);
 
-         /* Perform the multiply-accumulates */      
+         /* Perform the multiply-accumulates */
          p0 = (q31_t) x0 * c0;
-         p1 = (q31_t) x1 * c0;   
-         p2 = (q31_t) x2 * c0;   
-         p3 = (q31_t) x3 * c0;   
+         p1 = (q31_t) x1 * c0;
+         p2 = (q31_t) x2 * c0;
+         p3 = (q31_t) x3 * c0;
 
          /* Reuse the present sample states for next sample */
          x0 = x1;
          x1 = x2;
          x2 = x3;
-         
+
          acc0 += p0;
          acc1 += p1;
          acc2 += p2;
@@ -957,7 +958,7 @@ void zerflt_q15Q(int16_t *pSrc, const int16_t *pCoeffs, int16_t *pDst, int16_t o
       blkCnt -= 4;
    }
 
-   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.  
+   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
    ** No loop unrolling is used. */
 
    while(blkCnt > 0)
@@ -999,13 +1000,13 @@ void polflt_q15Q(int16_t input[], const int16_t coeff[], int16_t output[], int o
 	int32_t accum0, accum1, accum2, accum3;
 	int16_t	a1, a2, a3, a4, c0;
 	int16_t y1, y2, y3, y4;
-	const int16_t *pc; 
+	const int16_t *pc;
 	int16_t *py;
 	int32_t	shift;
-	
+
 	shift = Q_coeff + 1;
-	
-	a1 = coeff[1]; a2 = coeff[2]; a3 = coeff[3]; a4 = coeff[4]; 
+
+	a1 = coeff[1]; a2 = coeff[2]; a3 = coeff[3]; a4 = coeff[4];
 	y1 = output[-1]; y2 = output[-2]; y3 = output[-3]; y4 = output[-4];
 	numBlk = npts;
 	while (numBlk >= 4) {
@@ -1057,18 +1058,18 @@ void polflt_q15Q(int16_t input[], const int16_t coeff[], int16_t output[], int o
 	}
 }
 
-/**    
+/**
  * @brief           Q15 vector multiplication  with scaling (Left Shift)
- * @param[in]       *pSrcA points to the first input vector    
- * @param[in]       *pSrcB points to the second input vector    
- * @param[out]      *pDst points to the output vector    
- * @param[in]       blockSize number of samples in each vector    
- * @return none.    
- *    
- * <b>Scaling and Overflow Behavior:</b>    
- * \par    
- * The function uses saturating arithmetic.    
- * Results outside of the allowable Q15 range [0x8000 0x7FFF] will be saturated.    
+ * @param[in]       *pSrcA points to the first input vector
+ * @param[in]       *pSrcB points to the second input vector
+ * @param[out]      *pDst points to the output vector
+ * @param[in]       blockSize number of samples in each vector
+ * @return none.
+ *
+ * <b>Scaling and Overflow Behavior:</b>
+ * \par
+ * The function uses saturating arithmetic.
+ * Results outside of the allowable Q15 range [0x8000 0x7FFF] will be saturated.
  */
 
 void arm_mult_shift_q15(
@@ -1080,7 +1081,7 @@ void arm_mult_shift_q15(
 {
   uint32_t blkCnt;                               /* loop counters */
   uint32_t RightShift;                           /* The shift for final result */
-	
+
   RightShift = 15 - LeftShift;
 
 #ifndef ARM_MATH_CM0_FAMILY
@@ -1092,7 +1093,7 @@ void arm_mult_shift_q15(
   /* loop Unrolling */
   blkCnt = blockSize >> 2u;
 
-  /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.        
+  /* First part of the processing with loop unrolling.  Compute 4 outputs at a time.
    ** a second loop below computes the remaining 1 to 3 samples. */
   while(blkCnt > 0u)
   {
@@ -1134,7 +1135,7 @@ void arm_mult_shift_q15(
     blkCnt--;
   }
 
-  /* If the blockSize is not a multiple of 4, compute any remaining output samples here.    
+  /* If the blockSize is not a multiple of 4, compute any remaining output samples here.
    ** No loop unrolling is used. */
   blkCnt = blockSize % 0x4u;
 

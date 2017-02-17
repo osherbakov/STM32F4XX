@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<EmBitz_project_file>
+	<EmBitzVersion release="1.11" revision="0" />
+	<FileVersion major="1" minor="0" />
+	<Project>
+		<Option title="AudioCodecs" />
+		<Option pch_mode="2" />
+		<Option compiler="armgcc_eb" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\AudioCodecs.a" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="armgcc_eb" />
+				<Device>
+					<Add option="$device=cortex-m4" />
+					<Add option="$fpu=fpv4-sp-d16" />
+					<Add option="$lscript=./stm32f407vg_flash.ld" />
+					<Add option="$stack=0x0400" />
+					<Add option="$heap=0x1000" />
+				</Device>
+				<Compiler>
+					<Add option="-mfloat-abi=hard" />
+					<Add option="-Wall" />
+					<Add option="-fdata-sections" />
+					<Add option="-ffunction-sections" />
+					<Add option="-O0" />
+					<Add option="-g3" />
+					<Add option="-fno-strict-aliasing" />
+					<Add symbol="ARM_MATH_CM4" />
+					<Add symbol="__FPU_PRESENT=1" />
+					<Add symbol="STM32F407VG" />
+					<Add symbol="STM32F4XX" />
+				</Compiler>
+				<Cpp>
+					<Add option="-mfloat-abi=hard" />
+					<Add option="-Wall" />
+					<Add option="-fdata-sections" />
+					<Add option="-ffunction-sections" />
+					<Add option="-O0" />
+					<Add option="-g3" />
+					<Add option="ARM_MATH_CM4" />
+					<Add option="__FPU_USED" />
+					<Add option="-fno-strict-aliasing" />
+				</Cpp>
+				<Assembler>
+					<Add option="-Wa,--gdwarf-2" />
+				</Assembler>
+				<Linker>
+					<Add option="-eb_lib=n" />
+					<Add option="-eb_start_files" />
+					<Add option="-eb_use_semi" />
+					<Add option="-Wl,--gc-sections" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\AudioCodecs.a" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="armgcc_eb" />
+				<Device>
+					<Add option="$device=cortex-m4" />
+					<Add option="$fpu=fpv4-sp-d16" />
+					<Add option="$lscript=./stm32f407vg_flash.ld" />
+					<Add option="$stack=0x0400" />
+					<Add option="$heap=0x1000" />
+				</Device>
+				<Compiler>
+					<Add option="-mfloat-abi=hard" />
+					<Add option="-fdata-sections" />
+					<Add option="-ffunction-sections" />
+					<Add option="-O2" />
+					<Add option="-g2" />
+					<Add option="-fno-strict-aliasing" />
+					<Add symbol="ARM_MATH_CM4" />
+					<Add symbol="__FPU_PRESENT=1" />
+					<Add symbol="STM32F407VG" />
+					<Add symbol="STM32F4XX" />
+				</Compiler>
+				<Cpp>
+					<Add option="-mfloat-abi=hard" />
+					<Add option="-fdata-sections" />
+					<Add option="-ffunction-sections" />
+					<Add option="-O2" />
+					<Add option="-g2" />
+					<Add option="ARM_MATH_CM4" />
+					<Add option="__FPU_USED" />
+					<Add option="-fno-strict-aliasing" />
+				</Cpp>
+				<Assembler>
+					<Add option="-Wa,--no-warn" />
+				</Assembler>
+				<Linker>
+					<Add option="-eb_lib=n" />
+					<Add option="-eb_start_files" />
+					<Add option="-Wl,--gc-sections" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="..\..\..\Inc" />
+			<Add directory="..\..\..\Drivers\CMSIS\Include" />
+			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\include" />
+			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS" />
+			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F" />
+		</Compiler>
+		<Unit filename="..\..\..\Src\A_u_Law\aulaw_data_q15.h" />
+		<Unit filename="..\..\..\Src\A_u_Law\aulaw_q15.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\A_u_Law\aulaw_q15.h" />
+		<Unit filename="..\..\..\Src\A_u_Law\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\CMSIS\mat.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\CMSIS\math_ext.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebook.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookdt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookge.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookjvm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebooklspmelvq.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookmel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookres.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookvq.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codebookvqanssi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codec2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\codec2.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\codec2_internal.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\comp.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\comp_prim.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\defines.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\interp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\interp.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\lpc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\lpc.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\lsp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\lsp.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\nlp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\nlp.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\pack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\phase.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\phase.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\postfilter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\postfilter.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\quantise.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\quantise.h" />
+		<Unit filename="..\..\..\Src\Codec2\src\sine.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Codec2\src\sine.h" />
+		<Unit filename="..\..\..\Src\CVSD\cvsd_data_f32.h" />
+		<Unit filename="..\..\..\Src\CVSD\cvsd_f32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\CVSD\cvsd_f32.h" />
+		<Unit filename="..\..\..\Src\CVSD\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\coeff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\dsp_sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\dsp_sub.h" />
+		<Unit filename="..\..\..\Src\MELP\fec_code.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\fs.h" />
+		<Unit filename="..\..\..\Src\MELP\fs_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\fsvq_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\lpc.h" />
+		<Unit filename="..\..\..\Src\MELP\lpc_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\mat.h" />
+		<Unit filename="..\..\..\Src\MELP\mat_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\melp.h" />
+		<Unit filename="..\..\..\Src\MELP\melp_ana.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\melp_chn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\melp_sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\melp_sub.h" />
+		<Unit filename="..\..\..\Src\MELP\melp_syn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\msvq_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\pit.h" />
+		<Unit filename="..\..\..\Src\MELP\pit_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELP\spbstd.h" />
+		<Unit filename="..\..\..\Src\MELP\vq.h" />
+		<Unit filename="..\..\..\Src\MELP\vq_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\inc\coeff.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\constant.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\cprv.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\dsp_sub.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\fec_code.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\fft_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\fs_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\fsvq_cb.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\global.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\harm.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\lpc_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\macro.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\mat_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\math_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\mathdp31.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\mathhalf.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\melp_sub.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\msvq_cb.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\npp.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\pit_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\pitch.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\postfilt.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\qnt12.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\qnt12_cb.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\sc1200.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\transcode.h" />
+		<Unit filename="..\..\..\Src\MELPe\inc\vq_lib.h" />
+		<Unit filename="..\..\..\Src\MELPe\src\classify.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\coeff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\dsp_sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\fec_code.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\fft_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\fs_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\fsvq_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\global.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\harm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\lpc_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\math_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\melp_ana.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\melp_chn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\melp_sub.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\melp_syn.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\msvq_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\npp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\pit_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\pitch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\postfilt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\qnt12.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\qnt12_cb.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\MELPe\src\vq_lib.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\SW_Framework\dataqueues.h" />
+		<Unit filename="..\..\..\Src\SW_Framework\datatasks.h" />
+		<Unit filename="..\..\..\Src\UpDownSamplers\RateSync.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\UpDownSamplers\UpDown16_48_F32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\UpDownSamplers\UpDown8_48_F32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\UpDownSamplers\UpDown8_48_Q15.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger>
+				<target_debugging_settings target="Debug" active_interface="OpenOCD">
+					<debug_interface interface_id="OpenOCD" ip_address="localhost" ip_port="3333" path="${EMBITZ}\share\contrib\openocd\bin" executable="openocd.exe" description="" dont_start_server="false" backoff_time="100" options="0" reg_filter="0" active_family="All" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="All">
+							<option opt_id="ID_BOARD_CH" opt_value="stm32f4discovery" />
+							<option opt_id="ID_INTERFACE_CH" opt_value="stlink-v2-1" />
+							<option opt_id="ID_TARGET_CH" opt_value="stm32f4x_stlink" />
+							<option opt_id="ID_TEXTCTRL1" opt_value="" />
+							<option opt_id="ID_HW_BKP_LIMIT" opt_value="" />
+							<option opt_id="ID_RESET_CH" opt_value="halt" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_ADD_COMMANDS" opt_value="" />
+							<option opt_id="ID_ADD_CMNDS" opt_value="" />
+						</family_options>
+					</debug_interface>
+					<debug_interface interface_id="ST-link" ip_address="" ip_port="" path="" executable="" description="" dont_start_server="false" backoff_time="" options="0" reg_filter="0" active_family="" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="0" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+				<target_debugging_settings target="Release" active_interface="OpenOCD">
+					<debug_interface interface_id="OpenOCD" ip_address="localhost" ip_port="3333" path="${EMBITZ}\share\contrib\openocd\bin" executable="openocd.exe" description="" dont_start_server="false" backoff_time="100" options="0" reg_filter="0" active_family="All" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="All">
+							<option opt_id="ID_BOARD_CH" opt_value="stm32f4discovery" />
+							<option opt_id="ID_INTERFACE_CH" opt_value="stlink-v2-1" />
+							<option opt_id="ID_TARGET_CH" opt_value="stm32f4x_stlink" />
+							<option opt_id="ID_TEXTCTRL1" opt_value="" />
+							<option opt_id="ID_HW_BKP_LIMIT" opt_value="" />
+							<option opt_id="ID_RESET_CH" opt_value="halt" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_ADD_COMMANDS" opt_value="" />
+							<option opt_id="ID_ADD_CMNDS" opt_value="" />
+						</family_options>
+					</debug_interface>
+					<debug_interface interface_id="ST-link" ip_address="" ip_port="" path="" executable="" description="" dont_start_server="false" backoff_time="" options="0" reg_filter="0" active_family="" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="0" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+			</debugger>
+			<envvars />
+		</Extensions>
+	</Project>
+</EmBitz_project_file>
