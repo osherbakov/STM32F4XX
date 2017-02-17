@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<EmBitz_project_file>
+	<EmBitzVersion release="1.11" revision="0" />
+	<FileVersion major="1" minor="0" />
+	<Project>
+		<Option title="CVSD" />
+		<Option pch_mode="2" />
+		<Option compiler="armgcc_eb" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\CVSD.a" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="armgcc_eb" />
+				<Option projectDeviceOptionsRelation="0" />
+				<Compiler>
+					<Add option="-g3" />
+					<Add option="-O0" />
+					<Add option="-Wall" />
+				</Compiler>
+				<Cpp>
+					<Add option="-g3" />
+					<Add option="-O0" />
+					<Add option="-Wall" />
+				</Cpp>
+				<Assembler>
+					<Add option="-Wa,--gdwarf-2" />
+				</Assembler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\CVSD.a" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="armgcc_eb" />
+				<Option projectDeviceOptionsRelation="0" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Cpp>
+					<Add option="-O2" />
+				</Cpp>
+				<Assembler>
+					<Add option="-Wa,--no-warn" />
+				</Assembler>
+			</Target>
+		</Build>
+		<Device>
+			<Add option="$device=cortex-m4" />
+			<Add option="$fpu=fpv4-sp-d16" />
+		</Device>
+		<Compiler>
+			<Add option="-mfloat-abi=hard" />
+			<Add option="-fno-strict-aliasing" />
+			<Add symbol="ARM_MATH_CM4" />
+			<Add symbol="STM32F407ZG" />
+			<Add symbol="STM32F4XX" />
+			<Add symbol="__FPU_PRESENT" />
+			<Add directory="..\..\Inc" />
+			<Add directory="..\..\Src\SW_Framework" />
+			<Add directory="..\..\Drivers\CMSIS\Include" />
+			<Add directory="..\..\Middlewares\Third_Party\FreeRTOS\Source\include" />
+			<Add directory="..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS" />
+			<Add directory="..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F" />
+		</Compiler>
+		<Linker>
+			<Add option="-eb_lib=n" />
+			<Add option="-eb_start_files" />
+		</Linker>
+		<Unit filename="..\..\Src\CVSD\cvsd_data_f32.h" />
+		<Unit filename="..\..\Src\CVSD\cvsd_f32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\Src\CVSD\cvsd_f32.h" />
+		<Unit filename="..\..\Src\CVSD\module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</EmBitz_project_file>
