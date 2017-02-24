@@ -49,9 +49,6 @@ Secretariat fax: +33 493 65 47 16.
 #define A				16807u             /* Multiplier for rand_minstdgen() */
 
 
-/* Prototype */
-static int16_t	rand_minstdgen();
-
 //uint32_t	L_mpyu(uint16_t var1, uint16_t var2);
 #define L_mpyu(a,b) ((int32_t)(a) * (b))
 

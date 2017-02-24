@@ -270,8 +270,6 @@ struct quant_param {
 
 void	analysis_q(int16_t sp_in[], struct melp_param *par, unsigned char chbuf[]);
 
-// void	sc_ana(struct melp_param *par);
-
 void	synthesis_q(struct melp_param *par, int16_t sp_out[], unsigned char chbuf[]);
 
 void	melp_ana_init_q(struct melp_param *par);

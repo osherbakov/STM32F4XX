@@ -18,7 +18,7 @@ typedef enum DataType
 	DATA_TYPE_Q31   	= 0x0D00,		// Q31 signed, range (-1.0 + 1.0)
 	DATA_TYPE_F32K		= 0x0E00,		// 32-bit Floating point, range (-32K.0 +32K.0)
 	DATA_TYPE_F32		= 0x0F00,		// 32-bit Floating point, range (-1.0 +1.0)
-// Variuos masks to extract needed info from the type	
+// Variuos masks to extract needed info from the type
 	DATA_TYPE_MASK		= 0x0F00,
 	DATA_SIZE_MASK		= 0x00FF,
 	DATA_RANGE_MASK		= 0x0100,		// Range is (-1.0 +1.0) - can be Fixed or Floating
@@ -28,7 +28,7 @@ typedef enum DataType
 
 typedef enum DataChannels
 {
-// Number of channels in one element 
+// Number of channels in one element
 	DATA_NUM_CH_NONE 	= 0x0000,
 	DATA_NUM_CH_1 		= 0x0000,
 	DATA_NUM_CH_2 		= 0x1000,
@@ -42,7 +42,7 @@ typedef enum DataChannels
 //  The data organization when more than one channel is specified
 	DATA_ALT 			= 0x0000,		// If more than 1 channel, the elements are interleaved/alternating  ABCDABCDABCD in memory
 	DATA_SEQ			= 0x8000,		// If more than 1 channel, all the elements of one channel follow all of another AAABBBBBBDDD in memory
-//	The masks to extract the information from the channels data	
+//	The masks to extract the information from the channels data
 	DATA_CH_MASK		= 0x7000,
 	DATA_SEQ_MASK 		= 0x8000,
 	DATA_CH_SHIFT 		= 12			// Shift amount to extract number of channels
@@ -98,8 +98,8 @@ extern void 	Queue_Clear(DQueue_t *pQueue);
 extern uint32_t Queue_Push(DQueue_t *pQueue, void *pDataSrc, uint32_t nBytes);
 extern uint32_t Queue_Pop(DQueue_t *pQueue, void *pDataDst, uint32_t nBytes);
 
-extern void 	DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask, 
-					void *pDst, uint32_t DstType, uint32_t DstChMask, 
+extern void 	DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
+					void *pDst, uint32_t DstType, uint32_t DstChMask,
 						uint32_t *pnSrcBytes, uint32_t *pnDstBytes);
 
 typedef void 	*Data_Create_t(uint32_t Params);
@@ -115,16 +115,5 @@ typedef struct DataProcessBlock {
 	Data_Process_t  	*Process;
 	Data_Close_t		*Close;
 } DataProcessBlock_t;
-
-extern int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut) ;
-
-#ifdef _MSC_VER
-#define CCMRAM
-#define RODATA
-#else
-#define CCMRAM __attribute__((section (".ccmram")))
-#define RODATA __attribute__((section (".rodata")))
-#endif
-
 
 #endif // __DATAQUEUES_H__

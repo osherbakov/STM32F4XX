@@ -4,11 +4,19 @@
 #include "datatasks.h"
 #include "dataqueues.h"
 
-#include "usb_device.h"
-#include "usbd_audio.h"
+//#include "usb_device.h"
+//#include "usbd_audio.h"
 
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio.h"
+
+#ifdef _MSC_VER
+#define CCMRAM
+#define RODATA
+#else
+#define CCMRAM __attribute__((section (".ccmram"))) __attribute__((aligned(4)))
+#define RODATA __attribute__((section (".rodata")))
+#endif
 
 
 #define ABS(a)			(((a) >  0) ? (a) : -(a))
@@ -19,6 +27,7 @@ extern DataProcessBlock_t  CVSD;
 extern DataProcessBlock_t  CODEC;
 extern DataProcessBlock_t  ALAW;
 extern DataProcessBlock_t  ULAW;
+
 
 extern DataProcessBlock_t  BYPASS;
 
@@ -56,6 +65,60 @@ DataProcessBlock_t  *pIntModule = 	&BYPASS;
 
 DataProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
 
+
+
+// Allocate static ping-pong data buffers
+static float	sAudio0[2 * MAX_AUDIO_SAMPLES] CCMRAM;
+static float	sAudio1[2 * MAX_AUDIO_SAMPLES] CCMRAM;
+
+static void		*pAudio0 = sAudio0;
+static void		*pAudio1 = sAudio1;
+
+int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut)
+{
+	DataPort_t	DataIn, DataOut;
+
+	uint32_t 	nBytesIn, nBytesNeeded, nBytesGenerated;
+	uint32_t 	nElemsIn, nElemsNeeded;
+	uint32_t	srcChMask;
+
+	int			DoMoreProcessing = 0;
+
+	// Get the info anout processing Module - number of channels, data format for In and Out
+	pModule->Info(pModuleState, &DataIn, &DataOut);
+
+	// How many elements are in the queue
+	nElemsIn = Queue_Count(pDataQIn)/DATA_ELEM_SIZE(pDataQIn->Type);
+	// How many Elements we will need
+	nElemsNeeded = DataIn.Size/DATA_ELEM_SIZE(DataIn.Type);
+	if(nElemsIn >= nElemsNeeded)
+	{
+		// How many bytes we have to pop
+		nBytesNeeded = nElemsNeeded * DATA_ELEM_SIZE(pDataQIn->Type);
+		Queue_Pop(pDataQIn, pAudio0, nBytesNeeded);
+
+		// Convert data from the Queue-provided type to the Processing-Module-required type  In->Out
+		srcChMask = (DATA_TYPE_NUM_CHANNELS(pDataQIn->Type) == DATA_TYPE_NUM_CHANNELS(DataIn.Type)) ? DATA_CHANNEL_ALL : DATA_CHANNEL_ANY;
+		DataConvert(pAudio0, pDataQIn->Type, srcChMask, pAudio1, DataIn.Type, DATA_CHANNEL_ALL, &nBytesNeeded, &nBytesGenerated);
+		//   Call data processing
+		pModule->Process(pModuleState, pAudio1, pAudio0, &nBytesGenerated, &nBytesIn);
+		DoMoreProcessing = nBytesIn;
+
+		while(pDataQOut)
+		{
+			nBytesIn = DoMoreProcessing;
+			// Convert data from the Processing-Module-provided type to the HW Queue type
+			srcChMask = (DATA_TYPE_NUM_CHANNELS(pDataQOut->Type) == DATA_TYPE_NUM_CHANNELS(DataOut.Type)) ? DATA_CHANNEL_ALL : DATA_CHANNEL_ANY;
+			DataConvert(pAudio0, DataOut.Type, srcChMask, pAudio1, pDataQOut->Type, DATA_CHANNEL_ALL, &nBytesIn, &nBytesGenerated);
+			// Place the processed data into the queue for the next module to process
+			Queue_Push(pDataQOut, pAudio1, nBytesGenerated);
+			pDataQOut = pDataQOut->pNext;
+		}
+	}
+	return DoMoreProcessing;
+}
+
+
 void StartDataProcessTask(void const * argument)
 {
 	osEvent		event;
@@ -82,7 +145,7 @@ void StartDataProcessTask(void const * argument)
 	pDecModule->Open(pDecState, 0);
 	pIntModule->Open(pIntState, 0);
 	pSyncModule->Open(pRSyncState, 0);
-	
+
 	while(1)
 	{
 		// Check if we have to start playing audio thru external codec when we accumulate more than 1/2 of the buffer
@@ -92,7 +155,7 @@ void StartDataProcessTask(void const * argument)
 			BSP_AUDIO_OUT_Play((uint16_t *)osParams.pPCM_Out, 2 * NUM_PCM_BYTES);
 			osParams.bStartPlay = 0;
 		}
-	
+
 		// Wait for the next IN Audio data packet to arrive (either from I2S MIC, or from the USB)
 		event = osMessageGet(osParams.dataInReadyMsg, osWaitForever);
 		pDataQIn = (DQueue_t *) event.value.p;

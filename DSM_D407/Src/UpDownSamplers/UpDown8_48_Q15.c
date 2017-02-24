@@ -2,6 +2,14 @@
 #include "arm_const_structs.h"
 #include "dataqueues.h"
 
+#ifdef _MSC_VER
+#define CCMRAM
+#define RODATA
+#else
+#define CCMRAM __attribute__((section (".ccmram"))) __attribute__((aligned(4)))
+#define RODATA __attribute__((section (".rodata")))
+#endif
+
 
 //
 //  Downsample 48KHz to 8 KHz and 8 KHZ to 48KHz upsample functionality modules
@@ -11,7 +19,7 @@
 #define  UPDOWNSAMPLE_RATIO 	(48000/8000)
 #define  DOWNSAMPLE_DATA_TYPE	(DATA_TYPE_Q15 | DATA_NUM_CH_1 | (2))
 #define  DOWNSAMPLE_BLOCK_SIZE  (60)	// Divisable by 2,3,4,5,6,10,12,15,20,30
-#define  DOWNSAMPLE_BLOCK_BYTES (DOWNSAMPLE_BLOCK_SIZE * 2)	
+#define  DOWNSAMPLE_BLOCK_BYTES (DOWNSAMPLE_BLOCK_SIZE * 2)
 
 static q15_t DownSample48_8_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
 static q15_t DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
@@ -67,7 +75,7 @@ static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_BYTES;
-	
+
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
@@ -111,7 +119,7 @@ static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
-	
+
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }

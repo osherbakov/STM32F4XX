@@ -12,7 +12,6 @@
 #define MAX(a, b)  	(((a) > (b)) ? (a) : (b))
 #define ABS(a)		(((a) >  0) ? (a) : -(a))
 
-
 //
 // Definitions:
 //   Data type and type_size - the type (char, short, int, fixed, float) and size (in bytes) of a single element
@@ -69,7 +68,7 @@ uint32_t Queue_Space(DQueue_t *pQueue)
 	uint32_t iPut, iGet, nSize;
 	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size;
 	Space =  iGet - iPut;
-	if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}	
+	if(Space <= 0) {Space += nSize; if(Space < 0) Space += nSize;}
 	else if(Space > nSize) {Space -= nSize;}
 	return Space;
 }
@@ -84,20 +83,20 @@ uint32_t Queue_Push(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	int diff, space, count;
 	uint32_t iPut, iGet, nSize;
 	uint32_t n_bytes, n_copy, ret;
-	
+
 	// Prefetch all parameters to avoid race conditions */
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size; 
-	space = iGet - iPut; 
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size;
+	space = iGet - iPut;
 	// Check if the buffer is already full - return 0 as number of bytes consumed */
 	if((ABS(space) == nSize) || (nBytes == 0)) return 0;
 
 	// Calculate the available space
-	if(space <= 0) {space += nSize; if(space < 0) space += nSize;} 
+	if(space <= 0) {space += nSize; if(space < 0) space += nSize;}
 	else if(space > nSize) {space -= nSize;}
-		
+
 	if(iPut >= nSize) iPut -= nSize;
 	diff = nSize - iPut;
-	
+
 	ret = n_bytes = MIN(nBytes, space);	// so many bytes will be copied
 	n_copy = MIN(diff, n_bytes);	// so many bytes will be placed starting from iPut
 	memcpy(&pQueue->pBuffer[iPut], pData, n_copy);
@@ -110,13 +109,13 @@ uint32_t Queue_Push(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	if(ret == space) {iPut = (iGet >= nSize) ? (iGet - nSize) : (iGet + nSize);}
 	else {iPut += ret; if(iPut >= nSize) iPut -= nSize;}
 	pQueue->iPut = iPut;
-	
+
 	// Set up the isReady flag - if the number of bytes available is more than 1/2 of the buffer
 	count =  iPut - iGet;
 	if (count < 0) { count += nSize; if(count <= 0) count += nSize;}
 	else if(count > nSize) {count -= nSize;}
 	if(count >= nSize/2) pQueue->isReady = 1;
-	
+
 	return ret;
 }
 
@@ -125,9 +124,9 @@ uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	int diff, count;
 	uint32_t iPut, iGet, nSize;
 	uint32_t n_bytes, n_copy, ret;
-	
+
 	// Prefetch all parameters to avoid race conditions */
-	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size; 
+	iPut = pQueue->iPut; iGet = pQueue->iGet; nSize = pQueue->Size;
 
 	// Check if the buffer is empty - return 0 as number of bytes produced */
 	count =  iPut - iGet;
@@ -136,8 +135,8 @@ uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	// Calculate the number of available bytes
 	if (count < 0) { count += nSize; if(count <= 0) count += nSize;}
 	else if(count > nSize) {count -= nSize;}
-	
-	if(iGet >= nSize) iGet -= nSize;	
+
+	if(iGet >= nSize) iGet -= nSize;
 	diff = nSize - iGet;
 
 	ret = n_bytes = MIN(nBytes, count);	// so many bytes will be copied
@@ -148,7 +147,7 @@ uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	{
 		memcpy((void *)((uint32_t)pData + n_copy), pQueue->pBuffer, n_bytes);
 	}
-	
+
 	// Adjust the get pointer .... and save it
 	if(ret == count) {iGet = iPut;}
 	else{ iGet += ret; if(iGet >= nSize) iGet -= nSize;}
@@ -158,8 +157,8 @@ uint32_t Queue_Pop(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	return ret;
 }
 
-void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask, 
-					void *pDst, uint32_t DstType, uint32_t DstChMask, 
+void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
+					void *pDst, uint32_t DstType, uint32_t DstChMask,
 						uint32_t *pnSrcBytes, uint32_t *pnDstBytes)
 {
 	int  srcStep, dstStep;
@@ -175,20 +174,20 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	unsigned int nElements, nGeneratedBytes;
 	int  bSameType, bNonFloat, dataShift, bToFloat;
 	void *pS, *pD;
-	
+
 
 	srcStep = DATA_ELEM_SIZE(SrcType); 		// Step size to get the next element
 	dstStep = DATA_ELEM_SIZE(DstType);
-	
+
 	srcSize = DATA_TYPE_SIZE(SrcType);	// Size of one datatype(1,2,3,4 bytes)
 	dstSize = DATA_TYPE_SIZE(DstType);
-	
+
 	srcChan = DATA_TYPE_NUM_CHANNELS(SrcType);
 	dstChan = DATA_TYPE_NUM_CHANNELS(DstType);
-	
+
 	srcAllMask = ((1 << srcChan) - 1);
 	dstAllMask = ((1 << dstChan) - 1);
-	
+
 	SrcChMask &= srcAllMask;
 	DstChMask &= dstAllMask;
 
@@ -206,7 +205,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	}
 	// Some special cases when we have only a single channel for both Src and Dst
 	if( (srcChan == dstChan) && (dstChan == 1) && (SrcChMask == DstChMask) && SrcChMask){
-		
+
 		if((DstType & DATA_TYPE_MASK) == DATA_TYPE_F32) {
 			switch( SrcType & DATA_TYPE_MASK)
 			{
@@ -284,14 +283,14 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 			}
 		}
 	}
-	
+
 	if((DstType == SrcType) && (DstChMask == SrcChMask)){
 		memcpy(pDst, pSrc, *pnSrcBytes);
 		*pnDstBytes =  *pnSrcBytes;
 		*pnSrcBytes = 0;
 		return;
-	}		
-	
+	}
+
 	// Prepare the shift amount for the data transferred
 	dataShift = 8 * (dstSize - srcSize);
 
@@ -304,10 +303,10 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 		DstChMask >>= 1;
 	}
 
-	// There is a difference between DATA_CHANNEL_ANY and DATA_CHANNEL_ALL - 
+	// There is a difference between DATA_CHANNEL_ANY and DATA_CHANNEL_ALL -
 	//  when moving data from buffers with different number of channels,
 	//  DATA_CHANNEL_ANY in Source will populate AABBCCDDEEFF from ABCDEF buffer, and ABCDEF out of AABBCCDDEEFF
-	//  DATA_CHANNEL_ALL in Source will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF 
+	//  DATA_CHANNEL_ALL in Source will populate ABCDEF  from ABCDEF buffer, and AABBCCDDEEFF out of AABBCCDDEEFF
 	//    i.e nElements will be consumed in all cases
 	if(SrcChMask == DATA_CHANNEL_ANY)
 	{
@@ -324,28 +323,28 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 			SrcChMask >>= 1;
 		}
 	}
-	
+
 	srcIdx = 0;
 	while(nElements > 0)
 	{
 		for (dstIdx = 0; dstIdx < dstCntr; dstIdx++)
 		{
 			// 1. Adjust the SRC pointer to point to the next data type in the element
-			pS = (void *) (((uint32_t)pSrc) + srcOffset[srcIdx]); 
+			pS = (void *) (((uint32_t)pSrc) + srcOffset[srcIdx]);
 			// 2. Adjust the DST pointer to point to the next data type in the element
-			pD = (void *) (((uint32_t)pDst) + dstOffset[dstIdx]); 			
+			pD = (void *) (((uint32_t)pDst) + dstOffset[dstIdx]);
 			// 3. Get the data and convert from one type to another
-			if( !bSameType) 
+			if( !bSameType)
 			{	// Special cases - Integer to Integer conversion (No FP)
 				//  or Q7, Q15, Q31 into another Integer/Q format
 				if( bNonFloat )
 				{
-					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
+					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;
 					data = (dataShift >= 0) ? data << dataShift : data >> -dataShift;
-					if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
+					if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;
 				}else if(bToFloat)
 				{
-					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;					
+					if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;
 					data = data << dataShift;
 					fdata = Q31_TO_FLOAT(data);
 					* ((float *) pD) = fdata;
@@ -359,7 +358,7 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 			}else
 			{
 				if(srcSize==1) data = *(int8_t *)pS; else if(srcSize==2)data = *(int16_t *)pS; else data = *(int32_t *)pS;
-				if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;				
+				if(dstSize==1) *(int8_t *)pD = data; else if(dstSize==2)*(int16_t *)pD = data; else *(int32_t *)pD = data;
 			}
 
 			// 4. Adjust the Src index, and check for exit condition
@@ -377,54 +376,3 @@ void DataConvert(void *pSrc, uint32_t SrcType, uint32_t SrcChMask,
 	*pnDstBytes =  nGeneratedBytes;
 }
 
-
-// Allocate static ping-pong data buffers
-static float	sAudio0[2 * MAX_AUDIO_SAMPLES] CCMRAM;
-static float	sAudio1[2 * MAX_AUDIO_SAMPLES] CCMRAM;
-
-static void		*pAudio0 = sAudio0;
-static void		*pAudio1 = sAudio1;
-
-int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut) 
-{
-	DataPort_t	DataIn, DataOut;
-
-	uint32_t 	nBytesIn, nBytesNeeded, nBytesGenerated;
-	uint32_t 	nElemsIn, nElemsNeeded;
-	uint32_t	srcChMask;
-	
-	int			DoMoreProcessing = 0;
-	
-	// Get the info anout processing Module - number of channels, data format for In and Out
-	pModule->Info(pModuleState, &DataIn, &DataOut); 
-	
-	// How many elements are in the queue
-	nElemsIn = Queue_Count(pDataQIn)/DATA_ELEM_SIZE(pDataQIn->Type);
-	// How many Elements we will need
-	nElemsNeeded = DataIn.Size/DATA_ELEM_SIZE(DataIn.Type);
-	if(nElemsIn >= nElemsNeeded)
-	{
-		// How many bytes we have to pop
-		nBytesNeeded = nElemsNeeded * DATA_ELEM_SIZE(pDataQIn->Type);
-		Queue_Pop(pDataQIn, pAudio0, nBytesNeeded);
-		
-		// Convert data from the Queue-provided type to the Processing-Module-required type  In->Out
-		srcChMask = (DATA_TYPE_NUM_CHANNELS(pDataQIn->Type) == DATA_TYPE_NUM_CHANNELS(DataIn.Type)) ? DATA_CHANNEL_ALL : DATA_CHANNEL_ANY;
-		DataConvert(pAudio0, pDataQIn->Type, srcChMask, pAudio1, DataIn.Type, DATA_CHANNEL_ALL, &nBytesNeeded, &nBytesGenerated);
-		//   Call data processing     
-		pModule->Process(pModuleState, pAudio1, pAudio0, &nBytesGenerated, &nBytesIn);
-		DoMoreProcessing = nBytesIn;
-
-		while(pDataQOut) 
-		{
-			nBytesIn = DoMoreProcessing;
-			// Convert data from the Processing-Module-provided type to the HW Queue type
-			srcChMask = (DATA_TYPE_NUM_CHANNELS(pDataQOut->Type) == DATA_TYPE_NUM_CHANNELS(DataOut.Type)) ? DATA_CHANNEL_ALL : DATA_CHANNEL_ANY;
-			DataConvert(pAudio0, DataOut.Type, srcChMask, pAudio1, pDataQOut->Type, DATA_CHANNEL_ALL, &nBytesIn, &nBytesGenerated);
-			// Place the processed data into the queue for the next module to process
-			Queue_Push(pDataQOut, pAudio1, nBytesGenerated);
-			pDataQOut = pDataQOut->pNext;
-		}
-	}
-	return DoMoreProcessing;
-}

@@ -93,10 +93,10 @@ int main(void)
 
 	// Queue for RateSync'd data
 	osParams.RateSyncQ = Queue_Create( MAX_AUDIO_SIZE_BYTES * 3, DATA_TYPE_Q15 | DATA_NUM_CH_2);
-	
+
 	// Link output queues
 	osParams.PCM_OutQ->pNext = osParams.USB_InQ;
-	
+
 	/* Start scheduler */
 	osKernelStart();
 
@@ -166,7 +166,7 @@ void StartDefaultTask(void const * argument)
 
 	buttonState = BSP_PB_GetState(BUTTON_KEY);
 	osParams.bStartPlay = 1;
-	
+
 	/* Infinite loop */
 	for(;;)
 	{
@@ -183,15 +183,15 @@ void StartDefaultTask(void const * argument)
 				}
 				// If new mode is selected - restart audio output to be in sync with PDM or USB data
 				BSP_AUDIO_OUT_Stop(CODEC_PDWN_SW);
-				
+
 				Queue_Clear(osParams.PCM_OutQ);
 				Queue_Clear(osParams.USB_OutQ);
 				Queue_Clear(osParams.PCM_InQ);
 				Queue_Clear(osParams.USB_InQ);
 				Queue_Clear(osParams.RateSyncQ);
-				
+
 				osParams.bStartPlay = 1;
-				
+
 				BSP_LED_Off(LED3);
 				BSP_LED_Off(LED4);
 				BSP_LED_Off(LED5);

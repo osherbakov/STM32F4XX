@@ -2,6 +2,14 @@
 #include "arm_const_structs.h"
 #include "dataqueues.h"
 
+#ifdef _MSC_VER
+#define CCMRAM
+#define RODATA
+#else
+#define CCMRAM __attribute__((section (".ccmram"))) __attribute__((aligned(4)))
+#define RODATA __attribute__((section (".rodata")))
+#endif
+
 
 //
 //  BYPASS functionality module
@@ -36,7 +44,7 @@ static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = BYPASS_DATA_TYPE;
 	pIn->Size = BYPASS_BLOCK_BYTES;
-	
+
 	pOut->Type = BYPASS_DATA_TYPE;
 	pOut->Size = BYPASS_BLOCK_BYTES;
 }
@@ -114,7 +122,7 @@ static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_BYTES;
-	
+
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
@@ -157,7 +165,7 @@ static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	pIn->Type = DOWNSAMPLE_DATA_TYPE;
 	pIn->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
-	
+
 	pOut->Type = DOWNSAMPLE_DATA_TYPE;
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }

@@ -3,7 +3,7 @@
 #include "cmsis_os.h"
 #include "datatasks.h"
 
-#include "usb_device.h"
+//#include "usb_device.h"
 
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio.h"
@@ -92,15 +92,15 @@ void StartDataInPDMTask(void const * argument)
 	// Allocate the storage for PDM data (double-buffered) and resulting storage for PCM
 	osParams.pPDM_In  = (uint8_t *)osAlloc(NUM_PDM_BYTES * 2);
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
-		
+
 	pPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 
 	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
  	BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 85, SAMPLE_FREQ);
-	
-	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA 
+
+	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, 2 * NUM_PDM_BYTES);
-	
+
 	while(1)
 	{	// Wait for the message (sent by ISR) that the buffer is filled and ready to be processed
 		osDelay(1000);
