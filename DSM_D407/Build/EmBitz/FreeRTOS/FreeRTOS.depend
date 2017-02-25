@@ -1,1 +1,178 @@
 # depslib dependency file v1.0
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.c
+	<string.h>
+	"cmsis_os.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.h
+	<stdint.h>
+	<stddef.h>
+	"core_cmFunc.h"
+	"FreeRTOS.h"
+	"task.h"
+	"timers.h"
+	"queue.h"
+	"semphr.h"
+	"event_groups.h"
+	<cmsis_os.h>
+	"osObjects.h"
+	"osObjects.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\freertos.h
+	<stddef.h>
+	<stdint.h>
+	"FreeRTOSConfig.h"
+	"projdefs.h"
+	"portable.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\inc\freertosconfig.h
+	<stdint.h>
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\projdefs.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\portable.h
+	"deprecated_definitions.h"
+	"portmacro.h"
+	"mpu_wrappers.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\deprecated_definitions.h
+	"..\..\Source\portable\owatcom\16bitdos\pc\portmacro.h"
+	"..\..\Source\portable\owatcom\16bitdos\flsh186\portmacro.h"
+	"../portable/GCC/ATMega323/portmacro.h"
+	"../portable/IAR/ATMega323/portmacro.h"
+	"../../Source/portable/MPLAB/PIC24_dsPIC/portmacro.h"
+	"../../Source/portable/MPLAB/PIC24_dsPIC/portmacro.h"
+	"../../Source/portable/MPLAB/PIC18F/portmacro.h"
+	"../../Source/portable/MPLAB/PIC32MX/portmacro.h"
+	"libFreeRTOS/Include/portmacro.h"
+	"../../Source/portable/SDCC/Cygnal/portmacro.h"
+	"../../Source/portable/GCC/ARM7_LPC2000/portmacro.h"
+	"portmacro.h"
+	"../../Source/portable/GCC/ARM7_LPC23xx/portmacro.h"
+	"..\..\Source\portable\IAR\MSP430\portmacro.h"
+	"../../Source/portable/GCC/MSP430F449/portmacro.h"
+	"../../Source/portable/Rowley/MSP430F449/portmacro.h"
+	"..\..\Source\portable\RVDS\ARM7_LPC21xx\portmacro.h"
+	"../../Source/portable/GCC/ARM7_AT91SAM7S/portmacro.h"
+	"..\..\Source\portable\IAR\AtmelSAM7S64\portmacro.h"
+	"..\..\Source\portable\IAR\AtmelSAM9XE\portmacro.h"
+	"..\..\Source\portable\IAR\LPC2000\portmacro.h"
+	"..\..\Source\portable\IAR\STR71x\portmacro.h"
+	"..\..\Source\portable\IAR\STR75x\portmacro.h"
+	"..\..\Source\portable\GCC\STR75x\portmacro.h"
+	"..\..\Source\portable\IAR\STR91x\portmacro.h"
+	"../../Source/portable/GCC/H8S2329/portmacro.h"
+	"../../Source/portable/GCC/ARM7_AT91FR40008/portmacro.h"
+	"../../Source/portable/RVDS/ARM_CM3/portmacro.h"
+	"../../Source/portable/GCC/ARM_CM3/portmacro.h"
+	"../../Source/portable/GCC/ARM_CM3/portmacro.h"
+	"../../Source/portable/IAR/ARM_CM3/portmacro.h"
+	"../../Source/portable/IAR/ARM_CM3/portmacro.h"
+	"../../Source/portable/CodeWarrior/HCS12/portmacro.h"
+	"../../Source/portable/GCC/MicroBlaze/portmacro.h"
+	"..\..\Source\portable\Paradigm\Tern_EE\small\portmacro.h"
+	"../../Source/portable/GCC/HCS12/portmacro.h"
+	"../../Source/portable/GCC/MCF5235/portmacro.h"
+	"../../../Source/portable/GCC/ColdFire_V2/portmacro.h"
+	"../../Source/portable/CodeWarrior/ColdFire_V2/portmacro.h"
+	"../../Source/portable/GCC/PPC405_Xilinx/portmacro.h"
+	"../../Source/portable/GCC/PPC440_Xilinx/portmacro.h"
+	"..\..\Source\portable\Softune\MB96340\portmacro.h"
+	"frconfig.h"
+	"..\portable\BCC\16BitDOS\PC\prtmacro.h"
+	"frconfig.h"
+	"..\portable\BCC\16BitDOS\flsh186\prtmacro.h"
+	"portmacro.h"
+	"portmacro.h"
+	"portmacro.h"
+	"portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/78K0R/portmacro.h"
+	"../../Source/portable/IAR/78K0R/portmacro.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\gcc\arm_cm4f\portmacro.h
+
+1483997369 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\rvds\arm_cm3\portmacro.h
+
+1483997369 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\portmacro.h
+
+1483997369 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\iar\arm_cm3\portmacro.h
+	<intrinsics.h>
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\mpu_wrappers.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\task.h
+	"list.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\list.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\timers.h
+	"task.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\queue.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\semphr.h
+	"queue.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\event_groups.h
+	"timers.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\croutine.c
+	"FreeRTOS.h"
+	"task.h"
+	"croutine.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\croutine.h
+	"list.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\event_groups.c
+	<stdlib.h>
+	"FreeRTOS.h"
+	"task.h"
+	"timers.h"
+	"event_groups.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\list.c
+	<stdlib.h>
+	"FreeRTOS.h"
+	"list.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\gcc\arm_cm4f\port.c
+	"FreeRTOS.h"
+	"task.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\memmang\heap_4.c
+	<stdlib.h>
+	"FreeRTOS.h"
+	"task.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\queue.c
+	<stdlib.h>
+	<string.h>
+	"FreeRTOS.h"
+	"task.h"
+	"queue.h"
+	"croutine.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\tasks.c
+	<stdlib.h>
+	<string.h>
+	"FreeRTOS.h"
+	"task.h"
+	"timers.h"
+	"StackMacros.h"
+	<stdio.h>
+	"tasks_test_access_functions.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\stackmacros.h
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\timers.c
+	<stdlib.h>
+	"FreeRTOS.h"
+	"task.h"
+	"queue.h"
+	"timers.h"
+

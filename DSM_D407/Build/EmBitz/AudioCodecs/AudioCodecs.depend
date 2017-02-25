@@ -1,1 +1,526 @@
 # depslib dependency file v1.0
+1486498624 source:c:\projects\stm32f4xx\dsm_d407\src\a_u_law\aulaw_q15.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"aulaw_q15.h"
+	"aulaw_data_q15.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\arm_math.h
+	"core_cm7.h"
+	"core_cm4.h"
+	"core_cm3.h"
+	"core_cm0.h"
+	"core_cm0plus.h"
+	"string.h"
+	"math.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cm7.h
+	<stdint.h>
+	"core_cmInstr.h"
+	"core_cmFunc.h"
+	"core_cmSimd.h"
+
+1445976026 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cminstr.h
+	"cmsis_armcc.h"
+	"cmsis_armcc_V6.h"
+	"cmsis_gcc.h"
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+	<cmsis_csm.h>
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\cmsis_armcc.h
+
+1445976026 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\cmsis_armcc_v6.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\cmsis_gcc.h
+
+1445976026 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cmfunc.h
+	"cmsis_armcc.h"
+	"cmsis_armcc_V6.h"
+	"cmsis_gcc.h"
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+	<cmsis_csm.h>
+
+1445976026 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cmsimd.h
+	"cmsis_armcc.h"
+	"cmsis_armcc_V6.h"
+	"cmsis_gcc.h"
+	<cmsis_iar.h>
+	<cmsis_ccs.h>
+	<cmsis_csm.h>
+
+1487294362 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cm4.h
+	<stdint.h>
+	"core_cmInstr.h"
+	"core_cmFunc.h"
+	"core_cmSimd.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cm3.h
+	<stdint.h>
+	"core_cmInstr.h"
+	"core_cmFunc.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cm0.h
+	<stdint.h>
+	"core_cmInstr.h"
+	"core_cmFunc.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\core_cm0plus.h
+	<stdint.h>
+	"core_cmInstr.h"
+	"core_cmFunc.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\arm_const_structs.h
+	"arm_math.h"
+	"arm_common_tables.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\drivers\cmsis\include\arm_common_tables.h
+	"arm_math.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\src\a_u_law\aulaw_q15.h
+	<stdint.h>
+
+1448399422 c:\projects\stm32f4xx\dsm_d407\src\a_u_law\aulaw_data_q15.h
+	<stdint.h>
+
+1487970154 source:c:\projects\stm32f4xx\dsm_d407\src\a_u_law\module.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"aulaw_q15.h"
+	"aulaw_data_q15.h"
+	"dataqueues.h"
+
+1487974551 c:\projects\stm32f4xx\dsm_d407\src\sw_framework\dataqueues.h
+	"stdint.h"
+	"cmsis_os.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.h
+	<stdint.h>
+	<stddef.h>
+	"core_cmFunc.h"
+	"FreeRTOS.h"
+	"task.h"
+	"timers.h"
+	"queue.h"
+	"semphr.h"
+	"event_groups.h"
+	<cmsis_os.h>
+	"osObjects.h"
+	"osObjects.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\freertos.h
+	<stddef.h>
+	<stdint.h>
+	"FreeRTOSConfig.h"
+	"projdefs.h"
+	"portable.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\inc\freertosconfig.h
+	<stdint.h>
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\projdefs.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\portable.h
+	"deprecated_definitions.h"
+	"portmacro.h"
+	"mpu_wrappers.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\deprecated_definitions.h
+	"..\..\Source\portable\owatcom\16bitdos\pc\portmacro.h"
+	"..\..\Source\portable\owatcom\16bitdos\flsh186\portmacro.h"
+	"../portable/GCC/ATMega323/portmacro.h"
+	"../portable/IAR/ATMega323/portmacro.h"
+	"../../Source/portable/MPLAB/PIC24_dsPIC/portmacro.h"
+	"../../Source/portable/MPLAB/PIC24_dsPIC/portmacro.h"
+	"../../Source/portable/MPLAB/PIC18F/portmacro.h"
+	"../../Source/portable/MPLAB/PIC32MX/portmacro.h"
+	"libFreeRTOS/Include/portmacro.h"
+	"../../Source/portable/SDCC/Cygnal/portmacro.h"
+	"../../Source/portable/GCC/ARM7_LPC2000/portmacro.h"
+	"portmacro.h"
+	"../../Source/portable/GCC/ARM7_LPC23xx/portmacro.h"
+	"..\..\Source\portable\IAR\MSP430\portmacro.h"
+	"../../Source/portable/GCC/MSP430F449/portmacro.h"
+	"../../Source/portable/Rowley/MSP430F449/portmacro.h"
+	"..\..\Source\portable\RVDS\ARM7_LPC21xx\portmacro.h"
+	"../../Source/portable/GCC/ARM7_AT91SAM7S/portmacro.h"
+	"..\..\Source\portable\IAR\AtmelSAM7S64\portmacro.h"
+	"..\..\Source\portable\IAR\AtmelSAM9XE\portmacro.h"
+	"..\..\Source\portable\IAR\LPC2000\portmacro.h"
+	"..\..\Source\portable\IAR\STR71x\portmacro.h"
+	"..\..\Source\portable\IAR\STR75x\portmacro.h"
+	"..\..\Source\portable\GCC\STR75x\portmacro.h"
+	"..\..\Source\portable\IAR\STR91x\portmacro.h"
+	"../../Source/portable/GCC/H8S2329/portmacro.h"
+	"../../Source/portable/GCC/ARM7_AT91FR40008/portmacro.h"
+	"../../Source/portable/RVDS/ARM_CM3/portmacro.h"
+	"../../Source/portable/GCC/ARM_CM3/portmacro.h"
+	"../../Source/portable/GCC/ARM_CM3/portmacro.h"
+	"../../Source/portable/IAR/ARM_CM3/portmacro.h"
+	"../../Source/portable/IAR/ARM_CM3/portmacro.h"
+	"../../Source/portable/CodeWarrior/HCS12/portmacro.h"
+	"../../Source/portable/GCC/MicroBlaze/portmacro.h"
+	"..\..\Source\portable\Paradigm\Tern_EE\small\portmacro.h"
+	"../../Source/portable/GCC/HCS12/portmacro.h"
+	"../../Source/portable/GCC/MCF5235/portmacro.h"
+	"../../../Source/portable/GCC/ColdFire_V2/portmacro.h"
+	"../../Source/portable/CodeWarrior/ColdFire_V2/portmacro.h"
+	"../../Source/portable/GCC/PPC405_Xilinx/portmacro.h"
+	"../../Source/portable/GCC/PPC440_Xilinx/portmacro.h"
+	"..\..\Source\portable\Softune\MB96340\portmacro.h"
+	"frconfig.h"
+	"..\portable\BCC\16BitDOS\PC\prtmacro.h"
+	"frconfig.h"
+	"..\portable\BCC\16BitDOS\flsh186\prtmacro.h"
+	"portmacro.h"
+	"portmacro.h"
+	"portmacro.h"
+	"portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/V850ES/portmacro.h"
+	"../../Source/portable/IAR/78K0R/portmacro.h"
+	"../../Source/portable/IAR/78K0R/portmacro.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\gcc\arm_cm4f\portmacro.h
+
+1483997369 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\rvds\arm_cm3\portmacro.h
+
+1483997369 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\portmacro.h
+
+1483997369 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\portable\iar\arm_cm3\portmacro.h
+	<intrinsics.h>
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\mpu_wrappers.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\task.h
+	"list.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\list.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\timers.h
+	"task.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\queue.h
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\semphr.h
+	"queue.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\middlewares\third_party\freertos\source\include\event_groups.h
+	"timers.h"
+
+1481931115 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\cmsis\math_ext.c
+	"arm_math.h"
+	"arm_const_structs.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebook.c
+	"defines.h"
+
+1443724696 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\defines.h
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookd.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookdt.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookge.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookjvm.c
+	"defines.h"
+
+1465504158 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebooklspmelvq.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookmel.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookres.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookvq.c
+	"defines.h"
+
+1443724695 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codebookvqanssi.c
+	"defines.h"
+
+1466206181 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codec2.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"sine.h"
+	"nlp.h"
+	"lpc.h"
+	"quantise.h"
+	"phase.h"
+	"interp.h"
+	"postfilter.h"
+	"codec2.h"
+	"lsp.h"
+	"codec2_internal.h"
+
+1486498624 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\cmsis\mat.h
+	"arm_math.h"
+	"arm_const_structs.h"
+
+1443724697 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\sine.h
+	"defines.h"
+	"comp.h"
+
+1443724695 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\comp.h
+
+1443724696 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\nlp.h
+	"comp.h"
+
+1465504158 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\lpc.h
+
+1465504158 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\quantise.h
+	"comp.h"
+
+1443724696 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\phase.h
+	"comp.h"
+
+1443724696 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\interp.h
+
+1443724696 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\postfilter.h
+
+1487112767 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codec2.h
+
+1443724696 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\lsp.h
+
+1481930278 c:\projects\stm32f4xx\dsm_d407\src\codec2\src\codec2_internal.h
+	"mat.h"
+
+1443724696 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\interp.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"interp.h"
+	"lsp.h"
+	"quantise.h"
+
+1465504158 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\lpc.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"lpc.h"
+
+1443724696 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\lsp.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"lsp.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\module.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"codec2.h"
+	"sine.h"
+	"mat.h"
+	"dataqueues.h"
+
+1443724696 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\nlp.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"nlp.h"
+	"codec2_internal.h"
+	"codec2.h"
+
+1443724696 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\pack.c
+	"defines.h"
+	"quantise.h"
+
+1443724696 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\phase.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"phase.h"
+	"comp.h"
+	"sine.h"
+
+1443724696 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\postfilter.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"comp.h"
+	"sine.h"
+	"postfilter.h"
+
+1465504158 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\quantise.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"quantise.h"
+	"lpc.h"
+	"lsp.h"
+	"codec2_internal.h"
+
+1443724697 source:c:\projects\stm32f4xx\dsm_d407\src\codec2\src\sine.c
+	<math.h>
+	"mat.h"
+	"defines.h"
+	"sine.h"
+	"codec2_internal.h"
+
+1487284600 source:c:\projects\stm32f4xx\dsm_d407\src\cvsd\cvsd_f32.c
+	"cvsd_f32.h"
+	"cvsd_data_f32.h"
+
+1487290573 c:\projects\stm32f4xx\dsm_d407\src\cvsd\cvsd_f32.h
+	<stdint.h>
+
+1487284600 c:\projects\stm32f4xx\dsm_d407\src\cvsd\cvsd_data_f32.h
+	<stdint.h>
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\src\cvsd\module.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"cvsd_f32.h"
+	"cvsd_data_f32.h"
+	"dataqueues.h"
+
+1443724697 source:c:\projects\stm32f4xx\dsm_d407\src\melp\coeff.c
+	"melp.h"
+
+1485299471 c:\projects\stm32f4xx\dsm_d407\src\melp\melp.h
+
+1467143918 source:c:\projects\stm32f4xx\dsm_d407\src\melp\dsp_sub.c
+	<stdlib.h>
+	<math.h>
+	"mat.h"
+	"dsp_sub.h"
+
+1486498624 c:\projects\stm32f4xx\dsm_d407\src\melp\mat.h
+	"arm_math.h"
+	"arm_const_structs.h"
+
+1467143849 c:\projects\stm32f4xx\dsm_d407\src\melp\dsp_sub.h
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\src\melp\fec_code.c
+	"mat.h"
+	"melp.h"
+
+1443724697 source:c:\projects\stm32f4xx\dsm_d407\src\melp\fs_lib.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"fs.h"
+
+1443724697 c:\projects\stm32f4xx\dsm_d407\src\melp\fs.h
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\src\melp\fsvq_cb.c
+	"melp.h"
+
+1466194844 source:c:\projects\stm32f4xx\dsm_d407\src\melp\lpc_lib.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"lpc.h"
+
+1443724698 c:\projects\stm32f4xx\dsm_d407\src\melp\lpc.h
+
+1443724698 source:c:\projects\stm32f4xx\dsm_d407\src\melp\mat_lib.c
+	"spbstd.h"
+	"mat.h"
+
+1443724698 c:\projects\stm32f4xx\dsm_d407\src\melp\spbstd.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+
+1465504158 source:c:\projects\stm32f4xx\dsm_d407\src\melp\melp_ana.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"lpc.h"
+	"vq.h"
+	"fs.h"
+	"pit.h"
+	"melp_sub.h"
+	"dsp_sub.h"
+
+1443724698 c:\projects\stm32f4xx\dsm_d407\src\melp\vq.h
+
+1443724698 c:\projects\stm32f4xx\dsm_d407\src\melp\pit.h
+
+1443724698 c:\projects\stm32f4xx\dsm_d407\src\melp\melp_sub.h
+
+1467147001 source:c:\projects\stm32f4xx\dsm_d407\src\melp\melp_chn.c
+	<math.h>
+	"mat.h"
+	<string.h>
+	"melp.h"
+	"vq.h"
+	"melp_sub.h"
+	"dsp_sub.h"
+
+1443724698 source:c:\projects\stm32f4xx\dsm_d407\src\melp\melp_sub.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"melp_sub.h"
+	"dsp_sub.h"
+	"pit.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\src\melp\melp_syn.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"lpc.h"
+	"vq.h"
+	"fs.h"
+	"dsp_sub.h"
+	"melp_sub.h"
+
+1485300148 source:c:\projects\stm32f4xx\dsm_d407\src\melp\module.c
+	"mat.h"
+	"melp.h"
+	"dsp_sub.h"
+	"melp_sub.h"
+	"dataqueues.h"
+
+1487290573 source:c:\projects\stm32f4xx\dsm_d407\src\melp\msvq_cb.c
+	"melp.h"
+
+1443724698 source:c:\projects\stm32f4xx\dsm_d407\src\melp\pit_lib.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"melp_sub.h"
+	"dsp_sub.h"
+	"pit.h"
+
+1443724698 source:c:\projects\stm32f4xx\dsm_d407\src\melp\vq_lib.c
+	<math.h>
+	"mat.h"
+	"melp.h"
+	"vq.h"
+	"lpc.h"
+
+1487970203 source:c:\projects\stm32f4xx\dsm_d407\src\updownsamplers\ratesync.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"dataqueues.h"
+	"cmsis_os.h"
+
+1487970215 source:c:\projects\stm32f4xx\dsm_d407\src\updownsamplers\updown16_48_f32.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"dataqueues.h"
+
+1487970269 source:c:\projects\stm32f4xx\dsm_d407\src\updownsamplers\updown8_48_f32.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"dataqueues.h"
+
+1487970244 source:c:\projects\stm32f4xx\dsm_d407\src\updownsamplers\updown8_48_q15.c
+	"arm_math.h"
+	"arm_const_structs.h"
+	"dataqueues.h"
+

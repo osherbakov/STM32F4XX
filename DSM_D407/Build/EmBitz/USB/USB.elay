@@ -8,7 +8,7 @@
 	</File>
 	<File name="..\..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Src\usbd_core.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="0" topLine="0" />
+			<Cursor1 position="2480" topLine="98" />
 		</Cursor>
 	</File>
 </EmBitz_layout_file>

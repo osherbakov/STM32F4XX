@@ -6,4 +6,14 @@
 			<Cursor1 position="1953" topLine="23" />
 		</Cursor>
 	</File>
+	<File name="..\..\..\Drivers\CMSIS\Include\cmsis_gcc.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13205" topLine="432" />
+		</Cursor>
+	</File>
+	<File name="..\..\..\Drivers\CMSIS\Include\core_cmInstr.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2643" topLine="44" />
+		</Cursor>
+	</File>
 </EmBitz_layout_file>
