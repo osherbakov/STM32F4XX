@@ -128,6 +128,8 @@ SECTIONS
 		PROVIDE(__bss_end__ = _ebss);
 	} > SRAM
 	PROVIDE(end = .);
+    PROVIDE (_end = . );
+    PROVIDE (__end__ = . );
 
 
 	.heap (NOLOAD) :
@@ -147,6 +149,5 @@ SECTIONS
 		. = ALIGN(4);
 		PROVIDE(__reserved_for_stack_end__ = .);
 	} > SRAM
-
 }
 
