@@ -23,7 +23,7 @@
 					<Add option="--gdwarf-2" />
 				</Assembler>
 				<Linker>
-					<Add option="-eb_lib=n" />
+					<Add option="-eb_lib=d" />
 					<Add option="-eb_start_files" />
 					<Add option="-eb_use_semi" />
 					<Add option="-Wl,--warn-section-align" />
@@ -71,10 +71,6 @@
 					<Add library="..\CMSIS\bin\Release\CMSIS.a" />
 					<Add library="..\HAL\bin\Release\HAL.a" />
 					<Add library="..\..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
-					<Add library="..\HW_Config\bin\Release\HW_Config.a" />
-					<Add library="..\HAL\bin\Release\HAL.a" />
-					<Add library="..\AudioCodecs\bin\Release\AudioCodecs.a" />
-					<Add library="..\CMSIS\bin\Release\CMSIS.a" />
 				</Linker>
 			</Target>
 		</Build>
