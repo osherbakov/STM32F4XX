@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>CMSIS</name>
+	<name>Codecs</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -24,16 +24,4 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>Include</name>
-			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Include</locationURI>
-		</link>
-		<link>
-			<name>src</name>
-			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
