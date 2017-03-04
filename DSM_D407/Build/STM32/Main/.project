@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>Main</name>
+	<comment></comment>
+	<projects>
+		<project>BSP</project>
+		<project>CMSIS</project>
+		<project>FreeRTOS</project>
+		<project>HAL</project>
+		<project>HW_Config</project>
+		<project>SW_Framework</project>
+		<project>Tasks</project>
+		<project>USB</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
+			<triggers>clean,full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>Main</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/Main</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>

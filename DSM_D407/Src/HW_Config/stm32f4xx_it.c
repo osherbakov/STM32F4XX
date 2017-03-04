@@ -51,7 +51,7 @@ extern I2S_HandleTypeDef hi2s2;
 extern I2S_HandleTypeDef hi2s3;
 extern DMA_HandleTypeDef hdma_spi1_rx;
 extern DMA_HandleTypeDef hdma_spi1_tx;
-extern TIM_HandleTypeDef htim10;
+// extern TIM_HandleTypeDef htim10;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 

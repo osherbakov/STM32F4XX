@@ -25,7 +25,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USB handler declaration */
 /* Handle for USB Full Speed IP */
-extern USBD_HandleTypeDef hUsbDeviceFS;
+// extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /** @defgroup USBD_AUDIO_Private_FunctionPrototypes
   * @{
@@ -77,7 +77,7 @@ static int8_t AUDIO_DeInit()
 }
 
 
-extern uint32_t	AudioInOverrun, AudioOutUnderrun;
+// extern uint32_t	AudioInOverrun, AudioOutUnderrun;
 
 /**
   * @brief  AUDIO_AudioCmd
