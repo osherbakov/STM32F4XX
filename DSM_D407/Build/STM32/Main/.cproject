@@ -73,17 +73,20 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1273700341" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="USB"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="Tasks"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SW_Framework"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="HW_Config"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="HAL"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="FreeRTOS"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="CMSIS"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="BSP"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${workspace_loc:/BSP/PDM/libPDMFilter_CM4F_GCC.a}&quot;"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="Tasks"/>
+									<listOptionValue builtIn="false" value="SW_Framework"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="FreeRTOS"/>
+									<listOptionValue builtIn="false" value="CMSIS"/>
+									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1354884300" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -240,17 +243,20 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1518124321" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="USB"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="Tasks"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SW_Framework"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="HW_Config"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="HAL"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="FreeRTOS"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="CMSIS"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="BSP"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${workspace_loc:/BSP/PDM/libPDMFilter_CM4F_GCC.a}&quot;"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="Tasks"/>
+									<listOptionValue builtIn="false" value="SW_Framework"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="FreeRTOS"/>
+									<listOptionValue builtIn="false" value="CMSIS"/>
+									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.751399171" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
