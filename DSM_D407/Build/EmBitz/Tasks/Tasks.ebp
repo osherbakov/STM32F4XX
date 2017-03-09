@@ -62,10 +62,10 @@
 			<Add directory="..\..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc" />
 			<Add directory="..\..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc" />
 		</Compiler>
-		<Unit filename="..\..\..\Src\DSM_Process\processtask.c">
+		<Unit filename="..\..\..\Src\Tasks\datatasks.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\..\..\Src\SW_Framework\datatasks.c">
+		<Unit filename="..\..\..\Src\Tasks\processtask.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

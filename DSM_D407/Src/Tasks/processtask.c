@@ -58,6 +58,9 @@ void OutData(uint32_t nSamples) {
 //  Task to handle all incoming data
 //
 
+//DataProcessBlock_t	BYPASS;
+//DataProcessBlock_t	RATESYNC_S;
+
 DataProcessBlock_t  *pDecModule = 	&BYPASS;
 DataProcessBlock_t  *pProcModule = 	&BYPASS;
 DataProcessBlock_t  *pIntModule = 	&BYPASS;

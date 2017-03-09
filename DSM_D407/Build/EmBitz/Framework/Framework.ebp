@@ -54,6 +54,8 @@
 			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS" />
 			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F" />
 			<Add directory="..\..\..\Drivers\CMSIS\Include" />
+			<Add directory="..\..\..\Src\Tasks" />
+			<Add directory="..\..\..\Src\SW_Framework" />
 		</Compiler>
 		<Unit filename="..\..\..\Src\SW_Framework\dataqueues.c">
 			<Option compilerVar="CC" />

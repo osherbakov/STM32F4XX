@@ -59,6 +59,7 @@
 			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\include" />
 			<Add directory="..\..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F" />
 			<Add directory="..\..\..\Src\SW_Framework" />
+			<Add directory="..\..\..\Src\Tasks" />
 		</Compiler>
 		<Unit filename="..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c">
 			<Option compilerVar="CC" />

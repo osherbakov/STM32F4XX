@@ -5,7 +5,6 @@
 #include "task.h"
 #include "cmsis_os.h"
 #include "dataqueues.h"
-#include "datatasks.h"
 #include "string.h"
 
 #define MIN(a, b)  	(((a) < (b)) ? (a) : (b))

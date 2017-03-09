@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,ARM_MATH_CM4,__TARGET_FPU_VFP,__FPU_PRESENT=1U</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Inc;..\..\Src\SW_Framework;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\Middlewares\ST\STM32_Audio\Addons\PDM;..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc;..\..\Middlewares\Third_Party\FreeRTOS\Source\include;..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\Drivers\BSP\STM32F4-Discovery;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Src\Codec2\src\CMSIS;..\..\Src\MELPe\inc</IncludePath>
+              <IncludePath>..\..\Inc;..\..\Src\SW_Framework;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\Middlewares\ST\STM32_Audio\Addons\PDM;..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc;..\..\Middlewares\Third_Party\FreeRTOS\Source\include;..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\Drivers\BSP\STM32F4-Discovery;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Src\Codec2\src\CMSIS;..\..\Src\MELPe\inc;..\..\Src\Tasks</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -631,29 +631,24 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>datatasks.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\SW_Framework\datatasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>processtask.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\DSM_Process\processtask.c</FilePath>
-            </File>
-            <File>
               <FileName>dataqueues.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\SW_Framework\dataqueues.c</FilePath>
             </File>
             <File>
-              <FileName>HardFaultHandler.c</FileName>
+              <FileName>datatasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Src\SW_Framework\HardFaultHandler.c</FilePath>
+              <FilePath>..\..\Src\Tasks\datatasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>processtask.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\Tasks\processtask.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\Main\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -744,6 +739,11 @@
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\HW_Config\tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>HardFaultHandler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\HW_Config\HardFaultHandler.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1672,7 +1672,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,ARM_MATH_CM4,__TARGET_FPU_VFP,__FPU_PRESENT=1U</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Inc;..\..\Src\SW_Framework;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\Middlewares\ST\STM32_Audio\Addons\PDM;..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc;..\..\Middlewares\Third_Party\FreeRTOS\Source\include;..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\Drivers\BSP\STM32F4-Discovery;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Src\Codec2\src\CMSIS;..\..\Src\MELPe\inc</IncludePath>
+              <IncludePath>..\..\Inc;..\..\Src\SW_Framework;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\..\Middlewares\ST\STM32_Audio\Addons\PDM;..\..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Device_Library\Class\AUDIO\Inc;..\..\Middlewares\Third_Party\FreeRTOS\Source\include;..\..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\..\Middlewares\Third_Party\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\..\Drivers\BSP\STM32F4-Discovery;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Src\Codec2\src\CMSIS;..\..\Src\MELPe\inc;..\..\Src\Tasks</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1967,29 +1967,24 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>datatasks.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\SW_Framework\datatasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>processtask.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Src\DSM_Process\processtask.c</FilePath>
-            </File>
-            <File>
               <FileName>dataqueues.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\SW_Framework\dataqueues.c</FilePath>
             </File>
             <File>
-              <FileName>HardFaultHandler.c</FileName>
+              <FileName>datatasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Src\SW_Framework\HardFaultHandler.c</FilePath>
+              <FilePath>..\..\Src\Tasks\datatasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>processtask.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\Tasks\processtask.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\Main\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2080,6 +2075,11 @@
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\HW_Config\tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>HardFaultHandler.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\HW_Config\HardFaultHandler.c</FilePath>
             </File>
           </Files>
         </Group>

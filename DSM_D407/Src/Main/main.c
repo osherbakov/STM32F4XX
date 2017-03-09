@@ -226,3 +226,4 @@ void StartBlinkTask(void const * argument)
   }
 }
 
+void __attribute__((noreturn)) _exit(int reason) {while(1){};}
