@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Main</name>
+	<name>MELPe</name>
 	<comment></comment>
 	<projects>
-		<project>Codecs</project>
-		<project>MELPe</project>
-		<project>BSP</project>
-		<project>CMSIS</project>
-		<project>FreeRTOS</project>
-		<project>HAL</project>
-		<project>HW_Config</project>
-		<project>SW_Framework</project>
-		<project>Tasks</project>
-		<project>USB</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -36,9 +26,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Main</name>
+			<name>MELPe</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Src/Main</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/src/MELPe</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -6,7 +6,7 @@
 #include "sine.h"
 #include "mat.h"
 #include "dataqueues.h"
-
+#include "cmsis_os.h"
 
 #define 	CODEC2_BUFF_SIZE (320)
 #define 	CODEC2_BUFF_BYTES (CODEC2_BUFF_SIZE * 4)

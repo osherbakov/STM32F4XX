@@ -75,19 +75,23 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1273700341" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="Tasks"/>
+									<listOptionValue builtIn="false" value="MELPe"/>
+									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
 									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="BSP"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="HAL"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1354884300" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -246,19 +250,23 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Release}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1518124321" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="Tasks"/>
+									<listOptionValue builtIn="false" value="MELPe"/>
+									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
 									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="BSP"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="HAL"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.751399171" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

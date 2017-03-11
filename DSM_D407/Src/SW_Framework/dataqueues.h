@@ -3,7 +3,6 @@
 
 
 #include "stdint.h"
-#include "cmsis_os.h"
 
 typedef enum DataType
 {

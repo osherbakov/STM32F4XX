@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Main</name>
+	<name>Codecs</name>
 	<comment></comment>
 	<projects>
-		<project>Codecs</project>
-		<project>MELPe</project>
-		<project>BSP</project>
-		<project>CMSIS</project>
-		<project>FreeRTOS</project>
-		<project>HAL</project>
-		<project>HW_Config</project>
-		<project>SW_Framework</project>
-		<project>Tasks</project>
-		<project>USB</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -36,9 +26,24 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Main</name>
+			<name>A_u_Law</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Src/Main</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/src/A_u_Law</locationURI>
+		</link>
+		<link>
+			<name>CVSD</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/CVSD</locationURI>
+		</link>
+		<link>
+			<name>Codec2</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/Codec2</locationURI>
+		</link>
+		<link>
+			<name>UpDownSamplers</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/UpDownSamplers</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

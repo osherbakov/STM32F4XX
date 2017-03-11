@@ -3,6 +3,7 @@
 #include "cvsd_f32.h"
 #include "cvsd_data_f32.h"
 #include "dataqueues.h"
+#include "cmsis_os.h"
 
 #define	CVSD_DATA_TYPE			(DATA_TYPE_F32 | DATA_NUM_CH_1 | (4))
 #define CVSD_BLOCK_SIZE   		(60)

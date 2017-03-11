@@ -4,6 +4,7 @@
 #include "aulaw_q15.h"
 #include "aulaw_data_q15.h"
 #include "dataqueues.h"
+#include "cmsis_os.h"
 
 
 #define AU_LAW_BLOCK_SIZE   		(60)
