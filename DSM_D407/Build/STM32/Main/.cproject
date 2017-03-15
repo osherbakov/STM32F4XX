@@ -69,10 +69,10 @@
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.936126803" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.paths.648019845" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/Debug}&quot;"/>
@@ -86,17 +86,22 @@
 									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
-									<listOptionValue builtIn="false" value="BSP"/>
-									<listOptionValue builtIn="false" value="HAL"/>
-									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
+									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="CMSIS"/>
+									<listOptionValue builtIn="false" value="PDMFilter_CM4F_GCC"/>
 								</option>
 								<option id="gnu.c.link.option.other.328131882" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="--no-wchar-size-warning"/>
 								</option>
+								<option id="gnu.c.link.option.nostart.1542474210" name="Do not use standard start files (-nostartfiles)" superClass="gnu.c.link.option.nostart" value="false" valueType="boolean"/>
+								<option id="gnu.c.link.option.nodeflibs.454084958" name="Do not use default libraries (-nodefaultlibs)" superClass="gnu.c.link.option.nodeflibs" value="false" valueType="boolean"/>
+								<option id="gnu.c.link.option.nostdlibs.866954499" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="false" valueType="boolean"/>
+								<option id="gnu.c.link.option.noshared.195421249" name="No shared libraries (-static)" superClass="gnu.c.link.option.noshared" value="true" valueType="boolean"/>
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.713647243" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" value="C:\Projects\stm32f4xx\DSM_D407\Src\Main\STM32F407VG.ld" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1354884300" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -280,12 +285,12 @@
 									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
-									<listOptionValue builtIn="false" value="CMSIS"/>
+									<listOptionValue builtIn="false" value="HW_Config"/>
 									<listOptionValue builtIn="false" value="BSP"/>
 									<listOptionValue builtIn="false" value="USB"/>
-									<listOptionValue builtIn="false" value="HW_Config"/>
+									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
 								</option>
 								<option id="gnu.c.link.option.other.546068901" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
