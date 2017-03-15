@@ -69,6 +69,7 @@
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.936126803" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.paths.648019845" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework/Debug}&quot;"/>
@@ -78,23 +79,20 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1273700341" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="Tasks"/>
-									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="Codecs"/>
+									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="HAL"/>
-									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
+									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="BSP"/>
-									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
+									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
 								</option>
 								<option id="gnu.c.link.option.other.328131882" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="--no-wchar-size-warning"/>
@@ -239,6 +237,8 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.781973382" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/src/Device/ST/STM32F4xx/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/FreeRTOS/Source/include}&quot;"/>
@@ -277,18 +277,16 @@
 								</option>
 								<option id="gnu.c.link.option.libs.1518124321" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="Tasks"/>
-									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="Codecs"/>
+									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HW_Config"/>
 									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="BSP"/>
-									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
 									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
 								</option>
 								<option id="gnu.c.link.option.other.546068901" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="--no-wchar-size-warning"/>
@@ -302,6 +300,8 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1614849540" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.648244518" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.17019899" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework}&quot;"/>
@@ -376,6 +376,20 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/USB"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/USB/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="USB" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="Codecs;fr.ac6.managedbuild.config.gnu.cross.lib.release.1378680357" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Codecs"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Codecs/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="Codecs" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="MELPe;fr.ac6.managedbuild.config.gnu.cross.lib.release.1378680357" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/MELPe"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/MELPe/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="MELPe" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>
