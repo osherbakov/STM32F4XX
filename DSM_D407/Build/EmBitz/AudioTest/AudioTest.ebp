@@ -18,6 +18,7 @@
 				<Compiler>
 					<Add option="-O0" />
 					<Add option="-g2" />
+					<Add symbol="DEBUG_DEFAULT_INTERRUPT_HANDLERS" />
 				</Compiler>
 				<Assembler>
 					<Add option="--gdwarf-2" />
@@ -32,14 +33,15 @@
 					<Add library="..\Framework\bin\Debug\Framework.a" />
 					<Add library="..\FreeRTOS\bin\Debug\FreeRTOS.a" />
 					<Add library="..\HW_Config\bin\Debug\HW_Config.a" />
+					<Add library="..\HAL\bin\Debug\HAL.a" />
 					<Add library="..\MELPe\bin\Debug\MELPe.a" />
 					<Add library="..\Tasks\bin\Debug\Tasks.a" />
+					<Add library="..\AudioCodecs\bin\Debug\AudioCodecs.a" />
 					<Add library="..\USB\bin\Debug\USB.a" />
+					<Add library="..\HW_Config\bin\Debug\HW_Config.a" />
+					<Add library="..\BSP\bin\Debug\BSP.a" />
 					<Add library="..\HAL\bin\Debug\HAL.a" />
 					<Add library="..\..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
-					<Add library="..\HW_Config\bin\Debug\HW_Config.a" />
-					<Add library="..\HAL\bin\Debug\HAL.a" />
-					<Add library="..\AudioCodecs\bin\Debug\AudioCodecs.a" />
 					<Add library="..\CMSIS\bin\Debug\CMSIS.a" />
 				</Linker>
 			</Target>
@@ -70,9 +72,6 @@
 					<Add library="..\USB\bin\Release\USB.a" />
 					<Add library="..\HAL\bin\Release\HAL.a" />
 					<Add library="..\..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
-					<Add library="..\HW_Config\bin\Release\HW_Config.a" />
-					<Add library="..\HAL\bin\Release\HAL.a" />
-					<Add library="..\AudioCodecs\bin\Release\AudioCodecs.a" />
 					<Add library="..\CMSIS\bin\Release\CMSIS.a" />
 				</Linker>
 			</Target>
@@ -102,14 +101,14 @@
 			<Add directory="..\..\..\Src\SW_Framework" />
 			<Add directory="..\..\..\Src\Tasks" />
 		</Compiler>
-		<Unit filename="..\startup_stm32f407xx.c">
-			<Option compilerVar="CC" />
-			<Option virtualFolder="Startup\" />
-		</Unit>
 		<Unit filename="..\STM32F407VG.ld" />
 		<Unit filename="..\STM32F40x.svd" />
 		<Unit filename="..\..\..\Src\Main\main.c">
 			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\..\..\Src\Main\startup_stm32f407xx.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="Startup\" />
 		</Unit>
 		<Extensions>
 			<code_completion />

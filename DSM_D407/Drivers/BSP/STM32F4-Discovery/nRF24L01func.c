@@ -673,7 +673,7 @@ rf24_crclength_e RF24_getCRCLength(void)
   uint8_t config = RF24_read_register(CONFIG) & ( _BV(CRCO) | _BV(EN_CRC)) ;
   uint8_t AA = RF24_read_register(EN_AA);
   
-  if ( config & _BV(EN_CRC ) || AA)
+  if ( (config & _BV(EN_CRC )) || AA)
   {
     if ( config & _BV(CRCO) )
       result = RF24_CRC_16;

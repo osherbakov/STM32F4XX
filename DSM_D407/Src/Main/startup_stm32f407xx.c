@@ -76,13 +76,13 @@ void __attribute__ ((weak)) PendSV_Handler()
 	asm("bkpt 255");
 }
 
-void __attribute__ ((weak)) SysTick_Handler()
-{
+extern void SysTick_Handler();
+//{
 	//If you hit the breakpoint below, one of the interrupts was unhandled in your code.
 	//Define the following function in your code to handle it:
 	//	extern "C" void SysTick_Handler();
-	asm("bkpt 255");
-}
+//	asm("bkpt 255");
+//}
 
 void __attribute__ ((weak)) WWDG_IRQHandler()
 {
