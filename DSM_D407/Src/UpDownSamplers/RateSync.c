@@ -24,7 +24,7 @@
 #define CCMRAM
 #define RODATA
 #else
-#define CCMRAM __attribute__((section (".ccmram"))) __attribute__((aligned(4)))
+#define CCMRAM __attribute__((section (".ccmram")))
 #define RODATA __attribute__((section (".rodata")))
 #endif
 

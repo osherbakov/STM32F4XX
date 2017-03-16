@@ -20,13 +20,13 @@ void __attribute__ ((weak)) NMI_Handler()
 	asm("bkpt 255");
 }
 
-void __attribute__ ((weak)) HardFault_Handler()
-{
+extern void HardFault_Handler();
+//{
 	//If you hit the breakpoint below, one of the interrupts was unhandled in your code.
 	//Define the following function in your code to handle it:
 	//	extern "C" void HardFault_Handler();
 	asm("bkpt 255");
-}
+//}
 
 void __attribute__ ((weak)) MemManage_Handler()
 {
@@ -966,3 +966,4 @@ void __attribute__((naked, noreturn)) Default_Handler()
 	//This will pinpoint a specific missing vector.
 	for (;;) ;
 }
+

@@ -40,51 +40,6 @@ SECTIONS
 		_etext = .;
 	} > FLASH
 
-	.ARM.extab :
-	{
-		. = ALIGN(4);
-		*(.ARM.extab)
-		*(.gnu.linkonce.armextab.*)
-		. = ALIGN(4);
-	} > FLASH
-
-	.exidx :
-	{
-		. = ALIGN(4);
-		PROVIDE(__exidx_start = .);
-		*(.ARM.exidx*)
-		. = ALIGN(4);
-		PROVIDE(__exidx_end = .);
-	} > FLASH
-
-	.ARM.attributes :
-	{
-		*(.ARM.attributes)
-	} > FLASH
-
-	.preinit_array :
-	{
-		PROVIDE(__preinit_array_start = .);
-		KEEP(*(.preinit_array*))
-		PROVIDE(__preinit_array_end = .);
-	} > FLASH
-
-	.init_array :
-	{
-		PROVIDE(__init_array_start = .);
-		KEEP(*(SORT(.init_array.*)))
-		KEEP(*(.init_array*))
-		PROVIDE(__init_array_end = .);
-	} > FLASH
-
-	.fini_array :
-	{
-		PROVIDE(__fini_array_start = .);
-		KEEP(*(.fini_array*))
-		KEEP(*(SORT(.fini_array.*)))
-		PROVIDE(__fini_array_end = .);
-	} > FLASH
-
 	. = ALIGN(4);
 	_sidata = .;
 	.data : AT(_sidata)
@@ -100,7 +55,7 @@ SECTIONS
 	} > SRAM
 
 	. = ALIGN(4);
-	_siccmram = .;
+	_siccmram = _sidata + SIZEOF(.data);
 	.ccmram : AT (_siccmram)
 	{
 		. = ALIGN(4);
