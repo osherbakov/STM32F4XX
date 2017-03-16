@@ -101,7 +101,7 @@
 								<option id="gnu.c.link.option.nodeflibs.454084958" name="Do not use default libraries (-nodefaultlibs)" superClass="gnu.c.link.option.nodeflibs" value="false" valueType="boolean"/>
 								<option id="gnu.c.link.option.nostdlibs.866954499" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="false" valueType="boolean"/>
 								<option id="gnu.c.link.option.noshared.195421249" name="No shared libraries (-static)" superClass="gnu.c.link.option.noshared" value="true" valueType="boolean"/>
-								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.713647243" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" value="C:\Projects\stm32f4xx\DSM_D407\Src\Main\STM32F407VG.ld" valueType="string"/>
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.713647243" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" value="../../../../STM32F407VG.ld" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1354884300" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -240,6 +240,7 @@
 									<listOptionValue builtIn="false" value="STM32F4"/>
 									<listOptionValue builtIn="false" value="STM32F4DISCOVERY"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
+									<listOptionValue builtIn="false" value="DEBUG_DEFAULT_INTERRUPT_HANDLERS"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.781973382" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe}&quot;"/>
@@ -271,13 +272,13 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Release}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1518124321" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
@@ -291,11 +292,13 @@
 									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
-									<listOptionValue builtIn="false" value="PDMFilter_CM4F_IAR"/>
+									<listOptionValue builtIn="false" value="PDMFilter_CM4F_GCC"/>
 								</option>
 								<option id="gnu.c.link.option.other.546068901" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="--no-wchar-size-warning"/>
 								</option>
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.1989571995" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" value="../../../../STM32F407VG.ld" valueType="string"/>
+								<option id="gnu.c.link.option.noshared.113523302" name="No shared libraries (-static)" superClass="gnu.c.link.option.noshared" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.751399171" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -322,7 +325,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="A_u_Law/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

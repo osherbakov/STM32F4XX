@@ -73,6 +73,9 @@
 		<Unit filename="..\..\..\Src\HW_Config\gpio.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\..\..\Src\HW_Config\HardFaultHandler.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\..\..\Src\HW_Config\i2c.c">
 			<Option compilerVar="CC" />
 		</Unit>

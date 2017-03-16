@@ -227,4 +227,4 @@ void StartBlinkTask(void const * argument)
 }
 
 void __attribute__((noreturn)) _exit(int reason) {asm("bkpt 255");}
-void __attribute__((noreturn)) _sbrk(int reason) {asm("bkpt 255");}
+void __attribute__((noreturn)) _sbrk() {asm("bkpt 255");}

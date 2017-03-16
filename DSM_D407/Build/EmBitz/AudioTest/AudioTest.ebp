@@ -28,19 +28,16 @@
 					<Add option="-eb_start_files" />
 					<Add option="-eb_use_semi" />
 					<Add option="-Wl,--warn-section-align" />
+					<Add option="-T ..\..\..\STM32F407VG.ld" />
+					<Add library="..\Tasks\bin\Debug\Tasks.a" />
+					<Add library="..\MELPe\bin\Debug\MELPe.a" />
 					<Add library="..\AudioCodecs\bin\Debug\AudioCodecs.a" />
-					<Add library="..\BSP\bin\Debug\BSP.a" />
 					<Add library="..\Framework\bin\Debug\Framework.a" />
 					<Add library="..\FreeRTOS\bin\Debug\FreeRTOS.a" />
 					<Add library="..\HW_Config\bin\Debug\HW_Config.a" />
 					<Add library="..\HAL\bin\Debug\HAL.a" />
-					<Add library="..\MELPe\bin\Debug\MELPe.a" />
-					<Add library="..\Tasks\bin\Debug\Tasks.a" />
-					<Add library="..\AudioCodecs\bin\Debug\AudioCodecs.a" />
 					<Add library="..\USB\bin\Debug\USB.a" />
-					<Add library="..\HW_Config\bin\Debug\HW_Config.a" />
 					<Add library="..\BSP\bin\Debug\BSP.a" />
-					<Add library="..\HAL\bin\Debug\HAL.a" />
 					<Add library="..\..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
 					<Add library="..\CMSIS\bin\Debug\CMSIS.a" />
 				</Linker>
@@ -57,19 +54,24 @@
 					<Add option="-ffunction-sections" />
 					<Add option="-O2" />
 					<Add option="-g2" />
+					<Add symbol="DEBUG_DEFAULT_INTERRUPT_HANDLERS" />
 				</Compiler>
 				<Linker>
 					<Add option="-eb_lib=d" />
 					<Add option="-eb_start_files" />
+					<Add option="-eb_use_semi" />
 					<Add option="-Wl,--warn-section-align" />
+					<Add option="-T ..\..\..\STM32F407VG.ld" />
+					<Add library="..\Tasks\bin\Release\Tasks.a" />
+					<Add library="..\MELPe\bin\Release\MELPe.a" />
 					<Add library="..\AudioCodecs\bin\Release\AudioCodecs.a" />
-					<Add library="..\BSP\bin\Release\BSP.a" />
 					<Add library="..\Framework\bin\Release\Framework.a" />
 					<Add library="..\FreeRTOS\bin\Release\FreeRTOS.a" />
 					<Add library="..\HW_Config\bin\Release\HW_Config.a" />
-					<Add library="..\MELPe\bin\Release\MELPe.a" />
-					<Add library="..\Tasks\bin\Release\Tasks.a" />
+					<Add library="..\HAL\bin\Release\HAL.a" />
 					<Add library="..\USB\bin\Release\USB.a" />
+					<Add library="..\BSP\bin\Release\BSP.a" />
+					<Add library="..\HW_Config\bin\Release\HW_Config.a" />
 					<Add library="..\HAL\bin\Release\HAL.a" />
 					<Add library="..\..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
 					<Add library="..\CMSIS\bin\Release\CMSIS.a" />
@@ -88,6 +90,7 @@
 			<Add symbol="STM32F4XX" />
 			<Add symbol="STM32F407xx" />
 			<Add symbol="STM32F407VG" />
+			<Add symbol="DEBUG_DEFAULT_INTERRUPT_HANDLERS" />
 			<Add directory="..\..\..\Inc" />
 			<Add directory="..\..\..\Drivers\STM32F4xx_HAL_Driver\Inc" />
 			<Add directory="..\..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include" />
@@ -101,8 +104,6 @@
 			<Add directory="..\..\..\Src\SW_Framework" />
 			<Add directory="..\..\..\Src\Tasks" />
 		</Compiler>
-		<Unit filename="..\STM32F407VG.ld" />
-		<Unit filename="..\STM32F40x.svd" />
 		<Unit filename="..\..\..\Src\Main\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -110,6 +111,8 @@
 			<Option compilerVar="CC" />
 			<Option virtualFolder="Startup\" />
 		</Unit>
+		<Unit filename="..\..\..\STM32F407VG.ld" />
+		<Unit filename="..\..\..\STM32F40x.svd" />
 		<Extensions>
 			<code_completion />
 			<debugger>
@@ -130,7 +133,26 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Release" active_interface="" />
+				<target_debugging_settings target="Release" active_interface="ST-link">
+					<debug_interface interface_id="Generic" ip_address="" ip_port="" path="" executable="" description="..\STM32F40x.svd" dont_start_server="false" backoff_time="" options="0" reg_filter="0" active_family="All" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="All" />
+					</debug_interface>
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="0" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="1" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
 			</debugger>
 			<envvars />
 		</Extensions>
