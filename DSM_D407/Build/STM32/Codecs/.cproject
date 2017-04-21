@@ -102,7 +102,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="CVSD/main.c|Codec2/src/main.c|Codec2/raw|Codec2/Build|A_u_Law/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="MELP/main.c|CVSD/main.c|Codec2/src/main.c|Codec2/raw|Codec2/Build|A_u_Law/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -209,7 +209,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="CVSD/main.c|Codec2/src/main.c|Codec2/raw|Codec2/Build|A_u_Law/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="MELP/main.c|CVSD/main.c|Codec2/src/main.c|Codec2/raw|Codec2/Build|A_u_Law/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

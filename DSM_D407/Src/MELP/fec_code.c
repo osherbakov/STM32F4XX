@@ -31,12 +31,12 @@ Group (phone 972 480 7442).
 #include "melp.h"
 
 /* Prototypes */
-int binprod_int(int *x, int *y, int n);
+int binprod_int(const int *x, const int *y, int n);
 int *vgetbits(int *y, int x, int p, int n);
 int vsetbits(int x, int p, int n, int *y);
-void sbc_enc(int x[], int n, int k, int *pmat);
-int sbc_dec(int x[], int n, int k, int *pmat, int syntab[]);
-int sbc_syn(int x[], int n, int k, int *pmat);
+void sbc_enc(int x[], int n, int k, const int *pmat);
+int sbc_dec(int x[], int n, int k, const int *pmat, const int syntab[]);
+int sbc_syn(int x[], int n, int k, const int *pmat);
 
 
 /* Compiler constants */
@@ -45,16 +45,16 @@ int sbc_syn(int x[], int n, int k, int *pmat);
 #define BEP_CORR -1   /* "Correct" bit error position */
 #define BEP_UNCORR -2 /* "Uncorrectable" bit error position */
 
-extern int pitch_enc[PIT_QLEV+1]; /* Pitch index encoding table */
-extern int pmat74[3][4];  /* (7,4) Hamming code parity matrix */
-extern int syntab74[8];   /* (7,4) Hamming code syndrome->bep table */
-extern int pmat84[4][4];  /* (8,4) Hamming code parity matrix */
-extern int syntab84[16];  /* (8,4) Hamming code syndrome->bep table */
+const int pitch_enc[PIT_QLEV+1] RODATA; /* Pitch index encoding table */
+const int pmat74[3][4] RODATA;  /* (7,4) Hamming code parity matrix */
+const int syntab74[8] RODATA;   /* (7,4) Hamming code syndrome->bep table */
+const int pmat84[4][4] RODATA;  /* (8,4) Hamming code parity matrix */
+const int syntab84[16] RODATA;  /* (8,4) Hamming code syndrome->bep table */
 
 static int codewd74[7];
 static int codewd84[8];
 
-extern int pitch_dec[1<<PIT_BITS]; /* Pitch index decoding table */
+const int pitch_dec[1<<PIT_BITS]; /* Pitch index decoding table */
 
 void fec_code(struct melp_param *par)
 {
@@ -184,7 +184,7 @@ int fec_decode(struct melp_param *par, int erase)
      bitwise modulo-2 inner product between x and y.
 */
 
-int binprod_int(int *x, int *y, int n)
+int binprod_int(const int *x, const int *y, int n)
 {
     int val=(int) 0;
     register int i;
@@ -254,14 +254,14 @@ int vsetbits(int x, int p, int n, int *y)
 
 */
 
-void sbc_enc(int x[], int n, int k, int *pmat)
+void sbc_enc(int x[], int n, int k, const int *pmat)
 {
     register int i;
     for (i=k; i<n; i++,pmat+=k)
 		x[i] = binprod_int(x,pmat,k);
 }
 
-int sbc_dec(int x[], int n, int k, int *pmat, int syntab[])
+int sbc_dec(int x[], int n, int k, const int *pmat, const int syntab[])
 {
     int bep=syntab[sbc_syn(x,n,k,pmat)];
     if (bep > -1)
@@ -269,7 +269,7 @@ int sbc_dec(int x[], int n, int k, int *pmat, int syntab[])
     return(bep);
 }
 
-int sbc_syn(int x[], int n, int k, int *pmat)
+int sbc_syn(int x[], int n, int k, const int *pmat)
 {
     int retval=0;
     register int i,j;
@@ -283,20 +283,20 @@ int sbc_syn(int x[], int n, int k, int *pmat)
 ** (7,4) Hamming code tables.
 */
 /* Parity generator matrix. */
-int pmat74[3][4] RODATA = {{1,1,0,1},{1,0,1,1},{0,1,1,1}};
+const int pmat74[3][4] RODATA = {{1,1,0,1},{1,0,1,1},{0,1,1,1}};
 
 /* Syndrome table. */
-int syntab74[8] RODATA = {BEP_CORR,6,5,2,4,1,0,3};
+const int syntab74[8] RODATA = {BEP_CORR,6,5,2,4,1,0,3};
 
 /*
 ** (8,4) extended Hamming code tables.
 */
 
 /* Parity generator matrix. */
-int pmat84[4][4] RODATA = {{1,1,0,1},{1,0,1,1},{0,1,1,1},{1,1,1,0}};
+const int pmat84[4][4] RODATA = {{1,1,0,1},{1,0,1,1},{0,1,1,1},{1,1,1,0}};
 
 /* Syndrome->error position lookup table. */
-int syntab84[16] RODATA =
+const int syntab84[16] RODATA =
 {
     BEP_CORR,    /* 0x0 */
     7,           /* 0x1 */
@@ -323,7 +323,7 @@ int syntab84[16] RODATA =
 ** values having Hamming weight > 2.
 */
 
-int pitch_enc[PIT_QLEV+1] RODATA = 
+const int pitch_enc[PIT_QLEV+1] RODATA =
 {
 0x0, /* UV_PIND */
 0x7, /* 1 (first pitch QL - note offset) */
@@ -434,7 +434,7 @@ int pitch_enc[PIT_QLEV+1] RODATA =
 ** creating false unvoiced condition.
 */
 
-int pitch_dec[1<<PIT_BITS] RODATA = 
+const int pitch_dec[1<<PIT_BITS] RODATA =
 {
 UV_PIND, /* 0x0 */
 UV_PIND, /* 0x1 */

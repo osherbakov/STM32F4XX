@@ -141,13 +141,13 @@ void bpvc_ana_init()
 /* DC removal filter */
 /* 4th order Chebyshev Type II 60 Hz removal filter */
 /* cutoff=60 Hz, stop=-30 dB */
-static float dc_num[DC_ORD+1] RODATA = {    
+static const float dc_num[DC_ORD+1] RODATA = {
       0.92692416f,
      -3.70563834f,
       5.55742893f,
      -3.70563834f,
       0.92692416f};
-static float dc_den[DC_ORD+1] RODATA = {
+static const float dc_den[DC_ORD+1] RODATA = {
        1.00000000f,
      -3.84610723f,
       5.55209760f,

@@ -41,6 +41,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/src/Codec2</locationURI>
 		</link>
 		<link>
+			<name>MELP</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/src/MELP</locationURI>
+		</link>
+		<link>
 			<name>UpDownSamplers</name>
 			<type>2</type>
 			<locationURI>PARENT-3-PROJECT_LOC/src/UpDownSamplers</locationURI>

@@ -22,7 +22,7 @@
 #define  DOWNSAMPLE_BLOCK_BYTES (DOWNSAMPLE_BLOCK_SIZE * 2)
 
 static q15_t DownSample48_8_Buff[DOWNSAMPLE_BLOCK_SIZE + DOWNSAMPLE_TAPS - 1] CCMRAM;
-static q15_t DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
+static const q15_t DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
 -18, 812, 856, 470, -650, -2040,
 -2684, -1476, 2068, 7316, 12600, 15916,
  15916, 12600, 7316, 2068, -1476, -2684,
@@ -30,7 +30,7 @@ static q15_t DownSample48_8_Coeff[DOWNSAMPLE_TAPS] RODATA = {
 };
 
 static q15_t UpSample8_48_Buff[(DOWNSAMPLE_BLOCK_SIZE + UPSAMPLE_TAPS)/UPDOWNSAMPLE_RATIO - 1] CCMRAM;
-static q15_t UpSample8_48_Coeff[UPSAMPLE_TAPS] RODATA = {
+static const q15_t UpSample8_48_Coeff[UPSAMPLE_TAPS] RODATA = {
          147,        -945,       -1638,       -2407,
        -2700,       -2025,         -46,        3256,
         7492,       11914,       15591,       17681,
