@@ -54,7 +54,7 @@ static void ds_48_8_close(void *pHandle)
 static void ds_48_8_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_decimate_init_q15(pHandle, DOWNSAMPLE_TAPS, UPDOWNSAMPLE_RATIO,
-			DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
+			(q15_t *)DownSample48_8_Coeff, DownSample48_8_Buff, DOWNSAMPLE_BLOCK_SIZE);
 }
 
 static void ds_48_8_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -98,7 +98,7 @@ static void us_8_48_close(void *pHandle)
 static void us_8_48_open(void *pHandle, uint32_t Params)
 {
 	arm_fir_interpolate_init_q15(&Int,  UPDOWNSAMPLE_RATIO, UPSAMPLE_TAPS,
-			UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
+			(q15_t *) UpSample8_48_Coeff, UpSample8_48_Buff, DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO);
 }
 
 static void us_8_48_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)

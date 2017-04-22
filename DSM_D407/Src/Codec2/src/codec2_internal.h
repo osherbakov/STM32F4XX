@@ -30,7 +30,9 @@
 #define __CODEC2_INTERNAL__
 #include "mat.h"
 
-// #pragma anon_unions
+#ifndef __GNUC__
+#pragma anon_unions
+#endif
 
 #define PMAX_M      600		/* maximum NLP analysis window size     */
 #define DEC         5		/* decimation factor                    */
