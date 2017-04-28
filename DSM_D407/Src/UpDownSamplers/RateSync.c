@@ -36,7 +36,6 @@ typedef struct RateSyncData {
 		int32_t		DeltaIn;		// The calculated Input difference between samples (CPU-tied)
 		int32_t		DeltaOut;		// The calculated Output difference between samples (CPU-tied)
 		uint32_t	Delay;			// The delay amount (how Output samples are delayed relative to Input)
-		int32_t		AddRemoveCnt;	// The counter of Added (positive) or Removed (negative) samples
 		float		States[6];		// States memory
 }RateSyncData_t;
 
@@ -56,7 +55,6 @@ void ratesync_open(void *pHandle, uint32_t Params)
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 	pRS->DeltaIn = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Input samples
 	pRS->DeltaOut = SystemCoreClock/1000;		// How many clock ticks in 1 ms for Output samples
-	pRS->AddRemoveCnt = 0;
 }
 
 void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
@@ -78,9 +76,11 @@ void calc_coeff(float *pOutput, float Delay, uint32_t nCoeff)
 	}
 }
 
+const float		ONE = 1.0f, ONE_HALF = 0.5f, ONE_SIXTH = 1.0f/6.0f;
+
 void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
-	uint32_t	nInSamples, nSavedInSamples;
+	uint32_t	nInSamples;
 	uint32_t	nOutSamples;
 	uint32_t	Delay;				// Delay of output sample relative to input
 	uint32_t 	TimeIn, DeltaIn;
@@ -90,17 +90,12 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	float		D0, D1, D2, D3, D0D1, D2D3, accum;
 	float		S1, S2, S3;
 	float		NextInSample;
-	float		ONE, ONE_HALF, ONE_SIXTH;
 
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	DeltaIn = pRS->DeltaIn;
 	DeltaOut = pRS->DeltaOut;
 	Delay = pRS->Delay;
-
-	ONE = 1.0f;
-	ONE_HALF = 0.5f;
-	ONE_SIXTH = 1.0f/6.0f;
 
 	// Initial settings for time:
 	TimeIn = 0 + DeltaIn;				// First IN Sample
@@ -111,7 +106,6 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 
 	idxIn =  idxOut = 0;
 	nOutSamples = 0;
-	nSavedInSamples = nInSamples = *pInBytes / RATESYNC_ELEM_SIZE_M;
 
 	while(nInSamples > 0)
 	{
@@ -159,14 +153,13 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	pRS->States[0] = S1;
 	pRS->States[1] = S2;
 	pRS->States[2] = S3;
-	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_M;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_M;
 }
 
 void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
-	uint32_t	nInSamples, nSavedInSamples;
+	uint32_t	nInSamples;
 	uint32_t	nOutSamples;
 	uint32_t	Delay;				// Delay of output sample relative to input
 	uint32_t 	TimeIn, DeltaIn;
@@ -177,18 +170,12 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	float		S1L, S2L, S3L;
 	float		S1R, S2R, S3R;
 	float		NextInLSample, NextInRSample;
-	float		ONE, ONE_HALF, ONE_SIXTH;
 
 	RateSyncData_t	*pRS = (RateSyncData_t	*) pHandle;
 
 	DeltaIn = pRS->DeltaIn;
 	DeltaOut = pRS->DeltaOut;
 	Delay = pRS->Delay;
-
-	ONE = 1.0f;
-	ONE_HALF = 0.5f;
-	ONE_SIXTH = 1.0f/6.0f;
-
 
 	// Initial settings for time:
 	TimeIn = 0 + DeltaIn;				// First IN Sample
@@ -202,7 +189,6 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 
 	idxIn =  idxOut = 0;
 	nOutSamples = 0;
-	nSavedInSamples = nInSamples = *pInBytes / RATESYNC_ELEM_SIZE_S;
 
 	while(nInSamples > 0)
 	{
@@ -266,7 +252,6 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	pRS->States[3] = S1R;
 	pRS->States[4] = S2R;
 	pRS->States[5] = S3R;
-	pRS->AddRemoveCnt += (nOutSamples - nSavedInSamples);
 	*pOutBytes = nOutSamples * RATESYNC_ELEM_SIZE_S;
 	*pInBytes = nInSamples * RATESYNC_ELEM_SIZE_S;
 }
@@ -291,6 +276,7 @@ void ratesync_info_stereo(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  RATESYNC_M CCMRAM = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
-DataProcessBlock_t  RATESYNC_S CCMRAM = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
+DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
 
