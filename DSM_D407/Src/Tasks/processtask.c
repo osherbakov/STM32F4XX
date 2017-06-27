@@ -170,7 +170,7 @@ void StartDataProcessTask(void const * argument)
 				DoMoreProcessing = 0;
 				// Rate-sync the input 48Ksamples/sec signal
 				DoMoreProcessing += DoProcessing(pDataQIn, pSyncModule, pRSyncState, osParams.RateSyncQ);
-				// Downsample, if neccessary, the received signal
+				// Downsample, if necessary, the received signal
 				DoMoreProcessing += DoProcessing(osParams.RateSyncQ, pDecModule, pDecState, osParams.DownSampleQ);
 				// Do the data processing
 				DoMoreProcessing += DoProcessing(osParams.DownSampleQ, pProcModule, pProcModuleState, osParams.UpSampleQ);

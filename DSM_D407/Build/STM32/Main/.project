@@ -3,13 +3,12 @@
 	<name>Main</name>
 	<comment></comment>
 	<projects>
-		<project>Codecs</project>
-		<project>MELPe</project>
 		<project>BSP</project>
-		<project>CMSIS</project>
+		<project>Codecs</project>
 		<project>FreeRTOS</project>
 		<project>HAL</project>
 		<project>HW_Config</project>
+		<project>MELPe</project>
 		<project>SW_Framework</project>
 		<project>Tasks</project>
 		<project>USB</project>

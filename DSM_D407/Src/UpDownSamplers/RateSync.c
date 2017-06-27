@@ -105,6 +105,7 @@ void ratesync_process_mono(void *pHandle, void *pDataIn, void *pDataOut, uint32_
 	S3 = pRS->States[2];
 
 	idxIn =  idxOut = 0;
+	nInSamples  =  *pInBytes / RATESYNC_ELEM_SIZE_M;
 	nOutSamples = 0;
 
 	while(nInSamples > 0)
@@ -188,6 +189,7 @@ void ratesync_process_stereo(void *pHandle, void *pDataIn, void *pDataOut, uint3
 	S3R = pRS->States[5];
 
 	idxIn =  idxOut = 0;
+	nInSamples  =  *pInBytes / RATESYNC_ELEM_SIZE_S;
 	nOutSamples = 0;
 
 	while(nInSamples > 0)
