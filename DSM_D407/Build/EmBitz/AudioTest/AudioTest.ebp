@@ -24,11 +24,13 @@
 					<Add option="--gdwarf-2" />
 				</Assembler>
 				<Linker>
-					<Add option="-eb_lib=d" />
+					<Add option="-eb_lib=n" />
 					<Add option="-eb_start_files" />
 					<Add option="-eb_use_semi" />
 					<Add option="-Wl,--warn-section-align" />
-					<Add option="-T ..\..\..\STM32F407VG.ld" />
+					<Add option="-Wl,--cref" />
+					<Add option="-Wl,--no-check-sections" />
+					<Add option="-Wl,--gc-sections" />
 					<Add library="..\Tasks\bin\Debug\Tasks.a" />
 					<Add library="..\MELPe\bin\Debug\MELPe.a" />
 					<Add library="..\AudioCodecs\bin\Debug\AudioCodecs.a" />
@@ -71,8 +73,6 @@
 					<Add library="..\HAL\bin\Release\HAL.a" />
 					<Add library="..\USB\bin\Release\USB.a" />
 					<Add library="..\BSP\bin\Release\BSP.a" />
-					<Add library="..\HW_Config\bin\Release\HW_Config.a" />
-					<Add library="..\HAL\bin\Release\HAL.a" />
 					<Add library="..\..\..\Middlewares\ST\STM32_Audio\Addons\PDM\libPDMFilter_CM4F_GCC.a" />
 					<Add library="..\CMSIS\bin\Release\CMSIS.a" />
 				</Linker>
@@ -155,6 +155,15 @@
 				</target_debugging_settings>
 			</debugger>
 			<envvars />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </EmBitz_project_file>
