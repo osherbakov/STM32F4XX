@@ -14,22 +14,22 @@
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.2062101269" name="Debug" parent="fr.ac6.managedbuild.config.gnu.cross.lib.debug">
+				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.2062101269" name="Debug" parent="fr.ac6.managedbuild.config.gnu.cross.lib.debug" postbuildStep="arm-none-eabi-objcopy -O binary &quot;${BuildArtifactFileBaseName}.axf&quot; &quot;${BuildArtifactFileBaseName}.bin&quot;; arm-none-eabi-size &quot;${BuildArtifactFileName}&quot;">
 					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.2062101269." name="/" resourcePath="">
-						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug.1084922282" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug">
+						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug.1084922282" name="Ac6 STM32 MCU GCC" nonInternalBuilderId="fr.ac6.managedbuild.builder.gnu.cross" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug">
 							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.1572976259" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="STM32F407VGTx" valueType="string"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.board.886669941" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM32F4DISCOVERY" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.board.886669941" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM32F407G-DISC1" valueType="string"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1645443381" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.1256980032" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.234501063" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
-							<builder buildPath="${workspace_loc:/Main}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.1329362098" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/Main}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.88687263" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.837859677" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.1858601336" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false"/>
 								<option id="gnu.c.compiler.option.debugging.level.1646531914" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
@@ -45,6 +45,12 @@
 								<option id="gnu.c.compiler.option.include.paths.1798046581" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/src/Device/ST/STM32F4xx/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/FreeRTOS/Source/include}&quot;"/>
@@ -69,28 +75,28 @@
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.936126803" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.paths.648019845" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1273700341" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="Tasks"/>
-									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="MELPe"/>
-									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="FreeRTOS"/>
+									<listOptionValue builtIn="false" value="Tasks"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="SW_Framework"/>
 									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="FreeRTOS"/>
+									<listOptionValue builtIn="false" value="BSP"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_GCC"/>
 								</option>
@@ -119,7 +125,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.2093768177" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -135,13 +140,6 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/BSP"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/BSP/Debug"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="BSP" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
-				<externalSettings containerId="CMSIS;fr.ac6.managedbuild.config.gnu.cross.lib.debug.1343785667" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CMSIS"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CMSIS/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="CMSIS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<externalSettings containerId="FreeRTOS;fr.ac6.managedbuild.config.gnu.cross.lib.debug.2062101269" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
@@ -226,7 +224,7 @@
 					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.lib.release.1378680357." name="/" resourcePath="">
 						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.release.582529710" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.release">
 							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.1530496468" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="STM32F407VGTx" valueType="string"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.board.169879884" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM32F4DISCOVERY" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.board.169879884" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM32F407G-DISC1" valueType="string"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1805345500" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.1980910091" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.932107452" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
@@ -245,6 +243,12 @@
 								<option id="gnu.c.compiler.option.include.paths.781973382" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/src/Device/ST/STM32F4xx/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/FreeRTOS/Source/include}&quot;"/>
@@ -269,28 +273,28 @@
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.1608302311" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker">
 								<option id="gnu.c.link.option.paths.864938416" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/USB/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Tasks/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/SW_Framework/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Codecs/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/Release}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MELPe/Release}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1518124321" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="Tasks"/>
-									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="MELPe"/>
-									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="FreeRTOS"/>
+									<listOptionValue builtIn="false" value="Tasks"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
-									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="USB"/>
+									<listOptionValue builtIn="false" value="SW_Framework"/>
 									<listOptionValue builtIn="false" value="HAL"/>
+									<listOptionValue builtIn="false" value="FreeRTOS"/>
+									<listOptionValue builtIn="false" value="BSP"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_GCC"/>
 								</option>
@@ -316,7 +320,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HW_Config}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HAL}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/FreeRTOS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSIS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1126114942" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -335,13 +338,6 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/BSP"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/BSP/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="BSP" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
-				<externalSettings containerId="CMSIS;fr.ac6.managedbuild.config.gnu.cross.lib.release.1452441683" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CMSIS"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CMSIS/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="CMSIS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<externalSettings containerId="FreeRTOS;fr.ac6.managedbuild.config.gnu.cross.lib.release.1378680357" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">

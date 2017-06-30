@@ -12,6 +12,7 @@
 		<project>SW_Framework</project>
 		<project>Tasks</project>
 		<project>USB</project>
+		<project>CMSIS</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
