@@ -95,9 +95,6 @@ void StartDataInPDMTask(void const * argument)
 
 	pPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 
-	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
- 	BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 85, SAMPLE_FREQ);
-
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, 2 * NUM_PDM_BYTES);
 

@@ -55,8 +55,18 @@ int main(void)
 	MX_RNG_Init();
 	MX_SPI1_Init();
 	MX_TIM10_Init();
+
 	/* init code for USB_DEVICE */
 	MX_USB_DEVICE_Init();
+
+	/* Initialize all BSP features that we want to use - LEDS, buttons, Audio  */
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED4);
+	BSP_LED_Init(LED5);
+	BSP_LED_Init(LED6);
+	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
+	BSP_AUDIO_IN_Init(SAMPLE_FREQ, 16, 1);
+ 	BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_HEADPHONE, 85, SAMPLE_FREQ);
 
 	BSP_RF24_Init(&hspi1);
 
@@ -156,13 +166,6 @@ void SystemClock_Config(void)
 void StartDefaultTask(void const * argument)
 {
 	int buttonState;	// User button State
-
-	/* Initialize all BSP features that we want to use - LEDS, buttons, Audio  */
-	BSP_LED_Init(LED3);
-	BSP_LED_Init(LED4);
-	BSP_LED_Init(LED5);
-	BSP_LED_Init(LED6);
-	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_GPIO);
 
 	buttonState = BSP_PB_GetState(BUTTON_KEY);
 	osParams.bStartPlay = 1;
