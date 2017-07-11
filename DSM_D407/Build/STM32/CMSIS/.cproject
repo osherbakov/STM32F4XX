@@ -61,7 +61,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="src/RTOS|src/DSP_Lib|src/DSP_Lib/Examples|src/Device|src/Device/ST/STM32F4xx/Source/Templates" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/DSP_Lib/Source"/>
+						<entry excluding="GCC" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/DSP_Lib/Source"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -127,7 +127,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/RTOS|src/DSP_Lib/Examples|src/Device|src/Device/ST/STM32F4xx/Source/Templates" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/DSP_Lib/Source/GCC|src/RTOS|src/DSP_Lib/Examples|src/Device|src/Device/ST/STM32F4xx/Source/Templates" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -156,4 +156,16 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j4</buildArguments>
+				<buildTarget>all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 </cproject>

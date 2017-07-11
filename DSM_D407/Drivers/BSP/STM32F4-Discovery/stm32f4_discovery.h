@@ -121,13 +121,15 @@ typedef enum
 #define LED6_GPIO_CLK_DISABLE()          __GPIOD_CLK_DISABLE()  
 
 
-#define LEDx_GPIO_CLK_ENABLE(__INDEX__)   (((__INDEX__) == 0) ? LED4_GPIO_CLK_ENABLE() :\
-                                           ((__INDEX__) == 1) ? LED3_GPIO_CLK_ENABLE() :\
-                                           ((__INDEX__) == 2) ? LED5_GPIO_CLK_ENABLE() : LED6_GPIO_CLK_ENABLE())
+#define LEDx_GPIO_CLK_ENABLE(__INDEX__)   if((__INDEX__) == 0)  LED4_GPIO_CLK_ENABLE();\
+                                          else if((__INDEX__) == 1) LED3_GPIO_CLK_ENABLE();\
+                                          else if((__INDEX__) == 2) LED5_GPIO_CLK_ENABLE();\
+										  else LED6_GPIO_CLK_ENABLE()
 
-#define LEDx_GPIO_CLK_DISABLE(__INDEX__)  (((__INDEX__) == 0) ? LED4_GPIO_CLK_DISABLE() :\
-                                           ((__INDEX__) == 1) ? LED3_GPIO_CLK_DISABLE() :\
-                                           ((__INDEX__) == 2) ? LED5_GPIO_CLK_DISABLE() : LED6_GPIO_CLK_DISABLE())
+#define LEDx_GPIO_CLK_DISABLE(__INDEX__)  if((__INDEX__) == 0) ? LED4_GPIO_CLK_DISABLE();\
+                                          else if((__INDEX__) == 1) LED3_GPIO_CLK_DISABLE();\
+                                          else if((__INDEX__) == 2) LED5_GPIO_CLK_DISABLE();\
+										  else LED6_GPIO_CLK_DISABLE()
 /**
   * @}
   */ 
@@ -147,9 +149,9 @@ typedef enum
 #define KEY_BUTTON_EXTI_IRQn          EXTI0_IRQn 
 
 
-#define BUTTONx_GPIO_CLK_ENABLE(__INDEX__)    (KEY_BUTTON_GPIO_CLK_ENABLE())
+#define BUTTONx_GPIO_CLK_ENABLE(__INDEX__)    KEY_BUTTON_GPIO_CLK_ENABLE()
 
-#define BUTTONx_GPIO_CLK_DISABLE(__INDEX__)    (KEY_BUTTON_GPIO_CLK_DISABLE())
+#define BUTTONx_GPIO_CLK_DISABLE(__INDEX__)    KEY_BUTTON_GPIO_CLK_DISABLE()
 /**
   * @}
   */ 
