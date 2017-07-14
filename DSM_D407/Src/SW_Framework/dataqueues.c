@@ -113,7 +113,7 @@ uint32_t Queue_Push(DQueue_t *pQueue, void *pData, uint32_t nBytes)
 	count =  iPut - iGet;
 	if (count < 0) { count += nSize; if(count <= 0) count += nSize;}
 	else if(count > nSize) {count -= nSize;}
-	if(count >= nSize/2) pQueue->isReady = 1;
+	if(count * 2 >= nSize) pQueue->isReady = 1;
 
 	return ret;
 }
