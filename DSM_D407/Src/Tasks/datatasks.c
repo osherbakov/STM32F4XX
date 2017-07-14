@@ -13,8 +13,7 @@
 #include "spi.h"
 #include "NRF24L01func.h"
 
-uint8_t		*pPCM;
-uint8_t		*pInputBuffer;
+static uint8_t		*tmpPCM;
 
 extern void InData(uint32_t nSamples);
 extern void OutData(uint32_t nSamples);
@@ -27,11 +26,12 @@ extern void OutData(uint32_t nSamples);
 void BSP_AUDIO_IN_HalfTransfer_CallBack()
 {
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
+			uint8_t		*pInputBuffer;
 			pInputBuffer = &osParams.pPDM_In[0];
 InData(NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
-			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
-			Queue_Push(osParams.PCM_InQ, pPCM, NUM_PCM_BYTES);
+			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)tmpPCM);
+			Queue_Push(osParams.PCM_InQ, tmpPCM, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_InQ, 0);
 	}
@@ -41,11 +41,12 @@ InData(NUM_PCM_SAMPLES);
 void BSP_AUDIO_IN_TransferComplete_CallBack()
 {
 	if( osParams.audioInMode == AUDIO_MODE_IN_MIC) {	// We are in PDM microphone IN mode
+			uint8_t		*pInputBuffer;
 			pInputBuffer = &osParams.pPDM_In[NUM_PDM_BYTES];
 InData(NUM_PCM_SAMPLES);
 			// Call BSP-provided function to convert PDM data from the microphone to normal PCM data
-			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)pPCM);
-			Queue_Push(osParams.PCM_InQ, pPCM, NUM_PCM_BYTES);
+			BSP_AUDIO_IN_PDMToPCM((uint16_t *)pInputBuffer, (uint16_t *)tmpPCM);
+			Queue_Push(osParams.PCM_InQ, tmpPCM, NUM_PCM_BYTES);
 			// Report converted samples to the main data processing task
 			osMessagePut(osParams.dataInReadyMsg, (uint32_t)osParams.PCM_InQ, 0);
 	}
@@ -93,7 +94,7 @@ void StartDataInPDMTask(void const * argument)
 	osParams.pPDM_In  = (uint8_t *)osAlloc(NUM_PDM_BYTES * 2);
 	osParams.pPCM_Out = (uint8_t *)osAlloc(NUM_PCM_BYTES * 2);
 
-	pPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
+	tmpPCM = (uint8_t *)osAlloc(NUM_PCM_BYTES);
 
 	// Start collecting PDM data (double-buffered) into alocated buffer with circular DMA
 	BSP_AUDIO_IN_Record((uint16_t *)osParams.pPDM_In, 2 * NUM_PDM_BYTES);

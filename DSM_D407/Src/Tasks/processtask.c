@@ -4,9 +4,6 @@
 #include "datatasks.h"
 #include "dataqueues.h"
 
-//#include "usb_device.h"
-//#include "usbd_audio.h"
-
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio.h"
 
@@ -62,7 +59,7 @@ void OutData(uint32_t nSamples) {
 //DataProcessBlock_t	RATESYNC_S;
 
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&CODEC;
+DataProcessBlock_t  *pProcModule = 	&MELP;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
