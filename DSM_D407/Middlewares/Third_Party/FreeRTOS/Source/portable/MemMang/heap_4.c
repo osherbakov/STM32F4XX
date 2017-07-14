@@ -160,7 +160,7 @@ void *pvReturn = NULL;
 	vTaskSuspendAll();
 	{
 		/* If this is the first call to malloc then the heap will require
-		initialisation to setup the list of free blocks. */
+		initialization to setup the list of free blocks. */
 		if( pxEnd == NULL )
 		{
 			prvHeapInit();

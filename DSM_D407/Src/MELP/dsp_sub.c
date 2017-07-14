@@ -122,7 +122,7 @@ float peakiness(float input[], int npts)
       sum_abs += fabsf(input[i]);
 
     if (sum_abs > 0.01F)
-      peak_fact = arm_sqrt(npts*v_magsq(input,npts)) / sum_abs;
+      peak_fact = fsqrtf(npts*v_magsq(input,npts)) / sum_abs;
     else
       peak_fact = 0.0;
 

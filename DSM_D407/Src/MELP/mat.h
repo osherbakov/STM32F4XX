@@ -67,34 +67,34 @@ static __INLINE int findmax(float input[], int npts)
 	return (maxloc);
 }
 
-static __INLINE float arm_sqrt(float x)
+static __INLINE float fsqrtf(float x)
 {
 	float32_t  res;
 	arm_sqrt_f32(x, &res);
 	return res;
 }
 
-static __INLINE float arm_sin(float x)
+static __INLINE float fsinf(float x)
 {
 	float32_t  res;
 	res = arm_sin_f32(x);
 	return res;
 }
 
-static __INLINE float arm_cos(float x)
+static __INLINE float fcosf(float x)
 {
 	float32_t  res;
 	res = arm_cos_f32(x);
 	return res;
 }
 
-static __INLINE float powf_fast(float a, float b) {
+static __INLINE float fpowf(float a, float b) {
 	union { float d; int x; } u = { a };
 	u.x = (int)(b * (u.x - 1064866805) + 1064866805);
 	return u.d;
 }
 
-static __INLINE float log2f_fast (float val)
+static __INLINE float flog2f(float val)
 {
 	union { float d; int x; } u = { val };	
 	float  log_2 = (float)(((u.x >> 23) & 255) - 128);
@@ -105,7 +105,7 @@ static __INLINE float log2f_fast (float val)
 	return (u.d + log_2);
 } 
 
-static __INLINE float atan2f_fast( float y, float x )
+static __INLINE float fatan2f( float y, float x )
 {
 	float atan, z;	
 	if ( x == 0.0f )
@@ -132,7 +132,7 @@ static __INLINE float atan2f_fast( float y, float x )
 	return atan;
 }
 
-static __INLINE float acosf_fast(float x) {
+static __INLINE float facosf(float x) {
    return (-0.69813170079773212f * x * x - 0.87266462599716477f) * x + 1.5707963267948966f;
 }
 

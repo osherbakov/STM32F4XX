@@ -26,7 +26,7 @@
 */
 
 #include <math.h>
-#include "mat.h"
+#include "CMSIS/mat.h"
 
 #include "defines.h"
 #include "interp.h"

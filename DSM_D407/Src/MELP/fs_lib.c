@@ -79,7 +79,7 @@ void find_harm(float input[], float fsmag[], float pitch, int num_harm,
     /* Normalize Fourier series values to average magnitude */
     temp = num_harm/(avg + .0001f);
     for (i = 0; i < num_harm; i++) {
-		fsmag[i] = arm_sqrt(temp*fsmag[i]);
+		fsmag[i] = fsqrtf(temp*fsmag[i]);
     }
 }
 

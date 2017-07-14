@@ -247,10 +247,10 @@ void melp_syn(struct melp_param *par, float sp_out[], unsigned char chbuf[])
 
 		/* interpolate pitch and pulse gain */
 		pitch = intfact*par->pitch + (1.0f-intfact)*prev_par.pitch;
-		pulse_gain = SYN_GAIN * arm_sqrt(pitch);
+		pulse_gain = SYN_GAIN * fsqrtf(pitch);
 
 		/* interpolate pulse and noise coefficients */
-		temp = arm_sqrt(ifact);
+		temp = fsqrtf(ifact);
 		interp_array(prev_pcof,curr_pcof,pulse_cof,temp,MIX_ORD+1);
 		interp_array(prev_ncof,curr_ncof,noise_cof,temp,MIX_ORD+1);
 

@@ -142,7 +142,7 @@ float find_pitch(float sig_in[], float *pcorr, int lower, int upper,
     }
 
     /* Return full floating point pitch value and correlation*/
-    *pcorr = arm_sqrt(maxcorr);
+    *pcorr = fsqrtf(maxcorr);
     return((float) ipitch);
 }
 
@@ -226,7 +226,7 @@ float frac_pch(float sig_in[], float *pcorr, float fpitch, int range, int pmin, 
     /* Calculate interpolated correlation strength */
     frac1 = 1.0f - frac;
     denom = c0_0*(frac1*frac1*cT_T + 2*frac*frac1*cT_T1 + frac*frac*cT1_T1);
-    denom = arm_sqrt(denom);
+    denom = fsqrtf(denom);
     if (fabs(denom) > 0.01f)
       *pcorr = (frac1*c0_T + frac*c0_T1) / denom;
     else

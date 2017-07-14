@@ -28,7 +28,7 @@
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 #include <math.h>
-#include "mat.h"
+#include "CMSIS/mat.h"
 
 #include "defines.h"
 #include "lsp.h"

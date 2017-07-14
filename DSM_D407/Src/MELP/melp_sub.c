@@ -506,7 +506,7 @@ void scale_adj(float *speech, float gain, float *prev_scale, int length, int sca
     float scale;
 
     /* Calculate desired scaling factor to match gain level */
-    scale = gain / (arm_sqrt(v_magsq(&speech[0],length) / length) + .01f);
+    scale = gain / (fsqrtf(v_magsq(&speech[0],length) / length) + .01f);
 
     /* interpolate scale factors for first SCALEOVER points */
     for (i = 1; i < scale_over; i++) {

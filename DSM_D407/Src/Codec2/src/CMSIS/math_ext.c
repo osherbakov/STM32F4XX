@@ -155,6 +155,90 @@ void arm_sqr_f32(
   }
 }
 
+//
+//  Fast math functions
+//
+
+float fdivf(float a, float b) {
+    union { float f; int i; } v = {b};
+    float w;
+    v.i = (int)(0x7EF127EA - v.i);
+    w = b * v.f;
+    // Efficient Iterative Approximation Improvement in horner polynomial form.
+    v.f = v.f * (2.0f - w);     // Single iteration, Err = -3.36e-3 * 2^(-flr(log2(x)))
+    // v.f = v.f * ( 4 + w * (-6 + w * (4 - w)));  // Second iteration, Err = -1.13e-5 * 2^(-flr(log2(x)))
+    // v.f = v.f * (8 + w * (-28 + w * (56 + w * (-70 + w *(56 + w * (-28 + w * (8 - w)))))));  // Third Iteration, Err = +-6.8e-8 *  2^(-flr(log2(x)))
+    return a * v.f;
+}
+
+float finvf(float x) {
+    union { float f; int i; } v = {x};
+    float w;
+    v.i = (int)(0x7EF127EA - v.i);
+    w = x * v.f;
+    // Efficient Iterative Approximation Improvement in horner polynomial form.
+    v.f = v.f * (2.0f - w);     // Single iteration, Err = -3.36e-3 * 2^(-flr(log2(x)))
+    // v.f = v.f * ( 4 + w * (-6 + w * (4 - w)));  // Second iteration, Err = -1.13e-5 * 2^(-flr(log2(x)))
+    // v.f = v.f * (8 + w * (-28 + w * (56 + w * (-70 + w *(56 + w * (-28 + w * (8 - w)))))));  // Third Iteration, Err = +-6.8e-8 *  2^(-flr(log2(x)))
+    return v.f ;
+}
+
+float fpowf(float a, float b)
+{
+    union { float d; int x; } u = { a };
+    u.x = (int)(b * (u.x - 1064866805) + 1064866805);
+    return u.d;
+}
+float flog2f(float val)
+{
+   union { float d; int x; } u = { val };
+   float  log_2 = (float)(((u.x >> 23) & 255) - 128);
+   u.x &= ~(255 << 23);
+   u.x += (127 << 23);
+   u.d = ((-0.3358287811f) * u.d + 2.0f) * u.d - 0.65871759316667f;   // (1)
+   return (u.d + log_2);
+}
+
+
+#define SQRT_MAGIC_F 0x5f3759df
+float  fsqrtf(const float x)
+{
+  const float xhalf = 0.5f*x;
+  union // get bits for floating value
+  {
+    float x;
+    int i;
+  } u;
+  u.x = x;
+  u.i = SQRT_MAGIC_F - (u.i >> 1);  // gives initial guess y0
+  return x*u.x*(1.5f - xhalf*u.x*u.x);// Newton step, repeating increases accuracy
+}
+
+#define B (4.0f/(float)M_PI)
+#define C (-4.0f/((float)M_PI*(float)M_PI))
+#define P (0.225f)
+#define Q (0.775f)
+
+#ifndef M_PI
+#define M_PI (3.14159265358979323846F)
+#endif
+
+#ifndef M_PI_2
+#define M_PI_2 ((float)M_PI/2)
+#endif
+
+float fsinf(float x)
+{
+	float y;
+    y = B * x + C * x * fabsf(x);
+    y = P * (y * fabsf(y) - y) + y;   // Q * y + P * y * abs(y)
+    return y;
+}
+
+float fcosf(float x) {
+	return fsinf(x + (float)M_PI_2);
+}
+
 /**        
  * @} end of BasicMult group        
  */

@@ -4,7 +4,7 @@
 
 #include "codec2.h"
 #include "sine.h"
-#include "mat.h"
+#include "CMSIS/mat.h"
 #include "dataqueues.h"
 #include "cmsis_os.h"
 

@@ -28,7 +28,7 @@
 #define LPC_MAX_N 512		/* maximum no. of samples in frame */
 
 #include <math.h>
-#include "mat.h"
+#include "CMSIS/mat.h"
 
 #include "defines.h"
 #include "lpc.h"
@@ -51,7 +51,7 @@ void autocorrelate(
   int order	/* order of LPC analysis */
 )
 {
-	arm_autocorr(Sn, Rn, order, Nsam);
+	v_autocorr(Sn, Rn, order, Nsam);
 }
 
 /*---------------------------------------------------------------------------*\

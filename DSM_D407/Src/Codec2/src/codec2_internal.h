@@ -28,7 +28,7 @@
 
 #ifndef __CODEC2_INTERNAL__
 #define __CODEC2_INTERNAL__
-#include "mat.h"
+#include "CMSIS/mat.h"
 
 #ifndef __GNUC__
 #pragma anon_unions

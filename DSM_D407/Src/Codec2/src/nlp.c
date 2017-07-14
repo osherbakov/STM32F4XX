@@ -25,7 +25,7 @@
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 #include <math.h>
-#include "mat.h"
+#include "CMSIS/mat.h"
 
 #include "defines.h"
 #include "nlp.h"
@@ -194,7 +194,7 @@ float nlp(
 
     /* Square, notch filter at DC, and LP filter vector */
 	//arm_mult_f32(&Sn[new_idx],&Sn[new_idx], &nlp->sq[new_idx], n);
-	arm_sqr_f32(&Sn[new_idx], &nlp->sq[new_idx], n);
+	v_sqr(&Sn[new_idx], &nlp->sq[new_idx], n);
 	// Implement simplest IIR "mono-quad" filter:
 	//   y(n) = x(n) - x(n-1) + C * y(n-1)
 	//
