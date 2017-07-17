@@ -8,8 +8,15 @@
 #include "dataqueues.h"
 #include "cmsis_os.h"
 
+extern void BSP_LED_On(int LED);
+extern void BSP_LED_Off(int LED);
+#define LED5 2
+#define LED6 3
+
+extern int ENCODER, DECODER;
+
 #define 	CODEC2_BUFF_SIZE (320)
-#define 	CODEC2_BUFF_BYTES (CODEC2_BUFF_SIZE * 4)
+#define 	CODEC2_BUFF_BYTES (CODEC2_BUFF_SIZE * sizeof(float))
 
 static float    speech[CODEC2_BUFF_SIZE] CCMRAM;
 static unsigned char bits[64] CCMRAM;
@@ -29,21 +36,24 @@ void codec2_deinit(void *pHandle)
 
 void codec2_open(void *pHandle, uint32_t Params)
 {
-	codec2_init(pHandle, CODEC2_MODE_1200);
+	codec2_init(pHandle, CODEC2_MODE_3200);
 }
 
 void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
 {
 	uint32_t	nGenerated = 0;
 	uint32_t	frame_size =  codec2_samples_per_frame(pHandle);
-	uint32_t	frame_bytes =  frame_size * 4;
+	uint32_t	frame_bytes =  frame_size * sizeof(float);
 	while(*pInBytes >= frame_bytes)
 	{
 		arm_scale_f32(pDataIn, 32767.0f, speech, frame_size);
+		BSP_LED_On(LED5); ENCODER = 1;
 		codec2_encode(pHandle, bits, speech);
+		BSP_LED_Off(LED5); ENCODER = 0;
+		BSP_LED_On(LED6); DECODER = 1;
 		codec2_decode(pHandle, speech, bits);
+		BSP_LED_Off(LED6); DECODER = 0;
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, frame_size);
-//		memcpy(pDataOut, pDataIn, frame_size);
 
 		pDataIn = (void *)((uint32_t)pDataIn + frame_bytes);
 		pDataOut =  (void *)((uint32_t)pDataOut + frame_bytes);
@@ -56,12 +66,12 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInB
 void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 {
 	uint32_t	frame_size =  codec2_samples_per_frame(pHandle);
-	uint32_t	frame_bytes =  frame_size * 4;
+	uint32_t	frame_bytes =  frame_size * sizeof(float);
 
-	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pIn->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | sizeof(float);
 	pIn->Size = frame_bytes;
 	
-	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | (4);
+	pOut->Type = DATA_TYPE_F32 | DATA_NUM_CH_1 | sizeof(float);
 	pOut->Size = frame_bytes;
 }
 

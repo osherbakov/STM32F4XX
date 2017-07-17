@@ -5,6 +5,13 @@
 #include "melp_sub.h"
 #include "dataqueues.h"
 
+extern void BSP_LED_On(int LED);
+extern void BSP_LED_Off(int LED);
+#define LED5 2
+#define LED6 3
+
+int ENCODER, DECODER;
+
 /* ====== External memory ====== */
 
 typedef unsigned short uint16_t;
@@ -47,9 +54,13 @@ void melp_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInByt
 	while(*pInBytes >= MELP_FRAME_BYTES )
 	{
 		arm_scale_f32(pDataIn, 32767.0f, speech, MELP_FRAME_SIZE);
+		BSP_LED_On(LED5); ENCODER = 1;
 		melp_ana(speech, &melp_ana_par, chan_buffer);
+		BSP_LED_Off(LED5); ENCODER = 0;
+		BSP_LED_On(LED6); DECODER = 1;
 		melp_syn(&melp_syn_par, speech, chan_buffer);
-		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);		
+		BSP_LED_Off(LED6); DECODER = 0;
+		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, MELP_FRAME_SIZE);
 		pDataIn = (void *)( (uint32_t)pDataIn + MELP_FRAME_BYTES );
 		pDataOut = (void *)((uint32_t)pDataOut + MELP_FRAME_BYTES );
 		*pInBytes -= MELP_FRAME_BYTES ;

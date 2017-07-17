@@ -216,14 +216,14 @@ void StartBlinkTask(void const * argument)
 	if(ALL_LEDS_ON) {
 		BSP_LED_Off(LED3);
 		BSP_LED_Off(LED4);
-		BSP_LED_Off(LED5);
-		BSP_LED_Off(LED6);
+//		BSP_LED_Off(LED5);
+//		BSP_LED_Off(LED6);
 		ALL_LEDS_ON = 0;
 	}else {
 		BSP_LED_On(LED3);
 		BSP_LED_On(LED4);
-		BSP_LED_On(LED5);
-		BSP_LED_On(LED6);
+//		BSP_LED_On(LED5);
+//		BSP_LED_On(LED6);
 		ALL_LEDS_ON = 1;
 	}
   }
