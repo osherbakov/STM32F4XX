@@ -59,7 +59,7 @@ void OutData(uint32_t nSamples) {
 //DataProcessBlock_t	RATESYNC_S;
 
 DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&MELP;
+DataProcessBlock_t  *pProcModule = 	&MELPE;
 DataProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
@@ -84,7 +84,7 @@ int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModul
 
 	int			DoMoreProcessing = 0;
 
-	// Get the info anout processing Module - number of channels, data format for In and Out
+	// Get the info about processing Module - number of channels, data format for In and Out
 	pModule->Info(pModuleState, &DataIn, &DataOut);
 
 	// How many elements are in the queue
@@ -161,7 +161,7 @@ void StartDataProcessTask(void const * argument)
 		pDataQIn = (DQueue_t *) event.value.p;
 
 		// Check if we have to start processing, or wait for more samples to accumulate (up to 1/2 of the buffer)
-		if( pDataQIn->isReady ) // Message came that some valid Input Data is present
+		if( pDataQIn->isReady )
 		{
 			do {
 				DoMoreProcessing = 0;

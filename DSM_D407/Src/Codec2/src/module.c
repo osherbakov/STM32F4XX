@@ -29,7 +29,7 @@ void codec2_deinit(void *pHandle)
 
 void codec2_open(void *pHandle, uint32_t Params)
 {
-	codec2_init(pHandle, CODEC2_MODE_3200);
+	codec2_init(pHandle, CODEC2_MODE_1200);
 }
 
 void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBytes, uint32_t *pOutBytes)
@@ -43,6 +43,7 @@ void codec2_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInB
 		codec2_encode(pHandle, bits, speech);
 		codec2_decode(pHandle, speech, bits);
 		arm_scale_f32(speech, 1.0f/32768.0f, pDataOut, frame_size);
+//		memcpy(pDataOut, pDataIn, frame_size);
 
 		pDataIn = (void *)((uint32_t)pDataIn + frame_bytes);
 		pDataOut =  (void *)((uint32_t)pDataOut + frame_bytes);

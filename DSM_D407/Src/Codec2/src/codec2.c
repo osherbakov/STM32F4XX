@@ -213,7 +213,7 @@ int codec2_samples_per_frame(struct CODEC2 *c2) {
     if  (c2->mode == CODEC2_MODE_700)
 	return 320;
 
-    return 0; /* shouldnt get here */
+    return 0; /* shouldn't get here */
 }
 
 void codec2_encode(struct CODEC2 *c2, unsigned char *bits, float speech[])
