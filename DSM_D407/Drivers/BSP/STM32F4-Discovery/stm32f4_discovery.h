@@ -236,10 +236,10 @@ typedef enum
 #define ACCELERO_INT2_PIN                      GPIO_PIN_1                 /* PE.01 */
 #define ACCELERO_INT2_EXTI_IRQn                EXTI1_IRQn 
 
-#define NRF24_CS_PIN							GPIO_PIN_1
-#define NRF24_CS_GPIO_PORT						GPIOA
-#define NRF24_CE_PIN							GPIO_PIN_2
-#define NRF24_CE_GPIO_PORT						GPIOA
+#define NRF24_CS_PIN							GPIO_PIN_4
+#define NRF24_CS_GPIO_PORT						GPIOC
+#define NRF24_CE_PIN							GPIO_PIN_5
+#define NRF24_CE_GPIO_PORT						GPIOC
 
 /**
   * @}
