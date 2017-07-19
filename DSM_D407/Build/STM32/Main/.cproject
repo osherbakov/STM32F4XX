@@ -88,8 +88,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1273700341" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="Tasks"/>
+									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
 									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="USB"/>
@@ -286,8 +286,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BSP/PDM}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.1518124321" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="Tasks"/>
+									<listOptionValue builtIn="false" value="MELPe"/>
 									<listOptionValue builtIn="false" value="HW_Config"/>
 									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="USB"/>

@@ -18,6 +18,12 @@
 
 
 /* ====== External memory ====== */
+extern void BSP_LED_On(int LED);
+extern void BSP_LED_Off(int LED);
+#define LED5 2
+#define LED6 3
+
+extern int ENCODER, DECODER;
 
 /* ========== Static Variables ========== */
 static int16_t			speech[BLOCK] CCMRAM;
@@ -63,8 +69,12 @@ void melpe_process(void *pHandle, void *pDataIn, void *pDataOut, uint32_t *pInBy
 		} else
 			npp(melp_parameters, speech, speech);
 #endif
+		BSP_LED_On(LED5); ENCODER = 1;
 		analysis_q(speech, melp_parameters, chan_buffer);
+		BSP_LED_Off(LED5); ENCODER = 0;
+		BSP_LED_On(LED6); DECODER = 1;
 		synthesis_q(melp_parameters, speech, chan_buffer);
+		BSP_LED_Off(LED6); DECODER = 0;
 		arm_q15_to_float(speech, pDataOut, nFrameSize);		
 		pDataIn = (void *) ((int32_t)pDataIn + nFrameBytes);
 		pDataOut = (void *)((int32_t)pDataOut + nFrameBytes);
