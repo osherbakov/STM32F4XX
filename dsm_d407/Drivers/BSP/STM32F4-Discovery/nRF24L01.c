@@ -1,6 +1,7 @@
 #include "stm32f4_discovery.h"
 #include "nRF24L01.h"
 #include "nRF24L01regs.h"
+#include "nRF24L01func.h"
 #include "tim.h"
 #include <string.h>
 
@@ -169,12 +170,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == &htim10)
 	{
-		HAL_TIM_Base_Stop_IT(&htim10);
-		__HAL_TIM_SET_COUNTER(&htim10, 0);			
+		HAL_TIM_Base_Stop_IT(htim);
+		__HAL_TIM_SET_COUNTER(htim, 0);			
 		NRF24L01_CE(LOW);		
 		release_obj(SPI_inprogress);
 	}
 }
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == GPIO_PIN_0) 
+	{
+		int  	txOK;
+		int  	txFail;
+		int  	rxReady;
+
+	BSP_LED_On(LED3);
+	  RF24_whatHappened(&txOK, &txFail, &rxReady);
+	  if(txFail)  	NRF24L01_TxFail_CallBack();  
+	  if(txOK)  	NRF24L01_TxDone_CallBack();
+	  if(rxReady)  	NRF24L01_RxReady_CallBack();
+	BSP_LED_Off(LED3);
+	}
+}
+
 
 /*****************************************************************************/
 /*              Interrupt callbacks for nRF24L01                             */

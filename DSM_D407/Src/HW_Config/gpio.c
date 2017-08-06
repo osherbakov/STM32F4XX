@@ -36,6 +36,14 @@
 #include "gpio.h"
 /* USER CODE BEGIN 0 */
 
+#define nRF24_CSN_Pin GPIO_PIN_4
+#define nRF24_CSN_GPIO_Port GPIOC
+#define nRF24_CE_Pin GPIO_PIN_5
+#define nRF24_CE_GPIO_Port GPIOC
+#define nRF24_IRQN_Pin GPIO_PIN_0
+#define nRF24_IRQN_GPIO_Port GPIOB
+#define nRF24_IRQN_EXTI_IRQn EXTI0_IRQn
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -98,6 +106,32 @@ void MX_GPIO_Init(void)
 //  GPIO_InitStruct.Pull = GPIO_PULLUP;
 //  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = nRF24_CSN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(nRF24_CSN_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = nRF24_CE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(nRF24_CE_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = nRF24_IRQN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(nRF24_IRQN_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(nRF24_CSN_GPIO_Port, nRF24_CSN_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(nRF24_CE_GPIO_Port, nRF24_CE_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PB2 */
   GPIO_InitStruct.Pin = GPIO_PIN_2;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -135,8 +169,8 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI3_IRQn, 0x0F, 0);
-  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+  HAL_NVIC_SetPriority(nRF24_IRQN_EXTI_IRQn, 0x0F, 0);
+  HAL_NVIC_EnableIRQ(nRF24_IRQN_EXTI_IRQn);
 
 }
 

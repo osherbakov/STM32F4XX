@@ -35,8 +35,6 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
-#include "nRF24L01.h"
-#include "nRF24L01func.h"
 #include "stm32f4_discovery.h"
 
 /* USER CODE BEGIN 0 */
@@ -51,7 +49,9 @@ extern I2S_HandleTypeDef hi2s2;
 extern I2S_HandleTypeDef hi2s3;
 extern DMA_HandleTypeDef hdma_spi1_rx;
 extern DMA_HandleTypeDef hdma_spi1_tx;
-// extern TIM_HandleTypeDef htim10;
+extern DMA_HandleTypeDef hdma_usart2_rx;
+extern DMA_HandleTypeDef hdma_usart2_tx;
+extern TIM_HandleTypeDef htim10;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -80,27 +80,18 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-* @brief This function handles EXTI line3 interrupt.
+* @brief This function handles EXTI line0 interrupt.
 */
-void EXTI3_IRQHandler(void)
+void EXTI0_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI3_IRQn 0 */
-	int  	txOK;
-	int  	txFail;
-	int  	rxReady;
+  /* USER CODE BEGIN EXTI0_IRQn 0 */
 
-  /* USER CODE END EXTI3_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+	/* USER CODE END EXTI0_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 
-	/* USER CODE BEGIN EXTI3_IRQn 1 */
-BSP_LED_On(LED3);
-  RF24_whatHappened(&txOK, &txFail, &rxReady);
-  if(txFail)  	NRF24L01_TxFail_CallBack();  
-  if(txOK)  	NRF24L01_TxDone_CallBack();
-  if(rxReady)  	NRF24L01_RxReady_CallBack();
-BSP_LED_Off(LED3);
-	
-  /* USER CODE END EXTI3_IRQn 1 */
+  /* USER CODE BEGIN EXTI3_IRQn 1 */
+
+	/* USER CODE END EXTI3_IRQn 1 */
 }
 
 /**
@@ -125,11 +116,40 @@ void DMA1_Stream5_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
 
   /* USER CODE END DMA1_Stream5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_spi3_tx);
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
   /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
 
   /* USER CODE END DMA1_Stream5_IRQn 1 */
 }
+
+/**
+* @brief This function handles DMA1 stream6 global interrupt.
+*/
+void DMA1_Stream6_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream6_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_usart2_tx);
+  /* USER CODE BEGIN DMA1_Stream6_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream6_IRQn 1 */
+}
+
+/**
+* @brief This function handles DMA1 stream7 global interrupt.
+*/
+void DMA1_Stream7_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream7_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream7_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi3_tx);
+  /* USER CODE BEGIN DMA1_Stream7_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream7_IRQn 1 */
+}
+
 
 /**
 * @brief This function handles SPI2 global interrupt.
