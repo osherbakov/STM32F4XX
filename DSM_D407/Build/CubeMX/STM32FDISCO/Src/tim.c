@@ -70,7 +70,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM10_MspInit 0 */
 
   /* USER CODE END TIM10_MspInit 0 */
-    /* Peripheral clock enable */
+    /* TIM10 clock enable */
     __HAL_RCC_TIM10_CLK_ENABLE();
 
     /* TIM10 interrupt Init */

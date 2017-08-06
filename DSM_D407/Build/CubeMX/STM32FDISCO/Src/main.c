@@ -100,9 +100,9 @@ int main(void)
   MX_I2S2_Init();
   MX_I2S3_Init();
   MX_SPI1_Init();
+  MX_TIM10_Init();
   MX_USART2_UART_Init();
   MX_USB_OTG_FS_USB_Init();
-  MX_TIM10_Init();
 
   /* USER CODE BEGIN 2 */
 

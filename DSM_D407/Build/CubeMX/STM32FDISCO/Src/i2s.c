@@ -100,7 +100,7 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
   /* USER CODE BEGIN SPI2_MspInit 0 */
 
   /* USER CODE END SPI2_MspInit 0 */
-    /* Peripheral clock enable */
+    /* I2S2 clock enable */
     __HAL_RCC_SPI2_CLK_ENABLE();
   
     /**I2S2 GPIO Configuration    
@@ -150,7 +150,7 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
   /* USER CODE BEGIN SPI3_MspInit 0 */
 
   /* USER CODE END SPI3_MspInit 0 */
-    /* Peripheral clock enable */
+    /* I2S3 clock enable */
     __HAL_RCC_SPI3_CLK_ENABLE();
   
     /**I2S3 GPIO Configuration    
