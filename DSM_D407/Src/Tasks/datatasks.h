@@ -35,6 +35,7 @@ void StartDefaultTask(void const * argument);
 void StartDataInPDMTask(void const * argument);
 void StartDataProcessTask(void const * argument);
 void StartBlinkTask(void const * argument);
+void StartUARTTask(void const * argument);
 
 typedef struct 
 {

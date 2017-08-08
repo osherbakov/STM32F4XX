@@ -185,12 +185,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		int  	txFail;
 		int  	rxReady;
 
-	BSP_LED_On(LED3);
-	  RF24_whatHappened(&txOK, &txFail, &rxReady);
-	  if(txFail)  	NRF24L01_TxFail_CallBack();  
-	  if(txOK)  	NRF24L01_TxDone_CallBack();
-	  if(rxReady)  	NRF24L01_RxReady_CallBack();
-	BSP_LED_Off(LED3);
+BSP_LED_On(LED3);
+		RF24_whatHappened(&txOK, &txFail, &rxReady);
+		if(txFail)  	NRF24L01_TxFail_CallBack();  
+		if(txOK)  	NRF24L01_TxDone_CallBack();
+		if(rxReady)  	NRF24L01_RxReady_CallBack();
+BSP_LED_Off(LED3);
 	}
 }
 

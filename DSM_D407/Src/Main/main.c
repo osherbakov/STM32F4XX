@@ -35,6 +35,7 @@ osThreadDef(defaultTask, StartDefaultTask, osPriorityBelowNormal, 0, 256);
 osThreadDef(pdmInTask, StartDataInPDMTask, osPriorityHigh, 0, 256);
 osThreadDef(dataProcessTask, StartDataProcessTask, osPriorityNormal, 0, 2048);
 osThreadDef(blinkTask, StartBlinkTask, osPriorityBelowNormal, 0, 256);
+osThreadDef(uartTask, StartUARTTask, osPriorityBelowNormal, 0, 256);
 osMessageQDef(DATAREADY, 32, uint32_t);
 
 int main(void)
@@ -50,9 +51,6 @@ int main(void)
 	MX_GPIO_Init();
 	MX_DMA_Init();
 	MX_CRC_Init();
-	MX_I2C1_Init();
-	MX_I2S2_Init();
-	MX_I2S3_Init();
 	MX_RNG_Init();
 	MX_SPI1_Init();
 	MX_USART2_UART_Init();
@@ -86,6 +84,8 @@ int main(void)
 	osThreadCreate(osThread(dataProcessTask), &osParams);
 
 	osThreadCreate(osThread(blinkTask), NULL);
+
+	osThreadCreate(osThread(uartTask), NULL);
 
 	osParams.dataInReadyMsg = osMessageCreate(osMessageQ(DATAREADY), 0);
 
