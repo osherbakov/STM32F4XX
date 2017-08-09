@@ -44,17 +44,17 @@ flex_parser_state_t		parser_state;
  
 #define ENTER_CRITICAL(a)             	\
   do {                                  \
-	register uint32_t reg0 __ASM("r0"); \
-	  reg0 = __get_PRIMASK();			\
+	register uint32_t reg; 				\
+	  reg = __get_PRIMASK();			\
 	  __disable_irq();					\
-	  a = reg0;							\
+	  a = reg;							\
   } while(0)
  
 #define EXIT_CRITICAL(a)              	\
   do{                                   \
-	register uint32_t reg0 __ASM("r0"); \
-	reg0 = a;							\
-	__set_PRIMASK(reg0);				\
+	register uint32_t reg; 				\
+	reg = a;							\
+	__set_PRIMASK(reg);					\
   } while(0)
  
 
