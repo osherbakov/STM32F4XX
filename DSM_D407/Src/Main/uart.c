@@ -89,7 +89,7 @@ EXIT_CRITICAL(lock);
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-	int32_t		bytes;
+	int32_t		nBytes;
 	if(huart == &huart2)
 	{
 
@@ -98,15 +98,16 @@ ENTER_CRITICAL(lock);
 		parser_state.p_sent += huart->TxXferSize;
 		
 		// See if we still have to send some data out...
-		bytes = parser_state.p_output - parser_state.p_sent; 
-		if(bytes == 0) 
+		nBytes = parser_state.p_output - parser_state.p_sent; 
+		// If no data to be sent - move all pointers to the beginning of the buffer
+		if(nBytes == 0) 
 		{
 			parser_state.p_sent = parser_state.p_output = &parser_state.TxBuffer[0];
 		}
 EXIT_CRITICAL(lock);
 		
-		if(bytes) {
-			HAL_UART_Transmit_DMA(&huart2, parser_state.p_sent, bytes);
+		if(nBytes) {
+			HAL_UART_Transmit_DMA(&huart2, parser_state.p_sent, nBytes);
 		}
 	}
 }
@@ -156,6 +157,7 @@ void StartUARTTask(void const * argument)
 		int		Param;
 		float	Value;
 		float	Frac;
+		int		nBytes;
 		PARSE_STATE		st;
 	
 		// Wait for the event from IRQ Handler
@@ -165,9 +167,18 @@ void StartUARTTask(void const * argument)
 		st = COLLECT_CMD;
 		Param = 0;
 		Value = 0;
-		while(parser_state.p_process < parser_state.p_receive)
+		Frac = 0.1f;
+		do
 		{
-			ch = *parser_state.p_process++;
+ENTER_CRITICAL(lock);
+			nBytes = parser_state.p_receive - parser_state.p_process;
+			if(nBytes > 0) {
+				ch = *parser_state.p_process++;
+			}else {
+				st = DONE;
+			}
+EXIT_CRITICAL(lock);
+			
 			switch(st)
 			{
 				case COLLECT_CMD:
@@ -189,7 +200,6 @@ void StartUARTTask(void const * argument)
 						SetParam(Param, Value);
 						st = DONE;
 					}else if(ch == '.' ) {
-						Frac = 0.1f;
 						st = COLLECT_VALUE_FRAC;
 					}else if( ch >= '0' && ch <= '9') {
 						Value = Value * 10.0f + (ch - '0');
@@ -209,7 +219,6 @@ void StartUARTTask(void const * argument)
 				case DONE:
 					break;
 			}
-			
-		}
+		} while(st != DONE);
 	}
 }
