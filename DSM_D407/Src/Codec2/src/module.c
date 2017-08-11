@@ -76,5 +76,5 @@ void codec2_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  CODEC = {codec2_create, codec2_open, codec2_info, codec2_process, codec2_deinit};
+ProcessBlock_t  CODEC = {codec2_create, codec2_open, codec2_info, codec2_process, codec2_deinit};
 

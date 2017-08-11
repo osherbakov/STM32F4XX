@@ -50,7 +50,7 @@ static void bypass_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  BYPASS = {bypass_create, bypass_open, bypass_info, bypass_process, bypass_close};
+ProcessBlock_t  BYPASS = {bypass_create, bypass_open, bypass_info, bypass_process, bypass_close};
 
 
 //
@@ -127,7 +127,7 @@ static void ds_48_16_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  DS_48_16 CCMRAM = {ds_48_16_create, ds_48_16_open, ds_48_16_info, ds_48_16_process, ds_48_16_close};
+ProcessBlock_t  DS_48_16 CCMRAM = {ds_48_16_create, ds_48_16_open, ds_48_16_info, ds_48_16_process, ds_48_16_close};
 
 static arm_fir_interpolate_instance_f32 Int CCMRAM;
 
@@ -170,5 +170,5 @@ static void us_16_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = DOWNSAMPLE_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  US_16_48 CCMRAM = {us_16_48_create, us_16_48_open, us_16_48_info, us_16_48_process, us_16_48_close};
+ProcessBlock_t  US_16_48 CCMRAM = {us_16_48_create, us_16_48_open, us_16_48_info, us_16_48_process, us_16_48_close};
 

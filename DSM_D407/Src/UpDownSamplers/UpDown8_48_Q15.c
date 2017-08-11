@@ -81,7 +81,7 @@ static void ds_48_8_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  DS_48_8_Q15 CCMRAM = {ds_48_8_create, ds_48_8_open, ds_48_8_info, ds_48_8_process, ds_48_8_close};
+ProcessBlock_t  DS_48_8_Q15 CCMRAM = {ds_48_8_create, ds_48_8_open, ds_48_8_info, ds_48_8_process, ds_48_8_close};
 
 static arm_fir_interpolate_instance_q15 Int CCMRAM;
 
@@ -125,5 +125,5 @@ static void us_8_48_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  US_8_48_Q15 CCMRAM = {us_8_48_create, us_8_48_open, us_8_48_info, us_8_48_process, us_8_48_close};
+ProcessBlock_t  US_8_48_Q15 CCMRAM = {us_8_48_create, us_8_48_open, us_8_48_info, us_8_48_process, us_8_48_close};
 

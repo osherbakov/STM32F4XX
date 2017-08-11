@@ -278,7 +278,7 @@ void ratesync_info_stereo(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  RATESYNC = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
-DataProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
-DataProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
+ProcessBlock_t  RATESYNC = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+ProcessBlock_t  RATESYNC_M = {ratesync_create, ratesync_open, ratesync_info_mono, ratesync_process_mono, ratesync_close};
+ProcessBlock_t  RATESYNC_S = {ratesync_create, ratesync_open, ratesync_info_stereo, ratesync_process_stereo, ratesync_close};
 

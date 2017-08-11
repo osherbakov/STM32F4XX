@@ -224,7 +224,7 @@ uint32_t melp_data_typesize(void *pHandle, uint32_t *pType)
 }
 
 
-DataProcessBlock_t  MELP = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
+ProcessBlock_t  MELP = {melp_create, melp_init, melp_data_typesize, melp_process, melp_close};
 
 
 //
@@ -293,7 +293,7 @@ uint32_t ds_48_8_typesize(void *pHandle, uint32_t *pType)
 	 return DOWNSAMPLE_BLOCK_SIZE;
 }
 
-DataProcessBlock_t  DS_48_8 = {ds_48_8_create, ds_48_8_init, ds_48_8_typesize, ds_48_8_process, ds_48_8_close};
+ProcessBlock_t  DS_48_8 = {ds_48_8_create, ds_48_8_init, ds_48_8_typesize, ds_48_8_process, ds_48_8_close};
 
 static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
@@ -333,7 +333,7 @@ uint32_t us_8_48_typesize(void *pHandle, uint32_t *pType)
 	 return DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  US_8_48 = {us_8_48_create, us_8_48_init, us_8_48_typesize, us_8_48_process, us_8_48_close};
+ProcessBlock_t  US_8_48 = {us_8_48_create, us_8_48_init, us_8_48_typesize, us_8_48_process, us_8_48_close};
 
 
 

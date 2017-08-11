@@ -94,4 +94,4 @@ void melpe_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 }
 
 
-DataProcessBlock_t  MELPE = {melpe_create, melpe_open, melpe_info, melpe_process, melpe_close};
+ProcessBlock_t  MELPE = {melpe_create, melpe_open, melpe_info, melpe_process, melpe_close};

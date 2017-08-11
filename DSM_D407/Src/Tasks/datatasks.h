@@ -25,7 +25,7 @@ typedef enum
 	AUDIO_MODE_IN_I2SX = 2,			// Source of the audio is I2S #2 (External)
 } AUDIO_ModeInTypeDef;
 
-#define AUDIO_MONO_Q15_SIZE	sizeof(int16_t)
+#define AUDIO_MONO_Q15_SIZE		sizeof(int16_t)
 #define AUDIO_STEREO_Q15_SIZE	(2 * sizeof(int16_t))
 
 // Maximum linear buffer size that can be allocated in BYTES!

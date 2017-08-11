@@ -149,10 +149,10 @@ void aulaw_decode_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = AU_LAW_BLOCK_BYTES;
 }
 
-DataProcessBlock_t  ALAW = {aulaw_create, aulaw_open, aulaw_info, alaw_process, aulaw_close};
-DataProcessBlock_t  ULAW = {aulaw_create, aulaw_open, aulaw_info, ulaw_process, aulaw_close};
+ProcessBlock_t  ALAW = {aulaw_create, aulaw_open, aulaw_info, alaw_process, aulaw_close};
+ProcessBlock_t  ULAW = {aulaw_create, aulaw_open, aulaw_info, ulaw_process, aulaw_close};
 
-DataProcessBlock_t  ALAW_ENC = {aulaw_create, aulaw_open, aulaw_encode_info, alaw_encode_process, aulaw_close};
-DataProcessBlock_t  ULAW_ENC = {aulaw_create, aulaw_open, aulaw_encode_info, ulaw_encode_process, aulaw_close};
-DataProcessBlock_t  ALAW_DEC = {aulaw_create, aulaw_open, aulaw_decode_info, alaw_decode_process, aulaw_close};
-DataProcessBlock_t  ULAW_DEC = {aulaw_create, aulaw_open, aulaw_decode_info, ulaw_decode_process, aulaw_close};
+ProcessBlock_t  ALAW_ENC = {aulaw_create, aulaw_open, aulaw_encode_info, alaw_encode_process, aulaw_close};
+ProcessBlock_t  ULAW_ENC = {aulaw_create, aulaw_open, aulaw_encode_info, ulaw_encode_process, aulaw_close};
+ProcessBlock_t  ALAW_DEC = {aulaw_create, aulaw_open, aulaw_decode_info, alaw_decode_process, aulaw_close};
+ProcessBlock_t  ULAW_DEC = {aulaw_create, aulaw_open, aulaw_decode_info, ulaw_decode_process, aulaw_close};

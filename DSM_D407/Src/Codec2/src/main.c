@@ -171,7 +171,7 @@ uint32_t codec2_data_typesize(void *pHandle, uint32_t *pType)
 	 return frame_size;
 }
 
-DataProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};
+ProcessBlock_t  CODEC = {codec2_create, codec2_initialize, codec2_data_typesize, codec2_process, codec2_deinit};
 
 
 #endif

@@ -18,23 +18,23 @@
 
 #define ABS(a)			(((a) >  0) ? (a) : -(a))
 
-extern DataProcessBlock_t  MELP;
-extern DataProcessBlock_t  MELPE;
-extern DataProcessBlock_t  CVSD;
-extern DataProcessBlock_t  CODEC;
-extern DataProcessBlock_t  ALAW;
-extern DataProcessBlock_t  ULAW;
+extern ProcessBlock_t  MELP;
+extern ProcessBlock_t  MELPE;
+extern ProcessBlock_t  CVSD;
+extern ProcessBlock_t  CODEC;
+extern ProcessBlock_t  ALAW;
+extern ProcessBlock_t  ULAW;
 
 
-extern DataProcessBlock_t  BYPASS;
+extern ProcessBlock_t  BYPASS;
 
-extern DataProcessBlock_t  US_16_48;
-extern DataProcessBlock_t  DS_48_16;
-extern DataProcessBlock_t  US_8_48;
-extern DataProcessBlock_t  DS_48_8;
-extern DataProcessBlock_t  US_8_48_Q15;
-extern DataProcessBlock_t  DS_48_8_Q15;
-extern DataProcessBlock_t  RATESYNC_S;
+extern ProcessBlock_t  US_16_48;
+extern ProcessBlock_t  DS_48_16;
+extern ProcessBlock_t  US_8_48;
+extern ProcessBlock_t  DS_48_8;
+extern ProcessBlock_t  US_8_48_Q15;
+extern ProcessBlock_t  DS_48_8_Q15;
+extern ProcessBlock_t  RATESYNC_S;
 
 
 int32_t	DATA_In, DATA_Out, DATA_InOut;
@@ -55,15 +55,15 @@ void OutData(uint32_t nSamples) {
 //  Task to handle all incoming data
 //
 
-//DataProcessBlock_t	BYPASS;
-//DataProcessBlock_t	RATESYNC_S;
+//ProcessBlock_t	BYPASS;
+//ProcessBlock_t	RATESYNC_S;
 
-DataProcessBlock_t  *pDecModule = 	&DS_48_8;
-DataProcessBlock_t  *pProcModule = 	&BYPASS;
-DataProcessBlock_t  *pIntModule = 	&US_8_48;
+ProcessBlock_t  *pDecModule = 	&DS_48_8;
+ProcessBlock_t  *pProcModule = 	&BYPASS;
+ProcessBlock_t  *pIntModule = 	&US_8_48;
 
 
-DataProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
+ProcessBlock_t  *pSyncModule = 	&RATESYNC_S;
 
 
 
@@ -74,7 +74,7 @@ static float	sAudio1[2 * MAX_AUDIO_SAMPLES] CCMRAM;
 static void		*pAudio0 = sAudio0;
 static void		*pAudio1 = sAudio1;
 
-int  DoProcessing(DQueue_t *pDataQIn, DataProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut)
+int  DoProcessing(DQueue_t *pDataQIn, ProcessBlock_t  *pModule, void *pModuleState, DQueue_t *pDataQOut)
 {
 	DataPort_t	DataIn, DataOut;
 

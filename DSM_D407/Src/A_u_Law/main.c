@@ -232,7 +232,7 @@ uint32_t cvsd_data_typesize(void *pHandle, uint32_t *pType)
 	 return CVSD_BLOCK_SIZE;
 }
 
-DataProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
+ProcessBlock_t  CVSD = {cvsd_create, cvsd_init, cvsd_data_typesize, cvsd_process, cvsd_close};
 
 //
 //  BYPASS functionality module
@@ -270,7 +270,7 @@ uint32_t bypass_data_typesize(void *pHandle, uint32_t *pType)
 	 return BYPASS_BLOCK_SIZE;
 }
 
-DataProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, bypass_process, bypass_close};
+ProcessBlock_t  BYPASS = {bypass_create, bypass_init, bypass_data_typesize, bypass_process, bypass_close};
 
 
 //
@@ -336,7 +336,7 @@ uint32_t ds_48_16_typesize(void *pHandle, uint32_t *pType)
 	 return DOWNSAMPLE_BLOCK_SIZE;
 }
 
-DataProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_typesize, ds_48_16_process, ds_48_16_close};
+ProcessBlock_t  DS_48_16 = {ds_48_16_create, ds_48_16_init, ds_48_16_typesize, ds_48_16_process, ds_48_16_close};
 
 static arm_fir_interpolate_instance_f32 CCMRAM Int;
 
@@ -376,6 +376,6 @@ uint32_t us_16_48_typesize(void *pHandle, uint32_t *pType)
 	 return DOWNSAMPLE_BLOCK_SIZE/UPDOWNSAMPLE_RATIO;
 }
 
-DataProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_typesize, us_16_48_process, us_16_48_close};
+ProcessBlock_t  US_16_48 = {us_16_48_create, us_16_48_init, us_16_48_typesize, us_16_48_process, us_16_48_close};
 
 

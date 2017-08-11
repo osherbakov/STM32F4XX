@@ -79,6 +79,6 @@ void melp_info(void *pHandle, DataPort_t *pIn, DataPort_t *pOut)
 	pOut->Size = MELP_FRAME_BYTES ;
 }
 
-DataProcessBlock_t  MELP = {melp_create, melp_open, melp_info, melp_process, melp_close};
+ProcessBlock_t  MELP = {melp_create, melp_open, melp_info, melp_process, melp_close};
 
 
