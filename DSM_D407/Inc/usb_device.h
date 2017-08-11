@@ -44,7 +44,6 @@
 #include "usbd_def.h"
 
 extern USBD_HandleTypeDef hUsbDeviceFS;
-extern osPoolId USBPool_Id;
 	 
 
 /* USB_Device init function */	

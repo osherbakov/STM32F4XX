@@ -115,7 +115,7 @@ EXIT_CRITICAL(lock);
 static float TestValue;
 
 
-uint8_t *inttoascii(uint8_t *p_buff, int val) 
+uint8_t *uinttoascii(uint8_t *p_buff, unsigned int val) 
 { 
   unsigned char d, i; 
   unsigned char zero; 
@@ -150,17 +150,13 @@ uint8_t *inttoascii(uint8_t *p_buff, int val)
 }
 
 
-#define MAX_FLOAT_DIGITS  (12)
+
 
 static uint8_t *floattoascii(uint8_t *p_buff, float data)
 {
-	unsigned int i;
 	unsigned int int_part;					// Integer part of the number
-	float	max_fractional;
-
-	max_fractional = 1.0f;
-	for(i = 0; i < MAX_FLOAT_DIGITS; i++) max_fractional *= 0.1f;
-
+	float	max_fractional = 0.0000000001f;
+	
 	// Check and add negative sign (if necessary)
 	if(data < 0)
 	{
@@ -171,7 +167,7 @@ static uint8_t *floattoascii(uint8_t *p_buff, float data)
 	int_part = (unsigned int) data;
 	data -= int_part;
 
-	p_buff = inttoascii(p_buff, int_part);
+	p_buff = uinttoascii(p_buff, int_part);
 
 	if (data > max_fractional)
 	{
@@ -179,16 +175,16 @@ static uint8_t *floattoascii(uint8_t *p_buff, float data)
 		*p_buff++ = '.';
 
 		// Send the fractional part
-		for (; (data > max_fractional); i++)
+		while(data > max_fractional)
 		{
-			data *= 10;
+			data *= 10.0f;
 			int_part = (unsigned int)data;
 			*p_buff++ = '0' + int_part;
 			data -= int_part;
-			max_fractional *= 10;
+			max_fractional *= 10.0f;
 		}
 	}
-	// *p_buff++ = ' ';	// Add space at the end
+	*p_buff++ = ' ';	// Add space at the end
 	return p_buff;
 }
 

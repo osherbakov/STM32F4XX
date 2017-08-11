@@ -174,7 +174,7 @@ USBD_ClassTypeDef  USBD_AUDIO =
 };
 
 /* USB AUDIO device Configuration Descriptor */
-__ALIGN_BEGIN static uint8_t USBD_AUDIO_CfgDesc[100 + 147 + 9 + 9] __ALIGN_END =
+__ALIGN_BEGIN static uint8_t USBD_AUDIO_CfgDesc[100 + 147 + 9 + 9] __ALIGN_END   =
 {
   /* Configuration 1 */
   0x09,                                 /* bLength */
@@ -539,6 +539,7 @@ __ALIGN_BEGIN static uint8_t USBD_AUDIO_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIE
 
 };
 
+static USBD_AUDIO_HandleTypeDef	USB_Handle;
 /**
   * @}
   */
@@ -572,7 +573,7 @@ static uint8_t  USBD_AUDIO_Init (USBD_HandleTypeDef *pdev,
                  AUDIO_PACKET_SIZE);
 
   /* Allocate Audio structure */
-  pdev->pClassData = USBD_malloc(sizeof (USBD_AUDIO_HandleTypeDef));
+  pdev->pClassData = &USB_Handle;
 
   if(pdev->pClassData == NULL)
   {
@@ -627,7 +628,6 @@ static uint8_t  USBD_AUDIO_DeInit (USBD_HandleTypeDef *pdev,
   if(pdev->pClassData != NULL)
   {
    ((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->DeInit();
-    USBD_free(pdev->pClassData);
     pdev->pClassData = NULL;
   }
 
@@ -899,7 +899,7 @@ static void AUDIO_REQ_GetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
   USBD_AUDIO_HandleTypeDef   *haudio;
   haudio = (USBD_AUDIO_HandleTypeDef*) pdev->pClassData;
 
-  USBD_memset(haudio->control.data, 0, 64);
+  memset(haudio->control.data, 0, 64);
   /* Send the current mute state */
   USBD_CtlSendData (pdev,
                     haudio->control.data,
@@ -918,7 +918,7 @@ static void AUDIO_REQ_GetMin(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
   USBD_AUDIO_HandleTypeDef   *haudio;
   haudio = (USBD_AUDIO_HandleTypeDef*) pdev->pClassData;
 
-  USBD_memset(haudio->control.data, 0, 64);
+	memset(haudio->control.data, 0, 64);
 	haudio->control.data[0] = 0x01;
 	haudio->control.data[1] = 0x80;
   /* Send the Min Volume */
@@ -939,7 +939,7 @@ static void AUDIO_REQ_GetMax(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
   USBD_AUDIO_HandleTypeDef   *haudio;
   haudio = (USBD_AUDIO_HandleTypeDef*) pdev->pClassData;
 
-  USBD_memset(haudio->control.data, 0, 64);
+	memset(haudio->control.data, 0, 64);
   /* Send the current Max Volume */
 	haudio->control.data[0] = 0x00;
 	haudio->control.data[1] = 0x06;
@@ -960,7 +960,7 @@ static void AUDIO_REQ_GetRes(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
   USBD_AUDIO_HandleTypeDef   *haudio;
   haudio = (USBD_AUDIO_HandleTypeDef*) pdev->pClassData;
 
-  USBD_memset(haudio->control.data, 0, 64);
+	memset(haudio->control.data, 0, 64);
   /* Send the current Resolution */
 	haudio->control.data[0] = 0x00;
 	haudio->control.data[1] = 0x01;

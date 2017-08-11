@@ -43,14 +43,11 @@
 
 /* USB Device Core handle declaration */
 USBD_HandleTypeDef hUsbDeviceFS;
-osPoolId USBPool_Id;
 
 /* init function */				        
 void MX_USB_DEVICE_Init(void)
 {
-  osPoolDef(USBPool, 1, USBD_AUDIO_HandleTypeDef);	
-	USBPool_Id = osPoolCreate(osPool(USBPool));
-	
+
   /* Init Device Library,Add Supported Class and Start the library*/
   USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
 
