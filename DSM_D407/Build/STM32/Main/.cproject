@@ -94,9 +94,9 @@
 									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_GCC"/>
 								</option>
@@ -292,9 +292,9 @@
 									<listOptionValue builtIn="false" value="Codecs"/>
 									<listOptionValue builtIn="false" value="USB"/>
 									<listOptionValue builtIn="false" value="SW_Framework"/>
-									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="FreeRTOS"/>
 									<listOptionValue builtIn="false" value="BSP"/>
+									<listOptionValue builtIn="false" value="HAL"/>
 									<listOptionValue builtIn="false" value="CMSIS"/>
 									<listOptionValue builtIn="false" value="PDMFilter_CM4F_GCC"/>
 								</option>
