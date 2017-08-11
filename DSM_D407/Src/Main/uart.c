@@ -114,13 +114,97 @@ EXIT_CRITICAL(lock);
 
 static float TestValue;
 
+
+uint8_t *inttoascii(uint8_t *p_buff, int val) 
+{ 
+  unsigned char d, i; 
+  unsigned char zero; 
+  int test; 
+  
+  zero = 1; 
+
+  i = 9; 
+  do{ 
+    i--;    
+    if ( i==0) 		test =10; 
+    else if ( i==1) test =100; 
+    else if ( i==2) test =1000; 
+    else if ( i==3) test =10000; 
+    else if ( i==4) test =100000; 
+    else if ( i==5) test =1000000; 
+    else if ( i==6) test =10000000; 
+    else if ( i==7) test =100000000; 
+    else if ( i==8) test =1000000000; 
+   
+    for( d = '0'; val >= test; val -= test ) 
+    { 
+      d++; 
+      zero = 0; 
+    } 
+    if( zero == 0 ) 
+      *p_buff++ = d; 
+  }while( i ); 
+
+  *p_buff++ = (unsigned char)val + '0'; 
+  return p_buff;
+}
+
+
+#define MAX_FLOAT_DIGITS  (12)
+
+static uint8_t *floattoascii(uint8_t *p_buff, float data)
+{
+	unsigned int i;
+	unsigned int int_part;					// Integer part of the number
+	float	max_fractional;
+
+	max_fractional = 1.0f;
+	for(i = 0; i < MAX_FLOAT_DIGITS; i++) max_fractional *= 0.1f;
+
+	// Check and add negative sign (if necessary)
+	if(data < 0)
+	{
+		data = -data;			// Make the number positive
+		*p_buff++ = '-';		// Output the sign
+	}
+
+	int_part = (unsigned int) data;
+	data -= int_part;
+
+	p_buff = inttoascii(p_buff, int_part);
+
+	if (data > max_fractional)
+	{
+		// Add decimal point
+		*p_buff++ = '.';
+
+		// Send the fractional part
+		for (; (data > max_fractional); i++)
+		{
+			data *= 10;
+			int_part = (unsigned int)data;
+			*p_buff++ = '0' + int_part;
+			data -= int_part;
+			max_fractional *= 10;
+		}
+	}
+	// *p_buff++ = ' ';	// Add space at the end
+	return p_buff;
+}
+
+
 void GetParam(int Param) 
 {
 	int nBytes;
 	
 ENTER_CRITICAL(lock);
-	nBytes = sprintf((char *)parser_state.p_output, "P 0 %f\n", TestValue );
-	parser_state.p_output += nBytes;
+	*parser_state.p_output++ = 'P';
+	*parser_state.p_output++ = ' ';
+	*parser_state.p_output++ = '0';
+	*parser_state.p_output++ = ' ';
+	parser_state.p_output = floattoascii(parser_state.p_output, TestValue);
+	*parser_state.p_output++ = '\n';
+	nBytes = parser_state.p_output - parser_state.p_sent;
 EXIT_CRITICAL(lock);
 	
 	HAL_UART_Transmit_DMA(&huart2, parser_state.p_sent, nBytes);
@@ -132,8 +216,11 @@ void SetParam(int Param, float Value)
 	TestValue = Value;
 	
 ENTER_CRITICAL(lock);
-	nBytes = sprintf((char *)parser_state.p_output, "P 0\n");
-	parser_state.p_output += nBytes;
+	*parser_state.p_output++ = 'P';
+	*parser_state.p_output++ = ' ';
+	*parser_state.p_output++ = '0';
+	*parser_state.p_output++ = '\n';
+	nBytes = parser_state.p_output - parser_state.p_sent;
 EXIT_CRITICAL(lock);
 	
 	HAL_UART_Transmit_DMA(&huart2, parser_state.p_sent, nBytes);
